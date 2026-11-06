@@ -85,7 +85,7 @@ bool AMCPerkVFXCompositionPlayer::StartPrepared(const FMCPreparedPerkVFXComposit
             || (!Layer.Socket.IsNone() && !Subject->DoesSocketExist(Layer.Socket))))
         {Error=FString::Printf(TEXT("Layer %s needs a valid subject/socket in this world."),*Layer.Name.ToString());return false;}
     }
-    RejectedSurfaceLayers.Reset();SurfaceAdmissionError.Reset();
+    RejectedLayerAdmissions.Reset();SurfaceAdmissionError.Reset();
     Data=Prepared;Gameplay=Values;SubjectComponent=Subject;NativeLoopAnchor=LoopAnchor;bHostDrivenLoop=bHostLoop;
     NativeFrameComponent=Values.FrameComponent;NativeFrameSocket=Values.FrameSocket;bHasNativeFrame=NativeFrameComponent.IsValid();
     if(auto* Native=NativeFrameComponent.Get()) {
@@ -100,26 +100,33 @@ bool AMCPerkVFXCompositionPlayer::StartPrepared(const FMCPreparedPerkVFXComposit
     if(LoopAnchor) AddTickPrerequisiteComponent(LoopAnchor);
     Components.SetNum(Data.Systems.Num());Started.Init(false,Components.Num());Stopped.Init(false,Components.Num());
     NativeInputStates.SetNum(Components.Num());PlaybackError.Reset();
-    ContextLayers.Init(false,Components.Num());bool NeedsContext=false;
+    ContextLayers.Init(false,Components.Num());bool NeedsContext=false,RequiresContext=false;
     for(int32 I=0;I<Components.Num();++I)if(Data.Snapshot->Layers[I].bEnabled) {
         ContextLayers[I]=UMCNiagaraMaterialContextResources::NeedsMaterialContext(Data.Systems[I]);
         NeedsContext|=ContextLayers[I];
+        RequiresContext|=ContextLayers[I]&&!UMCNiagaraMaterialContextResources::IsArenaToothPearlCoat(Data.Systems[I]);
     }
     Age=InitialElapsedSeconds;bSeekToServerAge=InitialElapsedSeconds>1.f/60.f;
     if(NeedsContext) {
         const auto* Loading=GetWorld()?GetWorld()->GetSubsystem<UMCWorldPreloadSubsystem>():nullptr;
         auto* Resources=Loading?Loading->GetMaterialContextResources():nullptr;
-        if(!Resources || !Resources->IsReadyForPlayback(GetWorld())) {
+        const bool ContextReady=Resources&&Resources->IsReadyForPlayback(GetWorld());
+        if(!ContextReady&&RequiresContext) {
             Error=TEXT("Material-context resources must cross this world's readiness barrier before playback.");return false;
         }
-        MaterialContextResources=Resources;
+        if(ContextReady)MaterialContextResources=Resources;
         // Reserve every participating layer, including delayed layers, before
         // the first Activate. A failed candidate cannot hide native artwork.
         for(int32 I=0;I<Components.Num();++I) {
             const auto& L=Data.Snapshot->Layers[I];
+            if(ContextLayers[I]&&!ContextReady) {
+                Started[I]=Stopped[I]=true;
+                UE_LOG(LogMCPerkComposition,Warning,TEXT("Pearl Coat layer %s skipped: world material context is not ready. Independent layers continue."),*L.Name.ToString());
+                continue;
+            }
             if(L.bEnabled && (L.EmissionSeconds<=0 || Age<L.StartSeconds+L.EmissionSeconds)
                 && !CreateLayerInactive(I)) {
-                if(RejectedSurfaceLayers.Contains(I)){Started[I]=Stopped[I]=true;continue;}
+                if(RejectedLayerAdmissions.Contains(I)){Started[I]=Stopped[I]=true;continue;}
                 Error=PlaybackError;StopEmission(true);return false;
             }
         }
@@ -137,7 +144,7 @@ void AMCPerkVFXCompositionPlayer::StartLayer(int32 Index)
     if(Layer.Binding==EMCVFXCompositionBinding::Subject && (!Subject || (!Layer.Socket.IsNone() && !Subject->DoesSocketExist(Layer.Socket))))
     {Stopped[Index]=true;ReleaseLayer(Index);UE_LOG(LogMCPerkComposition,Warning,TEXT("Canceled VFX layer %s: subject/socket disappeared before delayed start."),*Layer.Name.ToString());return;}
     if(!CreateLayerInactive(Index)) {
-        if(RejectedSurfaceLayers.Contains(Index)){Stopped[Index]=true;return;}
+        if(RejectedLayerAdmissions.Contains(Index)){Stopped[Index]=true;return;}
         StopEmission(true);return;
     }
     auto* C=Components[Index].Get();
@@ -164,7 +171,7 @@ bool AMCPerkVFXCompositionPlayer::CreateLayerInactive(int32 Index)
         C=Resources?Resources->Acquire(Data.Systems[Index],Native,UMCNiagaraProceduralSurfaceResources::SourceFor(Data.Systems[Index]),Gameplay.EpisodeID,SurfaceError):nullptr;
         if(!C) {
             if(SurfaceError.IsEmpty())SurfaceError=TEXT("This original surface was not prepared before the world barrier.");
-            SurfaceAdmissionError=SurfaceError;RejectedSurfaceLayers.Add(Index);
+            SurfaceAdmissionError=SurfaceError;RejectedLayerAdmissions.Add(Index);
             UE_LOG(LogMCPerkComposition,Warning,TEXT("Original surface layer %s rejected: %s. Independent ordinary rows remain; native draw is the compatibility fallback."),
                 *Layer.Name.ToString(),*SurfaceError);
             return false;
@@ -190,7 +197,15 @@ bool AMCPerkVFXCompositionPlayer::CreateLayerInactive(int32 Index)
     if(!ApplyValues(Index)) {ReleaseLayer(Index);return false;}
     if(ContextLayers[Index]) {
         auto* Resources=MaterialContextResources.Get();
-        if(!Resources || !Resources->ReserveActivation(C,PlaybackError)) {ReleaseLayer(Index);return false;}
+        FString ContextError;
+        if(!Resources || !Resources->ReserveActivation(C,ContextError)) {
+            ReleaseLayer(Index);
+            if(UMCNiagaraMaterialContextResources::IsArenaToothPearlCoat(Data.Systems[Index])) {
+                RejectedLayerAdmissions.Add(Index);
+                UE_LOG(LogMCPerkComposition,Warning,TEXT("Pearl Coat layer %s skipped: %s. Independent layers continue."),*Layer.Name.ToString(),*ContextError);
+            } else PlaybackError=MoveTemp(ContextError);
+            return false;
+        }
     }
     return true;
 }

@@ -76,10 +76,10 @@ struct FRegisterSourceHooks
             TEXT("MCMouthLiquid.cpp: ApplyLiquidCleaning → MCResultPassives.cpp: CompleteCleaning. Родная маска FMCCoffeeWipe; NS_BrushFoam показывает контакт щётки, а не подтверждённое завершение пятна."));
         Add(TEXT("EditorOnly.CleanArenaTooth"),TEXT("Уход · очистка большого зуба"),TEXT("ToothCare"),
             TEXT("AMCArenaTooth / UMCToothCareFeedbackComponent"),
-            TEXT("MCArenaToothGrime.cpp: BrushGrime → ReportAccepted(Cleaning). Процедурное представление с /Game/Gameplay/Care/M_ToothCarePearl; самостоятельная Niagara-фаза ещё не подключена."));
+            TEXT("MCArenaToothGrime.cpp: BrushGrime → ReportAccepted(Cleaning). Contact подтверждает удаление загрязнения, Complete — завершение очистки коронки."));
         Add(TEXT("EditorOnly.RepairArenaTooth"),TEXT("Уход · восстановление большого зуба"),TEXT("ToothCare"),
             TEXT("UMCToothStatusComponent / UMCToothCareFeedbackComponent"),
-            TEXT("MCToothStatusComponent.cpp: CareContact → ReportAccepted(Repair) после реального восстановления HP. Текущее представление процедурное, материал M_ToothCarePearl."));
+            TEXT("MCToothStatusComponent.cpp: RepairWithTool → ReportAccepted(Repair). Contact подтверждает прирост HP, Complete отмечает восстановление коронки из сломанного состояния или достижение полного HP."));
         Add(TEXT("EditorOnly.NutEnemyDeath"),TEXT("Смерть · обычный орех"),TEXT("Enemies"),
             TEXT("AMCNutEnemy / UMCVFXPresentationComponent"),
             TEXT("Настоящий fatal damage → Defeat → Death и отдельный DeathDust на исходном первом такте FoodBreak. Death принимает исходный процедурный рисунок через общий Reaction-контекст; DeathDust сохраняет родной Niagara-всплеск и его масштаб. Профиль — DA_MouthPresentation; физическое уменьшение и удаление ореха остаются родными. Назначение сохранённых NS и визуальная приёмка проверяются отдельно; это не смерть босса."));

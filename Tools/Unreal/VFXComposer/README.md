@@ -1,5 +1,19 @@
 # VFX Composer: направленная проверка
 
+## Работа через Unreal MCP
+
+`MessControlEditor.MCVFXComposerToolset` управляет тем же окном Composer и теми же сценариями, которые доступны в редакторе.
+
+1. `GetCatalogue` находит точное действие и показывает доступные сценарии. `SelectAction` возвращает идентификатор черновика и его ревизию.
+2. `AddSystemToGroup` добавляет отдельный Niagara-слой в выбранное событие. Передайте точный action ID, идентификатор черновика и последнюю ревизию. Пустой `groupId` добавляет слой без группы.
+3. `PlayScenario` запускает один реальный сценарий в изолированном мире. `GetPreview` возвращает его события и живые Niagara-компоненты. `StopPreview` требует токен именно этого запуска.
+4. `GetVisualReadiness` читает готовность выбранного мира и наличие точных ресурсов по полным путям объектов. Проверка резидентности относится к текущему миру редактора.
+5. `ApplyDraftToGame` явно применяет рабочий черновик. Передайте идентификатор действия, токен и актуальную ревизию вместе с `bConfirmApply=true`.
+
+`MessControlEditor.MCNiagaraInputToolset` дополняет штатный Niagara MCP. `SetNiagaraComponentFloatBinding` связывает атрибут частицы CPU-эмиттера с редактируемым свойством компонентного рендерера. `RequestOwnedNiagaraCompile` ставит конкретную систему на компиляцию. `GetOwnedNiagaraCompileState` читает результат, а `SaveOwnedNiagaraSystem` сохраняет прошедший проверку пакет. Эти операции сверяют метку владения пакета.
+
+`MessControlEditor.MCVFXMaterialToolset` читает и настраивает входы конкретного Custom HLSL-узла. `SetOwnedCustomMaterialInputs` сохраняет провода по имени входа. Скомпилируйте материал штатным `MaterialTools.recompile` перед сохранением.
+
 Актуализация 2026-10-31: `check_composer.py` и `save_action_templates.py` ниже сохраняют исторический ingredient API. После объединения окон этот API не является проверенным сценарием нового action/event workspace. Не используйте их результат как подтверждение текущего интерфейса. Актуальные проверки общего окна, независимых слоёв и native adapters описаны в `Docs/Validation/ComposerActionWorkspace_20261031.md` и `Docs/Validation/ComposerAdapters_20261031.md`; миграция всех владельцев — в `Docs/VFXComposerMigrationInventory_20261031.md`.
 
 Рецепт `check_composer.py` подготовлен для собранного UE 5.8.1 Editor. Сам скрипт не собирает проект, не запускает PIE и не открывает Composer автоматически. Результаты его выполнения и визуальная приёмка — разные проверки.

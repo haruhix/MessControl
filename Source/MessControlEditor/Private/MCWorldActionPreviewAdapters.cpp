@@ -16,6 +16,7 @@
 #include "NiagaraSystem.h"
 
 #include "MCPerkPreviewAdapter.h"
+#include "MCPerkPreviewGameMode.h"
 #include "MCVFXActionCatalog.h"
 #include "MCVFXProfileBinding.h"
 #include "MCVFXPresentationComponent.h"
@@ -26,6 +27,7 @@
 #include "MCBrushContactComponent.h"
 #include "MCToothCareFeedbackComponent.h"
 #include "MCToothStatusComponent.h"
+#include "MCWorldPreloadSubsystem.h"
 #include "MCArenaTooth.h"
 #include "MCFoodActor.h"
 #include "MCDayPlan.h"
@@ -36,6 +38,7 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "UObject/Package.h"
 
 namespace
 {
@@ -157,6 +160,22 @@ private:
     bool bAccepted=false,bReleased=false,bDone=false;
 };
 
+AMCArenaTooth* PrepareCareCrown(FMCPerkPreviewContext& C,int32 Id,UStaticMesh* Mesh,FString& Error)
+{
+    if(!Mesh){Error=TEXT("Исходная коронка зуба не загружена.");return nullptr;}
+    const FTransform Pose(C.Hero->GetActorQuat(),C.Hero->GetActorLocation()+C.Hero->GetActorForwardVector()*145.f);
+    auto* Crown=C.World->SpawnActorDeferred<AMCArenaTooth>(AMCArenaTooth::StaticClass(),Pose,nullptr,nullptr,
+        ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+    if(!Crown){Error=TEXT("Не удалось создать изолированную настоящую коронку.");return nullptr;}
+    C.Targets.Add(Crown);
+    FMCArenaToothSettings Settings;Settings.InitialCalculusEveryNthTooth=0;Settings.bPianoEnabled=false;
+    Crown->Initialize(Id,Settings);
+    // A small crown stays within native tool reach without changing tool tuning.
+    const float Scale=100.f/FMath::Max(1.f,float(Mesh->GetBounds().BoxExtent.GetMax())*2.f);
+    Crown->SetAppearance(Mesh,FVector(Scale));Crown->FinishSpawning(Pose);
+    return Crown;
+}
+
 /** A disposable real crown is coated before the barrier. Only ordinary brush
  * input may remove that coating and produce accepted care feedback. */
 class FBrushCrownContactAdapter final : public IMCPerkPreviewAdapter
@@ -170,19 +189,9 @@ public:
         ID=bCare?TEXT("EditorOnly.CleanArenaTooth"):TEXT("Tool.Brush");
         C.Hero->SetPrimaryInputHeld(false);C.Hero->Inventory->ServerSelect(EMCToolSlot::Brush);
         if(C.Hero->Inventory->Selected!=EMCToolSlot::Brush){Error=TEXT("Штатный выбор щётки отклонён.");return false;}
-        auto* Mesh=GetDefault<AMCArenaTooth>()->Visual->GetStaticMesh().Get();
-        if(!Mesh){Error=TEXT("Исходная коронка зуба не загружена.");return false;}
-        const FTransform Pose(C.Hero->GetActorQuat(),C.Hero->GetActorLocation()+C.Hero->GetActorForwardVector()*145.f);
-        auto* Crown=C.World->SpawnActorDeferred<AMCArenaTooth>(AMCArenaTooth::StaticClass(),Pose,nullptr,nullptr,
-            ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-        if(!Crown){Error=TEXT("Не удалось создать изолированную настоящую коронку.");return false;}
-        Tooth=Crown;C.Targets.Add(Crown);
-        FMCArenaToothSettings Settings;Settings.InitialCalculusEveryNthTooth=0;Settings.bPianoEnabled=false;
-        Crown->Initialize(500003,Settings);
-        // A small real crown keeps the complete surface within ordinary hand
-        // reach. This changes only the disposable scenario, never tool radii.
-        const float Scale=100.f/FMath::Max(1.f,float(Mesh->GetBounds().BoxExtent.GetMax())*2.f);
-        Crown->SetAppearance(Mesh,FVector(Scale));Crown->FinishSpawning(Pose);
+        auto* Crown=PrepareCareCrown(C,500003,GetDefault<AMCArenaTooth>()->Visual->GetStaticMesh().Get(),Error);
+        if(!Crown)return false;
+        Tooth=Crown;
         Crown->SetCoffee(0.f);
         FHitResult Contact;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCComposerBrushFixture),true,C.Hero);
         const FVector From=C.Hero->GetActorLocation()+FVector(0,0,25);
@@ -253,6 +262,126 @@ private:
     int32 WorkBefore=0,CompleteBefore=0;float Age=0,ContactAge=0;
     bool bCare=false,bContact=false,bCompletion=false,bDone=false;
 };
+
+class FRepairCrownContactAdapter final : public IMCPerkPreviewAdapter
+{
+public:
+    bool Prepare(FMCPerkPreviewContext& C,FString& Error) override
+    {
+        if(!C.World||C.World->WorldType!=EWorldType::Game||C.World->GetOutermost()!=GetTransientPackage()
+            ||!C.World->GetAuthGameMode<AMCPerkPreviewGameMode>()||!IsValid(C.Hero)||C.Hero->GetWorld()!=C.World
+            ||!C.Hero->HasAuthority()||!C.Hero->CanWork()||!C.Hero->Inventory)
+        {Error=TEXT("Нужны настоящий персонаж со спреем и изолированный мир Composer.");return false;}
+        auto* Inventory=C.Hero->Inventory.Get();
+        PreviousSlot=Inventory->Selected;PreviousPressure=Inventory->bPressureMode;bSelectedTool=true;
+        C.Hero->SetPrimaryInputHeld(false);
+        if(Inventory->Selected!=EMCToolSlot::Spray)Inventory->ServerSelect(EMCToolSlot::Spray);
+        if(Inventory->HasUpgrade(EMCToolUpgrade::Watergun)&&Inventory->bPressureMode)
+            Inventory->ServerSelect(EMCToolSlot::Spray);
+        if(Inventory->Selected!=EMCToolSlot::Spray||(Inventory->HasUpgrade(EMCToolUpgrade::Watergun)&&Inventory->bPressureMode))
+        {Error=TEXT("Штатный режим спрея для ухода отклонён.");return false;}
+
+        const auto* Damage=GetDefault<AMCArenaTooth>()->DamageProfile.LoadSynchronous();
+        const auto* Variant=Damage?Damage->Teeth.FindByPredicate([](const FMCToothDamageMeshes& Row) {
+            return Row.Intact&&Row.Chipped&&Row.Intact->GetPathName().StartsWith(TEXT("/Game/Gameplay/Arena/V10/"));
+        }):nullptr;
+        if(!Variant){Error=TEXT("Нет сохранённой пары целой и повреждённой коронки арены.");return false;}
+        IntactMesh=Variant->Intact.Get();ChippedMesh=Variant->Chipped.Get();
+        auto* Crown=PrepareCareCrown(C,500004,IntactMesh.Get(),Error);
+        if(!Crown)return false;
+        Tooth=Crown;
+        // Chipped starts above the regrowth milestone. Complete witnesses full HP.
+        FMCToothStatus Initial=Crown->Status->State;
+        Initial.Health=Initial.MaxHealth*.6f;
+        Initial.RepairLeft=FMath::CeilToInt(Crown->Status->Settings.RepairContacts*.4f);
+        Crown->Status->Restore(Initial);
+        InitialHealth=Crown->Status->State.Health;
+        if(!Crown->Status->NeedsCare(false)) {Error=TEXT("Коронка не требует восстановления.");return false;}
+        Presentation=MCWorldPresentation::PrepareOwner(Crown,{ID});
+        if(!Presentation.IsValid()){Error=TEXT("Источнику восстановления не назначен Composer.");return false;}
+        const auto& State=Crown->CareFeedback->GetAcceptedPresentationState();
+        WorkBefore=State.WorkSerial;CompleteBefore=State.CompletionSerial;
+        if(C.RequestFramingUpdate)C.RequestFramingUpdate();
+        if(C.ReportStatus)C.ReportStatus(TEXT("Настоящий спрей: удержание → контакт с повреждённой коронкой → восстановление HP."));
+        return true;
+    }
+    bool PreparePresentation(FMCPerkPreviewContext& C,FString& Error) override
+    {
+        auto* Owner=Presentation.Get();const auto* Contract=MCVFXSourceContracts::Find(ID);
+        if(!Owner||!Contract||!Owner->PrepareSources(Error,true))return false;
+        auto* Source=Owner->GetSource(ID);
+        if(!Source){Error=TEXT("Настоящий источник восстановления не подготовлен.");return false;}
+        return !C.PresentationOverride||Source->PrepareScopedOverride(ID,Contract->Events,C.PresentationOverride,Error);
+    }
+    bool PrepareResidentPresentation(FMCPerkPreviewContext& C,FGuid,bool& bWaiting,FString& Error) override
+    {
+        auto* Loading=C.World?C.World->GetSubsystem<UMCWorldPreloadSubsystem>():nullptr;
+        if(!Loading||!IntactMesh.IsValid()||!ChippedMesh.IsValid()) {
+            Error=TEXT("Нет подготовленных моделей восстановления коронки.");return false;
+        }
+        const TArray<UObject*> Resources={IntactMesh.Get(),ChippedMesh.Get()};
+        bWaiting=!Loading->PrepareResidentVisualResources(Resources,Error);
+        return true;
+    }
+    void GetPreparedVisualSystems(const FMCPerkPreviewContext& C,TArray<UNiagaraSystem*>& Out) const override
+    {
+        if(const auto* Owner=Presentation.Get())if(const auto* Source=Owner->GetSource(ID))Source->GetPreparedResources(Out);
+        if(IsValid(C.Hero)&&C.Hero->Inventory) {
+            const auto* Inventory=C.Hero->Inventory.Get();
+            const auto& System=Inventory->HasUpgrade(EMCToolUpgrade::Watergun)?Inventory->OriginalWaterCareSystem:Inventory->OriginalSpraySystem;
+            if(auto* NS=System.Get())Out.AddUnique(NS);
+        }
+    }
+    void OnCommitted(FMCPerkPreviewContext& C) override {if(IsValid(C.Hero))C.Hero->SetPrimaryInputHeld(true);}
+    void Tick(FMCPerkPreviewContext& C,float Dt) override
+    {
+        Age+=Dt;
+        const auto* Crown=Tooth.Get();
+        if(!IsValid(C.Hero)||!IsValid(Crown)){Release(C);bDone=true;return;}
+        const auto& State=Crown->CareFeedback->GetAcceptedPresentationState();
+        if(!bContact&&State.WorkSerial>WorkBefore&&State.Kind==EMCToothCareFeedbackKind::Repair
+            &&Crown->Status->State.Health>InitialHealth) {
+            bContact=true;
+            if(C.RecordEvent)C.RecordEvent(TEXT("Contact"));
+        }
+        if(bContact&&State.CompletionSerial>CompleteBefore&&State.CompletionKind==EMCToothCareFeedbackKind::Repair
+            &&!Crown->Status->NeedsCare(false)) {
+            if(C.RecordEvent)C.RecordEvent(TEXT("Complete"));
+            Release(C);bDone=true;
+        } else if(Age>=8.f) {
+            if(C.RecordEvent)C.RecordEvent(TEXT("NativeRepairScenarioTimedOut"));
+            Release(C);bDone=true;
+        }
+    }
+    void Release(FMCPerkPreviewContext& C) override {if(IsValid(C.Hero))C.Hero->SetPrimaryInputHeld(false);}
+    void Cancel(FMCPerkPreviewContext& C) override
+    {
+        Release(C);
+        if(auto* Owner=Presentation.Get())Owner->StopStates(ID);
+        if(bSelectedTool&&IsValid(C.Hero)&&C.Hero->Inventory) {
+            auto* Inventory=C.Hero->Inventory.Get();Inventory->ResetSprayPresentationForPreview();
+            if(Inventory->Selected==EMCToolSlot::Spray&&Inventory->HasUpgrade(EMCToolUpgrade::Watergun)
+                &&Inventory->bPressureMode!=PreviousPressure)Inventory->ServerSelect(EMCToolSlot::Spray);
+            if(Inventory->Selected!=PreviousSlot)Inventory->ServerSelect(PreviousSlot);
+        }
+        bSelectedTool=false;bDone=true;
+    }
+    void Reset(FMCPerkPreviewContext& C) override
+    {Cancel(C);if(auto* Crown=Tooth.Get())Crown->Destroy();Tooth.Reset();Presentation.Reset();IntactMesh.Reset();ChippedMesh.Reset();}
+    bool IsComplete(const FMCPerkPreviewContext&) const override{return bDone;}
+    FString GetPhaseName(const FMCPerkPreviewContext&) const override
+    {return bContact?TEXT("Восстановление HP коронки"):TEXT("Ожидание контакта спрея");}
+    float GetTailSeconds() const override{return 1.2f;}
+private:
+    const FName ID=TEXT("EditorOnly.RepairArenaTooth");
+    TWeakObjectPtr<AMCArenaTooth> Tooth;
+    TWeakObjectPtr<UMCWorldPresentationComponent> Presentation;
+    TWeakObjectPtr<UStaticMesh> IntactMesh,ChippedMesh;
+    EMCToolSlot PreviousSlot=EMCToolSlot::Brush;
+    bool PreviousPressure=false,bSelectedTool=false,bContact=false,bDone=false;
+    int32 WorkBefore=0,CompleteBefore=0;
+    float Age=0,InitialHealth=0;
+};
 }
 
 void MCWorldActionPreviewAdapters::Register()
@@ -307,8 +436,12 @@ void MCWorldActionPreviewAdapters::Register()
             }
             Out.Add(Resource);return Out;
         };
-        if(!Repair) {
-            Entry.Scenarios={EMCPerkPreviewScenario::Target};Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Target,FText::FromString(TEXT("Щётка · реальная загрязнённая коронка")));
+        Entry.Scenarios={EMCPerkPreviewScenario::Target};
+        if(Repair) {
+            Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Target,FText::FromString(TEXT("Спрей · восстановление повреждённой коронки")));
+            Entry.Create=[]()->TUniquePtr<IMCPerkPreviewAdapter>{return MakeUnique<FRepairCrownContactAdapter>();};
+        } else {
+            Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Target,FText::FromString(TEXT("Щётка · реальная загрязнённая коронка")));
             Entry.Create=[Brush]()->TUniquePtr<IMCPerkPreviewAdapter>{return MakeUnique<FBrushCrownContactAdapter>(!Brush);};
         }
         MCPerkPreviewAdapters::Register(MoveTemp(Entry));

@@ -8,6 +8,7 @@
 #include "MCWorldPreloadSubsystem.generated.h"
 
 class APlayerController;
+class AMCArenaTooth;
 class AMCToothCharacter;
 class AMCIceEvent;
 class AMCIceEventVFX;
@@ -15,6 +16,8 @@ class FRenderCommandFence;
 struct FStreamableHandle;
 class UMaterialInterface;
 class UPrimitiveComponent;
+class UStaticMesh;
+class UStaticMeshComponent;
 class UStreamableRenderAsset;
 class UMCEventSFXReadiness;
 class USoundBase;
@@ -201,7 +204,11 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMCNiagaraMaterialContextResources> MaterialContexts;
     UPROPERTY(Transient) TObjectPtr<UMCNiagaraProceduralSurfaceResources> ProceduralSurfaceResources;
     bool PrepareMaterialContextSourcesInternal(const TArray<UNiagaraSystem*>& Sources,int32 Capacity,FGuid Epoch,FString& Error);
+    bool PrepareArenaToothMaterialContext(AMCArenaTooth* Tooth,FString& Error);
+    void ReleaseArenaToothMaterialContextProbes();
     UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraSystem>> MaterialContextSources;
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> ArenaToothMaterialContextProbes;
+    TMap<TWeakObjectPtr<AMCArenaTooth>,TWeakObjectPtr<UStaticMesh>> PreparedArenaToothContextMeshes;
     TArray<TWeakObjectPtr<UMeshComponent>> MaterialContextTargets,MaterialContextQueuedTargets;
     TArray<TWeakObjectPtr<UObject>> MaterialContextAddedAssets;
     TArray<FMaterialPSOPrecacheRequestID> MaterialContextPSORequests;

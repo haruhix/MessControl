@@ -223,6 +223,41 @@ EMCArenaToothDamageStage AMCArenaTooth::DamageStage() const
     if (Fraction>=1.f-KINDA_SMALL_NUMBER) return EMCArenaToothDamageStage::Intact;
     return Fraction>.4f?EMCArenaToothDamageStage::Chipped:EMCArenaToothDamageStage::Broken;
 }
+void AMCArenaTooth::GetEnamelMaterialContextVariants(TArray<UStaticMesh*>& Out) const
+{
+    if(!Appearance.Mesh || !LoadedDamageProfile)return;
+    Out.AddUnique(Appearance.Mesh.Get());
+    if(const auto* Variant=LoadedDamageProfile->Teeth.FindByPredicate([this](const FMCToothDamageMeshes& Row){return Row.Intact==Appearance.Mesh;})) {
+        if(Variant->Chipped)Out.AddUnique(Variant->Chipped.Get());
+        if(Variant->Broken)Out.AddUnique(Variant->Broken.Get());
+    }
+}
+UStaticMeshComponent* AMCArenaTooth::CreateEnamelMaterialContextProbe(UObject* Outer,UStaticMesh* Mesh) const
+{
+    if(!IsValid(Visual)||!IsValid(Mesh))return nullptr;
+    // Duplicate the actual factory settings without owning, attaching or changing a gameplay primitive.
+    // Transient attachment bookkeeping must come from the component class default.
+    auto* Probe=NewObject<UStaticMeshComponent>(Outer,NAME_None,RF_Transient,Visual,true);
+    Probe->SetupAttachment(nullptr);
+    Probe->SetWorldTransform(Visual->GetComponentTransform());
+    Probe->SetVisibility(false);
+    Probe->SetHiddenInGame(true);
+    Probe->SetGenerateOverlapEvents(false);
+    Probe->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Probe->SetCanEverAffectNavigation(false);
+    Probe->SetStaticMesh(Mesh);
+    if(Probe->GetStaticMesh()!=Mesh){Probe->DestroyComponent();return nullptr;}
+    ApplyDamageStageEnamel(*Probe);
+    return Probe;
+}
+void AMCArenaTooth::ApplyDamageStageEnamel(UStaticMeshComponent& Target) const
+{
+    const auto* Mesh=Target.GetStaticMesh().Get();
+    Target.EmptyOverrideMaterials();
+    for(int32 I=0;I<Mesh->GetStaticMaterials().Num();++I)
+        if(Mesh->GetStaticMaterials()[I].MaterialSlotName==TEXT("MC_Damage_Enamel") || Mesh==Appearance.Mesh)
+            Target.SetMaterial(I,Material);
+}
 void AMCArenaTooth::UpdateDamageVisual()
 {
     if (!Appearance.Mesh || !LoadedDamageProfile) return;
@@ -236,11 +271,9 @@ void AMCArenaTooth::UpdateDamageVisual()
             }
     if (!Mesh || Visual->GetStaticMesh()==Mesh) return;
     // All variants share the original pivot. Keep the support body and wipe UV volume stable.
-    Visual->SetStaticMesh(Mesh); Visual->EmptyOverrideMaterials();
+    Visual->SetStaticMesh(Mesh);
     BrushSurface->SetStaticMesh(Mesh);
-    for (int32 I=0;I<Mesh->GetStaticMaterials().Num();++I)
-        if (Mesh->GetStaticMaterials()[I].MaterialSlotName==TEXT("MC_Damage_Enamel") || Mesh==Appearance.Mesh)
-            Visual->SetMaterial(I,Material);
+    ApplyDamageStageEnamel(*Visual);
     GrimeRelief->ClearAllMeshSections(); GrimeSamples.Reset(); BrushHistory.Reset(); SelectedSample=INDEX_NONE;
     bGrimeReliefBuilt=false;
     if (Calculus) Calculus->RebuildForSurface();

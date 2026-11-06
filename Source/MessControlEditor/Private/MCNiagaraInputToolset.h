@@ -18,6 +18,11 @@ public:
     static FString SetNiagaraStackInputBatch(UNiagaraSystem* System,const FString& OperationsJson,
         FName OwnerMetadataKey,const FString& ExpectedOwnerValue);
 
+    /** Bind a compiled CPU particle float to a Component Renderer template float's explicit BlueprintSetter. */
+    UFUNCTION(meta=(AICallable))
+    static FString SetNiagaraComponentFloatBinding(UNiagaraSystem* System,FName EmitterName,int32 RendererIndex,
+        FName PropertyName,FName ParticleAttribute,FName OwnerMetadataKey,const FString& ExpectedOwnerValue);
+
     /** One generated owned NS, one data-only edit context for the entire ordered spec.
      * Synchronous local no-capture scope preserves previous Undo; this generated edit is
      * intentionally not undoable. Rejects artist-open/history-referenced targets.
@@ -38,5 +43,15 @@ public:
      * Poll this while compilation is pending. This does not certify stack diagnostics. */
     UFUNCTION(meta=(AICallable))
     static FString GetOwnedNiagaraCompileState(UNiagaraSystem* System,
+        FName OwnerMetadataKey,const FString& ExpectedOwnerValue);
+
+    /** Queue the ordinary compiler for this exact owned system. Poll GetOwnedNiagaraCompileState afterward. */
+    UFUNCTION(meta=(AICallable))
+    static FString RequestOwnedNiagaraCompile(UNiagaraSystem* System,
+        FName OwnerMetadataKey,const FString& ExpectedOwnerValue);
+
+    /** Save just this owned package after all system and emitter scripts have compiled without warnings. */
+    UFUNCTION(meta=(AICallable))
+    static FString SaveOwnedNiagaraSystem(UNiagaraSystem* System,
         FName OwnerMetadataKey,const FString& ExpectedOwnerValue);
 };

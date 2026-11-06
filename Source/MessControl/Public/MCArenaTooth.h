@@ -117,6 +117,8 @@ public:
     void Initialize(int32 Id,const FMCArenaToothSettings& Defaults);
     // Call before FinishSpawning. The actor root is the mesh bounds centre, independent of its asset pivot.
     void SetAppearance(UStaticMesh* Mesh,FVector Scale,UMaterialInterface* GameplayMaterial=nullptr);
+    void GetEnamelMaterialContextVariants(TArray<UStaticMesh*>& Out) const;
+    UStaticMeshComponent* CreateEnamelMaterialContextProbe(UObject* Outer,UStaticMesh* Mesh) const;
     void StatusChanged();
     void ResetGrime();
     bool DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet,bool bRewardEligible=true);
@@ -169,6 +171,7 @@ private:
     UFUNCTION() void OnBodyHit(UPrimitiveComponent* Component,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
     UPROPERTY() TObjectPtr<UMCToothDamageProfile> LoadedDamageProfile;
+    void ApplyDamageStageEnamel(UStaticMeshComponent& Target) const;
     void UpdateDamageVisual();
     UFUNCTION() void OnRep_Grime();
     void UpdateGrime(float Dt);

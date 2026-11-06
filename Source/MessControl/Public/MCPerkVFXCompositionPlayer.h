@@ -148,7 +148,7 @@ private:
     UPROPERTY(Transient) TWeakObjectPtr<UMCNiagaraProceduralSurfaceResources> ProceduralSurfaceResources;
     FString PlaybackError;
     FString SurfaceAdmissionError;
-    TSet<int32> RejectedSurfaceLayers;
+    TSet<int32> RejectedLayerAdmissions;
     FMCPerkVFXGameplayValues Gameplay;
     FTransform LastAnchor=FTransform::Identity;
     float Age=0,StopAge=0;

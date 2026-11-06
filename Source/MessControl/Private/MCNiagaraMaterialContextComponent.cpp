@@ -117,6 +117,17 @@ struct FMCNiagaraMaterialContextState
         uint64 Flags=0;
         bool bNegativeScale=false;
         int32 ForcedLOD=0;
+        explicit FFactory(UMeshComponent* Mesh)
+            : Geometry(MCNiagaraMaterialContext::Geometry(Mesh)), Class(Mesh->GetClass()),
+            Materials(MCNiagaraMaterialContext::MaterialSignature(Mesh)), Flags(MCNiagaraMaterialContext::FactoryFlags(Mesh)),
+            bNegativeScale(Mesh->GetRenderMatrix().Determinant()<0),
+            ForcedLOD(Cast<UStaticMeshComponent>(Mesh)?CastChecked<UStaticMeshComponent>(Mesh)->GetForcedLodModel():CastChecked<USkeletalMeshComponent>(Mesh)->GetForcedLOD())
+        {}
+        bool operator==(const FFactory& Other) const
+        {
+            return Geometry==Other.Geometry && Class==Other.Class && Materials==Other.Materials
+                && Flags==Other.Flags && bNegativeScale==Other.bNegativeScale && ForcedLOD==Other.ForcedLOD;
+        }
     };
     struct FReservation { int32 Pool = INDEX_NONE, Slot = INDEX_NONE; };
     struct FActivation
@@ -171,6 +182,10 @@ bool UMCNiagaraMaterialContextResources::NeedsMaterialContext(const UNiagaraSyst
                 if (Cast<UMCNiagaraMaterialContextComponent>(P->TemplateComponent)) return true;
     return false;
 }
+bool UMCNiagaraMaterialContextResources::IsArenaToothPearlCoat(const UNiagaraSystem* System)
+{
+    return IsValid(System) && System->GetPathName()==TEXT("/Game/Gameplay/VFX/ToolsCareEditable/NS_Care_PearlCoat.NS_Care_PearlCoat");
+}
 
 bool UMCNiagaraMaterialContextResources::IsPreparedForEpoch(FGuid Epoch) const
 { return bSealed && IsCurrentScope() && Epoch.IsValid() && PreparedEpoch == Epoch; }
@@ -215,11 +230,13 @@ bool UMCNiagaraMaterialContextResources::IsTargetPrepared(UMeshComponent* Mesh) 
 {
     using namespace MCNiagaraMaterialContext;
     FString Error;if(!SameWorld(Mesh,GetWorld())||!ValidateTargetFactory(Mesh,Error))return false;
-    const auto Materials=MaterialSignature(Mesh);const uint64 Flags=FactoryFlags(Mesh);
-    const bool Negative=Mesh->GetRenderMatrix().Determinant()<0;
-    const int32 LOD=Cast<UStaticMeshComponent>(Mesh)?CastChecked<UStaticMeshComponent>(Mesh)->GetForcedLodModel():CastChecked<USkeletalMeshComponent>(Mesh)->GetForcedLOD();
-    return State->Factories.ContainsByPredicate([&](const auto& F){return F.Geometry.Get()==Geometry(Mesh) && F.Class==Mesh->GetClass()
-        &&F.Materials==Materials&&F.Flags==Flags&&F.bNegativeScale==Negative&&F.ForcedLOD==LOD;});
+    return State->Factories.Contains(FMCNiagaraMaterialContextState::FFactory(Mesh));
+}
+bool UMCNiagaraMaterialContextResources::HasSameTargetFactory(UMeshComponent* First,UMeshComponent* Second)
+{
+    FString Error;
+    return ValidateTargetFactory(First,Error) && ValidateTargetFactory(Second,Error)
+        && FMCNiagaraMaterialContextState::FFactory(First)==FMCNiagaraMaterialContextState::FFactory(Second);
 }
 bool UMCNiagaraMaterialContextResources::RegisterPreparedTarget(UMeshComponent* Mesh,FString& Error)
 {
@@ -228,9 +245,7 @@ bool UMCNiagaraMaterialContextResources::RegisterPreparedTarget(UMeshComponent* 
     if(IsTargetPrepared(Mesh))return true;
     if(bSealed||HasActiveActivations()||State->Factories.Num()>=128)
     {Error=TEXT("New mesh factory requires an explicit preparation boundary (maximum128 scoped signatures).");return false;}
-    auto& F=State->Factories.AddDefaulted_GetRef();F.Geometry=Geometry(Mesh);F.Class=Mesh->GetClass();F.Materials=MaterialSignature(Mesh);
-    F.Flags=FactoryFlags(Mesh);F.bNegativeScale=Mesh->GetRenderMatrix().Determinant()<0;
-    F.ForcedLOD=Cast<UStaticMeshComponent>(Mesh)?CastChecked<UStaticMeshComponent>(Mesh)->GetForcedLodModel():CastChecked<USkeletalMeshComponent>(Mesh)->GetForcedLOD();
+    const auto& F=State->Factories.Emplace_GetRef(Mesh);
     Retained.AddUnique(F.Geometry.Get());for(const auto& M:F.Materials)if(M.IsValid())Retained.AddUnique(M.Get());
     return true;
 }

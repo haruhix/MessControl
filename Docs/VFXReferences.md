@@ -1542,6 +1542,22 @@ input, actual GPU/transparency profiling, network and cold packaged first use
 remain unverified. The now actually exercised repair effect also covers task31;
 it was not counted closed from source presence alone.
 
+### Arena tooth care Niagara pass — 2026-11-07
+
+- [Lush soap-suds breakdown](https://realtimevfx.com/t/real-time-foam-soap-suds-shader/9919) and [Epic Niagara renderer reference](https://dev.epicgames.com/documentation/en-us/unreal-engine/render-module-reference-for-niagara-effects-in-unreal-engine). The cleaning contact uses the existing Sponge foam mesh and its materials for small convex clusters. The bubbles are a separate, lighter layer.
+- [Steven Skidmore's stylized VFX breakdown](https://stevenskidmore.artstation.com/projects/W2ELLN). The repair contact uses a larger cluster of mint droplets that converge on the enamel. A rising glint and a diagonal cleaning glint use the same sampled crown surface with different trajectories.
+
+The four `NS_Care_*` systems are edited in place. The saved world presentation library still binds them to accepted tooth work and completion. The repair action has its own Composer scenario using the ordinary care spray on a disposable chipped crown.
+
+The Editor target built, and the four Niagara systems compiled without warnings. The arena world library still reaches the systems and the foam mesh materials. Both isolated Composer scenarios reported Contact and Complete, and reset with zero active care layers. Ordinary spray restored the fixture from 60 to 100 HP. The side-view GIF is from Composer. Arena PIE and packaged first use remain pending.
+
+### Pearl Coat and contact foam — 2026-11-07
+
+- The approved Pearl Coat board calls for a short white reflection over the existing crown. `M_ArenaToothPearlCoat` normalizes the local position against the actual mesh bounds, sweeps a diagonal band across the enamel, and adds a thin Fresnel rim. The CPU Component Renderer in `NS_Care_PearlCoat` drives the phase with the age of a single one-second particle. [Epic vector material expressions](https://dev.epicgames.com/documentation/unreal-engine/vector-material-expressions-in-unreal-engine) · [Epic Fresnel guide](https://dev.epicgames.com/documentation/unreal-engine/using-fresnel-in-your-unreal-engine-materials)
+- The `Complete` composition keeps the coat and the white stars in separate editable systems. `NS_Care_CleanContact` reuses the foam mesh and bubbles, with a burst at first accepted contact, ongoing emission during accepted brushing, and finite lifetimes after release. [Epic Niagara renderer reference](https://dev.epicgames.com/documentation/en-us/unreal-engine/render-module-reference-for-niagara-effects-in-unreal-engine) · [Lush soap suds breakdown](https://realtimevfx.com/t/real-time-foam-soap-suds-shader/9919)
+
+The saved composition passed the real brush scenario in Composer. The probe witnessed the original tooth mesh receiving the material, the phase moving from 0.07 to 0.97, and the original overlay state being restored. The second solo arena run reached Ready after the Editor finished its initial compilation. The material, all three Niagara systems and the foam mesh were retained. Packaged first-use and arena gameplay-camera art remain separate validation.
+
 ## Hub fishing receipt — 2026-10-26
 
 eeferences reviewed before authoring:

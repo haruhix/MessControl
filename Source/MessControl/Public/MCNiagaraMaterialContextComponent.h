@@ -32,6 +32,7 @@ public:
     virtual UWorld* GetWorld() const override;
 
     static bool NeedsMaterialContext(const UNiagaraSystem* System);
+    static bool IsArenaToothPearlCoat(const UNiagaraSystem* System);
     bool IsPreparedForEpoch(FGuid Epoch) const;
     /** Works for explicit private-world preparation scopes without a replicated GameState. */
     bool IsReadyForPlayback(const UWorld* World) const;
@@ -45,6 +46,7 @@ public:
     bool RegisterPreparedTarget(UMeshComponent* Target, FString& Error);
     bool IsTargetPrepared(UMeshComponent* Target) const;
     static bool ValidateTargetFactory(UMeshComponent* Target, FString& Error);
+    static bool HasSameTargetFactory(UMeshComponent* First, UMeshComponent* Second);
     /** Resolves only explicitly registered (subject,parameter) bindings. No actor lookup.
      * Before Activate and on each native input update; zero scalar renderers is a no-op. */
     bool BindPreparedScalarTarget(UNiagaraComponent* Niagara, FString& Error) const;

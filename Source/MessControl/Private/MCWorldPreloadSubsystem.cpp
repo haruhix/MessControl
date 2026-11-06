@@ -1,4 +1,5 @@
 #include "MCWorldPreloadSubsystem.h"
+#include "MCArenaTooth.h"
 #include "MCCoffeeRiverPresentation.h"
 #include "MCNiagaraProceduralSurfaceResources.h"
 #include "MCIceEvent.h"
@@ -942,6 +943,7 @@ void UMCWorldPreloadSubsystem::CompletePreparation()
                 TEXT("Unable to prepare material contexts")),Error);return;
         }
     }
+    ReleaseArenaToothMaterialContextProbes();
 #if WITH_EDITOR
     for (UObject* Object : RetainedAssets)
         if (const UNiagaraSystem* System = Cast<UNiagaraSystem>(Object))
@@ -1507,6 +1509,7 @@ void UMCWorldPreloadSubsystem::ResetMaterialContextPreparation()
 {
     if(ProceduralSurfaceResources)ProceduralSurfaceResources->Reset();ProceduralSurfaceResources=nullptr;
     if(MaterialContexts)MaterialContexts->Reset();
+    ReleaseArenaToothMaterialContextProbes();PreparedArenaToothContextMeshes.Reset();
     if(!MaterialContextPSORequests.IsEmpty())ReleasePSOPrecacheData(MaterialContextPSORequests);
     MaterialContextPSORequests.Reset();MaterialContextPSOEvents.Reset();MaterialContextFence.Reset();
     for(const auto& Object:MaterialContextAddedAssets)if(Object.IsValid()) {
@@ -1622,6 +1625,36 @@ bool UMCWorldPreloadSubsystem::AdoptResidentMaterialContextScalar(UMeshComponent
     return MaterialContexts->AdoptPreparedScalarTarget(Subject,MID,Parameter,Error);
 }
 
+bool UMCWorldPreloadSubsystem::PrepareArenaToothMaterialContext(AMCArenaTooth* Tooth,FString& Error)
+{
+    auto* Current=Tooth->Visual?Tooth->Visual->GetStaticMesh().Get():nullptr;
+    const auto* Prepared=PreparedArenaToothContextMeshes.Find(Tooth);
+    if(!Current||(Prepared&&Prepared->Get()==Current))return true;
+    TArray<UStaticMesh*> Variants;Tooth->GetEnamelMaterialContextVariants(Variants);
+    for(auto* Mesh:Variants) {
+        if(Mesh==Current)continue;
+        auto* Probe=Tooth->CreateEnamelMaterialContextProbe(this,Mesh);
+        if(!Probe){Error=TEXT("Could not prepare an arena enamel damage-stage factory.");return false;}
+        if(MaterialContextTargets.ContainsByPredicate([Probe](const auto& Existing){
+            return UMCNiagaraMaterialContextResources::HasSameTargetFactory(Probe,Existing.Get());
+        })) {Probe->DestroyComponent();continue;}
+        Probe->RegisterComponentWithWorld(GetWorld());
+        if(!RegisterMaterialContextTarget(Probe,Error)){Probe->DestroyComponent();return false;}
+        ArenaToothMaterialContextProbes.Add(Probe);
+    }
+    PreparedArenaToothContextMeshes.Add(Tooth,Current);
+    return true;
+}
+
+void UMCWorldPreloadSubsystem::ReleaseArenaToothMaterialContextProbes()
+{
+    for(UStaticMeshComponent* Probe:ArenaToothMaterialContextProbes)if(IsValid(Probe)) {
+        MaterialContextTargets.Remove(Probe);MaterialContextQueuedTargets.Remove(Probe);
+        Probe->DestroyComponent();
+    }
+    ArenaToothMaterialContextProbes.Reset();
+}
+
 bool UMCWorldPreloadSubsystem::PrepareLocationMaterialContexts(FString& Error)
 {
     TArray<UNiagaraSystem*> Sources;
@@ -1669,6 +1702,9 @@ bool UMCWorldPreloadSubsystem::PrepareLocationMaterialContexts(FString& Error)
     }
     if(!PrepareMaterialContextSources(Sources,64,GS?GS->GameplayLoadId:FGuid(),Error))return false;
     if(!MaterialContexts || MaterialContexts->IsSealed())return true;
+    const bool bPrepareArenaCoat=MaterialContextSources.ContainsByPredicate([](const auto& NS){
+        return UMCNiagaraMaterialContextResources::IsArenaToothPearlCoat(NS.Get());
+    });
     // Only actual owners of a prepared context source, not every decorative mesh
     // or the global Composer catalog. Providers may register additional exact targets.
     for(auto* Owner:Owners) {
@@ -1680,6 +1716,8 @@ bool UMCWorldPreloadSubsystem::PrepareLocationMaterialContexts(FString& Error)
         }
         if(auto* Tooth=Cast<AMCToothCharacter>(Owner))
             if(!Tooth->PreparePresentationMaterialContext(this,Error))return false;
+        if(bPrepareArenaCoat)if(auto* Tooth=Cast<AMCArenaTooth>(Owner))
+            if(!PrepareArenaToothMaterialContext(Tooth,Error))return false;
     }
     return true;
 }

@@ -15,10 +15,10 @@ bool FMCWorldToolCareSourceContracts::RunTest(const FString&)
     const auto* Repair=MCPerkPreviewAdapters::Find(TEXT("EditorOnly.RepairArenaTooth"));
     if(!TestNotNull(TEXT("Actual brush contact provider"),Brush)
         ||!TestNotNull(TEXT("Actual accepted cleaning provider"),Clean)
-        ||!TestNotNull(TEXT("Repair metadata retained independently of its deferred spray scenario"),Repair))return false;
+        ||!TestNotNull(TEXT("Actual accepted crown repair provider"),Repair))return false;
     TestTrue(TEXT("Brush runs a real Target scenario"),Brush->Create&&Brush->Scenarios.Contains(EMCPerkPreviewScenario::Target));
     TestTrue(TEXT("Cleaning runs a real Target scenario"),Clean->Create&&Clean->Scenarios.Contains(EMCPerkPreviewScenario::Target));
-    TestTrue(TEXT("Repair does not invent a spray/contact provider"),!Repair->Create&&Repair->Scenarios.IsEmpty());
+    TestTrue(TEXT("Repair runs a real spray Target scenario"),Repair->Create&&Repair->Scenarios.Contains(EMCPerkPreviewScenario::Target));
     TestTrue(TEXT("Both actual accepted care events are editable"),Clean->Stages.Contains(TEXT("Contact"))&&Clean->Stages.Contains(TEXT("Complete"))
         &&Repair->Stages==Clean->Stages&&Repair->bSupportsProfileOverride);
     const auto* Original=Brush->DefaultSystems.Find(TEXT("Contact"));
@@ -34,7 +34,7 @@ bool FMCWorldToolCareSourceContracts::RunTest(const FString&)
         &&Audio->bSuppressionWired&&MCVFXSourceContracts::CanSuppressOriginalSFX(TEXT("Tool.Brush"),TEXT("Contact")));
     TestFalse(TEXT("Care does not duplicate or suppress another owner's brush strokes"),MCVFXSourceContracts::CanSuppressOriginalSFX(TEXT("EditorOnly.CleanArenaTooth"),TEXT("Contact")));
     TestFalse(TEXT("Repair does not claim an unmapped original sound"),MCVFXSourceContracts::CanSuppressOriginalSFX(TEXT("EditorOnly.RepairArenaTooth"),TEXT("Complete")));
-    for(const auto* Provider:{Brush,Clean}) {
+    for(const auto* Provider:{Brush,Clean,Repair}) {
         auto Adapter=Provider->Create();FMCPerkPreviewContext Empty;FString Error;
         TestFalse(TEXT("Missing actual private world/hero cannot fake contact"),Adapter->Prepare(Empty,Error));
         TestFalse(TEXT("Rejected contact fixture explains missing context"),Error.IsEmpty());
