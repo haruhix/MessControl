@@ -1,5 +1,31 @@
 # MessControl Unreal project context
 
+Loading fix (2026-11-08): `EnsureScopedPresentationDependencies` re-expands the
+world library after current Required Ice scope arrives and queues missing
+dependencies through normal async waves before Freeze sources. Unknown waits;
+NotRequired skips Freeze. PSO request IDs returned by `PrecacheMaterialPSOs`
+are borrowed from FMaterial: reset clears observations without releasing them.
+Chainsaw now passes real contact/cut plane into the automatic food pipeline;
+whole hard shells retain their opening step. See `Docs/Validation/Day1Start_20261108.md`.
+Arena `FinishLoadWave` also waits for the current authoritative run scope before
+marking any root expanded; root files can stream while replication is pending.
+
+Latest small-mechanic change (2026-11-08): fresh ordinary food uses
+`DA_FoodPhysics.Settings.bAutoConsumeSmallCuts=true`; false restores retained
+manual stack/throw delivery. Knife-created ready portions use the existing
+separate 220 cm-per-axis automatic threshold (legacy hand limit stays 110 cm)
+and existing server award budget. Disconnected geometry is separated per
+connected island before readiness and after each cut; small islands consume
+independently while large siblings remain cuttable. Selection is replayed at
+each history step; protocol version is 4. Ready pieces use hidden, nonreplicated
+receipts without physical simulation, then `Food.AutoMouth/Consume` on the
+stable GameState presentation component. Saved Niagara/profile/resources and
+food-row CrumbColor live in the mouth library preload closure. See
+`Docs/FoodAutoMouth.md` and `Docs/Validation/FoodAutoMouth_20261108.md` for current
+behavior, separate native/Composer/solo evidence and remaining visual limits.
+The island-specific validation is recorded separately in
+`Docs/Validation/FoodIslands_20261108.md`.
+
 *Engine association: UE 5.8 · Local engine: 5.8.1 · Updated: 2026-10-30 (27 current passives, six active skills and editable Niagara; other sections retain their dated audit scope)*
 
 This context is derived from the current checkout. Current source and saved Unreal packages are authoritative; indexes are derived evidence. For the human-facing Russian documentation, start with [Docs/README.md](../Docs/README.md) and [Docs/Architecture.md](../Docs/Architecture.md).

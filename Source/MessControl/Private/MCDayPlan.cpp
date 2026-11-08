@@ -5,6 +5,8 @@
 void FMCFoodRow::Sanitize()
 {
     auto Safe=[](float V,float D,float Lo,float Hi){return FMath::IsFinite(V)?FMath::Clamp(V,Lo,Hi):D;};
+    CrumbColor.R=Safe(CrumbColor.R,.78f,0,1);CrumbColor.G=Safe(CrumbColor.G,.48f,0,1);
+    CrumbColor.B=Safe(CrumbColor.B,.19f,0,1);CrumbColor.A=1.f;
     SelectionWeight=Safe(SelectionWeight,1,0,100); Health=Safe(Health,75,1,1000);
     Mass=Safe(Mass,9,1,50); SpoilSeconds=Safe(SpoilSeconds,180,3,600); Fragments=FragmentCount();
     FuseSeconds=Safe(FuseSeconds,10,1,60); FirstPulseRadius=Safe(FirstPulseRadius,180,50,600);

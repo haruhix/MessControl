@@ -285,16 +285,22 @@ void UMCInventoryComponent::SawContact()
         return FVector::DotProduct(Direction,Forward)>=.35f;
     };
     // Visible blade-side contact, bounded reach, and per-target cadence prevent frame-rate damage.
-    AMCFoodActor* Best=nullptr;float Distance=FMath::Square(190.f);
+    AMCFoodActor* Best=nullptr;FHitResult BestContact;float Distance=FMath::Square(190.f);
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
         if(!CanBreak(*It) || It->FoodData.Kind!=EMCFoodKind::Food || Now()<SawContacts.FindRef(*It)) continue;
         FHitResult Hit;if(!It->FindToolContact(Hero,190,Hit)) continue;
         const float D=FVector::DistSquared(Origin,Hit.ImpactPoint);
-        if(D<Distance) {Distance=D;Best=*It;}
+        if(D<Distance) {Distance=D;Best=*It;BestContact=Hit;}
     }
     if(Best) {
-        // Health is the authored full-food health, rather than remaining health: exactly two clean contacts.
-        if(Best->HitFood(FMath::Max(1.f,Best->FoodData.Health*.5f),Forward,Hero)) SawContacts.Add(Best,Now()+.45/RogueAttackRate());
+        // Use the same contact plane as the knife for automatic portions, so
+        // large remainders can be cut again instead of using the old fracture.
+        const bool PortionCut=Best->UsesAutomaticCutIntake() && !Best->IsHardFood();
+        const FVector CutNormal=PortionCut?Hero->GetActorRightVector():FVector::ZeroVector;
+        // Shells and the retained manual mode keep their authored two-contact damage.
+        if(Best->HitFood(FMath::Max(1.f,Best->FoodData.Health*.5f),Forward,Hero,
+            PortionCut?BestContact.ImpactPoint:FVector::ZeroVector,CutNormal))
+            SawContacts.Add(Best,Now()+.45/RogueAttackRate());
     }
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
         auto* Other=*It;if(Other==Hero || !Other->Status->IsAlive() || Now()<SawContacts.FindRef(Other)) continue;

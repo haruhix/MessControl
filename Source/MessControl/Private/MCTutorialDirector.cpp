@@ -34,6 +34,16 @@
 
 #define LOCTEXT_NAMESPACE "MCTutorial"
 
+namespace
+{
+bool AutomaticFoodIntakeTutorialEnabled()
+{
+    const auto* Defaults=GetDefault<AMCFoodActor>();
+    const auto* Profile=Defaults->Profile.Get();
+    return Profile?Profile->Settings.bAutoConsumeSmallCuts:Defaults->Settings.bAutoConsumeSmallCuts;
+}
+}
+
 AMCTutorialDirector::AMCTutorialDirector()
 {
     bReplicates=true; bAlwaysRelevant=true;
@@ -185,9 +195,10 @@ void AMCTutorialDirector::NotifyAction(AMCToothCharacter* Worker,EMCTutorialActi
     if (const auto* Food=Cast<AMCFoodActor>(Target))
     {
         if (Food->Batch!=TutorialFoodBatch) return;
-        // Cutting and actually throwing a fragment into the hole are separate lessons.
+        // Cutting and completing a delivery remain separate accepted lessons in either mode.
         if (Action==EMCTutorialAction::FoodCut && (Food->bFragment || Food->Health>0)) return;
-        if (Action==EMCTutorialAction::FoodDelivered && (Food->IsWrongIngredient() || !Food->WasManuallyThrown())) return;
+        if (Action==EMCTutorialAction::FoodDelivered && (Food->IsWrongIngredient()
+            || (!Food->WasManuallyThrown() && !Food->WasAutomaticallyConsumed()))) return;
         if (Action==EMCTutorialAction::SpoiledDiscarded && (!Food->bSpoiled || !Food->WasManuallyThrown() || !Food->IsDisposed())) return;
         if (Action==EMCTutorialAction::TrashDiscarded && (Food->FoodData.Kind!=EMCFoodKind::ForeignObject || !Food->WasManuallyThrown() || !Food->IsDisposed())) return;
     }
@@ -200,7 +211,9 @@ void AMCTutorialDirector::NotifyIncorrectSort(AMCToothCharacter* Worker,AActor* 
     if (!HasAuthority() || !IsValid(Worker) || !IsTutorialTarget(Target) || !bStarted) return;
     const auto* Food=Cast<AMCFoodActor>(Target);
     FairyLine=Food && !Food->IsWrongIngredient()
-        ?LOCTEXT("FreshWrongExit","Свежую еду бросай в открытую глотку: наведи камеру на лунку и нажми Q. Предмет вернулся — попробуй ещё раз!")
+        ?(Food->UsesAutomaticCutIntake()
+            ?LOCTEXT("AutoFreshWrongExit","Свежую еду нужно мелко нарезать ножом. Крошки сами отправятся в глотку.")
+            :LOCTEXT("FreshWrongExit","Свежую еду бросай в открытую глотку: наведи камеру на лунку и нажми Q. Предмет вернулся — попробуй ещё раз!"))
         :LOCTEXT("TrashWrongExit","Испорченное и мусор выбрасывай за край рта через Q. В глотку их отправлять не нужно!");
     FeedbackEndsAt=Now()+5; ForceNetUpdate();
 }
@@ -381,6 +394,7 @@ int32 AMCTutorialDirector::CountTutorialFood() const
 
 void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
 {
+    const bool AutoIntake=AutomaticFoodIntakeTutorialEnabled();
     // Preserve serialized enum values while retiring the physical-tool lesson.
     if (NewStage==EMCTutorialStage::TrashSort) NewStage=EMCTutorialStage::BreakfastRain;
     // The rain's food stays for its cleanup; every other lesson owns its own examples.
@@ -425,12 +439,16 @@ void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
         Instruction=LOCTEXT("BrushHint","1 — щётка. Держи ЛКМ у своего подсвеченного зуба до полной очистки. Без таймера."); break;
     case EMCTutorialStage::FoodCut:
         Title=LOCTEXT("CutTitle","02 · РАЗБИТЬ ЕДУ");
-        FairyLine=LOCTEXT("CutFairy","Разбей подсвеченную еду ножом. Из неё выпадут кусочки: их можно собирать в стопку через E и по одному бросать в глотку через Q.");
-        Instruction=LOCTEXT("CutHint","3 — нож. ЛКМ или F — удары по подсвеченной еде до полного разрушения."); break;
+        FairyLine=AutoIntake?LOCTEXT("AutoCutFairy","Нарежь подсвеченную еду ножом. Достаточно мелкие кусочки рассыплются и сами улетят в глотку.")
+            :LOCTEXT("CutFairy","Разбей подсвеченную еду ножом. Из неё выпадут кусочки: их можно собирать в стопку через E и по одному бросать в глотку через Q.");
+        Instruction=AutoIntake?LOCTEXT("AutoCutHint","3 — нож. Режь еду до мелких порций; доставка автоматическая.")
+            :LOCTEXT("CutHint","3 — нож. ЛКМ или F — удары по подсвеченной еде до полного разрушения."); break;
     case EMCTutorialStage::FreshSort:
         Title=LOCTEXT("FreshTitle","03 · СВЕЖЕЕ — В ГЛОТКУ");
-        FairyLine=LOCTEXT("FreshFairy","Собери свой кусочек через E. Наведи камеру на открытую глотку наверху: прицел раскроется. Попади едой в лунку!");
-        Instruction=LOCTEXT("FreshHint","E у еды — собирать в стопку. Q — бросить верхний кусочек; удерживай Q для серии. Засчитывается попадание в глотку."); break;
+        FairyLine=AutoIntake?LOCTEXT("AutoFreshFairy","Дорежь подсвеченный кусочек. Когда он достаточно мал, следующий удар ножа отправит крошки в глотку.")
+            :LOCTEXT("FreshFairy","Собери свой кусочек через E. Наведи камеру на открытую глотку наверху: прицел раскроется. Попади едой в лунку!");
+        Instruction=AutoIntake?LOCTEXT("AutoFreshHint","3 — нож. ЛКМ — нарезать; мелкие кусочки улетают сами.")
+            :LOCTEXT("FreshHint","E у еды — собирать в стопку. Q — бросить верхний кусочек; удерживай Q для серии. Засчитывается попадание в глотку."); break;
     case EMCTutorialStage::SpoiledSort:
         Title=LOCTEXT("SpoiledTitle","04 · ИСПОРЧЕННОЕ — ЗА БОРТ");
         FairyLine=LOCTEXT("SpoiledFairy","Этот кусочек испортился. Возьми его через E и выброси за край рта — он не должен попасть в глотку.");
@@ -438,12 +456,14 @@ void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
     case EMCTutorialStage::BreakfastRain:
         Title=LOCTEXT("BreakfastTitle","05 · УЧЕБНЫЙ ЗАВТРАК");
         FairyLine=LOCTEXT("BreakfastFairy","Теперь общий заказ: брокколи, яйцо и бекон. Работайте вместе!");
-        Instruction=LOCTEXT("BreakfastHint","Разбивайте еду, собирайте кусочки через E и бросайте через Q в открытую глотку.");
+        Instruction=AutoIntake?LOCTEXT("AutoBreakfastHint","Режьте еду ножом до мелких кусочков — они сами улетят в глотку.")
+            :LOCTEXT("BreakfastHint","Разбивайте еду, собирайте кусочки через E и бросайте через Q в открытую глотку.");
         BreakfastSpawned=0; StageEndsAt=Now()+2; break;
     case EMCTutorialStage::BreakfastCleanup:
         Title=LOCTEXT("BreakfastCleanupTitle","ЗАВТРАК · УБОРКА КОМАНДОЙ");
         FairyLine=LOCTEXT("BreakfastCleanupFairy","Двадцать секунд на уборку. Если не успеете — помогу закончить. Здоровьем здесь не рискуем.");
-        Instruction=LOCTEXT("BreakfastCleanupHint","3 — нож; E у кусочков — сбор. Наведи камеру на глотку и бросай через Q; удержание Q — серия. Это общая задача.");
+        Instruction=AutoIntake?LOCTEXT("AutoBreakfastHint","Режьте еду ножом до мелких кусочков — они сами улетят в глотку.")
+            :LOCTEXT("BreakfastCleanupHint","3 — нож; E у кусочков — сбор. Наведи камеру на глотку и бросай через Q; удержание Q — серия. Это общая задача.");
         StageEndsAt=Now()+20; TeamTasksLeft=CountTutorialFood(); TeamTasksTotal=TeamTasksLeft; break;
     case EMCTutorialStage::CoffeeWarning:
         Title=LOCTEXT("CoffeeWarningTitle","06 · ОСТОРОЖНО, КОФЕ!");

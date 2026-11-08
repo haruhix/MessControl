@@ -11,6 +11,8 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCGripComponent.h"
 #include "MCFoodCollectionComponent.h"
+#include "MCInventoryComponent.h"
+#include "MCFoodStackSettings.h"
 #include "MCMovementContactPolicy.h"
 #include "MCNutRainEvent.h"
 #include "MCDeliveryZoneVisualComponent.h"
@@ -49,6 +51,7 @@ void FMCFoodSettings::Sanitize()
     NutLinearDamping=Safe(NutLinearDamping,.18f,0,5); NutAngularDamping=Safe(NutAngularDamping,.45f,0,10);
     GrabReach=Safe(GrabReach,145,50,250); BreakDistance=Safe(BreakDistance,340,GrabReach+50,600);
     for(int32 Axis=0;Axis<3;++Axis) MaxHandDimensions[Axis]=Safe(MaxHandDimensions[Axis],110,1,2000);
+    for(int32 Axis=0;Axis<3;++Axis) MaxAutoConsumeDimensions[Axis]=Safe(MaxAutoConsumeDimensions[Axis],220,1,2000);
     MinCutVolume=Safe(MinCutVolume,1000,1,1.e9f); MinCutThickness=Safe(MinCutThickness,12,1,1000);
     Spring=Safe(Spring,14,1,50); Damping=Safe(Damping,6,1,30); PullSeconds=Safe(PullSeconds,3,.2f,30);
     PullConeDegrees=Safe(PullConeDegrees,35,10,90); CooperationMultiplier=Safe(CooperationMultiplier,1.5f,1,4);
@@ -246,8 +249,9 @@ void AMCFoodActor::OnRep_Phase()
 {
     if(HasAuthority() && (StackCarrier || !Holders.IsEmpty() || Phase!=EMCFoodPhase::Free)) EndManualThrowFlight();
     if (bMouthEntry && (Phase!=EMCFoodPhase::Falling || StackCarrier || !Holders.IsEmpty())) EndMouthEntry();
-    const bool bGone=IsDisposed() || Phase==EMCFoodPhase::Equipped || IsInActiveContainer();
-    const bool bSimulate=HasAuthority() && !StackCarrier && (Phase==EMCFoodPhase::Falling || Phase==EMCFoodPhase::Free || Phase==EMCFoodPhase::Carried);
+    const bool bInvalidCut=!CutPlanes.IsEmpty() && !bCutVisualReady;
+    const bool bGone=IsDisposed() || Phase==EMCFoodPhase::Equipped || IsInActiveContainer() || bInvalidCut || bCutIntakeReceipt;
+    const bool bSimulate=!bGone && HasAuthority() && !StackCarrier && (Phase==EMCFoodPhase::Falling || Phase==EMCFoodPhase::Free || Phase==EMCFoodPhase::Carried);
     // Stop Chaos before disabling collision, including disposal while the item is still moving.
     if (!bSimulate) Body->SetSimulatePhysics(false);
     SetActorHiddenInGame(bGone); Body->SetCollisionEnabled((bGone || Phase==EMCFoodPhase::Swallowing)?ECollisionEnabled::NoCollision:Phase==EMCFoodPhase::Absorbing?ECollisionEnabled::QueryOnly:ECollisionEnabled::QueryAndPhysics);
@@ -614,6 +618,9 @@ void AMCFoodActor::Tick(float Dt)
     if(!UsesLegacyGrip() && !IsNutEncounterFragment() && !ActorHasTag(TEXT("MCNutRain")) && !StackCarrier)
         Caption=FitsHandPortion()?TEXT("READY | HOLD LMB: PICK UP"):
             IsHardFood()?TEXT("TOO LARGE | PICKAXE: BREAK FOOD"):TEXT("TOO LARGE | KNIFE: CUT SMALLER PORTIONS");
+    if(UsesAutomaticCutIntake() && !StackCarrier)
+        Caption=IsHardFood()?TEXT("PICKAXE: OPEN SHELL"):
+            FitsAutomaticIntakePortion()?TEXT("KNIFE: FINISH CUTTING | AUTO FEED"):TEXT("KNIFE: CUT SMALLER PORTIONS | AUTO FEED");
     if (!ItemName.IsNone()) Caption=FString::Printf(TEXT("%s | HP %.0f | %.1f kg\n%s | %s"),*FoodData.Label.ToString(),Health,Settings.Mass,*Caption,bSpoiled?TEXT("SPOILED"):FoodData.Kind==EMCFoodKind::Spicy?*FString::Printf(TEXT("%.1fs %s"),FuseRemaining(),bFusePaused?TEXT("PAUSED"):TEXT("THROW INTO THROAT")):FoodData.Kind==EMCFoodKind::ForeignObject?TEXT("FOREIGN OBJECT"):!HasFreshnessTimer()?TEXT("FRESH"):*FString::Printf(TEXT("SPOIL %.0fs"),FMath::Max(0.,SpoilAt-(GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds()))));
     if (bBrushTool) Caption=TEXT("LMB: PICK UP BRUSH\nQ: THROW OVERBOARD");
     if(FoodData.Kind==EMCFoodKind::Spicy) {
@@ -932,6 +939,7 @@ void AMCFoodDisposal::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void AMCFoodActor::OnRep_Item()
 {
+    if(bCutIntakeReceipt) {BuildCutVisual();return;}
     const FVector ItemScale=bFragment?FoodData.FragmentScale:FoodData.Scale;
     auto* MeshBody=CastChecked<UMCFoodBodyComponent>(Body);
     if (ItemMesh) { Visual->SetStaticMesh(ItemMesh); Visual->SetRelativeLocation(FVector::ZeroVector); Visual->SetRelativeScale3D(ItemScale); }
@@ -963,7 +971,7 @@ void AMCFoodActor::OnRep_Item()
     TInlineComponentArray<UPrimitiveComponent*> Colliders(this);
     for (auto* Collider:Colliders) Collider->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     OnRep_NutKinetics();
-    BuildCutVisual();
+    if(!BuildCutVisual())OnRep_Phase();
 }
 void AMCFoodActor::ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment)
 {
@@ -1073,26 +1081,87 @@ bool AMCFoodActor::ReceiveActiveSkillImpact(float Damage,FVector Direction,AMCPl
 bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,AMCPlayerState* SourcePS,bool bWeaponPassives)
 {
     if (!HasAuthority() || bBrushTool || IsDisposed() || IsInActiveContainer() || Phase==EMCFoodPhase::Swallowing || !FMath::IsFinite(Damage) || Damage<=0 || Direction.ContainsNaN()) return false;
+    if(bProcessingAutomaticCutDamage) return false;
+    TGuardValue<bool> AutomaticCutGuard(bProcessingAutomaticCutDamage,UsesAutomaticCutIntake());
     if(!IsValid(Worker) || Worker->GetWorld()!=GetWorld()) Worker=nullptr;
     auto* Perks=bWeaponPassives && !bFragment && FoodData.Kind!=EMCFoodKind::Spicy?UMCPerkComponent::ForActor(Worker):nullptr;
+    const bool KnifeCut=!PendingCutNormal.IsNearlyZero()
+        || (bWeaponPassives && Worker && Worker->Inventory && Worker->Inventory->Selected==EMCToolSlot::Knife);
+    if(KnifeCut && UsesAutomaticCutIntake() && SupportsPlanarCut() && (!IsHardFood() || bFragment)) {
+        const auto PreviousHandler=LastHandledBy;
+        if(IsValid(SourcePS) && SourcePS->GetWorld()==GetWorld()) LastHandledBy=SourcePS;
+        else if(Worker) LastHandledBy=Worker->GetPlayerState<AMCPlayerState>();
+        TArray<AMCFoodActor*> Pieces;
+        const int32 Split=SpawnDisconnectedPortions(Direction,Pieces);
+        if(Split<=0) {
+            LastHandledBy=PreviousHandler;
+            if(Split<0) return false;
+        } else {
+            // All islands are staged before committing any child intake. A
+            // disconnected ready piece does not wait for its larger sibling.
+            if(!bFragment) Health=0;
+            EndMouthEntry();
+            if(StackCarrier) StackCarrier->FoodCollection->Spill(Direction.GetSafeNormal()*180+FVector(0,0,60));
+            if(Perks) Perks->NotifyWeaponHit(this);
+            if(!bFragment && Worker)
+                if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyAction(Worker,EMCTutorialAction::FoodCut,this);
+            Dispose();
+            for(auto* Piece:Pieces) if(IsValid(Piece)) Piece->TryConsumeCutPortion(Direction);
+            return true;
+        }
+    }
+    if(KnifeCut && UsesAutomaticCutIntake() && !IsHardFood() && FitsAutomaticIntakePortion()) {
+        const auto PreviousHandler=LastHandledBy;
+        if(IsValid(SourcePS) && SourcePS->GetWorld()==GetWorld()) LastHandledBy=SourcePS;
+        else if(Worker) LastHandledBy=Worker->GetPlayerState<AMCPlayerState>();
+        if(!TryConsumeCutPortion(Direction)) {LastHandledBy=PreviousHandler;return false;}
+        if(Perks) Perks->NotifyWeaponHit(this);
+        return true;
+    }
     const bool PlanarCut=SupportsPlanarCut() && !PendingCutNormal.IsNearlyZero();
-    if(PlanarCut && FitsHandPortion()) return false;
+    if(PlanarCut && (UsesAutomaticCutIntake()?FitsAutomaticIntakePortion():FitsHandPortion())) return false;
     if(Perks) Damage=Perks->WeaponDamage(Damage,this);
+    if(UsesAutomaticCutIntake() && !bFragment && !PlanarCut && Damage>=Health) {
+        // A legacy fracture may only supply real, usable authored pieces in
+        // this mode. Never replace an unsupported ingredient with a prototype
+        // or an oversized, non-cuttable piece which has no remaining task path.
+        bool HasFragment=false,FragmentsReady=true;
+        for(const auto& Ref:FoodData.FragmentMeshes) if(!Ref.IsNull()) {
+            auto* Mesh=Ref.Get();
+            if(!Mesh) {FragmentsReady=false;continue;}
+            HasFragment=true;
+            const FVector Extent=Mesh->GetBoundingBox().GetExtent()*FoodData.FragmentScale.GetAbs()*GetActorScale3D().GetAbs();
+            const FVector Size=FMCFoodStackSettings::RotatedExtent(Extent,FoodData.Stack.RestRotation(Mesh,Extent,0))*2;
+            const bool Ready=!Size.ContainsNaN() && Size.GetMin()>0 && Size.X<=Settings.MaxAutoConsumeDimensions.X+KINDA_SMALL_NUMBER
+                && Size.Y<=Settings.MaxAutoConsumeDimensions.Y+KINDA_SMALL_NUMBER && Size.Z<=Settings.MaxAutoConsumeDimensions.Z+KINDA_SMALL_NUMBER;
+            FragmentsReady&=Mesh->bAllowCPUAccess || Ready;
+        }
+        if(!HasFragment || !FragmentsReady) return false;
+    }
     if(PlanarCut && (bFragment || Damage>=Health)) {
         // Refusing either half must not damage/dispose the parent, spill its
         // stack, advance perks or substitute unrelated preauthored fragments.
         const auto PreviousHandler=LastHandledBy;
         if(IsValid(SourcePS) && SourcePS->GetWorld()==GetWorld()) LastHandledBy=SourcePS;
         else if(Worker) LastHandledBy=Worker->GetPlayerState<AMCPlayerState>();
-        if(!SpawnCutFragments(Direction,PendingCutPoint,PendingCutNormal)) {LastHandledBy=PreviousHandler;return false;}
+        TArray<AMCFoodActor*> Pieces;
+        if(!SpawnCutFragments(Direction,PendingCutPoint,PendingCutNormal,&Pieces)) {LastHandledBy=PreviousHandler;return false;}
         if(!bFragment) Health=0; // The tutorial accepts FoodCut only for a broken whole ingredient.
         EndMouthEntry();
         if(StackCarrier) StackCarrier->FoodCollection->Spill(Direction.GetSafeNormal()*180+FVector(0,0,60));
         if(Perks) Perks->NotifyWeaponHit(this);
+        const bool AutomaticIntake=UsesAutomaticCutIntake();
+        if(AutomaticIntake) {
+            if(!bFragment && Worker)
+                if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyAction(Worker,EMCTutorialAction::FoodCut,this);
+        }
         if(!bFragment)
             AMCReactionVFX::SpawnForPresentation(GetWorld(),TEXT("Food.Break"),TEXT("BreakArt"),Visual->Bounds.Origin,EMCReactionEffect::FoodBreak,.65f,FMath::Clamp(float(Visual->Bounds.SphereRadius),35.f,150.f),Direction,0,this);
-        Dispose();return true;
+        Dispose();
+        if(AutomaticIntake) for(auto* Piece:Pieces) if(IsValid(Piece)) Piece->TryConsumeCutPortion(Direction);
+        return true;
     }
+    const auto HandlerBeforeDamage=LastHandledBy;
     if(IsValid(SourcePS) && SourcePS->GetWorld()==GetWorld()) LastHandledBy=SourcePS;
     else if(Worker) LastHandledBy=Worker->GetPlayerState<AMCPlayerState>();
     EndMouthEntry();
@@ -1109,12 +1178,30 @@ bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharac
         if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true);
         return true;
     }
+    const float HealthBeforeDamage=Health;
     AttendFood(); Health=FMath::Max(0.f,Health-Damage); ForceNetUpdate();
-    if(Perks) Perks->NotifyWeaponHit(this);
-    if (Health>0) { if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true); return true; }
+    if(Perks && !UsesAutomaticCutIntake()) Perks->NotifyWeaponHit(this);
+    if (Health>0) {
+        if(Perks && UsesAutomaticCutIntake()) Perks->NotifyWeaponHit(this);
+        if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true);
+        return true;
+    }
     // Breaking whole food leaves small pieces for immediate delivery. Reward
     // the original here only if no fragment could be created.
-    const bool Fragmented=FoodData.Kind==EMCFoodKind::Food && !bFragment && SpawnFragments(Direction);
+    TArray<AMCFoodActor*> Pieces;
+    const bool Fragmented=FoodData.Kind==EMCFoodKind::Food && !bFragment && SpawnFragments(Direction,&Pieces);
+    if(UsesAutomaticCutIntake() && !Fragmented) {
+        // Allocation/resource failure cannot turn an unfinished ingredient into
+        // an accepted meal. Keep its health, mass and award budget for a retry.
+        Health=HealthBeforeDamage;LastHandledBy=HandlerBeforeDamage;ForceNetUpdate();
+        return false;
+    }
+    if(Perks && UsesAutomaticCutIntake()) Perks->NotifyWeaponHit(this);
+    const bool AutomaticFragmentIntake=Fragmented && KnifeCut && UsesAutomaticCutIntake();
+    if(AutomaticFragmentIntake) {
+        if(Worker)
+            if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyAction(Worker,EMCTutorialAction::FoodCut,this);
+    }
     if(FoodData.Kind==EMCFoodKind::Food && !bDeliveryScored && !Fragmented) {
         bDeliveryScored=true;
         if(Worker || IsValid(SourcePS)) {
@@ -1125,7 +1212,9 @@ bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharac
     }
     if(FoodData.Kind==EMCFoodKind::Food)
         AMCReactionVFX::SpawnForPresentation(GetWorld(),TEXT("Food.Break"),TEXT("BreakArt"),Visual->Bounds.Origin,EMCReactionEffect::FoodBreak,.65f,FMath::Clamp(float(Visual->Bounds.SphereRadius),35.f,150.f),Direction,0,this);
-    Dispose(); return true;
+    Dispose();
+    if(AutomaticFragmentIntake) for(auto* Piece:Pieces) if(IsValid(Piece)) Piece->TryConsumeCutPortion(Direction);
+    return true;
 }
 bool AMCFoodActor::IsHardFood() const
 {
@@ -1137,7 +1226,7 @@ bool AMCFoodActor::IsHardFood() const
 }
 bool AMCFoodActor::BeginSwallow()
 {
-    if (!HasAuthority() || bBrushTool || !Holders.IsEmpty() || (StackCarrier && UsesLegacyGrip()) || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling)) return false;
+    if (!HasAuthority() || bBrushTool || UsesAutomaticCutIntake() || !Holders.IsEmpty() || (StackCarrier && UsesLegacyGrip()) || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling)) return false;
     auto* Collection=StackCarrier?StackCarrier->FoodCollection.Get():nullptr;
     if(Collection && !Collection->Contains(this)) return false;
     // Change phase before detaching so delivery never wakes a dense hand load.

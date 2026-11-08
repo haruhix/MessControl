@@ -8,6 +8,7 @@
 #include "MCYawnWaterPreviewAdapters.h"
 #include "MCNativeWorldActionPreviewAdapters.h"
 #include "MCFoodRewardPreviewAdapters.h"
+#include "MCFoodAutoMouthPreviewAdapter.h"
 #include "MCCoffeeRiverPreviewAdapter.h"
 #include "MCFrostActionPreviewAdapters.h"
 #include "MCIceActionPreviewAdapters.h"
@@ -467,6 +468,7 @@ void MCWorldActionPreviewAdapters::Register()
     MCNativeWorldActionPreviewAdapters::Register();
     MCYawnWaterPreview::Register();
     MCThroatSuctionPreview::Register();
+    MCFoodAutoMouthPreview::Register();
     MCHurtActionPreviewAdapters::Register();
     MCPianoActionPreviewAdapter::Register();
     MCSprayActionPreviewAdapter::Register();

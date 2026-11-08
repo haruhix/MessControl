@@ -238,6 +238,8 @@ bool AMCPerkVFXCompositionPlayer::ApplyValues(int32 Index)
     if(Gameplay.bHasEndpoints) {
         if(Has(NS,TEXT("User.SourcePosition"),FNiagaraTypeDefinition::GetPositionDef()))C->SetVariablePosition(TEXT("User.SourcePosition"),Gameplay.SourcePosition);
         if(Has(NS,TEXT("User.TargetPosition"),FNiagaraTypeDefinition::GetPositionDef()))C->SetVariablePosition(TEXT("User.TargetPosition"),Gameplay.TargetPosition);
+        if(Has(NS,TEXT("User.TargetOffset"),FNiagaraTypeDefinition::GetVec3Def()))
+            C->SetVariableVec3(TEXT("User.TargetOffset"),Gameplay.TargetPosition-C->GetComponentLocation());
     }
     if(Gameplay.bHasSeed && Has(NS,TEXT("User.Seed"),FNiagaraTypeDefinition::GetIntDef()))C->SetVariableInt(TEXT("User.Seed"),int32(Gameplay.Seed));
     // Native actions already supply endpoints on the legacy loop anchor. Copy

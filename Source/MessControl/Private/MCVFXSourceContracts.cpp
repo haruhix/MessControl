@@ -1,4 +1,5 @@
 #include "MCVFXSourceContracts.h"
+#include "MCVFXPresentationLibrary.h"
 
 #include <initializer_list>
 
@@ -58,6 +59,8 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         Add(TEXT("World.Throat.Suction"),TEXT("Глотка · всасывание"),TEXT("World"),TEXT("AMCThroat / AMCThroatVortex"),World,{TEXT("Start"),TEXT("Loop"),TEXT("Intake"),TEXT("End")});
         Add(TEXT("World.FirePatch"),TEXT("Огонь · опасный участок"),TEXT("World"),TEXT("AMCFirePatch"),World,{TEXT("Loop"),TEXT("Contact"),TEXT("Steam")});
         Add(TEXT("Food.Break"),TEXT("Еда · настоящие осколки и пыль"),TEXT("Food"),TEXT("AMCFoodActor / AMCReactionVFX"),World,{TEXT("BreakArt"),TEXT("BreakDust")});
+        auto& AutoMouth=Add(TEXT("Food.AutoMouth"),TEXT("Еда · крошки в рот"),TEXT("Food"),TEXT("AMCFoodActor::TryConsumeCutPortion / AMCGameState::FoodCutIntakePresentation"),UMCVFXPresentationLibrary::MouthLibraryPath(),{TEXT("Consume")});
+        AutoMouth.Description=TEXT("Настоящий принятый ножом мелкий кусочек автоматически засчитывается и превращается в редактируемые Niagara-крошки. Начало, отверстие глотки, цвет и размер задаёт еда; частицы не владеют зачётом или физикой. Старый перенос сохранён за переключателем еды.");
         Add(TEXT("Food.Spoiled"),TEXT("Еда · запах испорченного продукта"),TEXT("Food"),TEXT("AMCFoodActor::UpdateSmell / AMCReactionVFX"),World,{TEXT("Loop")});
         Add(TEXT("Food.Spicy"),TEXT("Перец · принятый взрыв"),TEXT("Food"),TEXT("AMCFoodActor::Detonate / AMCReactionVFX"),World,{TEXT("DetonateArt")});
         Add(TEXT("World.Vomit"),TEXT("Выброс"),TEXT("World"),TEXT("AMCVomitBurst"),World,{TEXT("Burst")});

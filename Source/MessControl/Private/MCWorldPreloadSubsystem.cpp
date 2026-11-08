@@ -7,6 +7,7 @@
 #include "MCWorldPresentationComponent.h"
 #include "MCNiagaraMaterialContextComponent.h"
 #include "MCVFXPresentationComponent.h"
+#include "MCVFXSourceContracts.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCTongue.h"
@@ -170,6 +171,38 @@ bool UMCWorldPreloadSubsystem::ResolveIcePreparationScope(bool& bRequired,bool& 
     if(PreparedGameplayLoadId.IsValid()&&PreparedGameplayLoadId!=State->GameplayLoadId)ReleaseIcePresentationOwner();
     PreparedGameplayLoadId=State->GameplayLoadId;
     bRequired=State->IcePresentationScope.Scope==EMCIcePresentationScope::Required;return true;
+}
+
+bool UMCWorldPreloadSubsystem::EnsureScopedPresentationDependencies(bool& bRequired)
+{
+    bool bWaiting=false;
+    if(!ResolveIcePreparationScope(bRequired,bWaiting)||bWaiting)return false;
+    if(!bRequired)return true;
+
+    // The client may have expanded this library while the replicated run scope
+    // was still Unknown. Re-evaluate its scoped edges now; adding the already
+    // seen library root alone cannot discover the previously skipped profile.
+    const FSoftObjectPath LibraryPath=MCVFXSourceContracts::WorldLibraryPath();
+    UObject* Library=LibraryPath.ResolveObject();
+    TArray<FSoftObjectPath> Dependencies;Dependencies.Add(LibraryPath);
+    if(Library)FMCPreloadManifest::CollectSoftReferences(Library,Dependencies,GetWorld());
+    const int32 Pending=Dependencies.FilterByPredicate([this](const FSoftObjectPath& Path){
+        return !Path.IsNull()&&!SeenPaths.Contains(Path);
+    }).Num();
+    if(Pending>0) {
+        bRenderingWorkBuilt=false;bStreamingTargetsBuilt=false;ResetRenderReadiness();
+        UE_LOG(LogMCWorldPreload,Log,TEXT("MC_PRELOAD_SCOPE_DEPENDENCIES world=%s epoch=%s pending=%d"),
+            *GetNameSafe(GetWorld()),*PreparedGameplayLoadId.ToString(),Pending);
+        SetPhase(EMCWorldPreloadPhase::LoadingAssets);
+        StartLoadWave(MoveTemp(Dependencies));
+        return false;
+    }
+    if(!Library) {
+        Fail(LoadingText(TEXT("Loading_FreezeSourceFailed"),TEXT("Не подготовлен источник ледяной смерти"),TEXT("Freeze source preparation failed")),
+            TEXT("The required Freeze library is not resident after its load wave."));
+        return false;
+    }
+    return true;
 }
 
 bool UMCWorldPreloadSubsystem::CreateIcePresentationOwner(FString& Error)
@@ -417,6 +450,10 @@ void UMCWorldPreloadSubsystem::StartLoadWave(TArray<FSoftObjectPath> Paths)
 
 void UMCWorldPreloadSubsystem::FinishLoadWave()
 {
+    // Root assets may stream in parallel with replication. Do not freeze any
+    // dependency graph until the authoritative run parameters are known.
+    bool bRequired=false,bWaiting=false;
+    if(!ResolveIcePreparationScope(bRequired,bWaiting)||bWaiting)return;
     TArray<UObject*> Loaded;
     ActiveHandle->GetLoadedAssets(Loaded);
     int32 Missing = 0;
@@ -519,9 +556,10 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
             *GetNameSafe(GetWorld()),Stage,Now-StageStarted);
         StageStarted=Now;
     };
-    bool bIceRequired=false,bIceWaiting=false;
-    if(!ResolveIcePreparationScope(bIceRequired,bIceWaiting))return;
-    if(bIceWaiting){bRenderingWorkBuilt=false;ResetRenderReadiness();return;}
+    bool bIceRequired=false;
+    if(!EnsureScopedPresentationDependencies(bIceRequired)){
+        bRenderingWorkBuilt=false;ResetRenderReadiness();return;
+    }
     if(auto* River=GetWorld()->GetSubsystem<UMCCoffeeRiverPresentationResources>()) {
         const auto* State=GetWorld()->GetGameState<AMCGameState>();TArray<UObject*> Resources;
         FString RiverError;
@@ -1116,14 +1154,9 @@ void UMCWorldPreloadSubsystem::TickRenderReadiness()
     }
     if (!FApp::CanEverRender())
     {
-        // Asset-only readiness still belongs to the server's current location/load epoch.
-        // Rendering preparation normally resolves this scope; this path does not build it.
-        bool bIceRequired=false,bIceWaiting=false;
-        if(!ResolveIcePreparationScope(bIceRequired,bIceWaiting)) {
-            Fail(LoadingText(TEXT("Loading_IcePresentationFailed"),TEXT("Не удалось подготовить ледяное событие"),TEXT("Unable to prepare Ice presentation")),
-                TEXT("Could not resolve the current location/load epoch for asset-only preparation."));return;
-        }
-        if(bIceWaiting){ResetRenderReadiness();return;}
+        // Asset-only readiness uses the same current scoped dependency closure.
+        bool bIceRequired=false;
+        if(!EnsureScopedPresentationDependencies(bIceRequired)){ResetRenderReadiness();return;}
         // NullRHI/commandlet automation can exercise the asset barrier but cannot
         // certify graphics. This is deliberately visible in its validation log.
         UE_LOG(LogMCWorldPreload, Warning, TEXT("MC_PRELOAD_ASSETS_ONLY world=%s renderingUnavailable=1 visualValidation=0"), *GetNameSafe(GetWorld()));
@@ -1518,7 +1551,9 @@ void UMCWorldPreloadSubsystem::ResetMaterialContextPreparation()
     if(ProceduralSurfaceResources)ProceduralSurfaceResources->Reset();ProceduralSurfaceResources=nullptr;
     if(MaterialContexts)MaterialContexts->Reset();
     ReleaseArenaToothMaterialContextProbes();PreparedArenaToothContextMeshes.Reset();
-    if(!MaterialContextPSORequests.IsEmpty())ReleasePSOPrecacheData(MaterialContextPSORequests);
+    // PrecacheMaterialPSOs also records these IDs in their owning FMaterial.
+    // Releasing the borrowed IDs here makes its later GC release hit a removed
+    // request (PSOPrecacheMaterial.cpp). Only discard our observations.
     MaterialContextPSORequests.Reset();MaterialContextPSOEvents.Reset();MaterialContextFence.Reset();
     for(const auto& Object:MaterialContextAddedAssets)if(Object.IsValid()) {
         RetainedAssets.Remove(Object.Get());

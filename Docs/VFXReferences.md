@@ -1,5 +1,15 @@
 # eeproducible VFX reference library
 
+## Food crumbs to mouth — 2026-11-08
+
+- [Ashif Ali / CGHOW: Particles Attracting to Camera](https://cghow.com/particles-attracting-to-camera-in-unreal-engine-5-1-niagara/) informed the readable gathering motion towards a supplied endpoint. Adapted as an original short crumb burst and curved inward flight, without copying source art. The full page was rate-limited during research; its creator/search synopsis was available.
+- [Epic: Scratch Pad Modules](https://dev.epicgames.com/documentation/en-us/unreal-engine/niagara-scratch-pad-modules-in-unreal-engine) documents editable parameter-map assignments and the difference between spawn and update data. `NS_Food_AutoMouth` uses ordinary stock lifecycle/initialization modules and editable Set Parameters expressions; authoritative accounting stays outside Niagara.
+- [Epic: Particle Spawn Group](https://dev.epicgames.com/documentation/en-us/unreal-engine/particle-spawn-group-reference-for-niagara-effects-in-unreal-engine) describes point attraction as force accumulation. This effect instead uses a bounded analytic position curve so crumbs arrive at the accepted endpoint without physics overshoot.
+
+Tried in MessControl: `/Game/Gameplay/Food/VFX/NS_Food_AutoMouth`, two CPU world-space emitters, at most 16 opaque 12-triangle crumbs and 10 small soft motes per accepted portion. Original irregular crumb mesh, food-tinted Default Lit material and texture-free non-additive motes are authored by `Tools/Unreal/author_food_auto_mouth_resources.py`; Niagara stacks by `author_food_auto_mouth_niagara.py`. Source radius, color, duration, cosmetic seed and world-oriented endpoint delta are typed User parameters. Dynamic CPU bounds follow the entire path; there are no particle collisions or replicated crumb actors. Its owned `NET_Food_AutoMouth` copies the existing family settings but uses `Deactivate` / Kill, so culled one-shots finish without automatic reactivation; the shared active-skills Effect Type is unchanged. The system retains up to 16 idle pooled components; this pool setting does not cap concurrent active effects.
+
+Saved and compiled cleanly with zero Niagara warnings. The `Food.AutoMouth` / `Consume` profile is reachable through the existing scoped mouth presentation library. A short raw Niagara asset-editor capture is retained on E:, but it began after the single burst had finished and does not prove visible motion. This is construction/compile evidence; actual knife flow, gameplay-camera readability, interruption/reset and first-use/prewarm acceptance are recorded separately by the integration task. No packaged PSO or measured overdraw result is claimed.
+
 ## Procedural strawberry cut interior — 2026-11-07
 
 - [Tatjana Mink's procedural strawberry pulp](https://yarobot.artstation.com/projects/R3R4ny) informed the pale axial core and red flesh. This experiment uses an original HLSL volume field, authored in `M_FoodCutPulp` through the native material MCP and retained in `Tools/Unreal/author_food_cut_pulp_mcp.py`.

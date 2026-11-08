@@ -131,6 +131,7 @@ private:
     friend class FMCPrewarmedIcePresentationOwnership;
     friend class FMCEventAudioWorldService;
     friend class FMCEventAudioLegacySafety;
+    friend class FMCScopedPreloadEnrollment;
     struct FWarmupRequest
     {
         TWeakObjectPtr<UObject> Mesh;
@@ -149,6 +150,7 @@ private:
     bool IsIcePresentationLocation() const;
     bool IsPreparationRunCurrent() const;
     bool ResolveIcePreparationScope(bool& bRequired,bool& bWaiting);
+    bool EnsureScopedPresentationDependencies(bool& bRequired);
     bool CreateIcePresentationOwner(FString& Error);
     void ReleaseIcePresentationOwner();
     void ResetPreparation();
@@ -211,6 +213,7 @@ private:
     TMap<TWeakObjectPtr<AMCArenaTooth>,TWeakObjectPtr<UStaticMesh>> PreparedArenaToothContextMeshes;
     TArray<TWeakObjectPtr<UMeshComponent>> MaterialContextTargets,MaterialContextQueuedTargets;
     TArray<TWeakObjectPtr<UObject>> MaterialContextAddedAssets;
+    // Borrowed observations: FMaterial owns these IDs and releases them at destruction.
     TArray<FMaterialPSOPrecacheRequestID> MaterialContextPSORequests;
     FGraphEventArray MaterialContextPSOEvents;
     TSharedPtr<FRenderCommandFence> MaterialContextFence;

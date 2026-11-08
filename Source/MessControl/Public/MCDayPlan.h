@@ -23,6 +23,8 @@ struct MESSCONTROL_API FMCFoodRow : public FTableRowBase
 {
     GENERATED_BODY()
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FText Label;
+    /** Food identity captured before a consumed cut actor disappears; decorative motion stays in Niagara. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") FLinearColor CrumbColor=FLinearColor(.78f,.48f,.19f);
     UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<TSoftObjectPtr<UStaticMesh>> WholeMeshes;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<TSoftObjectPtr<UStaticMesh>> FragmentMeshes;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Collision") FMCFoodCollisionSettings Collision;

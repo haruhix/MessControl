@@ -1,4 +1,5 @@
 #include "MCGameState.h"
+#include "MCVFXPresentationComponent.h"
 
 void AMCGameState::SetRogueEventEnabled(FName Event,bool Enabled)
 {
@@ -20,6 +21,9 @@ void AMCGameState::SetRogueNightActive(bool Active)
 AMCGameState::AMCGameState()
 {
     Progression=CreateDefaultSubobject<UMCProgressionComponent>(TEXT("Progression"));
+    FoodCutIntakePresentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("FoodCutIntakePresentation"));
+    FoodCutIntakePresentation->SourceID=TEXT("Food.AutoMouth");
+    FoodCutIntakePresentation->Events={TEXT("Consume")};
     PrimaryActorTick.bCanEverTick=true;
     PrimaryActorTick.bStartWithTickEnabled=true;
 }

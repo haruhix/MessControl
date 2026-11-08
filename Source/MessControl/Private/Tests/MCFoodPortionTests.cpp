@@ -4,6 +4,7 @@
 #include "MCFoodCollectionComponent.h"
 #include "MCInventoryComponent.h"
 #include "MCToothCharacter.h"
+#include "MCThroat.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/DataTable.h"
@@ -76,6 +77,9 @@ struct FFoodPortionWorld
         FRandomStream Random(7);Food->ConfigureItem(TEXT("Fibre"),SizedRow,Random,Fragment);
         Food->FinishSpawning(Pose);
         Food->Settings.MaxHandDimensions=FVector(110);
+        // These existing geometry/carry checks exercise the retained legacy
+        // mode explicitly. Automatic intake has its own cases below.
+        Food->Settings.bAutoConsumeSmallCuts=false;
         Food->Settings.MinCutVolume=1000;
         Food->Settings.MinCutThickness=12;
         Food->Phase=EMCFoodPhase::Free;
@@ -219,6 +223,162 @@ bool FMCFoodReadyPortion::RunTest(const FString&)
     TestTrue(TEXT("Cutting conserves food mass"),FMath::IsNearlyEqual(TotalMass,Mass,.001f));
     TestTrue(TEXT("Cutting conserves simulated body mass"),FMath::IsNearlyEqual(TotalBodyMass,BodyMass,.01f));
     TestEqual(TEXT("Ready portions cannot be subdivided into extra live actors"),T.LiveFood().Num(),2);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodAutomaticIntakeSwitch,"MessControl.Food.AutoIntake.SwitchRetainsLegacyDelivery",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoodAutomaticIntakeSwitch::RunTest(const FString&)
+{
+    FFoodPortionWorld T;if(!T.LoadFixture(*this)) return false;
+    TestTrue(TEXT("Automatic intake is the default for new and existing profile fields"),FMCFoodSettings().bAutoConsumeSmallCuts);
+    auto* Food=T.Food(FVector(80,60,50),true);
+    if(!TestNotNull(TEXT("A ready portion spawns"),Food)) return false;
+    Food->Settings.bAutoConsumeSmallCuts=true;
+    TestTrue(TEXT("Fresh ordinary food selects automatic intake"),Food->UsesAutomaticCutIntake());
+    TestFalse(TEXT("Automatic intake disables the old hand tower"),T.Hero->FoodCollection->CanCollect(Food));
+    TestFalse(TEXT("Automatic intake disables old physical throat delivery"),Food->BeginSwallow());
+    Food->bSpoiled=true;
+    TestFalse(TEXT("Spoiled portions retain their discard route"),Food->UsesAutomaticCutIntake());
+    Food->bSpoiled=false;Food->Settings.bAutoConsumeSmallCuts=false;
+    TestFalse(TEXT("The profile switch deactivates automatic intake"),Food->UsesAutomaticCutIntake());
+    TestTrue(TEXT("The retained manual throat handoff works with the switch off"),Food->BeginSwallow());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodAutomaticIntakeReceipt,"MessControl.Food.AutoIntake.AcceptedKnifeCompletesExactlyOnce",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoodAutomaticIntakeReceipt::RunTest(const FString&)
+{
+    FFoodPortionWorld T;if(!T.LoadFixture(*this)) return false;
+    auto* Food=T.Food(FVector(80,60,50),true);
+    if(!TestNotNull(TEXT("The small-cut fixture spawns"),Food)) return false;
+    Food->Settings.bAutoConsumeSmallCuts=true;
+    TestFalse(TEXT("An absent mouth cannot silently discard a ready portion"),Food->TryConsumeCutPortion(FVector::ForwardVector));
+    TestFalse(TEXT("The portion remains usable after an absent-target refusal"),Food->IsDisposed());
+    auto* Throat=T.World->SpawnActor<AMCThroat>(FVector(400,0,2000),FRotator::ZeroRotator);
+    if(!TestNotNull(TEXT("The real mouth intake spawns"),Throat)) return false;
+    const FVector Point=Food->Visual->Bounds.Origin;
+    TestTrue(TEXT("One accepted real knife hit consumes the already-small portion"),Food->HitFood(1,FVector::ForwardVector,T.Hero,Point,FVector::RightVector));
+    TestTrue(TEXT("The accepted portion carries the automatic receipt"),Food->WasAutomaticallyConsumed());
+    TestTrue(TEXT("The physical food is deactivated after the accepted event"),Food->IsDisposed());
+    TestEqual(TEXT("The mouth records one accepted portion"),Throat->FoodSwallowed,1);
+    TestFalse(TEXT("A repeated accepted request cannot consume again"),Food->TryConsumeCutPortion(FVector::ForwardVector));
+    TestFalse(TEXT("A second hit cannot consume disposed food"),Food->HitFood(1,FVector::ForwardVector,T.Hero,Point,FVector::RightVector));
+    TestEqual(TEXT("Repeated requests cannot duplicate accepted delivery"),Throat->FoodSwallowed,1);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodAutomaticIntakeSplit,"MessControl.Food.AutoIntake.ThresholdCrossingCutConsumesOnlyReadyHalves",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoodAutomaticIntakeSplit::RunTest(const FString&)
+{
+    FFoodPortionWorld T;if(!T.LoadFixture(*this)) return false;
+    auto* Throat=T.World->SpawnActor<AMCThroat>(FVector(400,0,2000),FRotator::ZeroRotator);
+    if(!TestNotNull(TEXT("The mouth intake spawns"),Throat)) return false;
+    auto* Whole=T.Food(FVector(180,90,80));
+    if(!TestNotNull(TEXT("The threshold-crossing food spawns"),Whole)) return false;
+    Whole->Settings.bAutoConsumeSmallCuts=true;
+    Whole->Settings.MaxAutoConsumeDimensions=FVector(110); // Explicit configurable threshold for this split fixture.
+    TestFalse(TEXT("The parent must still be cut"),Whole->FitsHandPortion());
+    TestFalse(TEXT("An oversized portion cannot auto-complete"),Whole->TryConsumeCutPortion(FVector::ForwardVector));
+    if(!TestTrue(TEXT("A central cut produces two small halves"),Whole->HitFood(999,FVector::RightVector,T.Hero,Whole->Visual->Bounds.Origin,FVector::ForwardVector))) return false;
+    TestTrue(TEXT("The replaced parent has no delivery receipt"),Whole->IsDisposed() && !Whole->WasAutomaticallyConsumed());
+    int32 AcceptedHalves=0;float DeliveredMass=0;
+    for(TActorIterator<AMCFoodActor> It(T.World);It;++It) if(It->WasAutomaticallyConsumed()) {
+        ++AcceptedHalves;DeliveredMass+=It->FoodData.Mass;
+        TestTrue(TEXT("Every accepted half is genuinely within the portion limit"),It->FitsHandPortion() && It->bFragment && !It->CutPlanes.IsEmpty());
+    }
+    TestEqual(TEXT("Only the two cut halves complete"),AcceptedHalves,2);
+    TestEqual(TEXT("The mouth records each accepted half once"),Throat->FoodSwallowed,2);
+    TestTrue(TEXT("Consumed halves preserve the parent's food mass"),FMath::IsNearlyEqual(DeliveredMass,Whole->FoodData.Mass,.001f));
+    TestTrue(TEXT("No hand-carry fragments remain after ready halves complete"),T.LiveFood().IsEmpty());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodAutomaticUnsupportedSource,"MessControl.Food.AutoIntake.UnsupportedSourceCannotCompleteThroughFallback",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoodAutomaticUnsupportedSource::RunTest(const FString&)
+{
+    FFoodPortionWorld T;if(!T.LoadFixture(*this)) return false;
+    auto* Whole=T.Food(FVector(180,140,130));
+    if(!TestNotNull(TEXT("The unsupported-source ingredient spawns"),Whole)) return false;
+    Whole->Settings.bAutoConsumeSmallCuts=true;
+    // Simulate an unavailable native slicing source and no authored fragments;
+    // the retained legacy ConfigureItem fallback must not become a meal receipt.
+    Whole->ItemMesh=nullptr;Whole->FoodData.FragmentMeshes.Reset();
+    const float Health=Whole->Health,Mass=Whole->FoodData.Mass;
+    TestFalse(TEXT("A lethal unsupported hit is refused before legacy fallback credit"),Whole->HitFood(999,FVector::ForwardVector,T.Hero));
+    TestEqual(TEXT("Refusal retains the parent's health"),Whole->Health,Health);
+    TestEqual(TEXT("Refusal retains the parent's mass"),Whole->FoodData.Mass,Mass);
+    TestFalse(TEXT("The unfinished ingredient remains active"),Whole->IsDisposed());
+    TestFalse(TEXT("No automatic delivery receipt was issued"),Whole->WasAutomaticallyConsumed());
+    TestEqual(TEXT("No replacement actors were fabricated"),T.LiveFood().Num(),1);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodAutomaticIndependentLimit,"MessControl.Food.AutoIntake.LargerLimitKeepsLegacyHandSizeIndependent",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoodAutomaticIndependentLimit::RunTest(const FString&)
+{
+    FFoodPortionWorld T;if(!T.LoadFixture(*this)) return false;
+    const FMCFoodSettings Defaults;
+    TestTrue(TEXT("Automatic intake defaults to 220 cm per axis"),Defaults.MaxAutoConsumeDimensions.Equals(FVector(220)));
+    TestTrue(TEXT("The retained hand pattern still defaults to 110 cm per axis"),Defaults.MaxHandDimensions.Equals(FVector(110)));
+    auto* Throat=T.World->SpawnActor<AMCThroat>(FVector(400,0,2000),FRotator::ZeroRotator);
+    if(!TestNotNull(TEXT("The real intake spawns"),Throat)) return false;
+
+    auto* LargeReady=T.Food(FVector(220,200,180),true);
+    if(!TestNotNull(TEXT("The larger automatic portion spawns"),LargeReady)) return false;
+    LargeReady->Settings.bAutoConsumeSmallCuts=true;
+    TestFalse(TEXT("This portion remains too large for the legacy hand"),LargeReady->FitsHandPortion());
+    TestTrue(TEXT("The new 220 cm threshold accepts its exact upper edge"),LargeReady->FitsAutomaticIntakePortion());
+    TestTrue(TEXT("A real knife contact completes the larger portion without extra subdivisions"),LargeReady->HitFood(1,FVector::ForwardVector,T.Hero,LargeReady->Visual->Bounds.Origin,FVector::RightVector));
+    TestTrue(TEXT("The larger portion gets one automatic receipt"),LargeReady->WasAutomaticallyConsumed());
+
+    auto* AboveLimit=T.Food(FVector(221,200,180),true);
+    if(!TestNotNull(TEXT("A portion above the new threshold spawns"),AboveLimit)) return false;
+    AboveLimit->Settings.bAutoConsumeSmallCuts=true;
+    TestFalse(TEXT("221 cm still requires a cut at a 220 cm threshold"),AboveLimit->FitsAutomaticIntakePortion());
+    TestFalse(TEXT("Being above the automatic threshold cannot complete directly"),AboveLimit->TryConsumeCutPortion(FVector::ForwardVector));
+    TestFalse(TEXT("The refused portion is preserved"),AboveLimit->IsDisposed());
+
+    auto* SmallerSetting=T.Food(FVector(100,70,60),true);
+    if(!TestNotNull(TEXT("A configurable stricter automatic fixture spawns"),SmallerSetting)) return false;
+    SmallerSetting->Settings.bAutoConsumeSmallCuts=true;
+    SmallerSetting->Settings.MaxAutoConsumeDimensions=FVector(80);
+    TestTrue(TEXT("The stricter fixture would fit the retained 110 cm hand"),SmallerSetting->FitsHandPortion());
+    TestFalse(TEXT("Its configured 80 cm automatic gate still needs cutting"),SmallerSetting->FitsAutomaticIntakePortion());
+    TestTrue(TEXT("Legacy hand readiness cannot block a valid stricter automatic cut"),SmallerSetting->HitFood(1,FVector::ForwardVector,T.Hero,SmallerSetting->Visual->Bounds.Origin,FVector::ForwardVector));
+    TestTrue(TEXT("The stricter parent is replaced by the actual cut, without being directly consumed"),SmallerSetting->IsDisposed() && !SmallerSetting->WasAutomaticallyConsumed());
+    TestEqual(TEXT("The larger ready portion plus two stricter cut results are accepted once"),Throat->FoodSwallowed,3);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodPoweredKnifeHardShell,
+    "MessControl.Food.AutoIntake.PoweredKnifeOpensHardShellBeforeIntake",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoodPoweredKnifeHardShell::RunTest(const FString&)
+{
+    FFoodPortionWorld T;if(!T.LoadFixture(*this)) return false;
+    auto* Whole=T.Food(FVector(80,60,50));
+    if(!TestNotNull(TEXT("A hard whole-food fixture spawns"),Whole)) return false;
+    Whole->FoodData.Resistance=EMCFoodResistance::Hard;
+    Whole->Settings.bAutoConsumeSmallCuts=true;
+    auto* Inventory=T.Hero->Inventory.Get();
+    if(!TestNotNull(TEXT("The powered-knife worker has inventory"),Inventory)) return false;
+    Inventory->Selected=EMCToolSlot::Knife;
+    if(!TestTrue(TEXT("The real development upgrade grants the powered knife"),Inventory->GrantDevToolUpgrade(EMCToolUpgrade::Chainsaw))) return false;
+    TestTrue(TEXT("The powered knife retains permission to open hard food"),Inventory->CanBreak(Whole));
+    TestTrue(TEXT("The small shell is already within the intake size limit"),Whole->FitsAutomaticIntakePortion());
+    auto* Throat=T.World->SpawnActor<AMCThroat>(FVector(400,0,2000),FRotator::ZeroRotator);
+    if(!TestNotNull(TEXT("A real mouth intake is available"),Throat)) return false;
+    const float ContactDamage=Whole->FoodData.Health*.5f;
+    TestTrue(TEXT("The first powered contact damages the shell"),Whole->HitFood(ContactDamage,FVector::ForwardVector,T.Hero));
+    TestFalse(TEXT("A small hard shell cannot bypass opening through automatic intake"),Whole->IsDisposed() || Whole->WasAutomaticallyConsumed());
+    TestEqual(TEXT("An unopened shell produces no accepted intake"),Throat->FoodSwallowed,0);
+    TestTrue(TEXT("The second powered contact opens the authored shell"),Whole->HitFood(ContactDamage,FVector::ForwardVector,T.Hero));
+    TestTrue(TEXT("The shell is replaced without a direct whole-food intake receipt"),Whole->IsDisposed() && !Whole->WasAutomaticallyConsumed());
+    int32 AcceptedFlesh=0;
+    for(TActorIterator<AMCFoodActor> It(T.World);It;++It) if(It->WasAutomaticallyConsumed()) {
+        ++AcceptedFlesh;
+        TestTrue(TEXT("Only opened, ready flesh completes"),It->bFragment && !It->IsHardFood() && It->FitsAutomaticIntakePortion());
+    }
+    TestEqual(TEXT("Both authored ready flesh pieces complete after opening"),AcceptedFlesh,2);
+    TestEqual(TEXT("The mouth accepts only the two opened pieces"),Throat->FoodSwallowed,2);
     return true;
 }
 #endif

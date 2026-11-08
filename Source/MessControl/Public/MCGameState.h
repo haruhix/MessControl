@@ -12,6 +12,7 @@ class AMCFoodActor;
 class UMCProgressionComponent;
 class USkeletalMeshComponent;
 class AMCSingleDayDirector;
+class UMCVFXPresentationComponent;
 
 /** Published from the actual initialized run profile, never inferred by clients. */
 UENUM()
@@ -44,6 +45,8 @@ class MESSCONTROL_API AMCGameState : public AGameStateBase
 public:
     AMCGameState();
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Progression") TObjectPtr<UMCProgressionComponent> Progression;
+    /** Stable accepted-event owner: cut fragments can be consumed before their actor channel opens. */
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Food|Presentation") TObjectPtr<UMCVFXPresentationComponent> FoodCutIntakePresentation;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Sequence") bool bSingleDayLoop=false;
     UPROPERTY(Replicated) FMCIcePresentationRunScope IcePresentationScope;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Sequence") TObjectPtr<AMCSingleDayDirector> SingleDayDirector;

@@ -65,6 +65,16 @@ namespace MCUnifiedTutorialPrivate
         {EMCTutorialStage::FoamParty,{TEXT("PartyTitle"),TEXT("PartyFairy"),TEXT("PartyHint")},{TEXT("09 · ПЕННАЯ ВЕЧЕРИНКА"),TEXT("Стажировка пройдена! Чистить умеете, еду доставлять умеете, мусор отличаете. Немного пены за ваш счёт!"),TEXT("Пятнадцать секунд праздника. Можно свободно побегать вместе.")}},
         {EMCTutorialStage::Complete,{TEXT("CompleteTitle"),TEXT("CompleteFairy"),TEXT("CompleteHint")},{TEXT("ОБУЧЕНИЕ ПРОЙДЕНО"),TEXT("Он просыпается — скоро настоящий завтрак. Когда вся команда готова, начинаем день 1."),TEXT("Нажми «Готов к дню 1». Переход начнётся после готовности всей команды.")}},
     };
+    struct FAutomaticCopy {const TCHAR* Key;const TCHAR* Fallback;};
+    // Both retained modes are warmed before the tutorial readiness barrier.
+    const FAutomaticCopy AutomaticCopy[]={
+        {TEXT("AutoCutFairy"),TEXT("Нарежь подсвеченную еду ножом. Достаточно мелкие кусочки рассыплются и сами улетят в глотку.")},
+        {TEXT("AutoCutHint"),TEXT("3 — нож. Режь еду до мелких порций; доставка автоматическая.")},
+        {TEXT("AutoFreshFairy"),TEXT("Дорежь подсвеченный кусочек. Когда он достаточно мал, следующий удар ножа отправит крошки в глотку.")},
+        {TEXT("AutoFreshHint"),TEXT("3 — нож. ЛКМ — нарезать; мелкие кусочки улетают сами.")},
+        {TEXT("AutoBreakfastHint"),TEXT("Режьте еду ножом до мелких кусочков — они сами улетят в глотку.")},
+        {TEXT("AutoFreshWrongExit"),TEXT("Свежую еду нужно мелко нарезать ножом. Крошки сами отправятся в глотку.")},
+    };
     struct FShortCopy {EMCTutorialStage Stage;int32 Field;const TCHAR* Key;const TCHAR* Fallback;};
     const FShortCopy ShortCopy[]={
         {EMCTutorialStage::Intro,0,TEXT("ShortIntroTitle"),TEXT("ОБУЧЕНИЕ · ПЕРВАЯ СМЕНА")},
@@ -281,6 +291,7 @@ void UMCUnifiedTutorialWidget::PreparePresentation()
     TArray<FText> Warm;
     for(const auto& Lesson:MCUnifiedTutorialPrivate::Lessons) for(int32 I=0;I<3;++I) Warm.Add(UMCUIDataLibrary::ResolveText(CopyTable,FName(*(FString(TEXT("UI.Tutorial.Copy."))+Lesson.Keys[I])),FText::FromString(Lesson.Fallbacks[I]),PreparedCulture));
     for(const auto& ShortEntry:MCUnifiedTutorialPrivate::ShortCopy) Warm.Add(UMCUIDataLibrary::ResolveText(CopyTable,FName(*(FString(TEXT("UI.Tutorial.Copy."))+ShortEntry.Key)),FText::FromString(ShortEntry.Fallback),PreparedCulture));
+    for(const auto& AutoEntry:MCUnifiedTutorialPrivate::AutomaticCopy) Warm.Add(UMCUIDataLibrary::ResolveText(CopyTable,FName(*(FString(TEXT("UI.Tutorial.Copy."))+AutoEntry.Key)),FText::FromString(AutoEntry.Fallback),PreparedCulture));
     if(auto* Source=Backend.Get()) {
         const auto Snapshot=Source->GetUnifiedPresentationSnapshot();
         for(const FText& Value:{Snapshot.StageTitleText,Snapshot.DialogueText,Snapshot.ActionText,Snapshot.OwnProgressText,

@@ -85,7 +85,7 @@ void AMCFoodActor::UpdateSmell()
     }
 }
 
-bool AMCFoodActor::SpawnFragments(FVector Direction)
+bool AMCFoodActor::SpawnFragments(FVector Direction,TArray<AMCFoodActor*>* OutPieces)
 {
     if(!HasAuthority() || bFragment || bBrushTool || FoodData.Kind!=EMCFoodKind::Food) return false;
     FRandomStream Random(HashCombine(GetTypeHash(GetActorLocation()),GetTypeHash(GetWorld()->GetTimeSeconds())));
@@ -113,10 +113,9 @@ bool AMCFoodActor::SpawnFragments(FVector Direction)
         auto* Piece=GetWorld()->SpawnActorDeferred<AMCFoodActor>(StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if(!Piece) continue;
         Piece->ConfigureItem(ItemName,FoodData,Random,true);
-        Piece->Batch=Batch;Piece->LastHandledBy=LastHandledBy;
+        Piece->Batch=Batch;Piece->LastHandledBy=LastHandledBy;Piece->SetOwner(GetOwner());
         if(FoodData.Kind==EMCFoodKind::Food && !HasFreshnessTimer()) {
             if(ActorHasTag(TEXT("MCNutRain"))) Piece->Tags.AddUnique(TEXT("MCNutRain"));
-            Piece->SetOwner(GetOwner());
         }
         Piece->bSpoiled=bSpoiled;Piece->SpoilAt=SpoilAt;
         Piece->EntryRecoveryLanding=Center;
@@ -174,10 +173,13 @@ bool AMCFoodActor::SpawnFragments(FVector Direction)
     for(auto& Entry:Pending) {
         auto* Piece=Entry.Food;
         Piece->FinishSpawning(Entry.Pose);
+        Piece->Settings.bAutoConsumeSmallCuts=Settings.bAutoConsumeSmallCuts;
+        Piece->Settings.MaxAutoConsumeDimensions=Settings.MaxAutoConsumeDimensions;
         const FVector Ray=(Entry.Pose.GetLocation()-Center).GetSafeNormal2D();
         const FVector Velocity=(Ray*22+Direction.GetSafeNormal()*12)*ScatterFactor+FVector(0,0,45);
         Piece->Body->SetPhysicsLinearVelocity(Velocity);
         Piece->ForceNetUpdate();++Created;
+        if(OutPieces) OutPieces->Add(Piece);
     }
     if(Created!=Count)
         UE_LOG(LogTemp,Warning,TEXT("MC_FOOD_FRAGMENT_COUNT item=%s requested=%d created=%d"),*ItemName.ToString(),Count,Created);

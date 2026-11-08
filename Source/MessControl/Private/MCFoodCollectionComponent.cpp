@@ -68,6 +68,9 @@ bool UMCFoodCollectionComponent::CanCollect(const AMCFoodActor* F) const
     const auto* H=Cast<AMCToothCharacter>(GetOwner());
     if(!H || !IsValid(F) || !H->CanWork() || F->UsesLegacyGrip() || F->StackCarrier || F->IsDisposed()
         || (F->Phase!=EMCFoodPhase::Free && F->Phase!=EMCFoodPhase::Falling) || !F->Holders.IsEmpty()) return false;
+    // Retain the tower implementation behind the profile switch. Fresh food in
+    // automatic intake mode completes at the knife, without a second E/Q task.
+    if(F->UsesAutomaticCutIntake()) return false;
     // Boss debris is one piece in the hand for Q. It cannot join a food tower,
     // nor can automatic collection build a tower on top of held ammunition.
     if(HasNutAmmunition() || (F->IsNutEncounterFragment() && !Pieces.IsEmpty())) return false;
