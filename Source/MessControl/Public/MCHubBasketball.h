@@ -38,7 +38,7 @@ public:
 
     static AMCHubBasketball* HeldBy(const AMCToothCharacter* Hero);
     static AMCHubBasketball* PickupCandidate(const AMCToothCharacter* Hero);
-    /** Local-only contextual target: pickup uses the real E priority; held ball uses Q. */
+    /** Local-only contextual target: pickup uses the real E priority; held ball uses RMB. */
     static AMCHubBasketball* LocalHintBall(const AMCToothCharacter* Hero);
     bool TryPickup(AMCToothCharacter* Hero);
     UFUNCTION(BlueprintCallable, Category="Basketball") void Release(FVector Velocity);

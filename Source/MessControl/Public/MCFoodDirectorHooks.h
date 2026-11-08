@@ -52,10 +52,10 @@ struct MESSCONTROL_API FMCFoodPipelineLoad
     bool bThroatBusy=false;
 };
 
-/** One call attempts one explicit whole item plus its ordinary tongue stain. A failed attempt leaves no issued work.
+/** One call attempts one explicit whole item. Food entry creates no tongue dirt; a failed attempt leaves no issued work.
  * Requires a valid menu row, authored tongue footprint and mouth-entry trajectory.
  * The caller owns admission, row selection, Batch lineage and the seeded random stream.
- * Ordinary food requires a matching mechanics executor (explicit, or unambiguous in-world).
+ * DirtServices is retained for caller compatibility and optional diagnostics, not stain production.
  */
 MESSCONTROL_API AMCFoodActor* MCSpawnDirectedFoodEntry(UWorld* World,const UMCDayPlan* Plan,
     FName RowName,int32 Batch,FRandomStream& Random,AMCDayDirector* DirtServices=nullptr);
@@ -66,8 +66,8 @@ MESSCONTROL_API AMCFoodActor* MCSpawnDirectedFoodEntry(UWorld* World,const UMCDa
 MESSCONTROL_API AMCFoodActor* MCSpawnDirectedStuckFood(UWorld* World,const UMCDayPlan* Plan,
     FName RowName,int32 Batch,FRandomStream& Random,AMCDayDirector* DirtServices=nullptr);
 
-/** Ordinary portions commit one existing-mechanics tongue stain in the same batch.
- * Failed portions leave no stain. Queries exclude ulcers and already-clean stains.
+/** Compatibility cleanup for old food-owned stains. New portions create no stains.
+ * Queries exclude ulcers and already-clean stains.
  */
 MESSCONTROL_API int32 MCCountDirectedFoodDirt(UWorld* World,int32 Batch);
 MESSCONTROL_API void MCDestroyDirectedFoodDirt(const AMCFoodActor* Food);
@@ -75,10 +75,11 @@ MESSCONTROL_API void MCDestroyDirectedFoodDirt(UWorld* World,int32 Batch);
 MESSCONTROL_API FMCFoodPipelineTuning MCResolveFoodPipelineTuning(UWorld* World,
     const FMCFoodPipelineTuning& Tuning=FMCFoodPipelineTuning());
 
-/** Conservative work for one configured row anywhere in the legal landing bands, including its ordinary stain.
+/** Conservative work for one configured row anywhere in the legal landing bands.
  * Ordinary food budgets approach and tool damage until destruction: no fragments, pickup or delivery trips.
  * Spicy/foreign objects retain their disposal route. Missing menu/tongue, or a missing
  * disposal exit for those hazards, returns MAX_flt (cannot admit).
+ * CleaningWorkerSeconds is retained for caller compatibility; food creates no cleanup work.
  */
 MESSCONTROL_API float MCForecastDirectedFoodWork(UWorld* World,const UMCDayPlan* Plan,
     FName RowName,bool bStuck=false,const FMCFoodPipelineTuning& Tuning=FMCFoodPipelineTuning(),

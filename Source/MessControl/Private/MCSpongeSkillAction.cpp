@@ -1,5 +1,6 @@
 #include "MCSpongeSkillAction.h"
 #include "MCToothCharacter.h"
+#include "MCToothMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -69,6 +70,20 @@ AMCSpongeSkillAction::AMCSpongeSkillAction()
 }
 UMCSpongeSkillEffect::UMCSpongeSkillEffect() {ActionClass=AMCSpongeSkillAction::StaticClass();}
 
+FTransform AMCSpongeSkillAction::GetRideFrame() const
+{
+    if(!Hero()) return GetActorTransform();
+    if(HasAuthority()) return Hero()->GetPresentationFrame().FromCanonicalWorld(GetActorTransform());
+    FVector Facing=GetActorForwardVector(),PredictedHeading;float Time=0;
+    if(const auto* M=Cast<UMCToothMovementComponent>(Hero()->GetCharacterMovement());M && M->SampleAcceptedExternalMotion(GetActionID(),Time,PredictedHeading)
+        && !PredictedHeading.IsNearlyZero()) Facing=PredictedHeading;
+    const FVector Foot=MCActiveSkillMotion::FootPoint(Hero());FVector Point,Normal;
+    if(!MCActiveSkillMotion::HasGround(Hero(),Point,Normal) || Normal.ContainsNaN() || Normal.Z<.1f) {Point=Foot;Normal=FVector::UpVector;}
+    const double Height=FMath::Clamp(Param(TEXT("DeckHeight"),45.2f),0.f,100.f)*PropTransform.GetScale3D().Z;
+    const double Z=Foot.Z+FVector::DotProduct(Point-Foot,Normal)/Normal.Z+Height/Normal.Z;
+    return Hero()->GetPresentationFrame().FromCanonicalWorld(FTransform(FRotationMatrix::MakeFromZX(Normal,Facing).ToQuat(),FVector(Foot.X,Foot.Y,Z),GetActorScale3D()));
+}
+
 bool AMCSpongeSkillAction::CanStart() const
 {
     if(!Super::CanStart()) {SpongeReviewReject(this,TEXT("base_context"));return false;}
@@ -86,7 +101,7 @@ void AMCSpongeSkillAction::StartCommitted()
     const float Speed=FMath::Clamp(Param(TEXT("RideSpeed"),620.f),100.f,1200.f);
     EndsAt=Now()+Duration;LastSampleAt=Now();
     UpdateSpongeDeckPose(this,Heading);
-    if(!Motion.Begin(Hero(),GetActionID(),Heading*Speed,false,Duration)) Finish(EMCActiveSkillEndReason::InputCanceled);
+    if(!Motion.BeginSteered(Hero(),GetActionID(),Heading*Speed,FMath::Clamp(Param(TEXT("TurnRate"),220.f),20.f,720.f),Duration)) Finish(EMCActiveSkillEndReason::InputCanceled);
     else {UpdateRideVFX();PlaySkillCue(TEXT("Start"),PreviousFoot+FVector(0,0,3),Heading);StartLoop();UpdateRideVFX();UpdateSoapTrail();}
 }
 bool AMCSpongeSkillAction::RepeatInput()
@@ -101,7 +116,12 @@ void AMCSpongeSkillAction::Tick(float DeltaSeconds)
     if(!HasAuthority()) {UpdateSoapTrail();return;}
     if(Now()>=EndsAt) {Finish(EMCActiveSkillEndReason::Completed);return;}
     if(!MCActiveSkillMotion::IsEligible(Hero(),true) || !Motion.IsOwned()) {Finish(EMCActiveSkillEndReason::InputCanceled);return;}
-    const float Seconds=float(Now()-LastSampleAt);
+    float Seconds=0;FVector ConsumedHeading;
+    const FVector PreviousHeading=Heading;
+    // Preserve Sponge's existing bounded <=1s hitch policy; the source clock
+    // certifies buffered movement instead of guessing it from actor tick time.
+    if(!Motion.SampleStep(float(Now()-LastSampleAt),PreviousSimulationTime,Seconds,ConsumedHeading,1.f)) {Finish(EMCActiveSkillEndReason::InputCanceled);return;}
+    if(!ConsumedHeading.IsNearlyZero()) Heading=ConsumedHeading;
     const float Speed=FMath::Clamp(Param(TEXT("RideSpeed"),620.f),100.f,1200.f);
     const FVector Foot=MCActiveSkillMotion::FootPoint(Hero());
     if(Seconds>0 && !MCActiveSkillMotion::ContinuousPath(PreviousFoot,Foot,Seconds,Speed)) {
@@ -126,7 +146,7 @@ void AMCSpongeSkillAction::Tick(float DeltaSeconds)
     } else {
         float HalfWidth=FMath::Clamp(float(SpongeRideFootprint(this).Y),5.f,150.f);
         if(const UStaticMesh* Mesh=PropMesh?PropMesh->GetStaticMesh():nullptr) {
-            const FBox Bounds=Mesh->GetBoundingBox().TransformBy(PropMesh->GetRelativeTransform());
+            const FBox Bounds=Mesh->GetBoundingBox().TransformBy(PropTransform);
             HalfWidth=FMath::Clamp(float(Bounds.GetExtent().Y),5.f,150.f);
         }
         // A legacy tuning row can request a wider radius than the visible deck.
@@ -135,9 +155,6 @@ void AMCSpongeSkillAction::Tick(float DeltaSeconds)
             FMath::Clamp(Param(TEXT("CleanRate"),1.4f),.01f,20.f),Speed,Param(TEXT("CleanOnContact"),1.f)>=.5f);
     }
     PreviousFoot=Foot;LastSampleAt=Now();
-    const FVector PreviousHeading=Heading;
-    if(Now()>=SteeringLockedUntil)
-        Heading=MCActiveSkillMotion::Steering(Hero(),Heading,FMath::Clamp(Param(TEXT("TurnRate"),220.f),20.f,720.f),DeltaSeconds);
     const FVector Half=SpongeRideFootprint(this);
     const float Ahead=FMath::Min(DeltaSeconds,.05f);
     FHitResult Blocker;
@@ -159,32 +176,34 @@ void AMCSpongeSkillAction::Tick(float DeltaSeconds)
         }
         if(Clear) {
             Heading=Reflected;BounceCount+=Reflections;LastBounceNormal=WallNormal;
-            SteeringLockedUntil=Now()+FMath::Clamp(Param(TEXT("BounceSteeringLock"),.2f),0.f,.5f);
+            Motion.SetSteeringHeading(Heading,FMath::Clamp(Param(TEXT("BounceSteeringLock"),.2f),0.f,.5f));
             ForceNetUpdate();
         } else if(MCActiveSkillMotion::ClearRideFootprint(Hero(),this,PreviousHeading,Half,Ahead,Speed)) {
             // An attempted turn can rotate the wide nose into a wall even
             // though the existing tangent route is clear. Keep that route.
             Heading=PreviousHeading;
+            Motion.SetSteeringHeading(Heading);
         } else {Finish(EMCActiveSkillEndReason::Completed);return;}
         // Do not count collision recovery as next tick's cleaning travel.
         if(RemainingCorrection<45.f) PreviousFoot=MCActiveSkillMotion::FootPoint(Hero());
     }
-    Motion.Update(Heading*Speed);
     UpdateSpongeDeckPose(this,Heading,DeltaSeconds);
     UpdateRideVFX();
     UpdateSoapTrail();
 }
 void AMCSpongeSkillAction::UpdateRideVFX()
 {
+    const FTransform Deck=GetRideFrame();
+    if(Hero() && PropMesh) PropMesh->SetWorldTransform(PropTransform*Deck);
     if(!Hero() || !LoopComponent) return;
-    FVector Contact=MCActiveSkillMotion::FootPoint(Hero());
+    FVector Contact=Hero()->GetPresentationFrame().FromCanonicalWorld(MCActiveSkillMotion::FootPoint(Hero()));
     if(const UStaticMesh* Mesh=PropMesh?PropMesh->GetStaticMesh():nullptr) {
         const FBox Bounds=Mesh->GetBoundingBox();
         const FVector Center=Bounds.GetCenter();
         Contact=PropMesh->GetComponentTransform().TransformPosition(FVector(Center.X,Center.Y,Bounds.Min.Z));
     }
-    LoopComponent->SetWorldLocation(Contact+GetActorUpVector()*(2.7*PropTransform.GetScale3D().Z));
-    UpdateLoopVFX(GetActorForwardVector().GetSafeNormal2D());
+    LoopComponent->SetWorldLocation(Contact+Deck.GetUnitAxis(EAxis::Z)*(2.7*PropTransform.GetScale3D().Z));
+    UpdateLoopVFX(Deck.GetUnitAxis(EAxis::X).GetSafeNormal2D());
 }
 void AMCSpongeSkillAction::OnFinished(EMCActiveSkillEndReason Reason)
 {

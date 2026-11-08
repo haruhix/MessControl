@@ -310,7 +310,6 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Повредить моего игрока: −25 HP"),TEXT("Проверка материала, реакции на урон и лечения."),EMCDevAction::DamageSelf);
     AddAction(Actions,TEXT("Толчок / ragdoll моего игрока"),TEXT("Обычный физический удар. После падения персонаж встаёт штатно."),EMCDevAction::Ragdoll);
     AddAction(Actions,TEXT("Гибель → возрождение за зуб арены"),TEXT("Убивает игрока хоста; обычное возрождение расходует конкретный большой зуб."),EMCDevAction::KillSelf);
-    AddAction(Actions,TEXT("Восстановить общее здоровье рта"),TEXT("Язвы и повреждения отдельных зубов сохраняются."),EMCDevAction::RestoreMouth);
 }
 void UMCDevPanelWidget::PlayerOverlayChanged(bool Checked)
 {
@@ -374,9 +373,9 @@ void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
     if (Actions) Actions->SetIsEnabled(!BotsActive);
     if (BotsStatus) BotsStatus->SetText(FText::FromString(FString::Printf(TEXT("%s  |  Seed %d  |  прототип, без калибровки по людям"),
         BotsActive?TEXT("БОТЫ ИГРАЮТ — ручные события заблокированы"):GS->bDevManualEvents?TEXT("Для ботов сначала верни обычный день"):TEXT("Боты не запущены"),GS->RunSeed)));
-    FString Summary=FString::Printf(TEXT("%s  |  %s\nРот %.0f HP  /  зубы %d/%d  /  еда %d  /  язвы %d  /  кофе %s"),
+    FString Summary=FString::Printf(TEXT("%s  |  %s\nЗубы %d/%d  /  еда %d  /  язвы %d  /  кофе %s"),
         PC && PC->CanUseDevPanel()?TEXT("ХОСТ"):TEXT("КЛИЕНТ: локальная анимация и просмотр"),GS->bDevManualEvents?TEXT("РУЧНОЙ ТЕСТ — без дедлайна"):TEXT("ОБЫЧНЫЙ ДЕНЬ"),
-        GS->MouthHealth,GS->AvailableArenaTeeth(),GS->ArenaTeeth.Num(),Food,Ulcers,Water?TEXT("активен"):TEXT("нет"));
+        GS->AvailableArenaTeeth(),GS->ArenaTeeth.Num(),Food,Ulcers,Water?TEXT("активен"):TEXT("нет"));
     Summary+=MCDevOneHitKillEnabled(GetWorld())?TEXT("\nУбийство с одного удара: ВКЛ"):TEXT("\nУбийство с одного удара: ВЫКЛ");
     if(const auto* Cat=AMCCataclysmEvent::FindActive(GetWorld()))
         Summary+=FString::Printf(TEXT("\n%s · желе %d · грязь %d/%d\n%s"),*Cat->Title(),Cat->JelliesLeft,Cat->DirtLeft,Cat->DirtTotal,*Cat->Instruction());

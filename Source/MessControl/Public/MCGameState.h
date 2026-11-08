@@ -68,6 +68,7 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") FMCRunSettings RunSettings;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") int32 Day = 0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") EMCShiftPhase Phase = EMCShiftPhase::Intermission;
+    // Serialized compatibility only. Mouth HP no longer takes damage, heals, or decides a run.
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") float MouthHealth = 100.f;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") int32 TasksLeft = 0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") int32 TasksTotal = 0;

@@ -8,13 +8,14 @@
 #include "Engine/GameInstance.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "CollisionShape.h"
 #include "HAL/IConsoleManager.h"
 #include "HAL/PlatformTime.h"
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
 #endif
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCTongueCachedDeformationTest,"MessControl.Tongue.CachedDeformationMatchesCollisionSurface",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCTongueCachedDeformationTest,"MessControl.Tongue.CachedDeformationPreservesVisualMathAndStableSupport",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCTongueCachedDeformationTest::RunTest(const FString&)
 {
     UWorld* World=UWorld::CreateWorld(EWorldType::Game,false);
@@ -45,7 +46,7 @@ bool FMCTongueCachedDeformationTest::RunTest(const FString&)
         bool SnapshotMatches=true;
         for(int32 I=0;I<WorldVertices.Num();++I)
         {
-            const FVector Expected=Tongue->Surface->GetComponentTransform().TransformPosition(Tongue->CurrentVertices()[I]);
+            const FVector Expected=Tongue->VisualSurface->GetComponentTransform().TransformPosition(Tongue->CurrentVertices()[I]);
             SnapshotMatches &= FMemory::Memcmp(&Expected,&WorldVertices[I],sizeof(FVector))==0;
         }
         TestTrue(TEXT("Shared world vertices preserve every transformed surface vertex exactly"),SnapshotMatches);
@@ -113,7 +114,7 @@ bool FMCTongueCachedDeformationTest::RunTest(const FString&)
     bool RevisionRefreshed=true;
     for(int32 I=0;I<DeformedWorldVertices.Num();++I)
     {
-        const FVector Expected=Tongue->Surface->GetComponentTransform().TransformPosition(Tongue->CurrentVertices()[I]);
+        const FVector Expected=Tongue->VisualSurface->GetComponentTransform().TransformPosition(Tongue->CurrentVertices()[I]);
         RevisionRefreshed &= FMemory::Memcmp(&Expected,&DeformedWorldVertices[I],sizeof(FVector))==0;
     }
     TestTrue(TEXT("Deformation invalidates the shared world snapshot"),RevisionRefreshed);
@@ -290,6 +291,63 @@ bool FMCTongueCachedDeformationTest::RunTest(const FString&)
                 }
             }
         }
+    }
+    // Exercise the actual Chaos support and world query path, not just vertex
+    // buffers. Visual deformation must not change either at the same transform.
+    Tongue->Motion=FMCTongueMotionState(); Tongue->YawnStartedAt=0; Tongue->YawnDuration=4;
+    for(int32 Pass=0;Pass<2;++Pass)
+    {
+        Tongue->SetActorTransform(Pass?FTransform(FRotator(12,35,-7),FVector(200,-340,70),FVector(1.2,.8,1.4)):FTransform::Identity);
+        Tongue->RebuildSurface();
+        const FVector Probe=Tongue->Surface->GetComponentTransform().TransformPosition(Tongue->RestBounds.GetCenter());
+        FHitResult Before;
+        if(!TestTrue(TEXT("Canonical component trace hits authored support at each transform"),Tongue->SurfacePoint(Probe,Before))) continue;
+        TestTrue(TEXT("Gameplay support retains the original root component identity"),Before.GetComponent()==Tongue->Surface);
+        TestEqual(TEXT("The visual component has no gameplay collision"),Tongue->VisualSurface->GetCollisionEnabled(),ECollisionEnabled::NoCollision);
+        TestTrue(TEXT("The hidden support does not hide its visible child"),!Tongue->Surface->IsVisible() && Tongue->VisualSurface->IsVisible());
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCTongueStableSupport),false);
+        for(TActorIterator<AMCMouthSurface> It(World);It;++It) Query.AddIgnoredActor(*It);
+        const FVector Start=Before.ImpactPoint+FVector(0,0,400),End=Before.ImpactPoint-FVector(0,0,400);
+        const FCollisionShape Capsule=FCollisionShape::MakeCapsule(8,16);
+        FHitResult SweepBefore;
+        const bool bSweepBefore=World->SweepSingleByChannel(SweepBefore,Start,End,FQuat::Identity,ECC_Pawn,Capsule,Query);
+        TestTrue(TEXT("A world capsule sweep blocks on the canonical tongue"),bSweepBefore && SweepBefore.bBlockingHit && SweepBefore.GetComponent()==Tongue->Surface);
+        const FBox BeforeBounds=Tongue->Surface->Bounds.GetBox();
+        for(int32 I=0;I<Tongue->IndentDepth.Num();++I) Tongue->IndentDepth[I]=(I%11)*.4f;
+        Tongue->Deform(2.f);
+        FHitResult After,SweepAfter;
+        const bool bAfter=Tongue->SurfacePoint(Probe,After);
+        TestTrue(TEXT("Component support point and normal stay stable through yawn/pressure deformation"),bAfter
+            && After.GetComponent()==Tongue->Surface && After.ImpactPoint.Equals(Before.ImpactPoint,.001)
+            && After.ImpactNormal.Equals(Before.ImpactNormal,.00001));
+        const bool bSweepAfter=World->SweepSingleByChannel(SweepAfter,Start,End,FQuat::Identity,ECC_Pawn,Capsule,Query);
+        TestTrue(TEXT("World capsule contact stays stable through visual deformation"),bSweepBefore && bSweepAfter && SweepAfter.bBlockingHit
+            && SweepAfter.GetComponent()==Tongue->Surface && SweepAfter.Location.Equals(SweepBefore.Location,.001)
+            && SweepAfter.ImpactNormal.Equals(SweepBefore.ImpactNormal,.00001));
+        TestTrue(TEXT("Gameplay support bounds stay canonical while presentation deforms"),Tongue->Surface->Bounds.GetBox().Equals(BeforeBounds,.001));
+        const FProcMeshSection* Support=Tongue->Surface->GetProcMeshSection(0);
+        const FProcMeshSection* Visual=Tongue->VisualSurface->GetProcMeshSection(0);
+        bool bCanonical=Support && Support->ProcVertexBuffer.Num()==Tongue->Rest.Num();
+        bool bVisual=Visual && Visual->ProcVertexBuffer.Num()==Tongue->Positions.Num();
+        float MaxVisibleOffset=0;
+        if(bCanonical && bVisual) for(int32 I=0;I<Tongue->Rest.Num();++I)
+        {
+            bCanonical &= Support->ProcVertexBuffer[I].Position.Equals(Tongue->Rest[I],.00001);
+            bVisual &= Visual->ProcVertexBuffer[I].Position.Equals(Tongue->Positions[I],.00001);
+            MaxVisibleOffset=FMath::Max(MaxVisibleOffset,float(FVector::Distance(Visual->ProcVertexBuffer[I].Position,Support->ProcVertexBuffer[I].Position)));
+        }
+        TestTrue(TEXT("Canonical and visual sections keep their respective vertex buffers"),bCanonical && bVisual);
+        TestTrue(TEXT("A stable support result still contains a genuinely deformed visible surface"),MaxVisibleOffset>1);
+        FVector VisualPoint=FVector::ZeroVector,VisualNormal=FVector::UpVector;
+        const bool bVisualPoint=Tongue->VisualSurfacePoint(After,VisualPoint,VisualNormal);
+        TestTrue(TEXT("Presentation maps canonical contact onto the animated triangle"),bAfter && bVisualPoint
+            && FVector::Distance(VisualPoint,After.ImpactPoint)>1 && VisualNormal.IsNormalized());
+        FHitResult NoFace=After; NoFace.FaceIndex=INDEX_NONE;
+        FVector RecoveredPoint,RecoveredNormal;
+        TestTrue(TEXT("Presentation contact recovers a simple sweep's absent triangle identity"),Tongue->VisualSurfacePoint(NoFace,RecoveredPoint,RecoveredNormal)
+            && RecoveredPoint.Equals(VisualPoint,.001) && RecoveredNormal.Equals(VisualNormal,.00001));
+        FHitResult OtherSupport;
+        TestFalse(TEXT("Presentation sampling never replaces unrelated gameplay support"),Tongue->VisualSurfacePoint(OtherSupport,RecoveredPoint,RecoveredNormal));
     }
     World->EndPlay(EEndPlayReason::Quit); GEngine->DestroyWorldContext(World); World->DestroyWorld(false);
     return true;

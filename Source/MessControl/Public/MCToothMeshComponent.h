@@ -10,6 +10,8 @@ class MESSCONTROL_API UMCToothMeshComponent : public USkeletalMeshComponent
 {
     GENERATED_BODY()
 public:
+    void BeginNetworkPresentationCompensation() {++NetworkPresentationCompensationDepth;}
+    void EndNetworkPresentationCompensation() {NetworkPresentationCompensationDepth=FMath::Max(0,NetworkPresentationCompensationDepth-1);}
     virtual void TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* TickFunction) override
     {
         // This procedural pose has no root-motion montage or network-timed notifies.
@@ -18,6 +20,7 @@ public:
         Super::TickComponent(Dt,Type,TickFunction);
     }
 protected:
+    int32 NetworkPresentationCompensationDepth=0;
     FVector PreviousWorldLocation=FVector::ZeroVector;
     bool bHasPreviousWorldLocation=false;
     virtual void OnUpdateTransform(EUpdateTransformFlags Flags,ETeleportType Teleport=ETeleportType::None) override
@@ -26,7 +29,7 @@ protected:
         // Replicated capsule corrections propagate to children without a teleport
         // flag. Move the simulated skeleton with a large correction, rather than
         // leaving its balance motor to drag the body across the whole arena.
-        if (bHasPreviousWorldLocation && PhysicsTransformUpdateMode==EPhysicsTransformUpdateMode::ComponentTransformIsKinematic
+        if (NetworkPresentationCompensationDepth==0 && bHasPreviousWorldLocation && PhysicsTransformUpdateMode==EPhysicsTransformUpdateMode::ComponentTransformIsKinematic
             && FVector::DistSquared(Position,PreviousWorldLocation)>FMath::Square(200.0))
         {
             Teleport=ETeleportType::TeleportPhysics;

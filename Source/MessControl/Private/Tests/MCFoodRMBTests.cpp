@@ -187,10 +187,14 @@ bool FMCFoodRMBExplicitRelease::RunTest(const FString&)
     // Use the side lane so pickup LOS is independent of deferred wall teardown.
     auto* Ball=T.World->SpawnActor<AMCHubBasketball>(T.Hero->GetActorLocation()+FVector(0,180,0),FRotator::ZeroRotator);
     if(!TestTrue(TEXT("An empty-handed local player can pick up the actual basketball"),Ball && Ball->TryPickup(T.Hero))) return false;
+    T.Hero->SetPrimaryInputHeld(true);
+    TestTrue(TEXT("Basketball LMB aims without releasing the ball or starting bracing"),Ball->IsAiming()
+        && Ball->Holder==T.Hero && !Grip->IsBracing());
+    T.Hero->SetPrimaryInputHeld(false);
+    TestFalse(TEXT("Releasing LMB ends basketball aim"),Ball->IsAiming());
     T.Hero->SetBraceInputHeld(true);
-    TestTrue(TEXT("Basketball RMB keeps its aim special case and does not start bracing"),Ball->IsAiming() && !Grip->IsBracing());
+    TestTrue(TEXT("Basketball RMB throws immediately through the existing throw path"),!Ball->Holder && !Grip->IsBracing());
     T.Hero->SetBraceInputHeld(false);
-    TestFalse(TEXT("Releasing RMB ends basketball aim"),Ball->IsAiming());
     return true;
 }
 #endif

@@ -431,8 +431,8 @@ void AMCMouthSurface::BuildLiquid()
     {
         const auto& Idx=Tongue->TriangleIndices();
         const auto& WorldVertices=Tongue->CurrentWorldVertices();
-        const FProcMeshSection* Section=Tongue->Surface->GetProcMeshSection(0);
-        const FTransform TT=Tongue->Surface->GetComponentTransform();
+        const FProcMeshSection* Section=Tongue->VisualSurface->GetProcMeshSection(0);
+        const FTransform TT=Tongue->VisualSurface->GetComponentTransform();
         BoundTongue=Tongue; BoundTongueSource=Tongue->SourceMesh.Get();
         BoundTongueVertexCount=WorldVertices.Num(); BoundTongueIndexCount=Idx.Num();
         PaintSurfaceRevision=MAX_uint64;
@@ -516,11 +516,23 @@ void AMCMouthSurface::BuildLiquid()
             if (Tongue)
             {
                 const auto& Idx=Tongue->TriangleIndices(); const auto& V=Tongue->CurrentVertices();
-                const int32 Face=Hit.FaceIndex*3;
-                if (Hit.FaceIndex>=0 && Idx.IsValidIndex(Face+2))
+                const auto* Support=Tongue->Surface->GetProcMeshSection(0);
+                const int32 Face=Hit.FaceIndex>=0 && Hit.FaceIndex<Idx.Num()/3?Hit.FaceIndex*3:INDEX_NONE;
+                if (Support && Face>=0 && Idx.IsValidIndex(Face+2)
+                    && Support->ProcVertexBuffer.IsValidIndex(Idx[Face]) && Support->ProcVertexBuffer.IsValidIndex(Idx[Face+1]) && Support->ProcVertexBuffer.IsValidIndex(Idx[Face+2])
+                    && V.IsValidIndex(Idx[Face]) && V.IsValidIndex(Idx[Face+1]) && V.IsValidIndex(Idx[Face+2]))
                 {
                     Binding.Face=Face;
-                    Binding.Bary=FMath::ComputeBaryCentric2D(Tongue->GetActorTransform().InverseTransformPosition(Hit.ImpactPoint),V[Idx[Face]],V[Idx[Face+1]],V[Idx[Face+2]]);
+                    // The hit is on canonical support. Bind in that basis, then
+                    // evaluate the matching animated triangle for presentation.
+                    const auto& Canonical=Support->ProcVertexBuffer;
+                    Binding.Bary=FMath::ComputeBaryCentric2D(Tongue->Surface->GetComponentTransform().InverseTransformPosition(Hit.ImpactPoint),Canonical[Idx[Face]].Position,Canonical[Idx[Face+1]].Position,Canonical[Idx[Face+2]].Position);
+                    FVector VisualPoint,VisualNormal;
+                    if(Tongue->VisualSurfacePoint(Hit,VisualPoint,VisualNormal))
+                    {
+                        P=Transform.InverseTransformPosition(VisualPoint+VisualNormal*.45);
+                        Normal=Transform.InverseTransformVectorNoScale(VisualNormal);
+                    }
                 }
             }
         }
@@ -590,8 +602,8 @@ void AMCMouthSurface::UpdateLiquid(float Dt)
     {
         GeometryElapsed=!FollowPaintSurface && MeshInterval>0?FMath::Fmod(GeometryElapsed,MeshInterval):0;
         const auto& Idx=Tongue->TriangleIndices(); const auto& V=Tongue->CurrentVertices();
-        const FTransform TT=Tongue->Surface->GetComponentTransform(),LT=GetActorTransform();
-        const FProcMeshSection* Section=bPaintTile?Tongue->Surface->GetProcMeshSection(0):nullptr;
+        const FTransform TT=Tongue->VisualSurface->GetComponentTransform(),LT=GetActorTransform();
+        const FProcMeshSection* Section=bPaintTile?Tongue->VisualSurface->GetProcMeshSection(0):nullptr;
         for (int32 I=0;I<SurfaceBindings.Num();++I)
         {
             const auto& B=SurfaceBindings[I]; if (B.Face==INDEX_NONE || !Idx.IsValidIndex(B.Face+2)) continue;

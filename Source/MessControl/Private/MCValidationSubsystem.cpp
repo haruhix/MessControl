@@ -21,6 +21,9 @@
 #include "HAL/FileManager.h"
 
 #if !UE_BUILD_SHIPPING
+void MCTickNetworkValidationTelemetry(UWorld* World);
+void MCTickActiveSkillNetworkValidation(UWorld* World);
+void MCTickNetworkFoundationValidation(UWorld* World);
 void MCTickLiquidPerformance(UWorld* World);
 void MCTickCareValidation(UWorld* World);
 void MCTickBrushValidation(UWorld* World);
@@ -56,6 +59,15 @@ void MCTickSingleDayValidation(UWorld* World);
 
 void UMCValidationSubsystem::Tick(float DeltaSeconds)
 {
+#if !UE_BUILD_SHIPPING
+    MCTickNetworkValidationTelemetry(GetWorld());
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCNetworkFoundationTest"))) {
+        MCTickApprovalRecorder(GetWorld());MCTickNetworkFoundationValidation(GetWorld());return;
+    }
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCActiveSkillNetworkTest"))) {
+        MCTickApprovalRecorder(GetWorld());MCTickActiveSkillNetworkValidation(GetWorld());return;
+    }
+#endif
     if (FParse::Param(FCommandLine::Get(),TEXT("MCSwimTest"))) { TickSwim(DeltaSeconds); return; }
 #if !UE_BUILD_SHIPPING
     if(FParse::Param(FCommandLine::Get(),TEXT("MCSingleDayTest"))) {MCTickSingleDayValidation(GetWorld());return;}

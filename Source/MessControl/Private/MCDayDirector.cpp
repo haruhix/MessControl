@@ -235,7 +235,7 @@ void AMCDayDirector::Next(bool bFailed)
 {
     if (!HasAuthority() || !Settings) return;
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if (!GS || GS->bDayOneComplete || !Settings->Steps.IsValidIndex(GS->StepIndex)) return;
-    if (bFailed) { ++GS->FailedEvents; GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-Settings->Steps[GS->StepIndex].FailureDamage); }
+    if (bFailed) ++GS->FailedEvents;
     else if (Settings->Steps[GS->StepIndex].Step!=EMCDayStep::BreakfastRain
         && Settings->Steps[GS->StepIndex].Step!=EMCDayStep::Complete)
     {

@@ -103,55 +103,46 @@ FTransform MCActiveSkillMotion::RidePose(const AMCToothCharacter* Pawn,FVector F
 
 bool FMCActiveSkillMotionLease::Begin(AMCToothCharacter* Pawn,const FGuid& ID,FVector Velocity,bool FreeFlight,float Duration)
 {
-    if(!IsValid(Pawn) || !Pawn->HasAuthority() || !ID.IsValid() || Velocity.ContainsNaN()
-        || !MCActiveSkillMotion::CanAcquire(Pawn) || IsOwned()) return false;
+    if(!IsValid(Pawn) || !Pawn->HasAuthority() || !ID.IsValid() || Velocity.ContainsNaN() || IsOwned()) return false;
     auto* Move=Cast<UMCToothMovementComponent>(Pawn->GetCharacterMovement());
-    // Do not nest a new temporary flight inside a prior pull's terminal frame.
-    if(FreeFlight && Move->MovementMode==MOVE_Flying) return false;
-    Character=Pawn;Movement=Move;PreviousMode=uint8(Move->MovementMode);PreviousCustomMode=Move->CustomMovementMode;
-    SourceName=FName(*(FString(MotionPrefix)+ID.ToString(EGuidFormats::Digits)));
-    auto Source=MakeShared<FMCLocomotionRootMotionSource>();
-    Source->InstanceName=SourceName;Source->Priority=450;Source->AccumulateMode=ERootMotionAccumulateMode::Override;
-    Source->Duration=FMath::IsFinite(Duration) && Duration>0?Duration:-1.f;Source->Force=Velocity.GetClampedToMaxSize(2000.f);
-    if(!FreeFlight) Source->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate);
-    SourceID=Move->ApplyRootMotionSource(Source);
-    if(!IsOwned()) {Character.Reset();Movement.Reset();return false;}
-    if(FreeFlight) {Move->SetMovementMode(MOVE_Flying);bOwnsFlying=true;}
-    return true;
+    FMCAcceptedMotionSnapshot Spec;Spec.OperationID=ID;Spec.Velocity=Velocity.GetClampedToMaxSize(2000.f);
+    Spec.Duration=FMath::IsFinite(Duration) && Duration>0?Duration:-1.f;Spec.bFreeFlight=FreeFlight;
+    if(!Move || !Move->BeginAcceptedExternalMotion(Spec)) return false;
+    Character=Pawn;Movement=Move;OperationID=ID;return true;
 }
-
+bool FMCActiveSkillMotionLease::BeginSteered(AMCToothCharacter* Pawn,const FGuid& ID,FVector Velocity,float Rate,float Duration)
+{
+    if(!IsValid(Pawn) || !Pawn->HasAuthority() || !ID.IsValid() || Velocity.ContainsNaN() || !FMath::IsFinite(Rate) || IsOwned()) return false;
+    auto* Move=Cast<UMCToothMovementComponent>(Pawn->GetCharacterMovement());
+    FMCAcceptedMotionSnapshot Spec;Spec.OperationID=ID;Spec.Policy=EMCAcceptedMotionPolicy::SteeredVelocity;
+    Spec.Speed=FMath::Clamp(float(Velocity.Size2D()),100.f,2000.f);Spec.Velocity=Velocity.GetSafeNormal2D()*Spec.Speed;
+    Spec.TurnRate=FMath::Clamp(Rate,0.f,720.f);Spec.Duration=FMath::IsFinite(Duration) && Duration>0?Duration:-1.f;
+    if(!Move || !Move->BeginAcceptedExternalMotion(Spec)) return false;
+    Character=Pawn;Movement=Move;OperationID=ID;return true;
+}
 bool FMCActiveSkillMotionLease::IsOwned() const
 {
-    auto* Move=Movement.Get();
-    const auto Source=Move?Move->GetRootMotionSourceByID(SourceID):TSharedPtr<FRootMotionSource>();
-    return Running(Source) && Source->InstanceName==SourceName;
+    const auto* Move=Movement.Get();return Move && Move->IsAcceptedExternalMotionOwned(OperationID);
 }
-
 bool FMCActiveSkillMotionLease::Update(FVector Velocity)
 {
-    if(Velocity.ContainsNaN() || !IsOwned()) return false;
-    auto* Move=Movement.Get();
-    static_cast<FMCLocomotionRootMotionSource*>(Move->GetRootMotionSourceByID(SourceID).Get())->Force=Velocity.GetClampedToMaxSize(2000.f);
-    return true;
+    auto* Move=Movement.Get();return Move && Move->UpdateAcceptedExternalVelocity(OperationID,Velocity);
 }
-
+bool FMCActiveSkillMotionLease::SetSteeringHeading(FVector Heading,float LockSeconds)
+{auto* Move=Movement.Get();return Move && Move->UpdateAcceptedSteeringHeading(OperationID,Heading,LockSeconds);}
+bool FMCActiveSkillMotionLease::Sample(float& SimulationTime,FVector& Heading) const
+{const auto* Move=Movement.Get();return Move && Move->SampleAcceptedExternalMotion(OperationID,SimulationTime,Heading);}
+bool FMCActiveSkillMotionLease::SampleStep(float ActorSeconds,float& PreviousSimulationTime,float& Seconds,FVector& Heading,float MaxDelta) const
+{
+    float Current=0;Seconds=0;
+    if(!Sample(Current,Heading) || !FMath::IsFinite(ActorSeconds) || ActorSeconds<0 || !FMath::IsFinite(PreviousSimulationTime)
+        || Current<PreviousSimulationTime || Current-PreviousSimulationTime>MaxDelta) return false;
+    Seconds=FMath::Max(ActorSeconds,Current-PreviousSimulationTime);PreviousSimulationTime=Current;return true;
+}
 void FMCActiveSkillMotionLease::End()
 {
-    auto* Move=Movement.Get();auto* Pawn=Character.Get();
-    const auto Source=Move?Move->GetRootMotionSourceByID(SourceID):TSharedPtr<FRootMotionSource>();
-    if(Source.IsValid() && Source->InstanceName==SourceName) Move->RemoveRootMotionSourceByID(SourceID);
-    // Death, swimming, leg ice, a launch or another system may have taken the
-    // movement mode since this pull began. Only release our still-owned Flying.
-    const bool CanRestore=IsValid(Pawn) && Pawn->Status && Pawn->Status->IsAlive() && Pawn->ToothPhysics && Pawn->ToothPhysics->CanAct()
-        && !Pawn->HasFrozenLegs() && !Pawn->SwallowedBy && !Pawn->IsMimicCaptured() && !Pawn->IsSeatedOnRaft();
-    if(bOwnsFlying && Move && Move->MovementMode==MOVE_Flying && CanRestore && MCActiveSkillMotion::CanAcquire(Pawn)) {
-        if(PreviousMode==MOVE_Walking || PreviousMode==MOVE_NavWalking) {
-            FFindFloorResult Floor;Move->FindFloor(Pawn->GetActorLocation(),Floor,false);
-            Move->SetMovementMode(Floor.IsWalkableFloor() && Floor.FloorDist<=Move->MaxStepHeight
-                ?EMovementMode(PreviousMode):MOVE_Falling);
-        } else Move->SetMovementMode(EMovementMode(PreviousMode),PreviousCustomMode);
-    }
-    Character.Reset();Movement.Reset();SourceName=NAME_None;SourceID=0;bOwnsFlying=false;
+    if(auto* Move=Movement.Get()) Move->EndAcceptedExternalMotion(OperationID);
+    Character.Reset();Movement.Reset();OperationID.Invalidate();
 }
 
 bool MCActiveSkillMotion::ClearRideFootprint(const AMCToothCharacter* Pawn,const AActor* Action,

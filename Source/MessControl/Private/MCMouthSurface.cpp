@@ -136,7 +136,6 @@ void AMCMouthSurface::Disturb()
     if (!HasAuthority() || !bUlcer || IsNumb() || (bTutorialLesion && !bContactPainOnly)) return;
     if (ContactCooldown<=0)
     {
-        if (!bTutorialLesion) if (auto* GS=GetWorld()->GetGameState<AMCGameState>()) GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DisturbDamage);
         ContactCooldown=1;
         if (Tongue) {if(bContactPainOnly) Tongue->TriggerToothpickPain(GetActorLocation());else Tongue->TriggerPain(GetActorLocation());}
     }
@@ -316,8 +315,6 @@ void AMCMouthSurface::Tick(float Dt)
             }
         }
         if (bDisturbed && (!bContactPainOnly || FreshStep)) Disturb();
-        auto* GS=GetWorld()->GetGameState<AMCGameState>();
-        if(!IsNumb() && !bTutorialLesion) GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DamagePerSecond*Dt);
     }
     UpdateLiquid(Dt);
     UpdateComposerLiquid();

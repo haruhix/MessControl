@@ -4,11 +4,15 @@
 #include "MCHubGameState.h"
 #include "MCHubGrillStation.h"
 #include "MCToothCharacter.h"
+#include "MCToothPhysicsComponent.h"
+#include "MCToothStatusComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 
 namespace
@@ -60,7 +64,7 @@ bool FMCHubBasketballHintAvailability::RunTest(const FString&)
     TestNull(TEXT("The higher-priority grill E interaction suppresses pickup guidance"),AMCHubBasketball::LocalHintBall(T.Hero));
     Grill->Destroy();
     TestTrue(TEXT("The actual pickup succeeds"),T.Ball->TryPickup(T.Hero));
-    TestEqual(TEXT("The held ball becomes the Q hint target"),AMCHubBasketball::LocalHintBall(T.Hero),T.Ball);
+    TestEqual(TEXT("The held ball becomes the throw hint target"),AMCHubBasketball::LocalHintBall(T.Hero),T.Ball);
     T.Player->bShowMouseCursor=true;
     TestNull(TEXT("A modal cursor hides held-ball guidance"),AMCHubBasketball::LocalHintBall(T.Hero));
     T.Player->bShowMouseCursor=false;T.Player->SetIgnoreMoveInput(true);
@@ -78,6 +82,34 @@ bool FMCHubBasketballHintAvailability::RunTest(const FString&)
     TestNull(TEXT("Another player's held ball supplies neither pickup nor throw hint"),AMCHubBasketball::LocalHintBall(T.Hero));
     T.World->SetGameState(nullptr);
     TestNull(TEXT("Arena and other non-Hub worlds never show these prompts"),AMCHubBasketball::LocalHintBall(T.Hero));
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubBasketballHitRelease,
+    "MessControl.Hub.Basketball.AcceptedHitsReleaseOwnership",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCHubBasketballHitRelease::RunTest(const FString&)
+{
+    FHubBallHintWorld T;
+    if(!TestTrue(TEXT("Actual pickup starts the hit fixture"),T.Ball->TryPickup(T.Hero))) return false;
+    T.Hero->ServerSetThrowHeld(true,FVector(1,0,0));
+    TestEqual(TEXT("A food/Q RPC cannot throw an authoritative held basketball"),T.Ball->Holder.Get(),T.Hero);
+    T.Hero->ServerSetThrowHeld(false,FVector(1,0,0));
+    // BeginPlay enters Standing with a short hit-protection window. Let that
+    // real lifecycle elapse before exercising accepted hits; this fixture has
+    // no floor, so hold its capsule in place while the world ticks normally.
+    T.Hero->GetCharacterMovement()->DisableMovement();
+    for(int32 Frame=0;Frame<45;++Frame) {++GFrameCounter;T.World->Tick(LEVELTICK_All,1.f/60.f);}
+    T.Hero->ToothPhysics->Settings.FallThreshold=1400.f;
+    T.Hero->ToothPhysics->ApplyHit(FVector::ZeroVector,T.Hero->GetActorLocation());
+    TestEqual(TEXT("A zero impulse does not steal the carried ball"),T.Ball->Holder.Get(),T.Hero);
+    T.Hero->ToothPhysics->ApplyHit(FVector(120,0,40),T.Hero->GetActorLocation());
+    TestNull(TEXT("A hit below the knockdown threshold still releases the ball"),T.Ball->Holder.Get());
+    TestTrue(TEXT("Released ball resumes real physics"),T.Ball->Body->IsSimulatingPhysics());
+    TestNull(TEXT("Released ball clears its network owner"),T.Ball->GetOwner());
+    TestTrue(TEXT("The small hit keeps the player standing"),T.Hero->ToothPhysics->CanAct());
+    if(!TestTrue(TEXT("The loose ball can be picked up again"),T.Ball->TryPickup(T.Hero))) return false;
+    TestTrue(TEXT("A real accepted health hit is applied"),T.Hero->Status->Damage(1.f,FVector(1,0,0)));
+    TestNull(TEXT("Damage without a physics impulse also releases ownership"),T.Ball->Holder.Get());
     return true;
 }
 #endif

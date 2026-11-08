@@ -3,6 +3,7 @@
 #include "MCBossCharacter.h"
 #include "MCNutBoss.h"
 #include "MCToothCharacter.h"
+#include "MCToothMovementComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCExpressionComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -299,7 +300,12 @@ FTransform AMCHookSkillAction::GetCastBodyOffset() const
 void AMCHookSkillAction::SetCastPhase(EMCHookCastPhase Phase,float Duration)
 {
     const FTransform Right=HandLocal(false),Left=HandLocal(true),Body=GetCastBodyOffset();
-    PhaseVisualRotation=PropMesh?PropMesh->GetComponentQuat():GetActorQuat();
+    FTransform PreviousVisual=PropMesh?PropMesh->GetComponentTransform():GetActorTransform();
+    if(Hero() && (CastPhase==EMCHookCastPhase::Windup || CastPhase==EMCHookCastPhase::Recovery || CastPhase==EMCHookCastPhase::Returning))
+        PreviousVisual=Hero()->GetPresentationFrame().ToCanonicalWorld(PreviousVisual);
+    else if(CastPhase==EMCHookCastPhase::Pulling && PulledPawn && HookTarget==PulledPawn)
+        PreviousVisual=PulledPawn->GetPresentationFrame().ToCanonicalWorld(PreviousVisual);
+    PhaseVisualRotation=PreviousVisual.GetRotation();
     PhaseRightHand=Right;PhaseLeftHand=Left;PhaseBody=Body;
     CastPhase=Phase;PhaseStartedAt=Now();PhaseDuration=Duration;ForceNetUpdate();
 }
@@ -312,7 +318,7 @@ void AMCHookSkillAction::StartCommitted()
     auto ReadHand=[&](bool Left) {
         const FName Bone=Hero()->RigBone(Left?TEXT("hand_l"):TEXT("hand_r"));
         const auto* Mesh=Hero()->GetMesh();
-        FTransform Pose=Mesh->DoesSocketExist(Bone)?Mesh->GetSocketTransform(Bone).GetRelativeTransform(Hero()->GetActorTransform())
+        FTransform Pose=Mesh->DoesSocketExist(Bone)?Hero()->GetSimulationMeshSocketTransform(Bone).GetRelativeTransform(Hero()->GetActorTransform())
             :FTransform(FVector(35,Left?-35:35,15));
         Pose.SetScale3D(FVector::OneVector);return Pose;
     };
@@ -371,7 +377,14 @@ bool AMCHookSkillAction::BeginContact(const FHitResult& Hit)
     const float Seconds=FMath::Clamp(Param(TEXT("PullSeconds"),2.5f),.1f,8.f);
     const auto* Move=Moved->GetCharacterMovement();
     const bool Grounded=Move->IsMovingOnGround() && FMath::Abs(Goal.Z-Moved->GetActorLocation().Z)<=Move->MaxStepHeight;
-    if(!Motion.Begin(Moved,GetActionID(),Velocity,!Grounded,Seconds)) return false;
+    auto* Prediction=Cast<UMCToothMovementComponent>(Moved->GetCharacterMovement());
+    if(!Prediction || !Prediction->BeginAcceptedHookPull(GetActionID(),Goal,
+        FMath::Clamp(Param(TEXT("PullSpeed"),850.f),100.f,1800.f),
+        FMath::Clamp(Param(TEXT("StopDistance"),120.f),60.f,300.f),Seconds,!Grounded)) return false;
+    PullMovement=Prediction;
+    if(!Prediction->SampleAcceptedHookPullTime(GetActionID(),PreviousPullSimulationTime)) {
+        Prediction->EndAcceptedHookPull(GetActionID());PullMovement.Reset();return false;
+    }
     HookTarget=Target;PulledPawn=Moved;TargetLocalContact=Target->GetActorTransform().InverseTransformPosition(Hit.ImpactPoint);
     bContactedTarget=true;ImpactPoint=Hit.ImpactPoint;PreviousMovedPosition=Moved->GetActorLocation();LastSampleAt=Now();EndsAt=Now()+Seconds;
     SetCastPhase(EMCHookCastPhase::Pulling,Seconds);
@@ -386,7 +399,8 @@ void AMCHookSkillAction::BeginReturn(EMCActiveSkillEndReason Reason)
     // return at its current contact, while an outbound world hit uses the
     // swept blocking point rather than the analytically extrapolated head.
     ImpactPoint=CastPhase==EMCHookCastPhase::Pulling && IsValid(HookTarget)?GetHookHeadLocation():GetActorLocation();
-    Motion.End();ReturnReason=Reason;
+    if(auto* Move=PullMovement.Get()) Move->EndAcceptedHookPull(GetActionID());
+    PullMovement.Reset();ReturnReason=Reason;
     if(!bContactedTarget && Hero()->Expression) Hero()->Expression->PlayHookReaction(GetActionID(),EMCHookFaceReaction::Miss);
     const float Seconds=FMath::Clamp(float(FVector::Distance(ImpactPoint,GetTetherStart())/3200.),.18f,.45f);
     SetCastPhase(EMCHookCastPhase::Returning,Seconds);
@@ -422,13 +436,24 @@ void AMCHookSkillAction::UpdatePresentation()
         if(CastPhase==EMCHookCastPhase::Outbound) {
             Visual.SetRotation(FQuat::Slerp(PhaseVisualRotation,Visual.GetRotation(),
                 Ease(float(Now()-ReleasedAt)/.08f)).GetNormalized());
-        } else if(CastPhase==EMCHookCastPhase::Returning) {
-            Visual.SetRotation(FQuat::Slerp(PhaseVisualRotation,Contact.GetRotation(),Ease(GetPhaseAlpha())).GetNormalized());
         }
+        if(Hero() && CastPhase==EMCHookCastPhase::Returning) {
+            // A returning prop bridges a world/target contact and its caster's
+            // hand. Each endpoint belongs to its own presented frame.
+            FTransform Origin(PhaseVisualRotation,ImpactPoint);
+            if(PulledPawn && HookTarget==PulledPawn) Origin=PulledPawn->GetPresentationFrame().FromCanonicalWorld(Origin);
+            const FTransform Hand=Hero()->GetPresentationFrame().FromCanonicalWorld(Contact);
+            const float A=Ease(GetPhaseAlpha());
+            Visual.SetLocation(FMath::Lerp(Origin.GetLocation(),Hand.GetLocation(),A));
+            Visual.SetRotation(FQuat::Slerp(Origin.GetRotation(),Hand.GetRotation(),A).GetNormalized());
+        }
+        else if(Hero() && Held) Visual=Hero()->GetPresentationFrame().FromCanonicalWorld(Visual);
+        else if(CastPhase==EMCHookCastPhase::Pulling && PulledPawn && HookTarget==PulledPawn)
+            Visual=PulledPawn->GetPresentationFrame().FromCanonicalWorld(Visual);
         PropMesh->SetWorldTransform(Visual);
     }
     if(LoopComponent) {
-        LoopComponent->SetVariablePosition(TEXT("User.TetherStart"),Start);
+        LoopComponent->SetVariablePosition(TEXT("User.TetherStart"),Hero()?Hero()->GetPresentationFrame().FromCanonicalWorld(Start):Start);
         LoopComponent->SetVariablePosition(TEXT("User.TetherEnd"),GetTetherAttachmentLocation());
     }
 }
@@ -448,17 +473,30 @@ void AMCHookSkillAction::Tick(float DeltaSeconds)
     } else if(CastPhase==EMCHookCastPhase::Pulling) {
         const FVector Start=GetTetherStart(),End=GetTetherEnd();
         if(!TargetStillValid()) {StopPull(TEXT("TargetUnavailable"));UpdatePresentation();return;}
-        if(!Motion.IsOwned()) {StopPull(TEXT("MotionLost"));UpdatePresentation();return;}
+        if(!PullMovement.IsValid() || !PullMovement->IsAcceptedHookPullOwned(GetActionID())) {StopPull(TEXT("MotionLost"));UpdatePresentation();return;}
         if(FVector::DistSquared(Start,End)>FMath::Square(FMath::Clamp(Param(TEXT("BreakRange"),1800.f),150.f,4000.f))) {StopPull(TEXT("BreakRange"));UpdatePresentation();return;}
         FCollisionQueryParams Query(SCENE_QUERY_STAT(MCActiveHookTether),false,Hero());Query.AddIgnoredActor(this);Query.AddIgnoredActor(HookTarget);
         FHitResult Wall;
         if(GetWorld()->LineTraceSingleByChannel(Wall,Start,End,ECC_Visibility,Query)) {StopPull(TEXT("TetherBlocked"),&Wall);UpdatePresentation();return;}
         const float Seconds=float(Now()-LastSampleAt),Speed=FMath::Clamp(Param(TEXT("PullSpeed"),850.f),100.f,1800.f);
-        if(Seconds>0 && !MCActiveSkillMotion::ContinuousPath(PreviousMovedPosition,PulledPawn->GetActorLocation(),Seconds,Speed)) {StopPull(TEXT("DiscontinuousMotion"));UpdatePresentation();return;}
+        float SimulationTime=0;
+        if(!PullMovement->SampleAcceptedHookPullTime(GetActionID(),SimulationTime)) {StopPull(TEXT("MotionLost"));UpdatePresentation();return;}
+        // Remote CMC may process several buffered input moves in one actor
+        // frame. Budget their trusted source time, retaining the same .25s cap.
+        const float SimulationDelta=SimulationTime-PreviousPullSimulationTime;
+        const float SampleSeconds=FMath::Max(Seconds,SimulationDelta);
+        const bool Continuous=SampleSeconds>0
+            ?MCActiveSkillMotion::ContinuousPath(PreviousMovedPosition,PulledPawn->GetActorLocation(),SampleSeconds,Speed)
+            :PreviousMovedPosition.Equals(PulledPawn->GetActorLocation(),UE_KINDA_SMALL_NUMBER);
+        if(!FMath::IsFinite(Seconds) || Seconds<0 || !FMath::IsFinite(SimulationDelta) || SimulationDelta<0
+            || SimulationDelta>.25f || !Continuous) {StopPull(TEXT("DiscontinuousMotion"));UpdatePresentation();return;}
+        PreviousPullSimulationTime=SimulationTime;
         PreviousMovedPosition=PulledPawn->GetActorLocation();LastSampleAt=Now();
         const FVector Goal=PulledPawn==Hero()?End:Hero()->GetActorLocation(),Delta=Goal-PulledPawn->GetActorLocation();
         const float Stop=FMath::Clamp(Param(TEXT("StopDistance"),120.f),60.f,300.f);
-        if(Delta.Size()<=Stop || Now()>=EndsAt) {
+        // The bounded RMS stops at the radius without overshoot. Allow a
+        // millimetre numeric tolerance instead of waiting for the deadline.
+        if(Delta.Size()<=Stop+.1f || Now()>=EndsAt) {
             PullStopReason=Now()>=EndsAt?TEXT("PullDeadline"):TEXT("ReachedStopDistance");
             BeginReturn(Now()>=EndsAt?EMCActiveSkillEndReason::TimedOut:EMCActiveSkillEndReason::Completed);
         }
@@ -468,7 +506,7 @@ void AMCHookSkillAction::Tick(float DeltaSeconds)
             if(!MCActiveSkillMotion::ClearPullStep(PulledPawn,this,PulledPawn==Hero()?HookTarget.Get():Hero(),Velocity,DeltaSeconds,&Blocker)) {
                 StopPull(TEXT("PullStepBlocked"),&Blocker);UpdatePresentation();return;
             }
-            if(!Motion.Update(Velocity)) {StopPull(TEXT("MotionUpdateLost"));UpdatePresentation();return;}
+            if(!PullMovement->UpdateAcceptedHookPull(GetActionID(),Goal)) {StopPull(TEXT("MotionUpdateLost"));UpdatePresentation();return;}
         }
     } else if(CastPhase==EMCHookCastPhase::Returning && GetPhaseAlpha()>=1) {
         StopLoop();PlaySkillCue(TEXT("End"),GetTetherStart(),FVector::UpVector);
@@ -478,7 +516,8 @@ void AMCHookSkillAction::Tick(float DeltaSeconds)
 }
 void AMCHookSkillAction::OnFinished(EMCActiveSkillEndReason Reason)
 {
-    Motion.End();
+    if(auto* Move=PullMovement.Get()) Move->EndAcceptedHookPull(GetActionID());
+    PullMovement.Reset();
     const bool Returned=CastPhase==EMCHookCastPhase::Recovery && GetPhaseAlpha()>=1
         && (Reason==EMCActiveSkillEndReason::InputCanceled || Reason==EMCActiveSkillEndReason::Completed || Reason==EMCActiveSkillEndReason::TimedOut);
     if(HasAuthority() && !Returned && Reason!=EMCActiveSkillEndReason::Completed && Reason!=EMCActiveSkillEndReason::TimedOut) {

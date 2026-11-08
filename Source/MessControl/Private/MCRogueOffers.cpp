@@ -145,10 +145,9 @@ bool UMCPerkComponent::IsRogueEligible(FName ID) const
     if(!Row->bRoguePerk) {
         const auto* PS=Cast<AMCPlayerState>(GetOwner());
         const auto* Hero=PS?Cast<AMCToothCharacter>(PS->GetPawn()):nullptr;
-        const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
         if(ID==TEXT("RecoverySelfHeal")) return Hero && Hero->Status && Hero->Status->IsAlive()
             && Hero->Status->State.Health<Hero->Status->State.MaxHealth;
-        if(ID==TEXT("RecoveryMouthHeal")) return GS && GS->MouthHealth<GS->RunSettings.MaxMouthHealth;
+        if(ID==TEXT("RecoveryMouthHeal")) return false;
         if(ID==TEXT("RecoveryCleanse")) return Hero && Hero->Status
             && (Hero->Status->State.CoffeeLeft>0 || Hero->Status->State.RepairLeft>0);
     }

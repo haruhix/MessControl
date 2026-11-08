@@ -165,7 +165,7 @@ bool UMCFishingRodComponent::PondSurfaceAt(const APhysicsVolume* Pond,FVector Po
 bool UMCFishingRodComponent::FindPondCast(FVector& Origin,FVector& Target,FVector& Velocity,float& Duration,APhysicsVolume*& Pond) const
 {
     if(!Hero || !IsHub()) return false;
-    const FTransform Frame=RodFrame && bEquipped?RodFrame->GetComponentTransform():CarryPose*Hero->GetActorTransform();
+    const FTransform Frame=RodFrame && bEquipped?Hero->GetPresentationFrame().ToCanonicalWorld(RodFrame->GetComponentTransform()):CarryPose*Hero->GetActorTransform();
     Origin=Frame.TransformPosition(BentPoint(FVector(294.5,0,-9.5)));
     const FVector Forward=Hero->GetActorForwardVector().GetSafeNormal2D();
     const FVector Gravity(0,0,-980);
@@ -472,7 +472,7 @@ void UMCFishingRodComponent::TickComponent(float Dt,ELevelTick Tick,FActorCompon
     FTransform Local;Local.Blend(CarryPose,FishingPoseTransform,PoseAlpha);
     const float Speed=FMath::Clamp(float(Hero->GetVelocity().Size2D())/400.f,0.f,1.f);
     Local.AddToTranslation(FVector(0,0,FMath::Sin(Hero->AnimationGait*2)*1.3f*Speed));
-    RodFrame->SetRelativeTransform(Local);
+    RodFrame->SetWorldTransform(Hero->GetPresentationFrame().FromActorLocal(Local));
     FVector Tip=RodFrame->GetComponentTransform().TransformPosition(BentPoint(FVector(294.5,0,-9.5)));
     if(!bWasVisible || (bWasLineOut && !bLineOut)) {ResetLine(Tip);bWasVisible=true;}
     bWasLineOut=bLineOut;
@@ -496,7 +496,7 @@ void UMCFishingRodComponent::TickComponent(float Dt,ELevelTick Tick,FActorCompon
         FishVisual->SetVisibility(bFishHooked);
         if(bFishHooked) {
             const float Pickup=1-FMath::SmoothStep(HangingLength,HangingLength+180,FreeLineLength);
-            const FVector Bag=Hero->GetActorLocation()+Hero->GetActorForwardVector()*25+FVector(0,0,5);
+            const FVector Bag=Hero->GetPresentedActorTransform().TransformPosition(FVector(25,0,5));
             FishVisual->SetWorldLocation(FMath::Lerp(LurePoint+FVector(0,0,16),Bag,Pickup));
             FishVisual->SetWorldScale3D(FVector(.3));
             const float Time=GetWorld()->GetTimeSeconds();

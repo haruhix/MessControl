@@ -51,41 +51,6 @@ TArray<FWorker> Workers(UWorld* World)
     Out.Sort([](const FWorker& A,const FWorker& B){return A.Hero->GetName()<B.Hero->GetName();});
     return Out;
 }
-bool CommitServedDirt(AMCFoodActor* Food,const UMCDayPlan* Plan,AMCDayDirector* Services)
-{
-    if(Food->FoodData.Kind!=EMCFoodKind::Food) return true;
-    UWorld* World=Food->GetWorld();
-    if(!IsValid(Services)) {
-        Services=nullptr;
-        for(TActorIterator<AMCDayDirector> It(World);It;++It) {
-            if(It->IsActorBeingDestroyed() || It->Settings!=Plan) continue;
-            // A caller must disambiguate simultaneous executors instead of dirtying a random one.
-            if(Services) return false;
-            Services=*It;
-        }
-    }
-    if(!IsValid(Services) || !Services->HasAuthority() || Services->GetWorld()!=World || Services->Settings!=Plan) return false;
-    TSet<AMCMouthSurface*> Before;
-    for(TActorIterator<AMCMouthSurface> It(World);It;++It) Before.Add(*It);
-    Services->AddDirt(false,1,Food->Batch,0,0.f);
-    int32 Created=0;
-    for(TActorIterator<AMCMouthSurface> It(World);It;++It) if(!Before.Contains(*It) && !It->bUlcer && It->Batch==Food->Batch) {
-        It->SetOwner(Food);It->Tags.AddUnique(ServedDirtTag);++Created;
-    }
-    if(Created>0) return true;
-    // Verified food/coffee producers can already occupy the safe dirt field.
-    // Their unclean surface is still this batch's real cleanup debt. Reuse it
-    // without changing its mask, ownership or lineage, rather than rejecting
-    // another ingredient solely because a separate new stain cannot fit.
-    for(TActorIterator<AMCMouthSurface> It(World);It;++It)
-        if(!It->IsActorBeingDestroyed() && !It->bUlcer && It->Batch==Food->Batch
-            && It->Tags.Contains(ServedDirtTag) && !It->IsClean()) {
-            UE_LOG(LogTemp,Display,TEXT("MC_FOOD_DIRT_REUSE food=%s stain=%s batch=%d remaining=%.6f"),
-                *Food->GetName(),*It->GetName(),Food->Batch,It->RemainingLiquid());
-            return true;
-        }
-    return false;
-}
 float Positive(float Value,float Default)
 {
     return FMath::IsFinite(Value) && Value>0 ? Value : Default;
@@ -217,7 +182,6 @@ AMCFoodActor* MCSpawnDirectedFoodEntry(UWorld* World,const UMCDayPlan* Plan,FNam
     UGameplayStatics::FinishSpawningActor(Food,Pose);
     if(!IsValid(Food) || Food->IsActorBeingDestroyed()) return nullptr;
     Food->BeginMouthEntry(Velocity,Plan->FoodEntry.PushSpeed,Landing);
-    if(!MCFoodDirectorPrivate::CommitServedDirt(Food,Plan,DirtServices)) {Food->Destroy();return nullptr;}
     if(auto* State=World->GetGameState<AMCGameState>()) State->NotifyFrontFoodIngress(*Food,Velocity);
     return Food;
 }
@@ -447,7 +411,6 @@ AMCFoodActor* MCSpawnDirectedStuckFood(UWorld* World,const UMCDayPlan* Plan,FNam
     UGameplayStatics::FinishSpawningActor(Food,Pose);
     if(!IsValid(Food) || Food->IsActorBeingDestroyed()) return Failed(TEXT("finish_spawning_failed"));
     Food->Body->SetSimulatePhysics(false);Food->ForceNetUpdate();
-    if(!MCFoodDirectorPrivate::CommitServedDirt(Food,Plan,DirtServices)) {Food->Destroy();return Failed(TEXT("served_dirt_commit_failed"));}
     if(bDiagnostic) UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC SUCCESS food=%s tooth=%s position=%s zone=%d pass=%d query_policy=%s brush_cap_used=%d"),
         *Food->GetName(),*Anchor->GetName(),*Food->GetActorLocation().ToString(),Zone,SelectedContactPass,
         SelectedContactPass>=4?TEXT("stuck_brush_cap"):TEXT("ordinary"),bBrushCapUsed);
@@ -572,8 +535,7 @@ float MCForecastDirectedFoodWork(UWorld* World,const UMCDayPlan* Plan,FName RowN
             +Positive(Tuning.DeliveryTripSeconds,.4f);
     // A hit also dislodges stuck ordinary food; both variants finish through HP destruction.
     (void)bStuck;
-    return DestructionWork(Row.Health,HardRow(RowName,Row),Tuning,Row.Health,World)+MaximumApproach
-        +Positive(CleaningWorkerSeconds,8.f)/Positive(Tuning.CleaningSpeedMultiplier,1.f);
+    return DestructionWork(Row.Health,HardRow(RowName,Row),Tuning,Row.Health,World)+MaximumApproach;
 }
 
 FMCFoodPipelineLoad MCMeasureFoodPipeline(UWorld* World,int32 Batch,const FMCFoodPipelineTuning& BaseTuning)

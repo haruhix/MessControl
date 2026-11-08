@@ -1116,6 +1116,14 @@ void UMCWorldPreloadSubsystem::TickRenderReadiness()
     }
     if (!FApp::CanEverRender())
     {
+        // Asset-only readiness still belongs to the server's current location/load epoch.
+        // Rendering preparation normally resolves this scope; this path does not build it.
+        bool bIceRequired=false,bIceWaiting=false;
+        if(!ResolveIcePreparationScope(bIceRequired,bIceWaiting)) {
+            Fail(LoadingText(TEXT("Loading_IcePresentationFailed"),TEXT("Не удалось подготовить ледяное событие"),TEXT("Unable to prepare Ice presentation")),
+                TEXT("Could not resolve the current location/load epoch for asset-only preparation."));return;
+        }
+        if(bIceWaiting){ResetRenderReadiness();return;}
         // NullRHI/commandlet automation can exercise the asset barrier but cannot
         // certify graphics. This is deliberately visible in its validation log.
         UE_LOG(LogMCWorldPreload, Warning, TEXT("MC_PRELOAD_ASSETS_ONLY world=%s renderingUnavailable=1 visualValidation=0"), *GetNameSafe(GetWorld()));

@@ -4,6 +4,7 @@
 #include "MCArenaTooth.h"
 #include "MCToothCareFeedbackComponent.h"
 #include "MCToothCharacter.h"
+#include "MCHubBasketball.h"
 #include "Components/CapsuleComponent.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCCombatFeedbackComponent.h"
@@ -110,6 +111,8 @@ bool UMCToothStatusComponent::Damage(float Amount,FVector Direction,AActor* Sour
     State.DamageAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     if(auto* Hero=Cast<AMCToothCharacter>(GetOwner())) {
         Hero->FoodCollection->Spill(LastDamageDirection*180+FVector(0,0,50));
+        if(auto* Ball=AMCHubBasketball::HeldBy(Hero))
+            Ball->Release(Hero->GetVelocity()*.3f+LastDamageDirection*180+FVector(0,0,50));
         if(!Hero->IsFreezingToDeath()) {
             const bool Legacy=Hero->ActorHasTag(TEXT("MC.LegacyCombatFeedback"));
             const float ContactRadius=Legacy?30.f:Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+8.f;

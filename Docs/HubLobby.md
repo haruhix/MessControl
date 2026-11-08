@@ -283,6 +283,32 @@ physical pointer delivery, and a cooked Windows package remain untested in
 this batch. Replicated rules and cook references are implemented; the solo
 results do not establish multiplayer or packaged-game behavior.
 
+## Basketball controls and aim — 2026-11-08
+
+Mouse controls while holding the ball are LMB to hold aim, RMB to throw and E
+to drop. Q no longer throws the basketball. Gamepad controls remain LB to aim,
+RT / Y to throw and X to drop. RMB uses the existing throw without requiring
+the player to hold aim first.
+
+The aim preview uses the grenade presentation: one continuous outlined arc,
+four short center brackets and a diamond at the existing predicted endpoint.
+The same stroke snapshot supplies both Current and New UI. The existing
+`PredictThrowTrajectory` and launch calculation are retained; no runtime visual
+assets or preload roots were added. The keyboard row `hub.basketball.controls`
+is updated in the canonical localization JSON and saved in
+`/Game/Gameplay/UI/Data/DT_UI_Localization` for all ten languages; the saved row
+was read back after authoring.
+
+Editor compilation and the focused native regressions passed. Basketball/Run04
+passed 20 checks in standalone PIE: pickup/aim, unchanged throw velocity and real
+weak/default second-tooth melee both freeing the ball. The normal strike also
+knocks down its holder. The source keycap was corrected to keep RMB/ПКМ horizontal
+in both UI versions, with known 16px glyphs prepared during loading. Root reviewed
+the actual gameplay-camera recording and front/side view. These are functional
+solo results, not network, full Hub or artistic acceptance. The dated results
+below describe earlier revisions; current evidence is in
+[GameplayFixes_20261108](Validation/GameplayFixes_20261108.md).
+
 ## Basketball in Hub (2026-10-21)
 
 The existing decorative `Sphere` is now `Hub_Basketball`, an

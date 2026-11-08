@@ -1,5 +1,6 @@
 #if !UE_BUILD_SHIPPING
 #include "MCToothCharacter.h"
+#include "MCPlayerController.h"
 #include "MCToothMovementComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
@@ -35,6 +36,12 @@
 void MCTickApprovalRecorder(UWorld* World)
 {
     FString Name; if(!FParse::Value(FCommandLine::Get(),TEXT("MCVideo="),Name)) return;
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCVideoAfterReady"))) {
+        const auto* PC=World?Cast<AMCPlayerController>(World->GetFirstPlayerController()):nullptr;
+        const auto* Hero=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
+        if(!IsValid(PC) || !PC->IsLocalController() || !IsValid(Hero) || Hero->GetWorld()!=World
+            || !PC->IsWorldPresentationReady() || !PC->HasAcknowledgedGameplay() || Hero->IsArenaArrivalHeld()) return;
+    }
     static TWeakObjectPtr<UWorld> Last; static double At=0,Next=0; static int32 Frame=0;
     if(Last!=World) {
         Last=World; At=World->GetTimeSeconds(); Next=0; Frame=0;

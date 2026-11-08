@@ -285,10 +285,14 @@ void AMCToothCharacter::ApplyAppearance()
 }
 void AMCToothCharacter::BeginPlay()
 {
+    bNetworkPresentationStarted=true;
+    if(HasAuthority()) RefreshNetworkMotionAuthority();
     // Component BeginPlay can apply an already replicated body-state onset.
     // Prepare its exact resident channel before that existing local boundary.
     MCWorldPresentation::PrepareOwner(this,{TEXT("Tool.Knife"),TEXT("Tool.Pickaxe"),TEXT("Tool.Brush"),TEXT("Tool.Spray"),TEXT("Tool.Watergun"),TEXT("Character.Movement")});
     Super::BeginPlay();
+    bPeerMovementCollisionStarted=true;
+    RefreshPeerMovementCollision(true);
     Feedback->SetVisualTarget(GetMesh()); // Exact mesh context; player overlay remains disabled as before.
     // Include Blueprint colliders and the skeletal bodies used by ragdolls.
     TInlineComponentArray<UPrimitiveComponent*> Colliders(this);
@@ -451,6 +455,7 @@ void AMCToothCharacter::OnRep_BagColor()
 void AMCToothCharacter::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
+    RefreshPeerMovementCollision(true);
     if (const auto* Identity=GetPlayerState<AMCPlayerState>()) ApplyPlayerColor(Identity->PlayerColor);
     if(const auto* Identity=GetPlayerState<AMCPlayerState>();Identity && Identity->Economy && Cosmetics)
         Cosmetics->SetEquippedLoadout(Identity->Economy->EquippedLoadout);
@@ -531,6 +536,7 @@ void AMCToothCharacter::PawnClientRestart()
     // ACharacter::Restart resets movement to Walking. Its replicated movement
     // mode excludes the owning client, so replay the initial entrance hold.
     if(bArenaArrivalHeld) OnRep_ArenaArrivalHeld();
+    RefreshPeerMovementCollision(true);
     if (APlayerController* PC = Cast<APlayerController>(Controller))
         if (ULocalPlayer* Local = PC->GetLocalPlayer())
             if (auto* Subsystem = Local->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
@@ -580,6 +586,11 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
         if(auto* PC=Cast<AMCPlayerController>(GetController())) {
             // Latch the physical source for Completed/Canceled, when the key is already up.
             if(bPressed) bPrimaryMouseGesture=PC->IsInputKeyDown(EKeys::LeftMouseButton);
+            if(auto* Ball=AMCHubBasketball::HeldBy(this)) {
+                if(bPrimaryMouseGesture) {if(bPressed) StartPrimary();else StopPrimary();}
+                else if(bPressed) Ball->ThrowFromView();
+                return;
+            }
             if(bPrimaryMouseGesture?PC->RouteSkillFireInput(bPressed):PC->RouteSkillAimInput(bPressed)) return;
         }
         if(bPressed) StartPrimary();else StopPrimary();
@@ -597,6 +608,11 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     const auto BraceInput=[this](bool bPressed) {
         if(auto* PC=Cast<AMCPlayerController>(GetController())) {
             if(bPressed) bBraceMouseGesture=PC->IsInputKeyDown(EKeys::RightMouseButton);
+            if(auto* Ball=AMCHubBasketball::HeldBy(this)) {
+                if(bBraceMouseGesture) {if(bPressed) StartBrace();else StopBrace();}
+                else Ball->SetAimHeld(bPressed);
+                return;
+            }
             if(bBraceMouseGesture?PC->RouteSkillAimInput(bPressed):PC->RouteSkillFireInput(bPressed)) return;
         }
         if(bPressed) StartBrace();else StopBrace();
@@ -614,19 +630,24 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
         const auto* PC=Cast<APlayerController>(GetController());
         const auto* Player=Cast<AMCPlayerController>(PC);
         // A wheel notch has exactly one owner. Read either modifier on this
-        // event, so releasing Shift cannot leave tool scrolling latched off.
+        // event, so releasing Ctrl cannot leave tool scrolling latched off.
         if(!IsLocallyControlled() || !PC || IsArenaArrivalHeld() || PC->bShowMouseCursor
             || PC->IsMoveInputIgnored() || PC->IsLookInputIgnored()
             || (Player && (Player->IsRewardInteractionActive() || Player->IsWardrobeOpen() || Player->IsHubShopOpen()))) {
             ToolScrollCursor->Reset();return;
         }
-        if(PC->IsInputKeyDown(EKeys::LeftShift) || PC->IsInputKeyDown(EKeys::RightShift)) {
+        if(PC->IsInputKeyDown(EKeys::LeftControl) || PC->IsInputKeyDown(EKeys::RightControl)) {
             ToolScrollCursor->Reset();CameraMouseWheel(Value);return;
         }
         MCToolScrollInput::Handle(*this,Value.Get<float>(),*ToolScrollCursor);
     });
     Input->BindAction(SelfCareAction,ETriggerEvent::Started,this,&AMCToothCharacter::ToggleSelfCare);
-    Input->BindAction(ThrowAction,ETriggerEvent::Started,this,&AMCToothCharacter::StartThrowItem);
+    Input->BindActionValueLambda(ThrowAction,ETriggerEvent::Started,[this](const FInputActionValue&) {
+        const auto* PC=Cast<APlayerController>(GetController());
+        // Q remains the food throw key. Basketball uses RMB; gamepad Y stays available.
+        if(AMCHubBasketball::HeldBy(this) && PC && PC->IsInputKeyDown(EKeys::Q)) return;
+        StartThrowItem();
+    });
     Input->BindAction(ThrowAction,ETriggerEvent::Completed,this,&AMCToothCharacter::StopThrowItem);
     Input->BindAction(ThrowAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::StopThrowItem);
     Input->BindActionValueLambda(ToolActions[0],ETriggerEvent::Started,[this,ToolScrollCursor](const FInputActionValue&) {ToolScrollCursor->Reset();SelectBrush();});
@@ -718,8 +739,11 @@ void AMCToothCharacter::ServerOrderJump_Implementation(AMCThroat* Throat)
 }
 void AMCToothCharacter::ClientOrderLaunch_Implementation(FVector Velocity)
 {
+    // Legacy unversioned remote messages cannot take ownership after a newer
+    // common authority descriptor. Native authoritative launches use CMC ACKs.
+    if(!HasAuthority() && ObservedMotionContext.IsWellFormed()) return;
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(!It->IsDisposed()) {
-        GetCapsuleComponent()->IgnoreActorWhenMoving(*It,true); OrderJumpIgnoredActors.Add(*It);
+        SetMovementContactReason(*It,EMCMovementContactReason::ScriptedFlight,true); OrderJumpIgnoredActors.Add(*It);
     }
     if(GetCharacterMovement()->AirControl>0) OrderJumpAirControl=GetCharacterMovement()->AirControl;
     GetCharacterMovement()->AirControl=0; LaunchCharacter(Velocity,true,true);
@@ -729,24 +753,26 @@ void AMCToothCharacter::ClearOrderJump()
     const bool HadFlight=bOrderJumpLaunched || !OrderJumpIgnoredActors.IsEmpty();
     OrderJumpTarget=nullptr; bOrderJumpLaunched=false;
     if(HadFlight) GetCharacterMovement()->AirControl=OrderJumpAirControl;
-    for(const auto& Entry:OrderJumpIgnoredActors) if(auto* A=Entry.Get()) GetCapsuleComponent()->IgnoreActorWhenMoving(A,false);
+    for(const auto& Entry:OrderJumpIgnoredActors) if(auto* A=Entry.Get()) SetMovementContactReason(A,EMCMovementContactReason::ScriptedFlight,false);
     OrderJumpIgnoredActors.Reset();
     if(HasAuthority()) ForceNetUpdate();
 }
-void AMCToothCharacter::ClientUvulaHop_Implementation(FVector Velocity) { LaunchCharacter(Velocity,true,true); }
+void AMCToothCharacter::ClientUvulaHop_Implementation(FVector Velocity) { if(HasAuthority() || !ObservedMotionContext.IsWellFormed()) LaunchCharacter(Velocity,true,true); }
 void AMCToothCharacter::SetThroatCapture(AMCThroat* Throat)
 {
     if(!HasAuthority() || SwallowedBy==Throat) return;
     if(Throat) ClearFrozenLegs();
-    CancelGameplayInput(); ClearOrderJump(); if(Throat) ThroatCaptureStart=GetActorLocation(); SwallowedBy=Throat; OnRep_ThroatCapture(); ForceNetUpdate();
+    CancelGameplayInput(); ClearOrderJump(); if(Throat) ThroatCaptureStart=GetActorLocation(); SwallowedBy=Throat; RefreshNetworkMotionAuthority(); OnRep_ThroatCapture(); ForceNetUpdate();
 }
 void AMCToothCharacter::ClientThroatExit_Implementation(FVector Location,FVector Velocity)
 {
+    if(!HasAuthority() && ObservedMotionContext.IsWellFormed()) return;
     SetActorLocation(Location,false,nullptr,ETeleportType::TeleportPhysics);
     SwallowedBy=nullptr; OnRep_ThroatCapture(); bMouthCameraHeld=false; LaunchCharacter(Velocity,true,true);
 }
 void AMCToothCharacter::OnRep_ThroatCapture()
 {
+    if(!HasAuthority() && !bApplyingMotionAuthority) {ApplyMotionAuthorityDescriptor();return;}
     // Exit RPC and property replication can both report the release. Do not
     // stop the ejection impulse a second time when the property catches up.
     if(!SwallowedBy && !bThroatCaptured) return;
@@ -782,16 +808,17 @@ void AMCToothCharacter::BeginMimicCapture(AMCRewardChest* Chest)
     RewardInteraction=nullptr; bBrushing=false; bHandling=false; bPrimaryHeld=false; bSelfCare=false;
     bWantsCling=false; ClingTooth=nullptr; bInCoffee=false; PaddleInput=FVector2D::ZeroVector; SwimIntent=FVector::ZeroVector;
     MimicCaptureStart=GetActorLocation(); MimicReleaseLocation=MimicCaptureStart;
-    MimicCaptor=Chest; OnRep_MimicCapture(); ForceNetUpdate();
+    MimicCaptor=Chest; RefreshNetworkMotionAuthority(); OnRep_MimicCapture(); ForceNetUpdate();
 }
 void AMCToothCharacter::EndMimicCapture(FVector ReleaseLocation)
 {
     if(!HasAuthority() || (!MimicCaptor && !bMimicCaptured)) return;
     MimicReleaseLocation=ReleaseLocation.ContainsNaN()?FVector(MimicCaptureStart):ReleaseLocation;
-    MimicCaptor=nullptr; OnRep_MimicCapture(); ForceNetUpdate();
+    MimicCaptor=nullptr; RefreshNetworkMotionAuthority(); OnRep_MimicCapture(); TeleportWithNetworkContext(MimicReleaseLocation); ForceNetUpdate();
 }
 void AMCToothCharacter::OnRep_MimicCapture()
 {
+    if(!HasAuthority() && !bApplyingMotionAuthority) {ApplyMotionAuthorityDescriptor();return;}
     if(IsValid(MimicCaptor)) {
         if(!bMimicCaptured) {
             MimicRestoreMeshTransform=StandingMeshTransform();
@@ -817,7 +844,7 @@ void AMCToothCharacter::OnRep_MimicCapture()
     } else if(bMimicCaptured) {
         if(MimicTickPrerequisite.IsValid()) RemoveTickPrerequisiteActor(MimicTickPrerequisite.Get());
         MimicTickPrerequisite.Reset(); bMimicCaptured=false;
-        SetActorLocation(MimicReleaseLocation,false,nullptr,ETeleportType::TeleportPhysics);
+        if(HasAuthority()) SetActorLocation(MimicReleaseLocation,false,nullptr,ETeleportType::TeleportPhysics);
         ToothPhysics->SetThroatCaptured(false);
         GetMesh()->SetRelativeTransform(MimicRestoreMeshTransform);
         GetMesh()->SetVisibility(bMimicRestoreMeshVisible);
@@ -831,6 +858,7 @@ void AMCToothCharacter::OnRep_MimicCapture()
 }
 void AMCToothCharacter::UpdateMimicCapture(float)
 {
+    if(!HasAuthority() && !AllowsMotionClaim(EMCMotionClaimKind::Mimic,MimicCaptor)) return;
     if(!IsValid(MimicCaptor)) {
         if(bMimicCaptured) {
             if(HasAuthority()) EndMimicCapture(MimicReleaseLocation);
@@ -934,7 +962,7 @@ void AMCToothCharacter::StartHandle()
     if(Nearby) { ServerBeginRewardOpening(Nearby); return; }
     if (CanWork() && !bInCoffee && !bSelfCare && !CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->IsClimbing()
         && (FoodCollection->bCollecting || FoodCollection->HasCandidate()))
-    { ServerToggleFoodCollection(); return; }
+    { FoodCollection->RequestToggle(); return; }
     CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(true); ServerSetWorking(false,true);
 }
 void AMCToothCharacter::ServerBeginRewardOpening_Implementation(AMCRewardChest* Chest)
@@ -971,7 +999,7 @@ void AMCToothCharacter::StartPrimary()
     if(IsMimicCaptured()) return;
     if (!Status->IsAlive()) { if (auto* PC=Cast<AMCPlayerController>(Controller)) PC->NextSpectator(); return; }
     if(IsSeatedOnRaft()) return; // WASD owns the paddle; primary use does not start a second action.
-    if(AMCHubBasketball::HeldBy(this)) {ThrowItem();return;}
+    if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->SetAimHeld(true);return;}
     if(FishingRod && FishingRod->IsPresented()) {FishingRod->CastLine();return;}
     StopRowing();
     Inventory->UpdateSprayAim(true);
@@ -979,12 +1007,19 @@ void AMCToothCharacter::StartPrimary()
 }
 void AMCToothCharacter::ServerToggleFoodCollection_Implementation()
 {
+    FoodCollection->RequestToggle();
+}
+bool AMCToothCharacter::ApplyFoodCollectionIntent(bool Desired)
+{
+    if(!HasAuthority() || !FoodCollection) return false;
+    if(Desired==FoodCollection->bCollecting) return true;
+    if(!Desired) {FoodCollection->SetCollectingAccepted(false);ForceNetUpdate();return true;}
     if (!CanWork() || Inventory->IsChainsawRunning() || bInCoffee || bSelfCare || CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->IsClimbing()
-        || (!FoodCollection->bCollecting && !FoodCollection->HasCandidate())) return;
+        || !FoodCollection->HasCandidate()) return false;
     CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false);
     bPrimaryHeld=false; bBrushing=false; bHandling=false; DropFood(); ResetContact();
     Grip->ReleaseBrace();
-    FoodCollection->Toggle(); ForceNetUpdate();
+    FoodCollection->SetCollectingAccepted(true);ForceNetUpdate();return true;
 }
 void AMCToothCharacter::SelectBrush() { Inventory->RequestSelect(EMCToolSlot::Brush); }
 void AMCToothCharacter::SelectPickaxe() { Inventory->RequestSelect(EMCToolSlot::Pickaxe); }
@@ -998,7 +1033,10 @@ void AMCToothCharacter::NotifyTaskFeedback(bool Success,FVector Point)
     (Success?TaskSuccessAt:TaskFailureAt)=Now; ForceNetUpdate();
     if(Success) AMCReactionVFX::Spawn(GetWorld(),Point.IsNearlyZero()?GetActorLocation()+FVector(0,0,90):Point+FVector(0,0,110),EMCReactionEffect::Stars,2.5f,155);
 }
-void AMCToothCharacter::StopPrimary() { StopRowing(); Inventory->UpdateSprayAim(true); ServerSetPrimary(false); }
+void AMCToothCharacter::StopPrimary() {
+    if(auto* Ball=AMCHubBasketball::HeldBy(this)) Ball->SetAimHeld(false);
+    StopRowing(); Inventory->UpdateSprayAim(true); ServerSetPrimary(false);
+}
 void AMCToothCharacter::SetPrimaryInputHeld(bool Held)
 {
     if(FishingRod && FishingRod->IsPresented()) {
@@ -1020,8 +1058,8 @@ void AMCToothCharacter::SetHandleInputHeld(bool Held)
 }
 void AMCToothCharacter::SetFoodCollectionInput(bool Enabled)
 {
-    if((!HasAuthority() && !IsLocallyControlled()) || !FoodCollection || FoodCollection->bCollecting==Enabled) return;
-    ServerToggleFoodCollection();
+    if((!HasAuthority() && !IsLocallyControlled()) || !FoodCollection) return;
+    FoodCollection->RequestCollecting(Enabled);
 }
 void AMCToothCharacter::SetJumpInputHeld(bool Held)
 {
@@ -1042,7 +1080,7 @@ void AMCToothCharacter::StartBrace()
     if(!Status->IsAlive()) { if(auto* PC=Cast<AMCPlayerController>(Controller)) PC->PreviousSpectator(); return; }
     if(!CanWork() || Inventory->IsChainsawRunning()) return;
     if(const auto* PC=Cast<APlayerController>(Controller); PC && PC->IsMoveInputIgnored()) return;
-    if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->SetAimHeld(true);return;}
+    if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->ThrowFromView();return;}
     if(FishingRod && FishingRod->IsPresented()) {FishingRod->ServerSetFishingPose(true);return;}
     // Carrying owns the hands. RMB must not drop the load and immediately
     // select that same food as a new brace contact; Q/E release it explicitly.
@@ -1053,7 +1091,6 @@ void AMCToothCharacter::StartBrace()
 }
 void AMCToothCharacter::StopBrace() {
     if(FishingRod) FishingRod->ServerSetFishingPose(false);
-    if(auto* Ball=AMCHubBasketball::HeldBy(this)) Ball->SetAimHeld(false);
     Grip->SetBraceHeld(false);
 }
 void AMCToothCharacter::SetRowingInputHeld(bool Held) { if(Held) StartRowing(); else StopRowing(); }
@@ -1071,11 +1108,12 @@ void AMCToothCharacter::SetRaftSeat(AMCCataclysmRaft* Raft,int32 Slot)
         if(Grip) {Grip->ReleaseBrace(); Grip->ReleasePlayer();}
         if(Inventory) Inventory->ServerSelect(EMCToolSlot::Brush);
     }
-    SeatedRaft=Raft; RaftSeatIndex=Raft?Slot:INDEX_NONE;
+    SeatedRaft=Raft; RaftSeatIndex=Raft?Slot:INDEX_NONE;RefreshNetworkMotionAuthority();
     OnRep_RaftSeat(); ForceNetUpdate();
 }
 void AMCToothCharacter::OnRep_RaftSeat()
 {
+    if(!HasAuthority() && !bApplyingMotionAuthority) {ApplyMotionAuthorityDescriptor();return;}
     AMCCataclysmRaft* Raft=IsSeatedOnRaft()?SeatedRaft.Get():nullptr;
     if(AppliedSeatRaft.Get()!=Raft) {
         if(AppliedSeatRaft.IsValid()) RemoveTickPrerequisiteActor(AppliedSeatRaft.Get());
@@ -1101,6 +1139,7 @@ void AMCToothCharacter::OnRep_RaftSeat()
 }
 void AMCToothCharacter::UpdateRaftSeat()
 {
+    if(!HasAuthority() && !AllowsMotionClaim(EMCMotionClaimKind::RaftSeat,SeatedRaft,RaftSeatIndex)) return;
     if(!IsSeatedOnRaft()) {if(bAppliedRaftSeat) OnRep_RaftSeat(); return;}
     if(!bAppliedRaftSeat || AppliedSeatRaft.Get()!=SeatedRaft.Get()) {OnRep_RaftSeat(); return;}
     if(!CanWork() || HasFrozenLegs()) {
@@ -1252,10 +1291,7 @@ void AMCToothCharacter::ContinueFogGuard()
 void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
 {
     if(bActive && GetActiveSkillPresentation()) return;
-    if(bActive) if(auto* Ball=AMCHubBasketball::HeldBy(this)) {
-        Ball->ThrowFromView();
-        return;
-    }
+    if(bActive && AMCHubBasketball::HeldBy(this)) return;
     if(bActive && IsSeatedOnRaft()) return;
     if(!bActive) StopRowing();
     else if(bRowing) return;
@@ -1460,6 +1496,9 @@ void AMCToothCharacter::FindWork(float DeltaSeconds)
 void AMCToothCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    if(HasAuthority()) RefreshNetworkMotionAuthority();
+    else ApplyMotionAuthorityDescriptor();
+    RefreshPeerMovementCollision();
     UpdateSkillAimPresentation();
     UpdateArenaBoundary();
     UpdateThrowInput(DeltaSeconds);
@@ -1495,7 +1534,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const auto* BaseThroat=OrderBase?Cast<AMCThroat>(OrderBase->GetOwner()):nullptr;
     const float Press=BaseThroat && BaseThroat->UvulaLanding==OrderBase?1.f:0.f;
     AnimationOrderPress=FMath::Lerp(AnimationOrderPress,Press,1-FMath::Exp(-16.f*DeltaSeconds));
-    if(!HasAuthority() && SwallowedBy) {
+    if(!HasAuthority() && SwallowedBy && AllowsMotionClaim(EMCMotionClaimKind::Throat,SwallowedBy)) {
         const auto* GS=GetWorld()->GetGameState(); const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
         const float T=(SwallowedBy->ThroatPhase==EMCThroatPhase::Spasm || SwallowedBy->ThroatPhase==EMCThroatPhase::Vomiting)?1.f:FMath::Clamp(float(Now-SwallowedBy->PhaseStartedAt)/SwallowedBy->SwallowSeconds,0.f,1.f);
         const FVector End=SwallowedBy->GetActorTransform().TransformPosition(SwallowedBy->GateCenter+FVector(1050,0,20));
@@ -1979,6 +2018,15 @@ void AMCToothCharacter::ClientGroundImpact_Implementation(float Strength,FVector
 void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit)
 {
     if(const auto* Food=Cast<AMCFoodActor>(OtherActor);Food && Food->bFragment) return;
+    if(auto* Food=Cast<AMCFoodActor>(OtherActor)) {
+        // Food callbacks and the pawn callback share one authoritative impact
+        // classifier. Incidental carried/hop/presentation contacts never shake
+        // the camera; an accepted incoming hit owns its feedback exactly once.
+        if(HasAuthority()) Food->ResolveCanonicalPawnContact(this,-Hit.ImpactNormal,Hit.ImpactPoint);
+        if(Inventory) Inventory->HandleChainsawCollision(OtherActor,Hit);
+        if(HasAuthority()) FoodCollection->HandleCarrierCollision(OtherActor,OtherComponent,NormalImpulse,Hit);
+        return;
+    }
     if(HasAuthority() && HitComponent && OtherComponent && OtherActor!=this) {
         const bool bOwnSimulating=HitComponent->IsSimulatingPhysics(Hit.MyBoneName);
         const FVector OwnVelocity=bOwnSimulating
@@ -2003,7 +2051,6 @@ void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* Othe
         // still go through ResolveSwing/ApplyHit independently of this callback.
         return;
     }
-    if (Cast<AMCFoodActor>(OtherActor)) return;
     if (!HasAuthority() || !ToothPhysics->CanAct() || !OtherComponent || OtherActor==this || GetWorld()->GetTimeSeconds()-LastEnvironmentHit<0.6f) return;
     FVector Impact=FVector::ZeroVector;
     if (OtherComponent->IsSimulatingPhysics()) Impact=(OtherComponent->GetPhysicsLinearVelocity()-GetVelocity())*0.7f;
@@ -2032,6 +2079,7 @@ void AMCToothCharacter::ResetTuning() { AnimationSettings = AnimationProfile ? A
 void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    DOREPLIFETIME(AMCToothCharacter,MotionAuthority);
     DOREPLIFETIME(AMCToothCharacter,bArenaArrivalHeld);
     DOREPLIFETIME(AMCToothCharacter,bBrushing); DOREPLIFETIME(AMCToothCharacter,bHandling);
     DOREPLIFETIME(AMCToothCharacter,bPrimaryHeld);
@@ -2058,6 +2106,7 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 bool AMCToothCharacter::CanWork() const
 {
+    if(!HasAuthority() && bMotionAuthorityPending) return false;
     if(IsFreezingToDeath()) return false;
     if(const auto* Hub=GetWorld()->GetGameState<AMCHubGameState>(); Hub && Hub->Phase!=EMCHubPhase::Gathering) return false;
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
@@ -2242,6 +2291,7 @@ void AMCToothCharacter::OnRep_FreezeDeath()
 }
 void AMCToothCharacter::StatusChanged()
 {
+    RefreshPeerMovementCollision();
     if (!HasAuthority() || Status->IsAlive() || bDeathReported) return;
     if(PassivePresentation) {
         if(IsFreezingToDeath())PassivePresentation->StopPresentationWithLocalSourceAudioTails(TEXT("Character.FreezeDeath"));
@@ -2272,6 +2322,10 @@ void AMCToothCharacter::FellOutOfWorld(const UDamageType&)
 }
 void AMCToothCharacter::EndPlay(const EEndPlayReason::Type Reason)
 {
+    ReleaseNetworkPresentation();
+    bNetworkPresentationStarted=false;
+    bPeerMovementCollisionStarted=false;
+    ClearPeerMovementCollision();
     if(PassivePresentation) {
         if(Reason==EEndPlayReason::Destroyed&&IsFreezingToDeath())PassivePresentation->StopPresentationWithLocalSourceAudioTails(TEXT("Character.FreezeDeath"));
         else PassivePresentation->StopPresentation(true); // Reset/travel/teardown remains immediate.
@@ -2371,6 +2425,9 @@ void AMCToothCharacter::SetThrowInputHeld(bool Held)
 void AMCToothCharacter::ServerSetThrowHeld_Implementation(bool Held,FVector_NetQuantizeNormal Direction)
 {
     if(!Held) { bThrowHeld=false; return; }
+    // A delayed Holder replication must not let the food/Q RPC throw the ball.
+    // Basketball mouse/gamepad throws use its existing ServerThrow RPC.
+    if(AMCHubBasketball::HeldBy(this)) return;
     if(GetActiveSkillPresentation()) return;
     if(!CanWork() || bInCoffee || Direction.ContainsNaN() || Direction.IsNearlyZero()) return;
     ThrowAim=FVector(Direction).GetSafeNormal();

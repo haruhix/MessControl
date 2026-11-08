@@ -589,7 +589,7 @@ bool UMCInventoryComponent::CalculusHandGoal(FTransform& HandWorld,float& Blend)
         const auto* GS=Hero->GetWorld()->GetGameState();
         const float Time=GS?GS->GetServerWorldTimeSeconds():Hero->GetWorld()->GetTimeSeconds();
         WorkTool.AddToTranslation(WorkTool.GetUnitAxis(EAxis::X)*(-.2f*(1+FMath::Sin(Time*67))));
-        HandWorld=InHand.Inverse()*WorkTool;
+        HandWorld=InHand.Inverse()*Hero->GetPresentationFrame().FromCanonicalWorld(WorkTool);
         Blend=1;
         return !HandWorld.ContainsNaN();
     }
@@ -688,12 +688,12 @@ FVector UMCInventoryComponent::SprayOrigin() const
     FVector Local(34,0,31);
     if(HasUpgrade(EMCToolUpgrade::Watergun) && Settings) {
         Local=(Tool?Tool->GetRelativeTransform():UpgradeAttachment()).TransformPosition(Settings->WatergunNozzle);
-        return Hero->BrushPivot->GetComponentTransform().TransformPosition(Local);
+        return Hero->GetPresentationFrame().ToCanonicalWorld(Hero->BrushPivot->GetComponentTransform().TransformPosition(Local));
     }
     if(const auto* Mesh=Settings?Settings->SprayMesh.Get():nullptr)
         if(const auto* Socket=Mesh->FindSocket(TEXT("SprayNozzle")))
             Local=Settings->SprayTransform.TransformPosition(Socket->RelativeLocation);
-    return Hero->BrushPivot->GetComponentTransform().TransformPosition(Local);
+    return Hero->GetPresentationFrame().ToCanonicalWorld(Hero->BrushPivot->GetComponentTransform().TransformPosition(Local));
 }
 FVector UMCInventoryComponent::SprayDirection() const
 {
@@ -863,13 +863,15 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
         const float RangeScale=SprayReach()/BaseReach;
         SprayMist->SetWorldScale3D(FVector(RangeScale*SprayWidthMultiplier(),RangeScale*SprayWidthMultiplier(),RangeScale));
         if(Emit) {
-            SprayMist->SetWorldLocationAndRotation(SprayOrigin(),FRotationMatrix::MakeFromZ(SprayDirection()).Rotator());
+            const FVector VisualOrigin=Hero->GetPresentationFrame().FromCanonicalWorld(SprayOrigin());
+            SprayMist->SetWorldLocationAndRotation(VisualOrigin,FRotationMatrix::MakeFromZ((SprayAim()-VisualOrigin).GetSafeNormal()).Rotator());
         }
         if(Emit!=bSprayEmitting) {if(Emit) SprayMist->Activate(true);else SprayMist->Deactivate();bSprayEmitting=Emit;}
     }
     if(WaterMist) {
         const bool Emit=WaterEmit&&NativeSpray;
-        if(Emit) WaterMist->SetWorldLocationAndRotation(SprayOrigin(),FRotationMatrix::MakeFromZ(SprayDirection()).Rotator());
+        if(Emit) {const FVector VisualOrigin=Hero->GetPresentationFrame().FromCanonicalWorld(SprayOrigin());
+            WaterMist->SetWorldLocationAndRotation(VisualOrigin,FRotationMatrix::MakeFromZ((SprayAim()-VisualOrigin).GetSafeNormal()).Rotator());}
         if(Emit!=bWaterEmitting) {if(Emit) WaterMist->Activate(true);else WaterMist->Deactivate();bWaterEmitting=Emit;}
     }
 }

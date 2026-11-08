@@ -14,6 +14,7 @@
 #include "Serialization/MemoryReader.h"
 #include "Serialization/MemoryWriter.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
+#include "Misc/ScopeExit.h"
 
 namespace
 {
@@ -206,6 +207,8 @@ bool FMCDashResourceReconciliation::RunTest(const FString&)
     TestEqual(TEXT("The predicted spend uses one charge before its acknowledgement"),T.Move->GetDashCharges(),1);
     FMCStaminaMoveResponse Written;
     Written.ClientAdjustment.bAckGoodMove=true;Written.ClientAdjustment.TimeStamp=1.f;
+    Written.Context=T.Hero->CaptureNetworkCorrectionContext();
+    Written.Handling=T.Move->CaptureHandlingForMove();
     Written.Stamina=T.Move->GetStaminaPrediction();Written.Stamina.Value=T.Hero->GetMaxStamina();Written.Stamina.RecoveryDelay=0.f;
     // The authoritative timestamp includes an earlier use unknown to this owner.
     Written.Dash.Remaining[0]=2.7f;Written.Dash.Remaining[1]=0.f;
@@ -216,7 +219,12 @@ bool FMCDashResourceReconciliation::RunTest(const FString&)
     TestEqual(TEXT("First authoritative clock survives serialization"),Read.Dash.Remaining[0],2.7f);
     TestEqual(TEXT("Second authoritative clock remains separately ready"),Read.Dash.Remaining[1],0.f);
     const FVector Before=T.Hero->GetActorLocation();
-    T.Move->ClientHandleMoveResponse(Read);
+    {
+        const ENetRole OriginalRole=T.Hero->GetLocalRole();
+        ON_SCOPE_EXIT {T.Hero->SetRole(OriginalRole);};
+        T.Hero->SetRole(ROLE_AutonomousProxy);
+        T.Move->ClientHandleMoveResponse(Read);
+    }
     TestTrue(TEXT("Good ACK restores the server state then replays newer movement time and one spend"),FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(0),2.5f,.001f)
         && FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(1),2.9f,.001f));
     TestTrue(TEXT("Resource-only acknowledgement does not move the capsule"),T.Hero->GetActorLocation().Equals(Before,.001));

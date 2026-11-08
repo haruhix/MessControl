@@ -6,6 +6,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCInventoryComponent.h"
 #include "MCGameState.h"
+#include "MCPlayerController.h"
 #include "MCTongue.h"
 #include "MCMouthSurface.h"
 #include "MCReactionVFX.h"
@@ -25,43 +26,76 @@
 void MCTickFoodNetworkValidation(UWorld* W)
 {
     struct FRun {
-        TWeakObjectPtr<UWorld> W;double At=0,NextFireDiagnostic=0;int32 Stage=0,MaxStack=0;bool Setup=false,Failed=false,YawnSeen=false,StarsSeen=false,FireSeen=false,FireSuppressed=false;
+        TWeakObjectPtr<UWorld> W;double At=0,FirstTickReal=0,NextWaitDiagnostic=0,NextFireDiagnostic=0,NextSprayAimDiagnostic=0;int32 Stage=0,MaxStack=0;bool Setup=false,Failed=false,YawnSeen=false,StarsSeen=false,FireSeen=false,FireSuppressed=false,SprayPressed=false;
         bool CollisionScaleSent=false,CollisionVariantSent=false,StableStackSeen=false,PickupHopSeen=false,PickupStretchSeen=false;
-        bool YawnIdleStarted=false,YawnRunStarted=false,YawnRunEnded=false,YawnControlsFree=true;
+        bool YawnIdleStarted=false,YawnRunStarted=false,YawnRunEnded=false,YawnControlsFree=true,YawnPhaseLogged=false;
         FVector YawnIdleStart,YawnRunStart,YawnDirection;float YawnIdleDistance=0,YawnRunDistance=0;
         TMap<TWeakObjectPtr<AMCToothCharacter>,int32> ServerMax;
-    };static FRun R;if(R.W!=W) {R=FRun();R.W=W;}
-    auto* GS=W->GetGameState<AMCGameState>();auto* PC=W->GetFirstPlayerController();auto* H=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
-    if(!GS || !H) return;
+    };static FRun R;if(R.W!=W) {R=FRun();R.W=W;R.FirstTickReal=W->GetRealTimeSeconds();}
+    const double RealTime=W->GetRealTimeSeconds();
+    if(RealTime-R.FirstTickReal>180) {
+        UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_FAIL FOOD_NETWORK net=%d reason=Timeout setup=%d stage=%d"),int32(W->GetNetMode()),R.Setup,R.Stage);
+        FPlatformMisc::RequestExitWithStatus(false,1);return;
+    }
+    auto* GS=W->GetGameState<AMCGameState>();auto* PC=Cast<AMCPlayerController>(W->GetFirstPlayerController());auto* H=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
+    if(!GS || !PC || !H) return;
     AMCTongue* Tongue=nullptr;for(TActorIterator<AMCTongue> It(W);It;++It) {Tongue=*It;break;}if(!Tongue) return;
     auto Check=[&](bool OK,const TCHAR* Text){R.Failed|=!OK;UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_CHECK net=%d %s %s"),int32(W->GetNetMode()),OK?TEXT("PASS"):TEXT("FAIL"),Text);};
     auto TraceFireLine=[&](AMCToothCharacter* Hero,FVector Aim,AActor* Fire,FHitResult& Hit) {
         FCollisionQueryParams Q(SCENE_QUERY_STAT(MCFireSpray),false,Hero);if(Fire) Q.AddIgnoredActor(Fire);
         return W->LineTraceSingleByChannel(Hit,Hero->GetActorLocation(),Aim,ECC_Visibility,Q);
     };
+    auto LocalReady=[&]() {
+        return PC->IsWorldPresentationReady() && PC->HasAcknowledgedGameplay()
+            && H->GetController()==PC && !H->IsArenaArrivalHeld()
+            && !PC->IsMoveInputIgnored() && !PC->IsLookInputIgnored();
+    };
+    auto LogReadyWait=[&](int32 ReadyPlayers) {
+        if(RealTime<R.NextWaitDiagnostic) return;R.NextWaitDiagnostic=RealTime+2;
+        UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_WAIT net=%d players=%d ready=%d local_ready=%d local_ack=%d arrival_held=%d move_ignored=%d look_ignored=%d"),
+            int32(W->GetNetMode()),GS->PlayerArray.Num(),ReadyPlayers,LocalReady(),PC->HasAcknowledgedGameplay(),H->IsArenaArrivalHeld(),PC->IsMoveInputIgnored(),PC->IsLookInputIgnored());
+    };
     const double Now=GS->GetServerWorldTimeSeconds();
     if(W->GetNetMode()!=NM_Client && !R.Setup) {
         if(GS->PlayerArray.Num()!=4 || W->GetTimeSeconds()<5) return;
         TArray<AMCToothCharacter*> Heroes;for(const auto& PS:GS->PlayerArray) if(auto* Hero=Cast<AMCToothCharacter>(PS->GetPawn())) Heroes.Add(Hero);
         if(Heroes.Num()!=4) return;
+        // GameMode tick owns arrival release. Keep it running until real preparation/possession ACKs complete.
+        bool TeamReady=LocalReady();int32 ReadyPlayers=0;
+        for(FConstPlayerControllerIterator It=W->GetPlayerControllerIterator();It;++It) {
+            const auto* Player=Cast<AMCPlayerController>(It->Get());
+            const auto* Hero=Player?Cast<AMCToothCharacter>(Player->GetPawn()):nullptr;
+            if(!Player || !Hero || Hero->GetController()!=Player || !Player->HasAcknowledgedGameplay() || Hero->IsArenaArrivalHeld()
+                || (!Player->IsLocalController() && Player->AcknowledgedPawn!=Hero)) TeamReady=false;
+            else ++ReadyPlayers;
+        }
+        if(!TeamReady || ReadyPlayers<4) {LogReadyWait(ReadyPlayers);return;}
         if(auto* Mode=W->GetAuthGameMode()) Mode->SetActorTickEnabled(false);
         GS->bDevManualEvents=true;GS->Phase=EMCShiftPhase::Working;GS->PhaseEndsAt=0;GS->bPhysicalBrushes=false;GS->ForceNetUpdate();
-        Tongue->bAutomaticYawns=false;Tongue->ResetPain();
+        UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_YAWN_RESET event=before net=%d server_now=%.6f active=%d started_at=%.6f duration=%.3f setup_clock_started=%d"),
+            int32(W->GetNetMode()),Now,Tongue->IsYawnActive(),Tongue->YawnStartedAt,Tongue->YawnDuration,R.Setup);
+        Tongue->bAutomaticYawns=false;Tongue->ResetYawn();Tongue->ResetPain();
+        UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_YAWN_RESET event=after net=%d server_now=%.6f active=%d started_at=%.6f duration=%.3f setup_clock_started=%d"),
+            int32(W->GetNetMode()),Now,Tongue->IsYawnActive(),Tongue->YawnStartedAt,Tongue->YawnDuration,R.Setup);
         for(TActorIterator<AMCFoodActor> It(W);It;++It) It->Destroy();
         for(TActorIterator<AMCThroat> It(W);It;++It) It->SetActorTickEnabled(false);
         const auto* Table=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
-        const auto* Row=Table?Table->FindRow<FMCFoodRow>(TEXT("Egg"),TEXT("Food network")):nullptr;if(!Row) return;
+        const auto* Row=Table?Table->FindRow<FMCFoodRow>(TEXT("Egg"),TEXT("Food network")):nullptr;
+        // Saved egg fragments still need cutting; authored carrot slices already fit the hand gate.
+        const auto* CollectionRow=Table?Table->FindRow<FMCFoodRow>(TEXT("Carrot"),TEXT("Food network collection")):nullptr;if(!Row || !CollectionRow) return;
         for(int32 I=0;I<Heroes.Num();++I) {
             auto* Hero=Heroes[I];FHitResult Floor;
             const FVector Probe=Tongue->Surface->Bounds.Origin+FVector(0,(I-1.5f)*280,0);
             if(!Tongue->SurfacePoint(Probe,Floor)) {Check(false,TEXT("fixture tongue supports all players"));continue;}
             Hero->CancelGameplayInput();Hero->Inventory->ServerSelect(EMCToolSlot::Brush);
             Hero->SetActorLocation(Floor.ImpactPoint+FVector(-80,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3),false,nullptr,ETeleportType::TeleportPhysics);
+            Hero->NotifyNetworkPositionReset();
             Hero->SetActorRotation(FRotator::ZeroRotator);Hero->GetCharacterMovement()->StopMovementImmediately();Hero->ForceNetUpdate();
             for(int32 J=0;J<3;++J) {
                 const FTransform T(Floor.ImpactPoint+FVector(5+(J/2)*38,(J%2?1:-1)*32,40));
                 auto* F=W->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T,Hero,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-                FRandomStream Random(41+J);F->ConfigureItem(TEXT("Egg"),*Row,Random,true);F->Batch=91001;F->FinishSpawning(T);F->SpoilAt=Now+180;F->ForceNetUpdate();
+                FRandomStream Random(41+J);F->ConfigureItem(TEXT("Carrot"),*CollectionRow,Random,true);F->Batch=91001;F->FinishSpawning(T);F->SpoilAt=Now+180;F->ForceNetUpdate();
+                Check(F->FitsHandPortion(),TEXT("collection fixture uses an authored hand-sized fragment"));
             }
         }
         // Isolated from collection and hazard fixtures: exercise a scale change
@@ -74,6 +108,7 @@ void MCTickFoodNetworkValidation(UWorld* W)
         R.Setup=true;R.At=Now;UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_START peers=4"));
     }
     if(W->GetNetMode()==NM_Client && !R.Setup) {
+        if(!LocalReady()) {LogReadyWait(0);return;}
         for(TActorIterator<AMCFoodActor> It(W);It;++It) if(It->Batch==91001 && It->GetOwner()==H) {R.At=It->SpoilAt-180;R.Setup=true;break;}
     }
     if(!R.Setup) return;const double T=Now-R.At;
@@ -85,7 +120,7 @@ void MCTickFoodNetworkValidation(UWorld* W)
             It->ForceNetUpdate();R.CollisionVariantSent=true;
         }
     }
-    if(H->IsLocallyControlled() && T>.8 && R.Stage==0) {H->ServerSetPrimary(true);H->ServerSetPrimary(false);++R.Stage;}
+    if(H->IsLocallyControlled() && T>.8 && R.Stage==0) {H->SetFoodCollectionInput(true);++R.Stage;}
     R.MaxStack=FMath::Max(R.MaxStack,H->FoodCollection->Pieces.Num());
     for(const auto& Piece:H->FoodCollection->Pieces) if(IsValid(Piece) && Piece->StackCarrier==H && Piece->IsStackPickupActive()) {
         R.PickupHopSeen|=FVector::Dist(Piece->GetActorLocation(),H->FoodCollection->StackPose(Piece->StackPickup.SlotHeight).GetLocation())>8;
@@ -99,6 +134,11 @@ void MCTickFoodNetworkValidation(UWorld* W)
     R.YawnSeen|=H->IsYawning() && H->YawnTongue==Tongue && H->CanWork() && H->FoodCollection->bCollecting && H->YawnAnchor.IsNearlyZero() && H->GetCharacterMovement()->MovementMode!=MOVE_None;
     if(H->IsLocallyControlled() && H->IsYawning()) {
         const double Age=Now-H->YawnStartedAt;
+        if(!R.YawnPhaseLogged && T>6 && H->YawnTongue==Tongue && H->YawnStartedAt>=R.At) {
+            R.YawnPhaseLogged=true;
+            UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_YAWN_PHASE net=%d t=%.3f server_now=%.6f tongue_started_at=%.6f hero_started_at=%.6f hero_ends_at=%.6f age=%.3f collecting=%d canwork=%d move_ignored=%d anchored=%d movement=%d"),
+                int32(W->GetNetMode()),T,Now,Tongue->YawnStartedAt,H->YawnStartedAt,H->YawnEndsAt,Age,H->FoodCollection->bCollecting,H->CanWork(),PC->IsMoveInputIgnored(),!H->YawnAnchor.IsNearlyZero(),int32(H->GetCharacterMovement()->MovementMode));
+        }
         R.YawnControlsFree&=H->CanWork() && !PC->IsMoveInputIgnored() && H->YawnAnchor.IsNearlyZero() && H->GetCharacterMovement()->MovementMode!=MOVE_None;
         if(Age>.6 && !R.YawnIdleStarted) {R.YawnIdleStarted=true;R.YawnIdleStart=H->GetActorLocation();R.YawnDirection=H->YawnWindVelocity().GetSafeNormal();}
         if(R.YawnIdleStarted && !R.YawnRunStarted) R.YawnIdleDistance=FVector::DotProduct(H->GetActorLocation()-R.YawnIdleStart,R.YawnDirection);
@@ -114,7 +154,11 @@ void MCTickFoodNetworkValidation(UWorld* W)
         for(TActorIterator<AMCToothCharacter> It(W);It;++It) R.ServerMax.FindOrAdd(*It)=FMath::Max(R.ServerMax.FindRef(*It),It->FoodCollection->Pieces.Num());
         if(T>6 && !Tongue->IsYawnActive() && Tongue->YawnStartedAt<0) {
             for(TActorIterator<AMCFoodActor> It(W);It;++It) if(It->Batch==91001) UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_FOOD owner=%s carrier=%s impacts=%d position=%s"),*GetNameSafe(It->GetOwner()),*GetNameSafe(It->StackCarrier),It->ConfirmedImpacts,*It->GetActorLocation().ToString());
-            Check(Tongue->StartYawn(3),TEXT("server starts the yawn event"));
+            UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_YAWN_LAUNCH event=request net=%d t=%.3f server_now=%.6f active=%d started_at=%.6f duration=%.3f"),
+                int32(W->GetNetMode()),T,Now,Tongue->IsYawnActive(),Tongue->YawnStartedAt,Tongue->YawnDuration);
+            const bool Started=Tongue->StartYawn(3);Check(Started,TEXT("server starts the yawn event"));
+            UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_YAWN_LAUNCH event=result net=%d t=%.3f server_now=%.6f accepted=%d active=%d started_at=%.6f duration=%.3f"),
+                int32(W->GetNetMode()),T,Now,Started,Tongue->IsYawnActive(),Tongue->YawnStartedAt,Tongue->YawnDuration);
             for(TActorIterator<AMCToothCharacter> It(W);It;++It) {
                 FHitResult Floor;const bool HasFloor=Tongue->SurfacePoint(It->GetActorLocation(),Floor);
                 UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_YAWN hero=%s active=%d source=%s anchored=%d movement=%d floor=%d gap=%.2f position=%s"),*It->GetName(),It->IsYawning(),*GetNameSafe(It->YawnTongue),!It->YawnAnchor.IsNearlyZero(),int32(It->GetCharacterMovement()->MovementMode),HasFloor,HasFloor?It->GetActorLocation().Z-It->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()-Floor.ImpactPoint.Z:9999,*It->GetActorLocation().ToString());
@@ -169,14 +213,32 @@ void MCTickFoodNetworkValidation(UWorld* W)
                 Blocked,*GetNameSafe(Block.GetActor()),*GetNameSafe(Block.GetComponent()),Block.bStartPenetrating);
         }
     }
-    if(H->IsLocallyControlled() && T>11 && R.Stage<3 && OwnedFire && OwnedFire->IsBurning()) {
-        H->SetActorRotation((OwnedFire->GetActorLocation()-H->GetActorLocation()).GetSafeNormal2D().Rotation());
-        H->Inventory->ServerSelect(EMCToolSlot::Spray);H->ServerSetPrimary(true);R.Stage=3;
+    if(H->IsLocallyControlled() && T>11 && OwnedFire && OwnedFire->IsBurning()) {
+        // Spray converges from the actual shoulder camera; pawn yaw is not the aiming ray.
+        H->CameraOrbitHeight=30;
+        if(R.Stage<3 && H->Inventory->RequestSelect(EMCToolSlot::Spray)) R.Stage=3;
+        FVector Eye;FRotator View;PC->GetPlayerViewPoint(Eye,View);
+        const FVector FireCenter=OwnedFire->GetActorLocation()+FVector(0,0,20);
+        // Keep the same nearby fire/radius. Its far-side visible area is reachable past the 140cm shoulder offset.
+        const FVector Aim=FireCenter+(FireCenter-H->GetActorLocation()).GetSafeNormal2D()*(OwnedFire->BurnRadius*.75f),Delta=Aim-Eye,Direction=View.Vector();
+        const float Along=FVector::DotProduct(Delta,Direction),CameraMiss=(Delta-Direction*Along).Size();
+        const FRotator Desired=Delta.Rotation();H->SetCameraOrbitView(Desired.Yaw,Desired.Pitch,300);PC->SetControlRotation(Desired);
+        const float AcquiredMiss=FVector::Distance(H->Inventory->SprayAim(),FireCenter);
+        if(T>=R.NextSprayAimDiagnostic) {
+            R.NextSprayAimDiagnostic=T+.5;
+            UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_SPRAY_AIM net=%d t=%.2f selected=%d pressed=%d view_is_pawn=%d camera_miss=%.2f acquired_miss=%.2f along=%.2f"),
+                int32(W->GetNetMode()),T,int32(H->Inventory->Selected),R.SprayPressed,PC->GetViewTarget()==H,CameraMiss,AcquiredMiss,Along);
+        }
+        if(!R.SprayPressed && H->Inventory->Selected==EMCToolSlot::Spray && PC->GetViewTarget()==H && Along>0 && CameraMiss<5 && AcquiredMiss<OwnedFire->BurnRadius) {
+            Check(true,TEXT("owning gameplay camera acquires persistent fire before primary input"));
+            H->SetPrimaryInputHeld(true);R.SprayPressed=true;
+        }
     }
     if(T>(W->GetNetMode()==NM_Client?16:18)) {
-        H->ServerSetPrimary(false);
+        H->SetPrimaryInputHeld(false);
         UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_FIRE_RESULT net=%d seen=%d suppressed=%d heat=%.3f"),
             int32(W->GetNetMode()),R.FireSeen,R.FireSuppressed,OwnedFire?OwnedFire->Heat:-1.f);
+        Check(R.SprayPressed,TEXT("owning gameplay camera acquires persistent fire before primary input"));
         Check(R.FireSeen && R.FireSuppressed,TEXT("owning client spray extinguishes replicated persistent fire"));
         Check(R.MaxStack>=3,TEXT("owning input produced a replicated three-piece physical stack"));
         Check(R.StableStackSeen,TEXT("all collected pieces stay held without falling on this peer"));

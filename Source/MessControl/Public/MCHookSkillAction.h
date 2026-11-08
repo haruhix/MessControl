@@ -7,6 +7,7 @@
 #include "MCHookSkillAction.generated.h"
 
 struct FMCActiveSkillAimPreview;
+class UMCToothMovementComponent;
 
 UENUM(BlueprintType)
 enum class EMCHookCastPhase : uint8 { Inactive, Windup, Outbound, Pulling, Returning, Recovery };
@@ -59,7 +60,7 @@ private:
     FVector ReadHeldOffset() const;
     FTransform HandLocal(bool bLeft) const;
     bool TargetStillValid() const;
-    FMCActiveSkillMotionLease Motion;
+    TWeakObjectPtr<UMCToothMovementComponent> PullMovement;
     UPROPERTY(Replicated) FVector TargetLocalContact=FVector::ZeroVector;
     UPROPERTY(Replicated) EMCHookCastPhase CastPhase=EMCHookCastPhase::Inactive;
     UPROPERTY(Replicated) double PhaseStartedAt=0;
@@ -80,6 +81,7 @@ private:
     UPROPERTY(Replicated) FQuat PhaseVisualRotation=FQuat::Identity;
     FVector CastLook=FVector::ForwardVector;
     FVector PreviousMovedPosition=FVector::ZeroVector;
+    float PreviousPullSimulationTime=0;
     EMCActiveSkillEndReason ReturnReason=EMCActiveSkillEndReason::Completed;
     double EndsAt=0,LastSampleAt=0;
 };

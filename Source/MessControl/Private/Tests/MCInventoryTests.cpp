@@ -225,7 +225,7 @@ bool FMCSprayProtection::RunTest(const FString&) {
     Patch->Disturb(); Patch->Tick(.5f); TestEqual(TEXT("Protected lesion does no mouth damage"),T.GS->MouthHealth,HP);
     T.H->ServerSetPrimary(false); Tick(10); Patch->NumbUntil=-1; Patch->Disturb(); Patch->Tick(.5f);
     TestEqual(TEXT("Release, contact and idle time preserve progress"),Patch->Healing,Saved);
-    TestTrue(TEXT("Damage returns while untreated"),T.GS->MouthHealth<HP);
+    TestEqual(TEXT("Untreated lesions cannot damage retired mouth health"),T.GS->MouthHealth,HP);
     T.H->ServerSetPrimary(true); Patch->SetActorLocation(FVector(-1700,0,25)); Tick(10);
     TestEqual(TEXT("Distant ulcer cannot be treated"),Patch->Healing,Saved);
     Patch->SetActorLocation(FVector(-720,0,25)); Tick(10);

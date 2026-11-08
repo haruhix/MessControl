@@ -5,6 +5,10 @@
 #include "MCLocomotionSurface.h"
 #include "Engine/NetSerialization.h"
 #include "MCGripComponent.h"
+#include "MCHookPullPrediction.h"
+#include "MCAcceptedExternalMotion.h"
+#include "SharedMCNetworkFrames.h"
+#include "MCHandlingState.h"
 #include "MCToothMovementComponent.generated.h"
 class AMCCoffeeFlood;
 struct FMCSwimWaterSample;
@@ -39,6 +43,9 @@ struct FMCStaminaMoveResponse final : public FCharacterMoveResponseDataContainer
     FMCStaminaPredictionState Stamina;
     FMCSwimPredictionState Swim;
     FMCDashPredictionState Dash;
+    FMCAcceptedMotionSnapshot ExternalMotion;
+    FMCNetworkCorrectionContext Context;
+    FMCHandlingMoveSample Handling;
     bool bSwimUsesMoveLedger=true;
     virtual void ServerFillResponseData(const UCharacterMovementComponent& Movement,const FClientAdjustment& Adjustment) override;
     virtual bool Serialize(UCharacterMovementComponent& Movement,FArchive& Ar,UPackageMap* Map) override;
@@ -54,6 +61,8 @@ struct MESSCONTROL_API FMCLocomotionRootMotionSource : public FRootMotionSource_
     virtual bool UpdateStateFrom(const FRootMotionSource* Other,bool bMarkForSimulatedCatchup=false) override;
     virtual bool NetSerialize(FArchive& Ar,UPackageMap* Map,bool& bOutSuccess) override;
     virtual UScriptStruct* GetScriptStruct() const override;
+    virtual void PrepareRootMotion(float SimulationTime,float MovementTickTime,const ACharacter& Character,
+        const UCharacterMovementComponent& Movement) override;
 };
 template<> struct TStructOpsTypeTraits<FMCLocomotionRootMotionSource> : public TStructOpsTypeTraitsBase2<FMCLocomotionRootMotionSource>
 {
@@ -67,6 +76,26 @@ class MESSCONTROL_API UMCToothMovementComponent : public UCharacterMovementCompo
     GENERATED_BODY()
 public:
     UMCToothMovementComponent();
+    /** Accepted Hook only; gameplay contact/target decisions remain on authority. */
+    bool BeginAcceptedHookPull(FGuid ActionID,FVector Goal,float Speed,float StopDistance,float Duration,bool bFreeFlight);
+    bool UpdateAcceptedHookPull(FGuid ActionID,FVector Goal);
+    bool IsAcceptedHookPullOwned(FGuid ActionID) const;
+    bool SampleAcceptedHookPullTime(FGuid ActionID,float& SimulationTime) const;
+    void EndAcceptedHookPull(FGuid ActionID);
+    const FMCHookPullReceipt& GetHookResponseSnapshot() const {return ServerHookSnapshot;}
+    /** One accepted external override; native one-shot LaunchCharacter needs no extra receipt. */
+    bool BeginAcceptedExternalMotion(FMCAcceptedMotionSnapshot Spec);
+    bool UpdateAcceptedExternalVelocity(FGuid OperationID,FVector Velocity);
+    bool UpdateAcceptedExternalGoal(FGuid OperationID,FVector Goal);
+    bool UpdateAcceptedSteeringHeading(FGuid OperationID,FVector Heading,float LockSeconds=0);
+    bool IsAcceptedExternalMotionOwned(FGuid OperationID) const;
+    bool SampleAcceptedExternalMotion(FGuid OperationID,float& SimulationTime,FVector& Heading) const;
+    void EndAcceptedExternalMotion(FGuid OperationID);
+    const FMCAcceptedMotionSnapshot& GetExternalMotionResponseSnapshot() const {return ServerExternalSnapshot;}
+    const FMCNetworkCorrectionContext& GetCorrectionContextSnapshot() const {return ServerCorrectionContext;}
+    bool ReadAcceptedSteeringParameters(const FRootMotionSource& Source,float& Speed,float& TurnRate,bool& bLocked) const;
+    void NotifyAuthorityMotionContextChanged();
+    void ResetClientMovementAfterNetworkTeleport();
     virtual void BeginPlay() override;
     virtual void TickComponent(float Dt,ELevelTick TickType,FActorComponentTickFunction* TickFunction) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
@@ -172,6 +201,9 @@ public:
     void RestoreRiverForMove(FVector Sample);
     FMCBraceMovementState CaptureBraceForMove();
     void RestoreBraceForMove(const FMCBraceMovementState& State);
+    FMCHandlingMoveSample CaptureHandlingForMove();
+    void RestoreHandlingForMove(const FMCHandlingMoveSample& State);
+    const FMCHandlingMoveSample& GetHandlingResponseSnapshot() const {return ServerHandlingSnapshot;}
     bool HasHeavyGrip() const;
     float Traction() const;
     FVector Intent() const;
@@ -194,6 +226,33 @@ public:
     bool WantsClimb() const { return bWantsToClimb; }
     void JumpFromWall();
 private:
+    FMCAcceptedMotionSnapshot ExternalState,ServerExternalSnapshot;
+    FMCNetworkCorrectionContext ServerCorrectionContext;
+    FMCHookPullReceipt ServerHookSnapshot; // compatibility projection, never a second wire/history ledger
+    TOptional<FMCAcceptedMotionSnapshot> PendingExternalParameters;
+    uint32 ExternalRevision=0;
+    uint16 ExternalLocalSourceID=0;
+    FGuid LocallyInterruptedExternal,LocallyInterruptedExternalEpoch;
+    void RemoveLocalExternalHistory(const FMCAcceptedMotionSnapshot& Receipt);
+    void CaptureExternalResponseSnapshot();
+    void PrepareExternalMoveResponse(FMCStaminaMoveResponse& Response,FNetworkPredictionData_Client_Character* Data,int32 MoveIndex);
+    void CheckAcceptedExternalValidity();
+    void ConsumeExternalParametersForMove();
+#if !UE_BUILD_SHIPPING
+    struct FHookReplayDiagnostic
+    {
+        FGuid Action,Epoch;
+        uint32 Revision=0;
+        uint16 LocalID=0;
+        float Ack=0,CurrentMoveTime=0,SourceTime=0,SavedDelta=0,FirstMove=0,LastMove=0;
+        int32 SavedCount=0;
+        FVector BeforeResponse=FVector::ZeroVector,BeforeReplay=FVector::ZeroVector;
+        bool bAwaitingReplay=false;
+    } HookReplayDiagnostic;
+    void BeginHookReplayDiagnostic(const FMCHookPullReceipt& Receipt,float Ack,
+        const FNetworkPredictionData_Client_Character* Data,int32 MoveIndex);
+    void LogHookReplayDiagnostic(const TCHAR* Phase,const FVector& From,bool bReplayed=false);
+#endif
     bool bHubSelectionMovementLocked=false;
     EMovementMode HubPreviousMovementMode=MOVE_Walking;
     uint8 HubPreviousCustomMovementMode=0;
@@ -229,6 +288,9 @@ private:
     FVector PendingRiver=FVector::ZeroVector;
     FMCBraceMovementState BraceMovement;
     bool bHasBraceSample=false;
+    FMCHandlingMoveSample HandlingState,AcceptedHandlingState,ServerHandlingSnapshot;
+    bool bHasHandlingSample=false;
+    FMCHandlingMoveSample HandlingForMovement() const;
     float DashMoveRechargeSeconds=0.f,ReplayDashRechargeSeconds=0.f;
     bool SpendDashCharge(float RechargeSeconds);
     mutable double DashPresentationStartedAt=-100;

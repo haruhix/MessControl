@@ -67,13 +67,13 @@ bool UMCWorldStatusComponent::ReadSnapshot(FMCWorldStatusSnapshot& Value,FVector
             || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Carried || Food->StackCarrier) return false;
         Value.HealthFraction=Food->Health/FMath::Max(1.f,Food->FoodData.Health);
         Value.bShowHealth=!Food->bFragment;
-        Value.bHasTimer=Food->FoodData.Kind==EMCFoodKind::Food || Food->FoodData.Kind==EMCFoodKind::Spicy;
-        Value.bDrainTimer=Food->FoodData.Kind==EMCFoodKind::Food;
-        // Foreign-object fragments have neither a spoil/fuse timer nor a visible
+        Value.bHasTimer=Food->HasFreshnessTimer() || Food->FoodData.Kind==EMCFoodKind::Spicy;
+        Value.bDrainTimer=Food->HasFreshnessTimer();
+        // Untimed fragments have neither a spoil/fuse timer nor a visible
         // HP treatment. Do not create/show an empty status widget for them.
         if(!Value.bShowHealth && !Value.bHasTimer) return false;
         Value.bSpoiled=Food->bSpoiled;
-        if(Food->FoodData.Kind==EMCFoodKind::Food) {
+        if(Food->HasFreshnessTimer()) {
             // Carrier preservation perks move the replicated deadline itself.
             // Measure consumed budget from it; applying a perk again here would
             // count preservation twice and actor age would reset cut fragments.
@@ -87,7 +87,7 @@ bool UMCWorldStatusComponent::ReadSnapshot(FMCWorldStatusSnapshot& Value,FVector
         }
         // Display the replicated deadline in server time, without waiting for
         // a later bSpoiled packet or changing authoritative food state.
-        if(Food->FoodData.Kind==EMCFoodKind::Food && Food->SpoilAt>0 && Now>=Food->SpoilAt) Value.bSpoiled=true;
+        if(Food->HasFreshnessTimer() && Food->SpoilAt>0 && Now>=Food->SpoilAt) Value.bSpoiled=true;
         // Preserve the visual centre in XY. Its rotated local bounding box can
         // overestimate the top of round food, so prefer the authored hull
         // points already retained by FoodBody (no render CPU mesh access).

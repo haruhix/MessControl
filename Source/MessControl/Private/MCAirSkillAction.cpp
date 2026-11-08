@@ -45,7 +45,8 @@ void AMCAirSkillAction::UpdateHeldPose()
 {
     if(!Hero()) return;
     FVector ViewOrigin,Direction;
-    if(!GetAim(ViewOrigin,Direction)) Direction=LastAim;
+    if(!HasAuthority()) Direction=FVector(FlowDirection).GetSafeNormal(SMALL_NUMBER,Hero()->GetActorForwardVector());
+    else if(!GetAim(ViewOrigin,Direction)) Direction=LastAim;
     FRotator Aim=Direction.Rotation();Aim.Pitch=FMath::Clamp(Aim.Pitch,-35.f,25.f);
     FTransform Mount=HeldMount;
     // Retain old table sliders as adjustments, without reintroducing the old
@@ -56,10 +57,12 @@ void AMCAirSkillAction::UpdateHeldPose()
     const FQuat Correction=FQuat::FindBetweenNormals(Barrel,Aim.Vector());
     Pose.SetRotation((Correction*Pose.GetRotation()).GetNormalized());
     SetActorTransform(PropTransform.Inverse()*Pose,false,nullptr,ETeleportType::TeleportPhysics);
-    LastAim=GetIntakeForward();FlowDirection=LastAim;
-    if(LoopComponent) LoopComponent->SetWorldLocation(IntakePoint());
+    LastAim=Pose.TransformVectorNoScale(IntakeForwardLocal).GetSafeNormal(SMALL_NUMBER,GetActorForwardVector());FlowDirection=LastAim;
+    PropMesh->SetWorldTransform(Hero()->GetPresentationFrame().FromCanonicalWorld(Pose));
+    if(LoopComponent) LoopComponent->SetWorldLocation(GetIntakePoint());
 }
-FVector AMCAirSkillAction::GetIntakePoint() const {return IntakePoint();}
+FVector AMCAirSkillAction::GetIntakePoint() const
+{return Hero()?Hero()->GetPresentationFrame().FromCanonicalWorld(IntakePoint()):IntakePoint();}
 FVector AMCAirSkillAction::GetIntakeForward() const
 {
     return PropMesh?PropMesh->GetComponentTransform().TransformVectorNoScale(IntakeForwardLocal)
@@ -68,7 +71,8 @@ FVector AMCAirSkillAction::GetIntakeForward() const
 FVector AMCAirSkillAction::IntakePoint() const
 {
     const FVector Local(Param(TEXT("IntakeX"),128.7575f),Param(TEXT("IntakeY"),-11.1948f),Param(TEXT("IntakeZ"),-30.4591f));
-    return PropMesh->GetComponentTransform().TransformPosition(Local);
+    const FTransform Canonical=Hero()?Hero()->GetPresentationFrame().ToCanonicalWorld(PropMesh->GetComponentTransform()):PropMesh->GetComponentTransform();
+    return Canonical.TransformPosition(Local);
 }
 void AMCAirSkillAction::ScanFragments(float Step)
 {
@@ -161,9 +165,9 @@ void AMCAirSkillAction::OnFinished(EMCActiveSkillEndReason Reason)
 void AMCAirSkillAction::Tick(float Dt)
 {
     Super::Tick(Dt);if(IsFinished() || !IsCommitted()) return;
-    if(LoopComponent) LoopComponent->SetWorldLocation(IntakePoint());
+    if(LoopComponent) LoopComponent->SetWorldLocation(GetIntakePoint());
     UpdateLoopVFX(HasAuthority()?LastAim:FVector(FlowDirection),GetFillFraction());
-    if(!HasAuthority()) return;
+    if(!HasAuthority()) {UpdateHeldPose();return;}
     if(!bSucking) {
         if(PresentationRecoveryEndsAt>=0) {
             UpdateHeldPose();

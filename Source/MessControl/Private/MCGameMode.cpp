@@ -115,6 +115,7 @@ bool SettleFreshPlayerAboveTongue(ACharacter* Character,float Clearance=30.f)
     Character->SetActorLocation(Position,false,nullptr,ETeleportType::TeleportPhysics);
     Character->GetCharacterMovement()->StopMovementImmediately();
     Character->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+    if(auto* ToothCharacter=Cast<AMCToothCharacter>(Character)) ToothCharacter->NotifyNetworkPositionReset();
     Character->ForceNetUpdate();
     return true;
 }
@@ -619,7 +620,7 @@ void AMCGameMode::Tick(float DeltaSeconds)
     if (!State || State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost) return;
     ProcessRespawns();
     if (State->bDayOneComplete) return;
-    if (State->MouthHealth<=0 || (GetGameplayParticipantCount()>0 && !HasLivingPlayers() && State->AvailableArenaTeeth()==0))
+    if (HasLostAllTeeth())
     { State->Phase=EMCShiftPhase::Lost; State->ForceNetUpdate(); return; }
     // Manual event previews retain death/respawn rules but own their completion.
     if(State->bDevManualEvents) return;
@@ -745,7 +746,6 @@ void AMCGameMode::ResolveTask(AMCTaskActor* Task, AMCToothCharacter* Worker)
     if (!State || State->Phase != EMCShiftPhase::Working || !ActiveTasks.Contains(Task)) return;
     ActiveTasks.Remove(Task); State->TasksLeft = ActiveTasks.Num();
     AwardTask(Worker,Task->Kind==EMCTaskKind::Coffee?EMCScoreTask::Coffee:Task->Kind==EMCTaskKind::Food?EMCScoreTask::Food:EMCScoreTask::Repair);
-    State->MouthHealth = FMath::Min(State->RunSettings.MaxMouthHealth, State->MouthHealth + 1.f);
     State->ForceNetUpdate();
     if (ActiveTasks.IsEmpty()) FinishDay(false);
 }
@@ -753,13 +753,12 @@ void AMCGameMode::FinishDay(bool bTimedOut)
 {
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State || State->Phase != EMCShiftPhase::Working) return;
-    if (bTimedOut) State->MouthHealth = FMath::Max(0.f, State->MouthHealth - State->TasksLeft * State->CurrentEvent->MissedTaskDamage);
-    else NotifyObjectiveCompleted(FName(*FString::Printf(TEXT("LegacyDay_%d"),State->Day)));
+    if (!bTimedOut) NotifyObjectiveCompleted(FName(*FString::Printf(TEXT("LegacyDay_%d"),State->Day)));
     State->PreviousStepFailed=bTimedOut;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->Status->IsAlive()) It->NotifyTaskFeedback(!bTimedOut);
     // Unfinished coffee, damage and food persist into the following day.
     State->TasksLeft = 0;
-    State->Phase = State->MouthHealth <= 0 ? EMCShiftPhase::Lost : State->Day >= State->RunSettings.DaysToSurvive && (GetGameplayParticipantCount()==0 || HasLivingPlayers()) ? EMCShiftPhase::Won : EMCShiftPhase::Intermission;
+    State->Phase = HasLostAllTeeth() ? EMCShiftPhase::Lost : State->Day >= State->RunSettings.DaysToSurvive && (GetGameplayParticipantCount()==0 || HasLivingPlayers()) ? EMCShiftPhase::Won : EMCShiftPhase::Intermission;
     State->PhaseEndsAt = State->GetServerWorldTimeSeconds() + 7.;
     State->StepStartedAt=State->GetServerWorldTimeSeconds();
     State->ForceNetUpdate();
@@ -783,7 +782,7 @@ void AMCGameMode::UpdateObjectives()
             const auto* Arena=Cast<AMCArenaTooth>(O.Target);
             bDone=Status && Status->IsAlive() && (!Arena || Arena->IsAvailable()) && !Status->NeedsCare(O.Kind==EMCTaskKind::Coffee);
         }
-        if (bDone) { O.bCompleted=true; GS->MouthHealth=FMath::Min(GS->RunSettings.MaxMouthHealth,GS->MouthHealth+1.f); }
+        if (bDone) O.bCompleted=true;
     }
     GS->TasksLeft=0; for (const auto& O:Objectives) if (!O.bCompleted) ++GS->TasksLeft;
     GS->ForceNetUpdate();
@@ -794,6 +793,11 @@ bool AMCGameMode::HasLivingPlayers() const
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
         if (IsGameplayParticipant(It->GetController()) && IsValid(It->Status) && It->Status->IsAlive()) return true;
     return false;
+}
+bool AMCGameMode::HasLostAllTeeth() const
+{
+    const auto* State=GetGameState<AMCGameState>();
+    return State && GetGameplayParticipantCount()>0 && !HasLivingPlayers() && State->AvailableArenaTeeth()==0;
 }
 bool AMCGameMode::IsGameplayParticipant(const AController* Controller)
 {

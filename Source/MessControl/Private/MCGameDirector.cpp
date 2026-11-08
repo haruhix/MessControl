@@ -699,11 +699,12 @@ void AMCGameDirector::FinishDay(const FMCGameDirectorState& Seen,double Now)
 {
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS || GS->Phase!=EMCShiftPhase::Working) return;
     const bool Failed=HasOutstandingWork();
-    if(Failed) {++GS->FailedEvents;GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-GS->TasksLeft*Settings->MissedTaskDamage);}
+    if(Failed) ++GS->FailedEvents;
     CancelReservation(TEXT("конец дня — невыбранные события не являются долгом"),Now);
     // Only work that exists in the world can survive the day boundary.
     GS->PreviousStepFailed=Failed;
-    GS->Phase=GS->MouthHealth<=0 || (GS->Day>=7 && Failed)?EMCShiftPhase::Lost:GS->Day>=7?EMCShiftPhase::Won:EMCShiftPhase::Intermission;
+    const auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
+    GS->Phase=Mode && Mode->HasLostAllTeeth()?EMCShiftPhase::Lost:GS->Day>=7?EMCShiftPhase::Won:EMCShiftPhase::Intermission;
     GS->PhaseEndsAt=Now+Settings->IntermissionSeconds; GS->StepStartedAt=Now;
     Pacing=EMCGameDirectorPacing::Intermission;
     Record(Failed?TEXT("Смена закончена: текущая работа переносится дальше"):TEXT("Смена завершена: выданная работа выполнена"));

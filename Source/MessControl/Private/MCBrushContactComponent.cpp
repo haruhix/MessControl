@@ -177,9 +177,10 @@ bool UMCBrushContactComponent::CanReach(FVector Point,FVector Normal,const AActo
     const auto* H=Hero?Hero.Get():Cast<AMCToothCharacter>(GetOwner());
     if (!H || !H->GetMesh()->GetSkeletalMeshAsset() || !Hero || !CanBrushToward(Point)) return false;
     const auto& Ref=H->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
-    auto Rest=[&](FName Role) { FTransform T=FTransform::Identity; for(int32 I=Ref.FindBoneIndex(H->RigBone(Role));I>=0;I=Ref.GetParentIndex(I)) T=T*Ref.GetRefBonePose()[I]; return H->GetMesh()->GetComponentTransform().TransformPosition(T.GetLocation()); };
+    const FTransform CanonicalWorld=H->GetPresentationFrame().ToCanonicalWorld(H->GetMesh()->GetComponentTransform());
+    auto Rest=[&](FName Role) { FTransform T=FTransform::Identity; for(int32 I=Ref.FindBoneIndex(H->RigBone(Role));I>=0;I=Ref.GetParentIndex(I)) T=T*Ref.GetRefBonePose()[I]; return CanonicalWorld.TransformPosition(T.GetLocation()); };
     bool Reachable=false;
-    const FTransform World=H->GetMesh()->GetComponentTransform();
+    const FTransform World=CanonicalWorld;
     const FVector Offset=HandGoal(Point,Normal,&Reachable,Surface,&World).GetLocation()-Rest(TEXT("hand_r"));
     const bool ToothContact=Cast<AMCArenaTooth>(Surface?Surface:Target.Get()) || Cast<AMCToothCharacter>(Surface?Surface:Target.Get());
     return (!ToothContact || Reachable) && !Offset.ContainsNaN() && Offset.Equals(ClampHandOffset(Offset),.01f);
@@ -192,7 +193,7 @@ bool UMCBrushContactComponent::CanReachAfterFacing(FVector Point,FVector Normal,
     // Preview the wrist after the existing movement turn, without moving the pawn
     // or changing collision. Otherwise an unreachable sideways wrist can never
     // publish the contact that tells movement to face the stain.
-    FTransform World=Hero->GetMesh()->GetComponentTransform();
+    FTransform World=Hero->GetPresentationFrame().ToCanonicalWorld(Hero->GetMesh()->GetComponentTransform());
     const FQuat Turn=FRotator(0,(Point-Hero->GetActorLocation()).Rotation().Yaw,0).Quaternion()*Hero->GetActorQuat().Inverse();
     World.SetLocation(Hero->GetActorLocation()+Turn.RotateVector(World.GetLocation()-Hero->GetActorLocation()));
     World.SetRotation((Turn*World.GetRotation()).GetNormalized());
@@ -214,7 +215,7 @@ bool UMCBrushContactComponent::CanReachFromPose(FVector PawnCenter,FRotator Faci
     if(Normal.IsNearlyZero() || Direction.IsNearlyZero() || OffsetToPoint.Size2D()>SurfaceSearchReach(Surface)
         || FVector::DotProduct(Normal,(-OffsetToPoint).GetSafeNormal())<.05f
         || FVector::DotProduct(Direction,Facing.Vector().GetSafeNormal2D())<-.05f) return false;
-    FTransform World=Hero->GetMesh()->GetComponentTransform();
+    FTransform World=Hero->GetPresentationFrame().ToCanonicalWorld(Hero->GetMesh()->GetComponentTransform());
     const FQuat Turn=Facing.Quaternion()*Hero->GetActorQuat().Inverse();
     World.SetLocation(PawnCenter+Turn.RotateVector(World.GetLocation()-Hero->GetActorLocation()));
     World.SetRotation((Turn*World.GetRotation()).GetNormalized());

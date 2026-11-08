@@ -7,6 +7,20 @@
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 
+namespace MCHubPromptKeycap
+{
+int32 FontSizeFor(const FText& Label) {return Label.ToString().Len()>1?16:36;}
+void ApplyLabel(UTextBlock* Key,const FText& Label)
+{
+    if(!Key) return;
+    // A mouse-button label is one keycap, never a vertical per-character caption.
+    Key->SetAutoWrapText(false);Key->SetWrapTextAt(0.f);
+    Key->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
+    Key->SetText(Label);
+    auto Font=Key->GetFont();Font.Size=FontSizeFor(Label);Key->SetFont(Font);
+}
+}
+
 UMCHubInteractionPromptWidget::UMCHubInteractionPromptWidget() {bUseVersionedWorldPresentation=true;}
 
 void UMCHubInteractionPromptWidget::NativeOnInitialized()
@@ -29,9 +43,10 @@ void UMCHubInteractionPromptWidget::BuildPresentationTree()
         Key->SetJustification(ETextJustify::Center);Panel->SetContent(Key);
     }
     HubInteractionPromptKey=WidgetTree->FindWidget<UTextBlock>(TEXT("HubInteractionPromptKey"));
-    if(HubInteractionPromptKey) HubInteractionPromptKey->SetText(KeyLabel);
+    MCHubPromptKeycap::ApplyLabel(HubInteractionPromptKey,KeyLabel);
+    BindStyle(TEXT("HubInteractionPromptKey"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,MCHubPromptKeycap::FontSizeFor(KeyLabel),true);
     BuildWorldPresentationTree();
-    if(NewPromptKey) NewPromptKey->SetText(KeyLabel);
+    MCHubPromptKeycap::ApplyLabel(NewPromptKey,KeyLabel);
 }
 
 void UMCHubInteractionPromptWidget::BuildWorldPresentationTree()
@@ -52,9 +67,15 @@ void UMCHubInteractionPromptWidget::ApplyTheme()
 {
     BuildPresentationTree();
     BindStyle(TEXT("HubInteractionPromptPanel"),EMCUIColorToken::Accent,EMCUIStyleTarget::Background);
-    BindStyle(TEXT("HubInteractionPromptKey"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,36,true);
+    BindStyle(TEXT("HubInteractionPromptKey"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,MCHubPromptKeycap::FontSizeFor(KeyLabel),true);
     Super::ApplyTheme();
-    MCWorldUIShapes::TextStyle(NewPromptKey,GetNewWorldPresentationTheme(),36,EMCUIColorToken::Marine);
+    MCWorldUIShapes::TextStyle(NewPromptKey,GetNewWorldPresentationTheme(),MCHubPromptKeycap::FontSizeFor(KeyLabel),EMCUIColorToken::Marine);
+    // Both mouse labels are known before pickup. Prepare their smaller glyphs
+    // with the ordinary prompt, behind the location's existing UI readiness.
+    const TArray<FText> MouseKeys={FText::AsCultureInvariant(TEXT("RMB")),FText::AsCultureInvariant(TEXT("ПКМ"))};
+    const float Scale=FMath::Max(.001f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
+    if(const auto* Current=GetResolvedTheme()) MCWorldUIShapes::PrimeText(Current->MakeGameplayFont(16,true),MouseKeys,Scale);
+    if(const auto* New=GetNewWorldPresentationTheme()) MCWorldUIShapes::PrimeText(New->MakeFont(16),MouseKeys,Scale);
 }
 
 void UMCHubInteractionPromptWidget::ApplyEditorPreview(float Time)

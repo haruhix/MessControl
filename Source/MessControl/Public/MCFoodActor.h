@@ -4,11 +4,13 @@
 #include "GameFramework/Actor.h"
 #include "MCDayPlan.h"
 #include "Engine/NetSerialization.h"
+#include "SharedMCNetworkFrames.h"
 #include "MCFoodActor.generated.h"
 class UBoxComponent;
 class UStaticMeshComponent;
 class UTextRenderComponent;
 class UMCWorldStatusComponent;
+class USceneComponent;
 class AMCToothCharacter;
 DECLARE_MULTICAST_DELEGATE_OneParam(FMCFoodEntryLanding,const FHitResult&);
 
@@ -32,6 +34,12 @@ struct FMCFoodSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Physics",meta=(ClampMin="0",ClampMax="10")) float NutAngularDamping=.45f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Grab") float GrabReach=145;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Grab") float BreakDistance=340;
+    /** Full dimensions in the flat hand pose, in cm; independent of fragment identity. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Portions",meta=(ClampMin="1")) FVector MaxHandDimensions=FVector(110);
+    /** Both cut results must retain this much physical convex-hull volume (cm cubed). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Portions",meta=(ClampMin="1")) float MinCutVolume=1000;
+    /** Minimum depth of either result along the new cut normal, in cm. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Portions",meta=(ClampMin="1")) float MinCutThickness=12;
     // Serialized legacy fields; grip tuning lives in DA_Grip.
     UPROPERTY() float Spring=14;
     UPROPERTY() float Damping=6;
@@ -74,6 +82,43 @@ struct FMCStackPickup
     UPROPERTY() FVector_NetQuantize10 SlotOffset=FVector::ZeroVector;
     UPROPERTY() FRotator SlotRotation=FRotator::ZeroRotator;
     UPROPERTY() float ArcHeight=50;
+};
+
+/** One accepted food ownership generation; all client render modes read this snapshot. */
+USTRUCT()
+struct FMCFoodInteractionState
+{
+    GENERATED_BODY()
+    UPROPERTY() FGuid LoadEpoch;
+    UPROPERTY() uint32 Revision=0;
+    UPROPERTY() EMCFoodPhase Phase=EMCFoodPhase::Falling;
+    UPROPERTY() TObjectPtr<AMCToothCharacter> StackCarrier;
+    UPROPERTY() TObjectPtr<AActor> Container;
+    UPROPERTY() TArray<TObjectPtr<AMCToothCharacter>> Participants;
+    UPROPERTY() FMCCarryPresentation Carry;
+    UPROPERTY() FMCStackPickup Pickup;
+    // A null unresolved NetGUID must not be mistaken for an accepted release.
+    UPROPERTY() bool bRequiresStackCarrier=false;
+    UPROPERTY() bool bRequiresCarrier=false;
+    UPROPERTY() bool bRequiresContainer=false;
+    UPROPERTY() double AcceptedAt=0;
+    bool CanAdvanceFrom(const FMCFoodInteractionState& Previous,const FGuid& ExpectedEpoch) const
+    {
+        if(!LoadEpoch.IsValid() || !Revision || (ExpectedEpoch.IsValid() && LoadEpoch!=ExpectedEpoch)
+            || uint8(Phase)>uint8(EMCFoodPhase::Contained)) return false;
+        if((bRequiresStackCarrier && !StackCarrier.Get()) || ((bRequiresCarrier || Phase==EMCFoodPhase::Carried) && !Carry.Holder.Get())
+            || ((bRequiresContainer || Phase==EMCFoodPhase::Contained) && !IsValid(Container))) return false;
+        for(const auto& Participant:Participants) if(!Participant.Get()) return false;
+        if(!Previous.Revision) return true;
+        // A published world epoch is the trust boundary; its revisions restart.
+        if(LoadEpoch!=Previous.LoadEpoch) return ExpectedEpoch.IsValid();
+        if(int32(Revision-Previous.Revision)<0) return false;
+        // Same-generation pose updates cannot change interaction ownership.
+        return Revision!=Previous.Revision || (Phase==Previous.Phase && StackCarrier==Previous.StackCarrier
+            && Container==Previous.Container && Participants==Previous.Participants && Carry.Holder==Previous.Carry.Holder
+            && bRequiresStackCarrier==Previous.bRequiresStackCarrier && bRequiresCarrier==Previous.bRequiresCarrier && bRequiresContainer==Previous.bRequiresContainer
+            && Pickup.StartedAt==Previous.Pickup.StartedAt);
+    }
 };
 
 /** Local-space description of one planar cut half. */
@@ -120,6 +165,10 @@ public:
     bool UsesLegacyGrip() const { return bBrushTool || FoodData.Kind!=EMCFoodKind::Food; }
     /** Broken boss-encounter nuts use one hand slot as ammunition, never a food tower. */
     bool IsNutEncounterFragment() const;
+    // Whole nuts and their pieces never rot, including the boss encounter's ammunition.
+    bool HasFreshnessTimer() const;
+    UFUNCTION(BlueprintPure,Category="Food|Portions") bool FitsHandPortion() const;
+    UFUNCTION(BlueprintPure,Category="Food|Portions") FVector GetHandPortionSize() const;
     // Config/DefaultEngine.ini: distinguish fragments from player ragdoll PhysicsBody shapes.
     static constexpr ECollisionChannel FragmentCollisionChannel=ECC_GameTraceChannel2;
     static AMCFoodActor* FindNearbySpoiledFood(UWorld* World,FVector Point,float Radius=280);
@@ -129,6 +178,15 @@ public:
     bool FindToolContact(const AMCToothCharacter* Hero,float Reach,FHitResult& Hit) const;
     bool BeginCarry(AMCToothCharacter* Hero);
     void UpdateCarryPresentation(float Dt);
+    FMCActorSimulationFrame GetSimulationFrame() const;
+    FMCActorPresentationFrame GetPresentationFrame() const;
+    FTransform GetPresentedActorTransform() const;
+    FTransform GetCanonicalModelTransform() const;
+    FBox GetCanonicalModelBounds() const;
+    bool FindPresentedGripSurface(FVector From,FHitResult& Hit) const;
+    bool ResolveCanonicalPawnContact(AMCToothCharacter* Hero,FVector FoodContactNormal,FVector ContactPoint);
+    void RefreshAcceptedInteraction();
+    bool MatchesInteractionGeneration(FGuid Epoch,uint32 Revision,const AMCToothCharacter* Participant) const;
     void Release(AMCToothCharacter* Hero);
     void Dispose();
     void AwardDelivery();
@@ -186,6 +244,7 @@ public:
     float DragSpeed() const;
     bool IsDisposed() const { return Phase==EMCFoodPhase::Disposed; }
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UBoxComponent> Body;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USceneComponent> PresentationRoot;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> GripSurface;
     UPROPERTY(VisibleAnywhere) TObjectPtr<class UProceduralMeshComponent> CutVisual;
@@ -225,6 +284,17 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AActor> StuckTooth;
     int32 ConfirmedImpacts=0;
 private:
+    UPROPERTY(ReplicatedUsing=OnRep_InteractionState) FMCFoodInteractionState InteractionState;
+    UFUNCTION() void OnRep_InteractionState();
+    UPROPERTY(Transient) FMCFoodInteractionState PresentedInteraction;
+    FGuid FallbackFoodEpoch;
+    FTransform RenderedFoodPose=FTransform::Identity;
+    FTransform CanonicalModelLocal=FTransform::Identity;
+    bool bHasRenderedFoodPose=false;
+    double LastFoodPresentationTick=-DBL_MAX;
+    uint32 FoodPresentationSerial=0;
+    void UpdateFoodPresentation(float Dt);
+    void ApplyCanonicalProxyPose(FVector Location,FQuat Rotation);
     UPROPERTY(ReplicatedUsing=OnRep_ActorScale) FVector ReplicatedActorScale=FVector::OneVector;
     UFUNCTION() void OnRep_ActorScale();
     UPROPERTY(Replicated) FMCCarryPresentation CarryPresentation;
@@ -272,8 +342,12 @@ private:
     void Spoil();
     void UpdateSmell();
     bool SpawnFragments(FVector Direction);
+    bool SupportsPlanarCut() const;
+    /** A refusal preserves the parent; callers must not fall back to legacy fragments. */
     bool SpawnCutFragments(FVector Direction,FVector WorldPoint,FVector WorldNormal);
     bool BuildCutVisual();
+    FTransform PortionSourceTransform() const;
+    FVector PortionExtent() const;
     FVector PendingCutPoint=FVector::ZeroVector,PendingCutNormal=FVector::ZeroVector;
     bool bCutVisualReady=false;
     FBox CutStackLocalBounds=FBox(ForceInit);

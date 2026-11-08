@@ -34,6 +34,7 @@ void AMCTongue::RefreshPressureMaterial()
         Material=Profile->DefaultPressurePreset->SurfaceMaterial;
     if (!Material) Material=SurfaceMaterial?SurfaceMaterial.Get():SourceMesh?SourceMesh->GetMaterial(0):nullptr;
     Surface->SetMaterial(0,Material);
+    VisualSurface->SetMaterial(0,Material);
 }
 void AMCTongue::ApplyPressurePreset(UMCTonguePressurePreset* Preset)
 {
@@ -206,8 +207,8 @@ float AMCTongue::IndentationAt(FVector P) const
 {
     FHitResult Hit; if (!SurfacePoint(P,Hit) || Hit.FaceIndex<0 || Hit.FaceIndex*3+2>=Indices.Num()) return 0;
     const int32 A=Indices[Hit.FaceIndex*3],B=Indices[Hit.FaceIndex*3+1],C=Indices[Hit.FaceIndex*3+2];
-    const FVector Local=GetActorTransform().InverseTransformPosition(Hit.ImpactPoint);
-    const FVector Weights=FMath::GetBaryCentric2D(Local,Positions[A],Positions[B],Positions[C]);
+    const FVector Local=Surface->GetComponentTransform().InverseTransformPosition(Hit.ImpactPoint);
+    const FVector Weights=FMath::GetBaryCentric2D(Local,Rest[A],Rest[B],Rest[C]);
     return (Weights.X*IndentDepth[A]*AnchorWeights[A]+Weights.Y*IndentDepth[B]*AnchorWeights[B]+Weights.Z*IndentDepth[C]*AnchorWeights[C])*FMath::Abs(GetActorScale3D().Z);
 }
 void AMCTongue::OnRep_PressureFrame()

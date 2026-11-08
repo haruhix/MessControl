@@ -6,6 +6,13 @@
 #include "EngineUtils.h"
 #include "Engine/World.h"
 
+bool AMCFoodActor::HasFreshnessTimer() const
+{
+    // Encounter ownership replicates; custom nut rows must also hide timers on clients.
+    return FoodData.Kind==EMCFoodKind::Food && ItemName!=TEXT("Nut") && ItemName!=TEXT("Walnut")
+        && !Cast<AMCNutRainEvent>(GetOwner()) && !ActorHasTag(TEXT("MCNutRain"));
+}
+
 bool AMCFoodActor::IsNutEncounterFragment() const
 {
     const auto* Encounter=Cast<AMCNutRainEvent>(GetOwner());

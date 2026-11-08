@@ -506,8 +506,7 @@ void AMCTutorialDirector::RescuePlayers()
         const FVector* Saved=SafePositions.Find(Player.PlayerState.Get());
         const FVector Position=Saved?*Saved:LessonPosition(Player,0)+FVector(0,0,100);
         Hero->CancelGameplayInput(); Hero->SetThroatCapture(nullptr);
-        Hero->SetActorLocation(Position,false,nullptr,ETeleportType::TeleportPhysics);
-        Hero->GetCharacterMovement()->StopMovementImmediately(); Hero->ClientThroatExit(Position,FVector::ZeroVector);
+        Hero->GetCharacterMovement()->StopMovementImmediately(); Hero->TeleportWithNetworkContext(Position);
         if (Hero->ToothPhysics) Hero->ToothPhysics->TryRecover(); Hero->ForceNetUpdate();
     }
 }

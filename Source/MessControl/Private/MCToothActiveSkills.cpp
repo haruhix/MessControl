@@ -46,7 +46,7 @@ void AMCToothCharacter::UpdateSkillAimPresentation()
         SkillAimProp->RegisterComponent();
     }
     if(SkillAimProp->GetStaticMesh()!=ReadyMesh) SkillAimProp->SetStaticMesh(ReadyMesh);
-    SkillAimProp->SetWorldTransform(SkillAimPose.PropLocal*FTransform(GetActorQuat(),GetActorLocation()));
+    SkillAimProp->SetWorldTransform(GetPresentationFrame().FromActorLocal(SkillAimPose.PropLocal));
     SkillAimProp->SetVisibility(true);
 }
 void AMCToothCharacter::SuspendOrdinaryWorkForSkill()
@@ -77,13 +77,15 @@ bool AMCToothCharacter::ActiveSkillHandTarget(bool bLeft,FTransform& WorldPose) 
 {
     const auto* Action=GetActiveSkillPresentation();
     if(!Action && IsSkillAimHandPresented(bLeft)) {
-        WorldPose=SkillAimPose.HandsLocal[bLeft?0:1]*FTransform(GetActorQuat(),GetActorLocation());
+        WorldPose=GetPresentationFrame().FromActorLocal(SkillAimPose.HandsLocal[bLeft?0:1]);
         WorldPose.SetScale3D(FVector::OneVector);
         return !WorldPose.ContainsNaN();
     }
     if(!Action || !Action->PropMesh || !Action->PropMesh->GetStaticMesh()) return false;
     if(const auto* Hook=Cast<AMCHookSkillAction>(Action)) {
-        WorldPose=Hook->GetCasterHandFrame(bLeft);
+        // Hook's public hand frame also feeds canonical tether/launch geometry.
+        // Its held prop is presented separately, so convert the hand once here.
+        WorldPose=GetPresentationFrame().FromCanonicalWorld(Hook->GetCasterHandFrame(bLeft));
         return !WorldPose.ContainsNaN();
     }
     if(const auto* Driver=Cast<AMCDriverSkillAction>(Action)) {

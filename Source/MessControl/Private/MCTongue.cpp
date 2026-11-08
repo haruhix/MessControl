@@ -46,6 +46,13 @@ AMCTongue::AMCTongue()
     Surface->bUseComplexAsSimpleCollision=true;
     // Initial construction is synchronous so a player can never spawn before the floor exists.
     Surface->bUseAsyncCooking=false; Surface->CanCharacterStepUpOn=ECB_Yes;
+    Surface->SetVisibility(false,false); Surface->SetCastShadow(false);
+    VisualSurface=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("TongueVisualSurface"));
+    VisualSurface->SetupAttachment(Surface);
+    VisualSurface->SetMobility(EComponentMobility::Movable);
+    VisualSurface->SetCollisionProfileName(TEXT("NoCollision"));
+    VisualSurface->SetGenerateOverlapEvents(false);
+    VisualSurface->CanCharacterStepUpOn=ECB_No;
 }
 void AMCTongue::OnConstruction(const FTransform& Transform) { Super::OnConstruction(Transform); RebuildSurface(); }
 void AMCTongue::RebuildSurface()
@@ -84,7 +91,15 @@ void AMCTongue::RebuildSurface()
     BuildDeformationSamples();
     BuildPressureGrid();
     Surface->ClearAllMeshSections();
-    Surface->CreateMeshSection(0,Positions,Indices,Normals,UV,Colors,Tangents,true);
+    // Build Chaos only from the canonical authored mesh. Local presentation can
+    // then advance independently without changing prediction/replay support.
+    Surface->CreateMeshSection(0,Rest,Indices,RestNormals,UV,Colors,RestTangents,true);
+    Surface->SetVisibility(false,false); Surface->SetCastShadow(false);
+    VisualSurface->SetRelativeTransform(FTransform::Identity);
+    VisualSurface->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    VisualSurface->ClearAllMeshSections();
+    VisualSurface->CreateMeshSection(0,Positions,Indices,Normals,UV,Colors,Tangents,false);
+    FoodSupports.Empty();
     ++SurfaceGeometryRevision;
     RefreshPressureMaterial();
 }
@@ -285,7 +300,7 @@ float AMCTongue::SampleOffset(const FDeformationSample& Sample,float Time,float 
 void AMCTongue::Deform(float Time)
 {
     check(IsInGameThread());
-    TRACE_CPUPROFILER_EVENT_SCOPE(MCTongue_DeformAndCollision);
+    TRACE_CPUPROFILER_EVENT_SCOPE(MCTongue_DeformVisualSurface);
     TArray<FMCTongueMotionState,TInlineAllocator<6>> Pulses;
     for(TActorIterator<AMCHazardWave> It(GetWorld());It;++It)
     {
@@ -336,8 +351,8 @@ void AMCTongue::Deform(float Time)
             const FDeformationSample* Samples=&SampleData[I*7];
             auto OffsetAt=[&](int32 J,float& R) { return OffsetSample(Samples[J],R); };
             const float PhysicalHeight=OffsetAt(0,Red),Height=PhysicalHeight-Depths[I],Anchor=Anchors[I];
-            // Events and weight share this buffer with Chaos. Never add a second
-            // material-only displacement: it leaves feet/food above the visible dent.
+            // Tissue events/weight deform presentation only. Gameplay collision
+            // retains Rest, including during client movement replay.
             OutputPositions[I]=P+FVector(0,0,Height*Anchor); Red*=Anchor;
             // Transform artist normals/tangents with the displacement gradient; keep UV seam smoothing.
             const float Dx=((OffsetAt(1,Dummy)-OffsetAt(2,Dummy))*.5f-Gradients[I].X)*Anchor+Height*AnchorSlopes[I].X;
@@ -347,7 +362,7 @@ void AMCTongue::Deform(float Time)
             const float Nz=N.Z/FMath::Max(.5f,1+Dz);
             OutputNormals[I]=FVector(N.X-Dx*Nz,N.Y-Dy*Nz,Nz).GetSafeNormal();
             OutputTangents[I]=FProcMeshTangent((T+FVector(0,0,Dx*T.X+Dy*T.Y+Dz*T.Z)).GetSafeNormal(),RestVertexTangents[I].bFlipTangentY);
-            // One pressure field drives geometry, physics and material masks. No UV1 displacement.
+            // The same visual pressure field drives geometry and material masks.
             const float Depth=Depths[I]*Anchor*ScaleZ;
             const float Mask=FMath::Clamp(Depth/FMath::Max(1.f,MaxDepth),0.f,1.f);
             const float Rim=FMath::Clamp(float((Gradients[I]*Anchor+Depths[I]*AnchorSlopes[I]).Size2D())*4,0.f,1.f);
@@ -356,12 +371,12 @@ void AMCTongue::Deform(float Time)
         const EParallelForFlags Flags=CVarMCTongueParallelVertices.GetValueOnGameThread()!=0?EParallelForFlags::None:EParallelForFlags::ForceSingleThread;
         ParallelFor(TEXT("MCTongue_VertexBatch"),RestVertices.Num(),512,VertexMath,Flags);
     }
-    Surface->UpdateMeshSection(0,Positions,Normals,UV,Colors,Tangents);
+    VisualSurface->UpdateMeshSection(0,Positions,Normals,UV,Colors,Tangents);
     ++SurfaceGeometryRevision;
 }
 const TArray<FVector>& AMCTongue::CurrentWorldVertices() const
 {
-    const FTransform Transform=Surface->GetComponentTransform();
+    const FTransform Transform=VisualSurface->GetComponentTransform();
     if(WorldVertexRevision!=SurfaceGeometryRevision || WorldVertexCache.Num()!=Positions.Num()
         || !WorldVertexTransform.Equals(Transform,0))
     {
@@ -380,6 +395,32 @@ bool AMCTongue::SurfacePoint(FVector P,FHitResult& Hit) const
     const FVector Start(P.X,P.Y,FMath::Max(P.Z+1200,Bounds.Max.Z+100));
     const FVector End(P.X,P.Y,FMath::Min(P.Z-1600,Bounds.Min.Z-100));
     return Surface->LineTraceComponent(Hit,Start,End,Params);
+}
+bool AMCTongue::VisualSurfacePoint(const FHitResult& SupportHit,FVector& Point,FVector& Normal) const
+{
+    if(SupportHit.GetComponent()!=Surface || SupportHit.ImpactPoint.ContainsNaN()) return false;
+    FHitResult FaceHit=SupportHit;
+    if(FaceHit.FaceIndex<0 && !SurfacePoint(SupportHit.ImpactPoint,FaceHit)) return false;
+    const int32 Face=FaceHit.FaceIndex;
+    if(Face<0 || Face>=Indices.Num()/3) return false;
+    const int32 A=Indices[Face*3],B=Indices[Face*3+1],C=Indices[Face*3+2];
+    if(!Rest.IsValidIndex(A) || !Rest.IsValidIndex(B) || !Rest.IsValidIndex(C)
+        || !Positions.IsValidIndex(A) || !Positions.IsValidIndex(B) || !Positions.IsValidIndex(C)) return false;
+    const FVector Local=Surface->GetComponentTransform().InverseTransformPosition(FaceHit.ImpactPoint);
+    if(FVector::CrossProduct(Rest[B]-Rest[A],Rest[C]-Rest[A]).IsNearlyZero()) return false;
+    const FVector Bary=FMath::ComputeBaryCentric2D(Local,Rest[A],Rest[B],Rest[C]);
+    if(Bary.ContainsNaN()) return false;
+    const FTransform Transform=VisualSurface->GetComponentTransform();
+    const FVector VA=Transform.TransformPosition(Positions[A]),VB=Transform.TransformPosition(Positions[B]),VC=Transform.TransformPosition(Positions[C]);
+    FVector FaceNormal=FVector::CrossProduct(VB-VA,VC-VA).GetSafeNormal();
+    if(FaceNormal.IsNearlyZero()) return false;
+    // A world-space triangle cross product handles nonuniform scale. Preserve
+    // the authored side selected by the canonical collision query.
+    const FTransform SupportTransform=Surface->GetComponentTransform();
+    const FVector RestNormal=FVector::CrossProduct(SupportTransform.TransformVector(Rest[B]-Rest[A]),SupportTransform.TransformVector(Rest[C]-Rest[A]));
+    if(FVector::DotProduct(RestNormal,FaceHit.ImpactNormal)<0) FaceNormal=-FaceNormal;
+    Point=VA*Bary.X+VB*Bary.Y+VC*Bary.Z; Normal=FaceNormal;
+    return !Point.ContainsNaN();
 }
 bool AMCTongue::InteriorSurfacePoint(FVector P,float Margin,FHitResult& Hit) const
 {
@@ -419,7 +460,7 @@ bool AMCTongue::RandomInteriorPoint(FRandomStream& Random,float Margin,float Sep
 }
 bool AMCTongue::RestSurfacePoint(FVector P,FVector& Point) const
 {
-    const FTransform T=GetActorTransform();
+    const FTransform T=Surface->GetComponentTransform();
     bool Found=false; double Height=-DBL_MAX;
     for(int32 I=0;I+2<Indices.Num();I+=3)
     {
@@ -458,6 +499,10 @@ void AMCTongue::PushMotion(float Age)
         auto* Hero=*It; const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
         if (!Hero->Status->IsAlive()) continue;
         const float W=Strength(Hero,P); if (W<=0) continue;
+        // Ulcer disturbance also sends a tongue-wide pain pulse. Its force
+        // must respect the same sole clearance as the local damage wave.
+        // Strength records the crossing first, so landing behind it is safe.
+        if (S.IsWave() && Hero->ClearsGroundWave()) continue;
         const FVector Away=S.bPushFromOrigin?(P-Origin).GetSafeNormal2D(KINDA_SMALL_NUMBER,Direction):Direction;
         Hero->ToothPhysics->ApplyHit((Away*S.Push+FVector(0,0,S.Lift))*W,P); ++PlayerPushes;
     }
@@ -476,25 +521,6 @@ void AMCTongue::PushMotion(float Age)
 void AMCTongue::Tick(float Dt)
 {
     Super::Tick(Dt); if (Rest.IsEmpty()) return;
-    TArray<TPair<AMCToothCharacter*,float>> Riders;
-    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
-    {
-        auto* Hero=*It; auto* Move=Hero->GetCharacterMovement();
-        Move->AddTickPrerequisiteActor(this);
-        const bool bGroundRider=Move->IsMovingOnGround() && Move->CurrentFloor.HitResult.GetComponent()==Surface;
-        const bool bFrozenRider=Hero->HasFrozenLegs() && !Hero->SwallowedBy && !Hero->IsMimicCaptured();
-        if ((HasAuthority() || Hero->IsLocallyControlled()) && Hero->ToothPhysics->CanAct() && (bGroundRider || bFrozenRider))
-        {
-            FHitResult Hit;
-            if (SurfacePoint(Hero->GetActorLocation(),Hit))
-            {
-                const float SoleZ=Hero->GetActorLocation().Z-Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-                // MOVE_None clears CurrentFloor. Supported frozen feet still
-                // follow breathing vertically without allowing locomotion.
-                if(bGroundRider || FMath::Abs(SoleZ-Hit.ImpactPoint.Z)<=30) Riders.Emplace(Hero,Hit.ImpactPoint.Z);
-            }
-        }
-    }
     const float Time=ServerTime();
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
     const bool Playing=State && State->Phase==EMCShiftPhase::Working && !State->bDayOneComplete && !State->bTutorialActive;
@@ -522,16 +548,10 @@ void AMCTongue::Tick(float Dt)
     if (HasAuthority()) GatherPressure(Dt);
     UpdatePressureField(Dt);
     Deform(Time);
-    // A deforming mesh has no component translation for CharacterMovement's usual based movement.
-    for (const auto& Rider:Riders)
-    {
-        FHitResult Hit; if (Rider.Key->ToothPhysics->CanAct() && SurfacePoint(Rider.Key->GetActorLocation(),Hit))
-            Rider.Key->AddActorWorldOffset(FVector(0,0,Hit.ImpactPoint.Z-Rider.Value),true);
-    }
     if (HasAuthority())
     {
-        // Accumulate displacement while a body sleeps, so slow breathing still
-        // wakes it when needed without reactivating every contact on every tick.
+        // Retain authoritative one-sided cut-hull penetration recovery. Only
+        // canonical support changes (rebuild/transform) can now wake sleepers.
         for(auto It=FoodSupports.CreateIterator();It;++It)
             if(!It.Key().IsValid() || It.Key()->IsDisposed() || !It.Key()->Body->IsSimulatingPhysics()) It.RemoveCurrent();
         for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (!It->IsDisposed() && It->Body->IsSimulatingPhysics())
@@ -540,7 +560,7 @@ void AMCTongue::Tick(float Dt)
             double Bottom=It->Body->Bounds.GetBox().Min.Z;
             // A sliced hull is offset from its actor origin. Use its actual
             // lowest convex vertex, not the symmetric legacy box, to sample
-            // and support it on the moving tongue.
+            // and support it on the canonical tongue.
             bool CutSupport=false;
             if(!It->CutPlanes.IsEmpty() && It->CutVisual) {
                 if(const UBodySetup* Setup=It->Body->GetBodySetup()) {
@@ -555,7 +575,7 @@ void AMCTongue::Tick(float Dt)
             if (!SurfacePoint(P,Hit)) {FoodSupports.Remove(*It);continue;}
             if(CutSupport && Hit.ImpactNormal.Z>.55f) {
                 const double Penetration=Hit.ImpactPoint.Z-Bottom;
-                // A physics step or a moving triangle can leave a cut hull
+                // A physics step can leave a cut hull
                 // below the one-sided surface. Correct only nearby penetration;
                 // objects well below the arena use the normal recovery path.
                 if(Penetration>3 && Penetration<It->Body->Bounds.BoxExtent.Z*2+150) {

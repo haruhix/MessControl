@@ -218,6 +218,7 @@ void AMCGrenadeSkillAction::SetHeldPose(const FTransform& Mount,FVector Origin)
     if(!Caster || Origin.ContainsNaN()) return;
     const FQuat Rotation=(Mount*Caster->GetActorTransform()).GetRotation().GetNormalized();
     SetActorLocationAndRotation(Origin,Rotation,false,nullptr,ETeleportType::TeleportPhysics);
+    PropMesh->SetWorldTransform(Caster->GetPresentationFrame().FromCanonicalWorld(PropTransform*GetActorTransform()));
 }
 
 void AMCGrenadeSkillAction::FollowHand(double At)
@@ -236,7 +237,7 @@ void AMCGrenadeSkillAction::Launch(FVector Velocity,EMCGrenadeSkillPhase Next)
     if(!HasAuthority() || Phase!=EMCGrenadeSkillPhase::Cooking || Velocity.ContainsNaN()) return;
     FTransform WorldGrip;
     if(Super::GetPresentationHandTarget(false,WorldGrip)) {
-        ReleasedHandLocal=WorldGrip.GetRelativeTransform(Hero()->GetActorTransform());
+        ReleasedHandLocal=WorldGrip.GetRelativeTransform(Hero()->GetPresentedActorTransform());
         bHasReleasedHandLocal=true;
     }
     Phase=Next;MarkPresentationReleased();PresentationRecoveryEndsAt=Now()+.28;
@@ -319,6 +320,7 @@ void AMCGrenadeSkillAction::Cancel(EMCActiveSkillEndReason Reason)
 void AMCGrenadeSkillAction::Tick(float Dt)
 {
     Super::Tick(Dt);
+    if(!HasAuthority() && Phase==EMCGrenadeSkillPhase::Cooking && Hero()) FollowHand(Now());
     if(!HasAuthority() || !IsCommitted() || IsFinished()) return;
     if(PresentationRecoveryEndsAt>=0 && Now()>=PresentationRecoveryEndsAt) {ReleasePresentation();PresentationRecoveryEndsAt=-1;}
     if(Phase==EMCGrenadeSkillPhase::Detonated) {if(Now()>=FinishAt) Finish();return;}
@@ -339,6 +341,7 @@ void AMCGrenadeSkillAction::Tick(float Dt)
 
 void AMCGrenadeSkillAction::OnRep_Phase()
 {
+    if(Phase!=EMCGrenadeSkillPhase::Cooking) PropMesh->SetRelativeTransform(PropTransform);
     PropMesh->SetVisibility(Phase!=EMCGrenadeSkillPhase::Prepared && Phase!=EMCGrenadeSkillPhase::Detonated,true);
     if(!HasAuthority()) {Movement->Deactivate();Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);}
 }

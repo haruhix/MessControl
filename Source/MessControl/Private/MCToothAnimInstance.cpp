@@ -1,4 +1,4 @@
-﻿#include "MCToothAnimInstance.h"
+#include "MCToothAnimInstance.h"
 #include "MCToothCharacter.h"
 #include "MCActiveSkillAction.h"
 #include "MCHookSkillAction.h"
@@ -40,6 +40,7 @@
 #include "MCRowingStroke.h"
 #include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
+#include "MCTongue.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "MCLocomotionCycle.h"
@@ -63,6 +64,7 @@ public:
     TWeakObjectPtr<UPrimitiveComponent> FootBases[2];
     FVector FootBasePoints[2]={FVector::ZeroVector,FVector::ZeroVector};
     bool FootReleased[2]={false,false};
+    bool VisualFootRejected[2]={false,false};
     FVector PreviousMeshLocation=FVector::ZeroVector;
     float ArtistHandAlpha[2]={0,0};
     float OrdinaryToolFingerAlpha=0;
@@ -525,7 +527,7 @@ public:
             // A small wind lean layers over the ordinary run cycle. Feet and
             // hands keep locomotion/tool/grip poses instead of planting anchors.
             const float Alpha=Tooth->YawnPoseAlpha();
-            const FVector LocalWind=Tooth->GetActorTransform().InverseTransformVectorNoScale(Tooth->YawnPullDirection);
+            const FVector LocalWind=Tooth->GetPresentedActorTransform().InverseTransformVectorNoScale(Tooth->YawnPullDirection);
             const FVector Offset=Tooth->YawnPullDirection*10*Alpha;
             const int32 Parent=Ref.GetParentIndex(Body);
             const FVector MeshOffset=World.InverseTransformVectorNoScale(Offset);
@@ -577,7 +579,7 @@ public:
             const int32 Eye=Ref.FindBoneIndex(Tooth->RigBone(Role));
             if(Eye!=INDEX_NONE) {Face+=World.TransformPosition(CS[Eye].GetLocation());++EyeCount;}
         }
-        Face=EyeCount?Face/EyeCount:Tooth->GetActorLocation()+FVector(0,0,25);
+        Face=EyeCount?Face/EyeCount:Tooth->GetPresentedActorTransform().GetLocation()+FVector(0,0,25);
         const FVector Palm=Face+Tooth->GetActorForwardVector()*45+Tooth->GetActorRightVector()*30;
         const FVector Aim=(Inventory->SprayAim()-Palm).GetSafeNormal();
         const FQuat CanRotation=FRotationMatrix::MakeFromXZ(Aim,FVector::UpVector).ToQuat();
@@ -604,7 +606,7 @@ public:
         Rebuild();const FTransform World=Tooth->GetMesh()->GetComponentTransform();
         const auto* GS=Tooth->GetWorld()->GetGameState();const float Time=GS?GS->GetServerWorldTimeSeconds():Tooth->GetWorld()->GetTimeSeconds();
         const FVector Forward=Tooth->GetActorForwardVector(),Right=Tooth->GetActorRightVector();
-        const FVector Palm=Tooth->GetActorLocation()+Forward*(58+FMath::Sin(Time*47)*1.6f)+Right*24+FVector(0,0,35+FMath::Cos(Time*39)*1.2f);
+        const FVector Palm=Tooth->GetPresentedActorTransform().GetLocation()+Forward*(58+FMath::Sin(Time*47)*1.6f)+Right*24+FVector(0,0,35+FMath::Cos(Time*39)*1.2f);
         const FQuat Rotation=Inventory->ToolHandRotation(FRotationMatrix::MakeFromXZ(Forward,FVector::UpVector).ToQuat());
         const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r")));
         const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(TEXT("forearm_r")));
@@ -640,7 +642,7 @@ public:
             // Small, continuous gait motion keeps the carry alive without
             // shaking the tool. The support hand follows this same wrist pose.
             const float Phase=Tooth->AnimationGait,Weight=UpgradeCarryAlpha;
-            const FTransform ActorWorld=Tooth->GetActorTransform();
+            const FTransform ActorWorld=Tooth->GetPresentedActorTransform();
             Goal=Goal.GetRelativeTransform(ActorWorld);
             Goal.AddToTranslation(FVector(.4f*FMath::Sin(Phase+.4f),.8f*FMath::Sin(Phase),1.4f*FMath::Cos(Phase))*Weight);
             const FQuat Sway=FRotator(.9f*FMath::Sin(Phase),.5f*FMath::Cos(Phase),1.f*FMath::Sin(Phase+.6f)).Quaternion();
@@ -737,7 +739,7 @@ public:
         FVector DesiredLift=FVector::ZeroVector;
         if(Sponge) {
             bLastActiveRideDriver=false;LastActiveRideFrame=Sponge->GetRideFrame();
-            LastSpongeRideLocalFrame=LastActiveRideFrame.GetRelativeTransform(Tooth->GetActorTransform());
+            LastSpongeRideLocalFrame=LastActiveRideFrame.GetRelativeTransform(Tooth->GetPresentedActorTransform());
             const int32 L=Ref.FindBoneIndex(Tooth->RigBone(TEXT("foot_l"))),R=Ref.FindBoneIndex(Tooth->RigBone(TEXT("foot_r")));
             if(L>=0 && R>=0) {
                 const FVector FeetCenter=World.TransformPosition((CS[L].GetLocation()+CS[R].GetLocation())*.5);
@@ -768,7 +770,7 @@ public:
             ActiveRideAlpha=Driver?1.f:FMath::FInterpTo(ActiveRideAlpha,0.f,Dt,14.f);
             ActiveRideOffset=Driver?DesiredLift:FMath::VInterpTo(ActiveRideOffset,FVector::ZeroVector,Dt,14.f);
             if(!bLastActiveRideDriver && ActiveRideAlpha>.001f)
-                LastActiveRideFrame=LastSpongeRideLocalFrame*Tooth->GetActorTransform();
+                LastActiveRideFrame=LastSpongeRideLocalFrame*Tooth->GetPresentedActorTransform();
         }
         if(!Pose.IsEmpty() && !ActiveRideOffset.IsNearlyZero(.01)) {
             Pose[0].AddToTranslation(World.InverseTransformVector(ActiveRideOffset));Rebuild();
@@ -818,11 +820,11 @@ public:
                     GrenadeThrowPoseID=Grenade->GetActionID();
                     if(!Grenade->GetReleasedHandLocal(GrenadeThrowHandStart))
                         GrenadeThrowHandStart=ActiveHandAlpha[Side]>.001f?ActiveHandLocal[Side]
-                            :(CS[Hand]*World).GetRelativeTransform(Tooth->GetActorTransform());
+                            :(CS[Hand]*World).GetRelativeTransform(Tooth->GetPresentedActorTransform());
                 }
                 // The right mitten follows its own caster-relative throw arc,
                 // never the accepted hazard's airborne actor/root transform.
-                const FTransform Rest=(CS[Hand]*World).GetRelativeTransform(Tooth->GetActorTransform());
+                const FTransform Rest=(CS[Hand]*World).GetRelativeTransform(Tooth->GetPresentedActorTransform());
                 FTransform Local;
                 if(Grenade->Phase==EMCGrenadeSkillPhase::Thrown) {
                     FTransform Extend=GrenadeThrowHandStart;Extend.AddToTranslation(FVector(12,2,5));
@@ -830,7 +832,7 @@ public:
                     if(Released<.10f) Local.Blend(GrenadeThrowHandStart,Extend,FMath::SmoothStep(0.f,.10f,Released));
                     else Local.Blend(Extend,Rest,FMath::SmoothStep(.10f,.28f,Released));
                 } else Local.Blend(GrenadeThrowHandStart,Rest,FMath::SmoothStep(0.f,.24f,Released));
-                Target=Local*Tooth->GetActorTransform();Has=true;
+                Target=Local*Tooth->GetPresentedActorTransform();Has=true;
             }
             if(Grenade && Side==0 && GrenadeBalance>.001f) {
                 Target=CS[Hand]*World;
@@ -851,12 +853,12 @@ public:
             }
             if(Has && !Target.ContainsNaN()) {
                 ActiveHandWorld[Side]=Target;
-                ActiveHandLocal[Side]=Target.GetRelativeTransform(Tooth->GetActorTransform());
+                ActiveHandLocal[Side]=Target.GetRelativeTransform(Tooth->GetPresentedActorTransform());
             } else {
                 Has=false;
                 // Recovery follows the pawn rather than leaving a mitten
                 // suspended at the projectile's last world-space position.
-                ActiveHandWorld[Side]=ActiveHandLocal[Side]*Tooth->GetActorTransform();
+                ActiveHandWorld[Side]=ActiveHandLocal[Side]*Tooth->GetPresentedActorTransform();
             }
             // Hook contains its own authored anticipation/recovery. A second
             // interpolation would visibly detach the cable from the glove.
@@ -933,11 +935,11 @@ public:
             const FTransform BrushWorld(Rotation,Touch-Rotation.RotateVector(Tip*Scale),Scale);
             const FTransform HandWorld=InHand.Inverse()*BrushWorld;
             if(HandWorld.ContainsNaN()) {LockpickPoseAlpha=0;return;}
-            LastLockpickHand=HandWorld.GetRelativeTransform(Tooth->GetActorTransform());
+            LastLockpickHand=HandWorld.GetRelativeTransform(Tooth->GetPresentedActorTransform());
             const FBox Bounds=Chest->Body->GetStaticMesh()->GetBoundingBox();
             const FVector Brace=Chest->Body->GetComponentTransform().TransformPosition(
                 FVector(Bounds.Max.X+5,Bounds.GetCenter().Y+Bounds.GetExtent().Y*.62f,Bounds.Max.Z-8));
-            LastLockpickBrace=Tooth->GetActorTransform().InverseTransformPosition(Brace);
+            LastLockpickBrace=Tooth->GetPresentedActorTransform().InverseTransformPosition(Brace);
             LockpickEffort=(1-Withdraw)*(1+.1f*FMath::Sin(Phase*55)*Work);
         } else {
             // Cancellation releases the held contact instead of snapping the
@@ -971,8 +973,8 @@ public:
             const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("forearm_l"):TEXT("forearm_r")));
             if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) continue;
             FTransform Goal=CS[Hand];
-            if(Side==1) Goal=(LastLockpickHand*Tooth->GetActorTransform()).GetRelativeTransform(World);
-            else Goal.SetLocation(World.InverseTransformPosition(Tooth->GetActorTransform().TransformPosition(LastLockpickBrace)));
+            if(Side==1) Goal=(LastLockpickHand*Tooth->GetPresentedActorTransform()).GetRelativeTransform(World);
+            else Goal.SetLocation(World.InverseTransformPosition(Tooth->GetPresentedActorTransform().TransformPosition(LastLockpickBrace)));
             FTransform Blended;Blended.Blend(CS[Hand],Goal,LockpickPoseAlpha);
             // Preserve the authored compact mitten and its finger proportions.
             const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;
@@ -1082,7 +1084,7 @@ public:
                     const float Sign=Side==0?-1.f:1.f,P=Phase+Side*PI;
                     // The mittens trace a real reach / pull / recovery loop instead
                     // of rotating a nearly invisible upper arm inside the tooth.
-                    FVector Goal=Tooth->GetActorLocation()+Forward*(15+FMath::Sin(P)*(24+18*Effort))+Right*(Sign*(43+FMath::Cos(P)*12));
+                    FVector Goal=Tooth->GetPresentedActorTransform().GetLocation()+Forward*(15+FMath::Sin(P)*(24+18*Effort))+Right*(Sign*(43+FMath::Cos(P)*12));
                     Goal.Z=Surface+4+FMath::Max(0.f,FMath::Cos(P))*(10+12*Effort);
                     Mitten(Side,Goal,Swim);
                 }
@@ -1134,11 +1136,12 @@ public:
     {
         Feet[0]=Feet[1]=FMCFootContactDebug();
         const FTransform World=Tooth->GetMesh()->GetComponentTransform();
-        const bool Reset=Tooth->IsDashing() || !Tooth->ToothPhysics->CanAct() || FVector::DistSquared(World.GetLocation(),PreviousMeshLocation)>FMath::Square(200.);
+        const bool Reset=Tooth->IsDashing() || !Tooth->Status || !Tooth->Status->IsAlive() || !Tooth->ToothPhysics->CanAct()
+            || FVector::DistSquared(World.GetLocation(),PreviousMeshLocation)>FMath::Square(200.);
         PreviousMeshLocation=World.GetLocation();
         if (Reset)
         {
-            for (int32 Side=0;Side<2;++Side) { FootPlanted[Side]=false; FootReleased[Side]=false; FootBases[Side].Reset(); FootWeights[Side]=0; FootOffsets[Side]=FVector::ZeroVector; }
+            for (int32 Side=0;Side<2;++Side) { FootPlanted[Side]=false; FootReleased[Side]=false; VisualFootRejected[Side]=false; FootBases[Side].Reset(); FootWeights[Side]=0; FootOffsets[Side]=FVector::ZeroVector; }
             return;
         }
         const bool Allowed=Tooth->GetCharacterMovement()->IsMovingOnGround() && Tooth->AnimationClimb<.05f && Tooth->AnimationSwim<.05f && !Tooth->bPreviewAnimation
@@ -1153,20 +1156,24 @@ public:
             const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(FName(*(TEXT("knee")+S))));
             const int32 Foot=Ref.FindBoneIndex(Tooth->RigBone(FName(*(TEXT("foot")+S))));
             if (Upper<0 || Lower<0 || Foot<0) continue;
+            const double NaturalReach=FVector::Distance(CS[Upper].GetLocation(),CS[Lower].GetLocation())+FVector::Distance(CS[Lower].GetLocation(),CS[Foot].GetLocation());
+            const double Reach=NaturalReach*.97;
             const FVector Animated=World.TransformPosition(CS[Foot].GetLocation());
             Feet[Side].Animated=Feet[Side].Target=Animated;
             const auto Cycle=FMCLocomotionCycle::Sample(Tooth->AnimationGait/(2*PI)+Side*.5f,Tooth->AnimationStance);
             const bool Stance=Allowed && (Tooth->AnimationSpeed<.05f || Cycle.bStance);
+            if(!Stance) VisualFootRejected[Side]=false;
             if (!Stance || Tooth->AnimationSpeed<.05f) FootReleased[Side]=false;
             if (FootPlanted[Side] && FootBases[Side].IsValid()) PlantedFeet[Side]=FootBases[Side]->GetComponentTransform().TransformPosition(FootBasePoints[Side]);
             const FVector Probe=FootPlanted[Side] && Stance?PlantedFeet[Side]:Animated;
             FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCFootGround),false,Tooth);
-            const bool Grounded=Stance && !FootReleased[Side] && Tooth->GetWorld()->LineTraceSingleByObjectType(Hit,Probe+FVector(0,0,45),Probe-FVector(0,0,55),
+            Params.bReturnFaceIndex=true;
+            bool Grounded=Stance && !FootReleased[Side] && Tooth->GetWorld()->LineTraceSingleByObjectType(Hit,Probe+FVector(0,0,45),Probe-FVector(0,0,55),
                 FCollisionObjectQueryParams(ECC_WorldStatic),Params) && Hit.ImpactNormal.Z>.65f;
+            FVector ContactNormal=Hit.ImpactNormal;
             float Weight=0;
             if (Grounded)
             {
-                Feet[Side].bHit=true; Feet[Side].Surface=Hit.GetComponent()->GetFName();
                 const double LockDistance=FMath::Min(20.,(FVector::Distance(CS[Upper].GetLocation(),CS[Lower].GetLocation())+FVector::Distance(CS[Lower].GetLocation(),CS[Foot].GetLocation()))*.5);
                 if (!FootPlanted[Side])
                 {
@@ -1180,12 +1187,50 @@ public:
                 FTransform Rest=Ref.GetRefBonePose()[Foot];
                 for (int32 Parent=Ref.GetParentIndex(Foot);Parent>=0;Parent=Ref.GetParentIndex(Parent)) Rest=Rest*Ref.GetRefBonePose()[Parent];
                 const double SoleHeight=FMath::Clamp(Tooth->StandingMeshTransform().TransformPosition(Rest.GetLocation()).Z+Tooth->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight(),3.,20.);
-                Target.Z=Animated.Z+FMath::Clamp(Hit.ImpactPoint.Z+SoleHeight*Tooth->GetActorScale3D().Z-Animated.Z,-12.,12.);
+                const double CanonicalAnkleDelta=Hit.ImpactPoint.Z+SoleHeight*Tooth->GetActorScale3D().Z-Animated.Z;
+                FVector CanonicalTarget=Target;
+                CanonicalTarget.Z=Animated.Z+FMath::Clamp(CanonicalAnkleDelta,-12.,12.);
+                const FVector CanonicalHorizontal=FVector(CanonicalTarget.X-Animated.X,CanonicalTarget.Y-Animated.Y,0).GetClampedToMaxSize(LockDistance);
+                CanonicalTarget.X=Animated.X+CanonicalHorizontal.X;CanonicalTarget.Y=Animated.Y+CanonicalHorizontal.Y;
+                const double CanonicalReach=FVector::Distance(CS[Upper].GetLocation(),World.InverseTransformPosition(CanonicalTarget));
+                FVector ContactPoint=Hit.ImpactPoint;
+                auto* Tongue=Cast<AMCTongue>(Hit.GetActor());
+                // PreUpdate runs on the game thread. Keep the plant/base on
+                // canonical collision; only its rendered correspondence moves.
+                // Only the mesh waits for decoration; CMC keeps stable support.
+                if(Tongue) Tooth->GetMesh()->AddTickPrerequisiteActor(Tongue);
+                const bool VisualValid=!Tongue || (Tongue->VisualSurfacePoint(Hit,ContactPoint,ContactNormal)
+                    && !ContactPoint.ContainsNaN() && !ContactNormal.ContainsNaN() && ContactNormal.Z>.65f);
+                if(!VisualValid) {ContactPoint=Hit.ImpactPoint;ContactNormal=Hit.ImpactNormal;}
+                Target.X+=ContactPoint.X-Hit.ImpactPoint.X;Target.Y+=ContactPoint.Y-Hit.ImpactPoint.Y;
+                const double AnkleDelta=ContactPoint.Z+SoleHeight*Tooth->GetActorScale3D().Z-Animated.Z;
+                Target.Z=Animated.Z+FMath::Clamp(AnkleDelta,-12.,12.);
                 FVector Offset=Target-Animated;
                 const FVector Horizontal=FVector(Offset.X,Offset.Y,0).GetClampedToMaxSize(LockDistance);
                 Offset.X=Horizontal.X; Offset.Y=Horizontal.Y;
-                FootOffsets[Side]=FMath::Lerp(FootOffsets[Side],Offset,1.f-FMath::Exp(-18.f*Dt));
-                Weight=1-Tooth->AnimationSlip*.8f;
+                const double TargetReach=FVector::Distance(CS[Upper].GetLocation(),World.InverseTransformPosition(Animated+Offset));
+                // Preserve the old canonical clamp, even on an already nearly
+                // straight leg. Reject additional demand from visual motion.
+                const bool VisualReachable=!Tongue || (VisualValid
+                    && FMath::Abs(AnkleDelta)<=FMath::Max(12.,FMath::Abs(CanonicalAnkleDelta))+UE_KINDA_SMALL_NUMBER
+                    && TargetReach<=FMath::Max(NaturalReach,CanonicalReach)+UE_KINDA_SMALL_NUMBER);
+                if(!VisualReachable) {
+                    // A crest beyond the existing ankle/reach limits needs a
+                    // body response, never longer legs or a false planted foot.
+                    Grounded=false;FootPlanted[Side]=false;FootBases[Side].Reset();
+#if !UE_BUILD_SHIPPING
+                    static const bool Diagnose=FParse::Param(FCommandLine::Get(),TEXT("MCNetTelemetry"));
+                    if(Diagnose && !VisualFootRejected[Side]) UE_LOG(LogTemp,Log,
+                        TEXT("MC_VISUAL_FOOT_REJECT pawn=%s side=%d mapped=%d visual_dz_cm=%.3f ankle_cm=%.3f canonical_ankle_cm=%.3f natural_reach_cm=%.3f target_reach_cm=%.3f"),
+                        *GetNameSafe(Tooth),Side,VisualValid,ContactPoint.Z-Hit.ImpactPoint.Z,AnkleDelta,CanonicalAnkleDelta,NaturalReach,TargetReach);
+#endif
+                    VisualFootRejected[Side]=true;
+                } else {
+                    VisualFootRejected[Side]=false;
+                    Feet[Side].bHit=true;Feet[Side].Surface=Hit.GetComponent()->GetFName();
+                    FootOffsets[Side]=FMath::Lerp(FootOffsets[Side],Offset,1.f-FMath::Exp(-18.f*Dt));
+                    Weight=1-Tooth->AnimationSlip*.8f;
+                }
                 // Release an overextended step once, then wait for swing. Repeatedly
                 // relocating a planted foot was the source of visible contact searching.
                 if (FVector::Dist2D(PlantedFeet[Side],Animated)>LockDistance*1.5)
@@ -1202,12 +1247,11 @@ public:
             const FVector Pole=CS[Upper].GetLocation()+World.InverseTransformVectorNoScale(Tooth->GetActorForwardVector()*45);
             // Keep a small knee bend: the two-bone solution is singular at full
             // extension, so tiny contact changes otherwise move the knee sharply.
-            const double Reach=(FVector::Distance(U.GetLocation(),L.GetLocation())+FVector::Distance(L.GetLocation(),F.GetLocation()))*.97;
             const FVector Goal=U.GetLocation()+(World.InverseTransformPosition(Target)-U.GetLocation()).GetClampedToMaxSize(Reach);
             AnimationCore::SolveTwoBoneIK(U,L,F,Pole,Goal,false,1.,1.);
             if (Grounded)
             {
-                const FVector Normal=World.InverseTransformVectorNoScale(Hit.ImpactNormal).GetSafeNormal();
+                const FVector Normal=World.InverseTransformVectorNoScale(ContactNormal).GetSafeNormal();
                 const FVector Up=World.InverseTransformVectorNoScale(FVector::UpVector).GetSafeNormal();
                 FQuat Tilt=FQuat::FindBetweenNormals(Up,Normal);
                 const float Angle=Tilt.GetAngle();
@@ -1383,10 +1427,10 @@ public:
         const bool CalculusAllowed=(WideSwing || BufferTool) && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe && Tooth->ToothPhysics->CanAct();
         const bool CalculusContact=CalculusAllowed
             && Tooth->Inventory->CalculusHandGoal(CalculusHand,CalculusBlend);
-        if(CalculusContact) LastCalculusHand=CalculusHand.GetRelativeTransform(Tooth->GetActorTransform());
+        if(CalculusContact) LastCalculusHand=CalculusHand.GetRelativeTransform(Tooth->GetPresentedActorTransform());
         const float PickaxePlayRate=UMCInventoryComponent::SwingPlayRate(EMCToolSlot::Pickaxe);
         CalculusPoseAlpha=CalculusAllowed?FMath::FInterpConstantTo(CalculusPoseAlpha,CalculusContact?1.f:0.f,Dt,BufferTool?12.f:(CalculusContact?6.25f:3.33f)*PickaxePlayRate):0.f;
-        CalculusHand=LastCalculusHand*Tooth->GetActorTransform(); CalculusBlend=CalculusPoseAlpha;
+        CalculusHand=LastCalculusHand*Tooth->GetPresentedActorTransform(); CalculusBlend=CalculusPoseAlpha;
         // Hold the ready pose across repeated swings. Only losing the aimed
         // cycle fades to the normal grip, rather than dropping it every hit.
         const bool AimedCalculus=CalculusAllowed && (CalculusContact || CalculusBlend>.001f);

@@ -6,6 +6,17 @@ class AMCFoodActor;
 struct FMCFoodStackSettings;
 class AMCToothCharacter;
 
+USTRUCT()
+struct FMCCollectionIntentReceipt
+{
+    GENERATED_BODY()
+    UPROPERTY() FGuid LoadEpoch;
+    UPROPERTY() uint16 RequestId=0;
+    UPROPERTY() uint32 Revision=0;
+    UPROPERTY() bool bCollecting=false;
+    UPROPERTY() bool bAccepted=false;
+};
+
 /** Food stacks sway as one load; boss nut ammunition uses a single retained hand slot. */
 UCLASS(ClassGroup=(Food),meta=(BlueprintSpawnableComponent))
 class MESSCONTROL_API UMCFoodCollectionComponent : public UActorComponent
@@ -22,6 +33,10 @@ public:
     bool HasCandidate() const;
     bool HasNutAmmunition() const;
     void Toggle();
+    void RequestCollecting(bool Enabled);
+    void RequestToggle();
+    /** Authority-only endpoint; character owns gameplay acceptance. */
+    void SetCollectingAccepted(bool Enabled);
     void Stop(bool Throw=false);
     /** Server-only: launch the uppermost piece, retaining every other stack slot. */
     bool ThrowOne(FVector AimDirection,bool bHeldRepeat=false);
@@ -52,6 +67,12 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Collision",meta=(ClampMin="1")) float SpillContactImpulse=600;
     int32 FallenPieces=0;
 private:
+    UFUNCTION(Server,Reliable) void ServerSetCollecting(bool Enabled,uint16 RequestId,FGuid Epoch);
+    UFUNCTION() void OnRep_CollectionIntent();
+    UPROPERTY(ReplicatedUsing=OnRep_CollectionIntent) FMCCollectionIntentReceipt CollectionIntent;
+    uint16 NextCollectionRequest=0,PendingCollectionRequest=0,LastServerCollectionRequest=0;
+    FGuid PendingCollectionEpoch,ServerCollectionEpoch;
+    bool bPendingCollecting=false,bHasPendingCollecting=false;
     struct FPieceMotion { FVector Linear=FVector::ZeroVector,Angular=FVector::ZeroVector; bool bLanded=false; };
     TMap<TWeakObjectPtr<AMCFoodActor>,FPieceMotion> PieceMotion;
     TMap<TWeakObjectPtr<AMCFoodActor>,double> DroppedAt;

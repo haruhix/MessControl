@@ -18,7 +18,7 @@ public:
     virtual bool RepeatInput() override;
     virtual void Tick(float DeltaSeconds) override;
     /** Top-deck pivot; fitting the current player's feet is presentation-owned. */
-    UFUNCTION(BlueprintPure,Category="Skill|Ride") FTransform GetRideFrame() const { return GetActorTransform(); }
+    UFUNCTION(BlueprintPure,Category="Skill|Ride") FTransform GetRideFrame() const;
     /** Authority diagnostics; the action transform remains the replicated visual heading. */
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Skill|Ride") int32 BounceCount=0;
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Skill|Ride") FVector LastBounceNormal=FVector::ZeroVector;
@@ -33,7 +33,8 @@ private:
     void EndSoapTrail(bool bImmediate);
     FMCActiveSkillMotionLease Motion;
     FVector Heading=FVector::ForwardVector,PreviousFoot=FVector::ZeroVector;
-    double EndsAt=0,LastSampleAt=0,SteeringLockedUntil=0;
+    double EndsAt=0,LastSampleAt=0;
+    float PreviousSimulationTime=0;
     FVector LastSoapPoint=FVector::ZeroVector;
     double LastSoapAt=0;
     bool bHasSoapPoint=false;

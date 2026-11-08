@@ -909,6 +909,168 @@
       "kind": "video",
       "label": "MP4 · Build20: Rocket / default Impact + Free Magic · инструмент",
       "path": "E:/CodexWork/MessControl/Validation/ComposerActionWorkspace_20261031/FreeMagicIndependent20.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b1-heavyhit-video",
+      "kind": "video",
+      "label": "Тяжёлый удар · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/00_B1_HeavyHit_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b1-lightfoot-video",
+      "kind": "video",
+      "label": "Лёгкая походка · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/01_B1_LightFoot_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b1-deepbreath-video",
+      "kind": "video",
+      "label": "Глубокий вдох · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/02_B1_DeepBreath_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b1-bigportion-video",
+      "kind": "video",
+      "label": "Большая порция · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/03_B1_BigPortion_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b1-confidentthrow-video",
+      "kind": "video",
+      "label": "Уверенный бросок · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/04_B1_ConfidentThrow_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b1-freshdelivery-video",
+      "kind": "video",
+      "label": "Свежая доставка · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/05_B1_FreshDelivery_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b1-greedyhands-video",
+      "kind": "video",
+      "label": "Руки загребущие · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/06_B1_GreedyHands_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b1-widebristles-video",
+      "kind": "video",
+      "label": "Широкая щетина · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/07_B1_WideBristles_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b1-underpressure-video",
+      "kind": "video",
+      "label": "Под давлением · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/08_B1_UnderPressure_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-returntrip-video",
+      "kind": "video",
+      "label": "Обратный рейс · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/09_B2_ReturnTrip_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-cleanbreath-video",
+      "kind": "video",
+      "label": "Чистое дыхание · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/10_B2_CleanBreath_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-neatfreak-video",
+      "kind": "video",
+      "label": "Чистюля · native Target · Build06",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/00_B2_NeatFreak_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-laststroke-video",
+      "kind": "video",
+      "label": "Последний штрих · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/12_B2_LastStroke_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-cleanacceleration-video",
+      "kind": "video",
+      "label": "Чистый разгон · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/13_B2_CleanAcceleration_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-refreshingwork-video",
+      "kind": "video",
+      "label": "Освежающий труд · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/14_B2_RefreshingWork_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-thickenamel-video",
+      "kind": "video",
+      "label": "Толстая эмаль · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/15_B2_ThickEnamel_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-shield-video",
+      "kind": "video",
+      "label": "Щит · native Target · Build05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/16_B2_Shield_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-secondwind-video",
+      "kind": "video",
+      "label": "Второе дыхание · native Target · Build06",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/01_B2_SecondWind_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-houdinidash-video",
+      "kind": "video",
+      "label": "Рывок Гудини · native Target · Build06",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/02_B2_HoudiniDash_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-mightytooth-video",
+      "kind": "video",
+      "label": "Могучий зуб · native Target · Build06",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/03_B2_MightyTooth_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-startfromdash-video",
+      "kind": "video",
+      "label": "С места в карьер · native Target · Build06",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/04_B2_StartFromDash_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-thundergod-video",
+      "kind": "video",
+      "label": "Бог грома · native Target · Build06",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/05_B2_ThunderGod_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-echoswing-video",
+      "kind": "video",
+      "label": "Эхо замаха · native Target · Build06",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/06_B2_EchoSwing_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-billiards-video",
+      "kind": "video",
+      "label": "Бильярд · native Target · Build06",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/07_B2_Billiards_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-softener-video",
+      "kind": "video",
+      "label": "Размягчитель · native Target · Build06",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/08_B2_Softener_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-antiseptic-video",
+      "kind": "video",
+      "label": "Антисептик · native Target · Build06",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/09_B2_Antiseptic_Target.mp4"
+    },
+    {
+      "id": "native-binding-20261031-b2-lastingformula-video",
+      "kind": "video",
+      "label": "Стойкая формула · native Target · Build06",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/10_B2_LastingFormula_Target.mp4"
     }
   ],
   "tasks": [
@@ -4938,6 +5100,1344 @@
               "Полный каталог боссов/карт, сеть и холодный packaged PSO не проверены",
               "Финальный read-only UI/состояние окна Build23 ещё проверяются"
             ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b1-heavyhit",
+      "title": "Тяжёлый удар · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B1_HeavyHit. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Hit ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b1-heavyhit-video"
+          ],
+          "evidence": {
+            "sourceID": "B1_HeavyHit",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Hit"
+            ],
+            "observedActionEvents": [
+              "Hit"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b1-lightfoot",
+      "title": "Лёгкая походка · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B1_LightFoot. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Action-specific Proc/Link не наблюдался; принят только native activity/числовой контекст. ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b1-lightfoot-video"
+          ],
+          "evidence": {
+            "sourceID": "B1_LightFoot",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State"
+            ],
+            "observedActionEvents": [],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b1-deepbreath",
+      "title": "Глубокий вдох · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B1_DeepBreath. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Action-specific Proc/Link не наблюдался; принят только native activity/числовой контекст. ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b1-deepbreath-video"
+          ],
+          "evidence": {
+            "sourceID": "B1_DeepBreath",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State"
+            ],
+            "observedActionEvents": [],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b1-bigportion",
+      "title": "Большая порция · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B1_BigPortion. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Pickup ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b1-bigportion-video"
+          ],
+          "evidence": {
+            "sourceID": "B1_BigPortion",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Pickup"
+            ],
+            "observedActionEvents": [
+              "Pickup"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b1-confidentthrow",
+      "title": "Уверенный бросок · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B1_ConfidentThrow. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Throw ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b1-confidentthrow-video"
+          ],
+          "evidence": {
+            "sourceID": "B1_ConfidentThrow",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Throw"
+            ],
+            "observedActionEvents": [
+              "Throw"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b1-freshdelivery",
+      "title": "Свежая доставка · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B1_FreshDelivery. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: CarryEnd, CarryStart ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b1-freshdelivery-video"
+          ],
+          "evidence": {
+            "sourceID": "B1_FreshDelivery",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "CarryStart",
+              "CarryEnd"
+            ],
+            "observedActionEvents": [
+              "CarryEnd",
+              "CarryStart"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b1-greedyhands",
+      "title": "Руки загребущие · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B1_GreedyHands. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Pickup ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b1-greedyhands-video"
+          ],
+          "evidence": {
+            "sourceID": "B1_GreedyHands",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Pickup"
+            ],
+            "observedActionEvents": [
+              "Pickup"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b1-widebristles",
+      "title": "Широкая щетина · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B1_WideBristles. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Contact ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b1-widebristles-video"
+          ],
+          "evidence": {
+            "sourceID": "B1_WideBristles",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Contact"
+            ],
+            "observedActionEvents": [
+              "Contact"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b1-underpressure",
+      "title": "Под давлением · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B1_UnderPressure. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: SprayEnd, SprayStart ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b1-underpressure-video"
+          ],
+          "evidence": {
+            "sourceID": "B1_UnderPressure",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "SprayStart",
+              "SprayEnd"
+            ],
+            "observedActionEvents": [
+              "SprayEnd",
+              "SprayStart"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-returntrip",
+      "title": "Обратный рейс · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_ReturnTrip. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: End, Proc ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-returntrip-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_ReturnTrip",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Proc",
+              "End"
+            ],
+            "observedActionEvents": [
+              "End",
+              "Proc"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-cleanbreath",
+      "title": "Чистое дыхание · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_CleanBreath. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Proc ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-cleanbreath-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_CleanBreath",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Proc"
+            ],
+            "observedActionEvents": [
+              "Proc"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-neatfreak",
+      "title": "Чистюля · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_NeatFreak. Отдельные Equipped/State и механические события. Corrected observer proves native dirty-mask decrease only; no Link observed and no CoffeeLeft completion probe was recorded. No claim that this clip reached the neighbor RNG roll.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build06",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра. Proc/Link в данном клипе не наблюдался; визуальная оценка этого события невозможна."
+          },
+          "native": {
+            "status": "pending",
+            "tests": null,
+            "warnings": null,
+            "comment": "Native lifecycle/контакт пройден. Proc/Link: НЕОПРЕДЕЛЁННО — в выбранной записи случайное срабатывание не наблюдалось; его вероятность и визуал не проверены. Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на06. Глобально45/45 automation на06; это не45 проверок каждой карточки. Action-specific Proc/Link не наблюдался; принят только native activity/числовой контекст. Corrected observer proves native dirty-mask decrease only; no Link observed and no CoffeeLeft completion probe was recorded. No claim that this clip reached the neighbor RNG roll.",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-neatfreak-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_NeatFreak",
+            "build": "06",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Link"
+            ],
+            "observedActionEvents": [],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false,
+            "procStatus": "inconclusive"
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-laststroke",
+      "title": "Последний штрих · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_LastStroke. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: FinishContact ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-laststroke-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_LastStroke",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "FinishContact"
+            ],
+            "observedActionEvents": [
+              "FinishContact"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-cleanacceleration",
+      "title": "Чистый разгон · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_CleanAcceleration. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: End, Proc ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-cleanacceleration-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_CleanAcceleration",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Proc",
+              "End"
+            ],
+            "observedActionEvents": [
+              "End",
+              "Proc"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-refreshingwork",
+      "title": "Освежающий труд · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_RefreshingWork. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Proc ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-refreshingwork-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_RefreshingWork",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Proc"
+            ],
+            "observedActionEvents": [
+              "Proc"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-thickenamel",
+      "title": "Толстая эмаль · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_ThickEnamel. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра. Proc/Link в данном клипе не наблюдался; визуальная оценка этого события невозможна."
+          },
+          "native": {
+            "status": "pending",
+            "tests": null,
+            "warnings": null,
+            "comment": "Native lifecycle/контакт пройден. Proc/Link: НЕОПРЕДЕЛЁННО — в выбранной записи случайное срабатывание не наблюдалось; его вероятность и визуал не проверены. Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Action-specific Proc/Link не наблюдался; принят только native activity/числовой контекст. ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-thickenamel-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_ThickEnamel",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Proc"
+            ],
+            "observedActionEvents": [],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false,
+            "procStatus": "inconclusive"
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-shield",
+      "title": "Щит · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_Shield. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build05b",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на05b. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Proc ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-shield-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_Shield",
+            "build": "05b",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Proc"
+            ],
+            "observedActionEvents": [
+              "Proc"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-secondwind",
+      "title": "Второе дыхание · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_SecondWind. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build06",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на06. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Proc ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-secondwind-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_SecondWind",
+            "build": "06",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Proc"
+            ],
+            "observedActionEvents": [
+              "Proc"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-houdinidash",
+      "title": "Рывок Гудини · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_HoudiniDash. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build06",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на06. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Return, Vanish ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-houdinidash-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_HoudiniDash",
+            "build": "06",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Vanish",
+              "Return"
+            ],
+            "observedActionEvents": [
+              "Return",
+              "Vanish"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-mightytooth",
+      "title": "Могучий зуб · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_MightyTooth. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build06",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на06. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Cleave ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-mightytooth-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_MightyTooth",
+            "build": "06",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Cleave"
+            ],
+            "observedActionEvents": [
+              "Cleave"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-startfromdash",
+      "title": "С места в карьер · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_StartFromDash. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build06",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на06. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Proc ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-startfromdash-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_StartFromDash",
+            "build": "06",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Proc"
+            ],
+            "observedActionEvents": [
+              "Proc"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-thundergod",
+      "title": "Бог грома · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_ThunderGod. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build06",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра. Proc/Link в данном клипе не наблюдался; визуальная оценка этого события невозможна."
+          },
+          "native": {
+            "status": "pending",
+            "tests": null,
+            "warnings": null,
+            "comment": "Native lifecycle/контакт пройден. Proc/Link: НЕОПРЕДЕЛЁННО — в выбранной записи случайное срабатывание не наблюдалось; его вероятность и визуал не проверены. Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на06. Глобально45/45 automation на06; это не45 проверок каждой карточки. Action-specific Proc/Link не наблюдался; принят только native activity/числовой контекст. ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-thundergod-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_ThunderGod",
+            "build": "06",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Link"
+            ],
+            "observedActionEvents": [],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false,
+            "procStatus": "inconclusive"
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-echoswing",
+      "title": "Эхо замаха · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_EchoSwing. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build06",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на06. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Echo, Windup ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-echoswing-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_EchoSwing",
+            "build": "06",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Windup",
+              "Echo"
+            ],
+            "observedActionEvents": [
+              "Echo",
+              "Windup"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-billiards",
+      "title": "Бильярд · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_Billiards. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build06",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на06. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Impact, Launch ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-billiards-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_Billiards",
+            "build": "06",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Launch",
+              "Impact"
+            ],
+            "observedActionEvents": [
+              "Impact",
+              "Launch"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-softener",
+      "title": "Размягчитель · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_Softener. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build06",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на06. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Coat, End ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-softener-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_Softener",
+            "build": "06",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Coat",
+              "End"
+            ],
+            "observedActionEvents": [
+              "Coat",
+              "End"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-antiseptic",
+      "title": "Антисептик · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_Antiseptic. Отдельные Equipped/State и механические события. Full-UI MP4: настоящие контакты/результаты, не вручную сыгранный эффект.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build06",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на06. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Clean, SprayEnd, SprayStart ",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-antiseptic-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_Antiseptic",
+            "build": "06",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "SprayStart",
+              "SprayEnd",
+              "Clean"
+            ],
+            "observedActionEvents": [
+              "Clean",
+              "SprayEnd",
+              "SprayStart"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "passive-b2-lastingformula",
+      "title": "Стойкая формула · Composer",
+      "family": "Пассивки · привязки",
+      "description": "SourceID B2_LastingFormula. Отдельные Equipped/State и механические события. Coat/Refresh observed; End and Damage not observed in this short target scenario. Native visible hazard footprint is retained; compositor edits accents only.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "native-binding-20261031",
+          "label": "Проверка привязки Composer · исходный арт · Build06",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "technical binding / original art / not art-ready",
+            "comment": "Запись настоящего контекста Composer с исходным представлением. Это проверка привязки и native lifetime, а не новый готовый VFX. Художественная оценка не выставлена; качество, стиль и читаемость ожидают отдельного просмотра."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Этот source: Acquire прошёл на05b; Target+cleanup и полный MP4 прошли на06. Глобально45/45 automation на06; это не45 проверок каждой карточки. Наблюдались: Coat, Refresh Coat/Refresh observed; End and Damage not observed in this short target scenario. Native visible hazard footprint is retained; compositor edits accents only.",
+            "evidencePaths": [
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+              "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/Master27.json"
+            ]
+          },
+          "mediaIds": [
+            "native-binding-20261031-b2-lastingformula-video"
+          ],
+          "evidence": {
+            "sourceID": "B2_LastingFormula",
+            "build": "06",
+            "allowedEvents": [
+              "Equipped",
+              "State",
+              "Coat",
+              "Refresh",
+              "End",
+              "Damage"
+            ],
+            "observedActionEvents": [
+              "Coat",
+              "Refresh"
+            ],
+            "artApproved": false,
+            "reviewPurpose": "Проверка привязки Composer · исходный арт",
+            "newArtReady": false
           }
         }
       ]

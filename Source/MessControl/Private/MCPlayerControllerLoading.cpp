@@ -18,6 +18,7 @@
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/Culture.h"
 #include "Kismet/GameplayStatics.h"
+#include "Misc/App.h"
 
 #define LOCTEXT_NAMESPACE "MCLoadingController"
 
@@ -108,7 +109,11 @@ void AMCPlayerController::RefreshLoadingPresentation()
     PresentationConstructed &= !IsHubWorld() || HasPreparedWardrobePresentation();
     PresentationConstructed &= !IsHubWorld() || (FishingRewardWidget && FishingRewardWidget->HasPreparedPresentation()
         && (UMCGameplayUIFactory::GetPresentationVersion()!=EMCUIVersion::New || FishingRewardWidget->HasPreparedUnifiedView()));
-    PresentationConstructed &= IsHubWorld() || (TaskCoinPresentation && TaskCoinPresentation->HasPreparedPresentation());
+    // Coin meshes are deliberately not created without a renderer. Let those
+    // processes reach the preload subsystem's explicit assets-only barrier;
+    // rendered clients still require the real retained presentation.
+    PresentationConstructed &= !FApp::CanEverRender() || IsHubWorld()
+        || (TaskCoinPresentation && TaskCoinPresentation->HasPreparedPresentation());
     PresentationConstructed &= PauseWidget && PauseWidget->GetRootWidget();
     if(Preparation) {
         Preparation->SetPresentationReady(PresentationConstructed);

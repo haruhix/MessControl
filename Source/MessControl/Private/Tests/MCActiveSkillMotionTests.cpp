@@ -14,6 +14,8 @@
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
 #include "MCToothStatusComponent.h"
+#include "MCToothPhysicsComponent.h"
+#include "Misc/ScopeExit.h"
 #include "MCMouthSurface.h"
 #include "MCCoffeeWipe.h"
 #include "ProceduralMeshComponent.h"
@@ -47,7 +49,7 @@ struct FWorld
         World->SetGameInstance(NewObject<UGameInstance>(GEngine));
         FURL URL;URL.AddOption(TEXT("game=/Script/Engine.GameModeBase"));World->SetGameMode(URL);
         World->InitializeActorsForPlay(URL);World->BeginPlay();
-        auto* Game=World->SpawnActor<AMCGameState>();World->SetGameState(Game);
+        auto* Game=World->SpawnActor<AMCGameState>();World->SetGameState(Game);Game->GameplayLoadId=FGuid::NewGuid();
         Game->Phase=EMCShiftPhase::Working;Game->bLobbyWaiting=false;
         FloorActor=Box(FVector(0,0,9980),FVector(5000,5000,20));
         Controller=World->SpawnActor<AMCPlayerController>();Controller->SetAsLocalPlayerController();
@@ -386,9 +388,12 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpongeHitchWallRecovery,"MessControl.ActiveS
 bool FMCSpongeHitchWallRecovery::RunTest(const FString&)
 {
     MCActiveSkillMotionTests::FWorld T;
-    T.Box(FVector(260,0,10080),FVector(4,500,80));
+    auto* Wall=T.Box(FVector(260,0,10080),FVector(4,500,80));
     auto* Sponge=Cast<AMCSpongeSkillAction>(T.Prepare<UMCSpongeSkillEffect>());
     if(!TestNotNull(TEXT("A production-speed eight-second Sponge starts before the wall"),Sponge)) return false;
+    const FVector Half=FVector(80,42,12)*Sponge->PropTransform.GetScale3D();
+    const double WallMin=256.+Half.X-80.;
+    Wall->SetActorLocation(FVector(WallMin+4,0,10080));
     Sponge->StartCommitted();T.Step(.18f);
     if(!TestTrue(TEXT("The real native movement reaches the pre-hitch approach without a bounce"),
         !Sponge->IsFinished() && Sponge->BounceCount==0 && FMath::IsNearlyEqual(T.Move->Velocity.X,620.,.1))) return false;
@@ -396,8 +401,9 @@ bool FMCSpongeHitchWallRecovery::RunTest(const FString&)
     const double BeforeTime=T.World->GetTimeSeconds();
     constexpr float Hitch=.121f;
     const double UncorrectedX=Before.X+620.*Hitch;
-    if(!TestTrue(TEXT("The 121ms step will overlap the 80cm footprint while leaving the 34cm native capsule clear"),
-        Before.X+80+620*.05<256 && UncorrectedX+80>256 && UncorrectedX+34<256)) return false;
+    if(!TestTrue(TEXT("The 121ms step will overlap the authored footprint while leaving the native capsule clear"),
+        Before.X+Half.X+620*.05<WallMin && UncorrectedX+Half.X>WallMin
+        && UncorrectedX+T.Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()<WallMin)) return false;
     // One actual world tick: deliberately do not use FWorld::Step, which
     // splits time into 60Hz slices and cannot reproduce the production bug.
     ++GFrameCounter;T.World->Tick(LEVELTICK_All,Hitch);
@@ -413,7 +419,7 @@ bool FMCSpongeHitchWallRecovery::RunTest(const FString&)
     TestTrue(TEXT("Only the overlapped footprint depth is recovered within the 45cm budget"),Correction>1 && Correction<=45 && After.X>Before.X+30);
     TestTrue(TEXT("The full outgoing footprint is now clear on refreshed native support"),
         T.Move->IsMovingOnGround() && T.Move->CurrentFloor.IsWalkableFloor()
-        && MCActiveSkillMotion::ClearRideFootprint(T.Hero,Sponge,-FVector::ForwardVector,FVector(80,42,12),.05f,620.f));
+        && MCActiveSkillMotion::ClearRideFootprint(T.Hero,Sponge,-FVector::ForwardVector,Half,.05f,620.f));
     T.Step(.05f);
     TestTrue(TEXT("The owned root motion continues away from the wall at native speed"),
         !Sponge->IsFinished() && T.Hero->GetActorLocation().X<After.X-25 && T.Move->Velocity.X<-619
@@ -438,7 +444,7 @@ bool FMCSpongeLongNativeFrame::RunTest(const FString&)
     auto PatchAt=[&](float X) {
         const FTransform Pose(FVector(X,0,10000));
         auto* Patch=T.World->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
-        Patch->bRandomizeLiquidSize=false;Patch->LiquidHalfSize=80;Patch->LiquidSeed=17;
+        Patch->bRandomizeLiquidSize=false;Patch->LiquidHalfSize=20;Patch->LiquidSeed=17;
         Patch->FinishSpawning(Pose);Patch->Status->ApplyCoffee(1);Patch->ResetLiquid();return Patch;
     };
     auto* Skipped=PatchAt(float(Before.X)+124);
@@ -910,6 +916,119 @@ bool FMCDriverAllyContact::RunTest(const FString&)
     TestEqual(TEXT("An overlapping contact episode applies native ally damage once"),Ally->Status->State.Health,AllyBefore-8.f);
     TestEqual(TEXT("The rider is excluded from the run-over ledger"),T.Hero->Status->State.Health,OwnerBefore);
     Driver->Cancel(EMCActiveSkillEndReason::InputCanceled);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoundationSteeringReplay,
+    "MessControl.Networking.Foundation.SteeringUsesNativeSavedMoveBeforePreparation",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoundationSteeringReplay::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    // Leave live acceleration pointing X. The replay history asks to turn Y;
+    // reading last-frame acceleration during PrepMoveFor loses the first turn.
+    T.Hero->AddMovementInput(FVector::ForwardVector,1);T.Step(1.f/60);
+    const FGuid Operation=FGuid::NewGuid();FMCActiveSkillMotionLease Lease;
+    if(!TestTrue(TEXT("The actual common steered lease is accepted"),Lease.BeginSteered(T.Hero,Operation,FVector(100,0,0),90,2))) return false;
+    TSharedPtr<FRootMotionSource> Source;
+    for(const auto& Pending:T.Move->CurrentRootMotion.PendingAddRootMotionSources)
+        if(Pending->InstanceName.ToString().StartsWith(TEXT("MCActiveSkillMotion_"))) {Source=Pending;break;}
+    if(!TestTrue(TEXT("Native CMC issued one pending source identity"),Source.IsValid())) return false;
+    // Native source promotion is normally performed at the first forward
+    // movement step. Place that same issued source in the acknowledged group.
+    T.Move->CurrentRootMotion.PendingAddRootMotionSources.Remove(Source);
+    T.Move->CurrentRootMotion.RootMotionSources.Add(Source);Source->StartTime=0;
+    auto* Data=T.Move->GetPredictionData_Client_Character();Data->SavedMoves.Reset();
+    T.Hero->SavedRootMotion.Clear();T.Hero->SavedRootMotion.RootMotionSources.Add(MakeShareable(Source->Clone()));
+    for(int32 I=0;I<20;++I) {
+        auto Saved=Data->AllocateNewMove();Saved->Clear();Data->CurrentTimeStamp=100.f+(I+1)*.05f;
+        Saved->SetMoveFor(T.Hero,.05f,FVector(0,1000,0),*Data);
+        Saved->SavedRootMotion.Clear();Saved->SavedRootMotion.RootMotionSources.Add(MakeShareable(Source->Clone()));
+        Data->SavedMoves.Add(Saved);
+    }
+    T.Hero->bClientResimulateRootMotionSources=true;Data->bUpdatePosition=true;
+    TestTrue(TEXT("Native CMC replays the queued input history"),T.Move->ClientUpdatePositionAfterServerUpdate());
+    float Time=0;FVector Heading;
+    TestTrue(TEXT("The common lease still owns its source after native replay"),Lease.Sample(Time,Heading));
+    TestTrue(TEXT("Twenty 50ms moves consume one simulation second exactly once"),FMath::IsNearlyEqual(Time,1.f,.001f));
+    TestTrue(TEXT("The first replay move uses its Y acceleration before root-motion preparation"),FMath::Abs(FMath::FindDeltaAngleDegrees(Heading.Rotation().Yaw,90.f))<.05f);
+    Lease.End();return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoundationBodyAckRetirement,
+    "MessControl.Networking.Foundation.BodyHandoffRetiresNativeMovesWithoutApplyingPose",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoundationBodyAckRetirement::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    // The fixture steps .15s after spawning; normal EnterStanding immunity is
+    // .6s. Exercise an accepted hit after that grace instead of bypassing it.
+    T.Step(.5f);
+    FMCActiveSkillMotionLease Lease;const FGuid Operation=FGuid::NewGuid();
+    if(!TestTrue(TEXT("An actual shared velocity lease owns movement before the hit"),Lease.Begin(T.Hero,Operation,FVector(160,0,0)))) return false;
+    auto* Data=T.Move->GetPredictionData_Client_Character();Data->SavedMoves.Reset();
+    for(int32 I=0;I<2;++I) {
+        auto Move=Data->AllocateNewMove();Move->SetMoveFor(T.Hero,.05f,FVector::ForwardVector,*Data);Move->TimeStamp=100.f+I*.05f;Data->SavedMoves.Add(Move);
+    }
+    T.Hero->ToothPhysics->ApplyHit(FVector(1000,0,200),T.Hero->GetActorLocation());
+    const auto Context=T.Hero->CaptureNetworkCorrectionContext();
+    if(!TestTrue(TEXT("The production large-hit gateway gives canonical authority to BodyFrame"),Context.Owner==EMCPresentationOwner::BodyFrame)) return false;
+    TestFalse(TEXT("The shared ownership handoff cancels its prior external lease"),Lease.IsOwned());
+    const FVector Before=T.Hero->GetActorLocation();const auto Mode=T.Move->MovementMode;
+    const ENetRole OriginalRole=T.Hero->GetLocalRole();ON_SCOPE_EXIT {T.Hero->SetRole(OriginalRole);};T.Hero->SetRole(ROLE_AutonomousProxy);
+    for(bool Good:{true,false}) {
+        FMCStaminaMoveResponse Response;Response.Context=Context;Response.ClientAdjustment.bAckGoodMove=Good;
+        Response.ClientAdjustment.TimeStamp=Data->SavedMoves[0]->TimeStamp;
+        Response.ClientAdjustment.NewLoc=Before+FVector(5000,0,0);Response.ClientAdjustment.MovementMode=MOVE_Walking;
+        T.Move->ClientHandleMoveResponse(Response);
+        TestTrue(TEXT("Matching BodyFrame ACK retires input without applying CMC position/mode"),T.Hero->GetActorLocation().Equals(Before,.001f) && T.Move->MovementMode==Mode);
+    }
+    TestTrue(TEXT("Both good and positional BodyFrame responses retire their saved moves"),Data->SavedMoves.IsEmpty() && Data->LastAckedMove.IsValid());
+    auto Old=Data->AllocateNewMove();Old->SetMoveFor(T.Hero,.05f,FVector::ForwardVector,*Data);Old->TimeStamp=100.2f;Data->SavedMoves.Add(Old);
+    Data->bUpdatePosition=true;const float Clock=Data->CurrentTimeStamp;
+    TestFalse(TEXT("A pending native replay cannot take movement back from BodyFrame"),T.Move->ClientUpdatePositionAfterServerUpdate());
+    TestTrue(TEXT("Handoff clears obsolete history without replacing the data object or resetting its clock"),Data==T.Move->GetPredictionData_Client_Character()
+        && Data->SavedMoves.IsEmpty() && !Data->PendingMove.IsValid() && !Data->LastAckedMove.IsValid() && !Data->bUpdatePosition && Data->CurrentTimeStamp==Clock);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoundationNativeLaunch,
+    "MessControl.Networking.Foundation.SmallHitUsesNativeOneShotLaunch",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoundationNativeLaunch::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    // Keep production spawn/recovery grace and wait beyond its .6s deadline.
+    T.Step(.5f);
+    const auto Context=T.Hero->CaptureNetworkCorrectionContext();
+    const FVector Before=T.Move->Velocity,Hit=FVector(100,0,120).GetSafeNormal()*(T.Hero->ToothPhysics->Settings.FallThreshold*.5f);
+    T.Hero->ToothPhysics->ApplyHit(Hit,T.Hero->GetActorLocation());
+    TestTrue(TEXT("A small production hit keeps the same canonical CMC owner/reset"),T.Hero->CaptureNetworkCorrectionContext().Equals(Context));
+    TestTrue(TEXT("Native CMC consumes the pending launch once"),T.Move->HandlePendingLaunch());
+    TestTrue(TEXT("Native velocity/mode fully represent the accepted one-shot hit"),T.Move->Velocity.Equals(Before+Hit,.001f) && T.Move->MovementMode==MOVE_Falling);
+    TestFalse(TEXT("Reprocessing the same pending launch cannot apply the impulse twice"),T.Move->HandlePendingLaunch());
+    for(const auto* Group:{&T.Move->CurrentRootMotion.RootMotionSources,&T.Move->CurrentRootMotion.PendingAddRootMotionSources})
+        for(const auto& Source:*Group) TestFalse(TEXT("A native one-shot hit creates no duplicate ongoing external source"),MCAcceptedExternalMotion::IsExternalFamily(Source));
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoundationHandlingReplay,
+    "MessControl.Networking.Foundation.AcceptedLoadSurvivesOldMoveReplay",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoundationHandlingReplay::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    auto* Data=T.Move->GetPredictionData_Client_Character();auto Old=Data->AllocateNewMove();
+    Old->SetMoveFor(T.Hero,.05f,FVector::ForwardVector,*Data);
+    auto Accepted=T.Move->CaptureHandlingForMove();++Accepted.Revision;
+    Accepted.LoadMass=Accepted.StackMass=35;Accepted.IncomingMass=Accepted.DragSpeedLimit=0;Accepted.bHeavyGrip=Accepted.bPlayerPull=false;
+    T.Move->RestoreHandlingForMove(Accepted);const float Speed=T.Move->GetMaxSpeed(),Acceleration=T.Move->GetMaxAcceleration();
+    TestTrue(TEXT("Canonical accepted mass affects ordinary speed and acceleration"),Speed<T.Move->WalkSpeed*.8f && Acceleration<T.Move->GroundAcceleration*.5f);
+    Old->PrepMoveFor(T.Hero);
+    TestTrue(TEXT("An older saved load cannot replace the accepted ACK baseline"),FMath::IsNearlyEqual(T.Move->GetMaxSpeed(),Speed,.001f)
+        && FMath::IsNearlyEqual(T.Move->GetMaxAcceleration(),Acceleration,.001f));
+    auto Foreign=Accepted;Foreign.LoadEpoch=FGuid::NewGuid();++Foreign.Revision;Foreign.LoadMass=Foreign.StackMass=0;
+    T.Move->RestoreHandlingForMove(Foreign);
+    TestTrue(TEXT("A newer load revision from another world cannot affect prediction"),FMath::IsNearlyEqual(T.Move->GetMaxSpeed(),Speed,.001f));
+    auto* Game=T.World->GetGameState<AMCGameState>();Game->GameplayLoadId=FGuid::NewGuid();T.Hero->RefreshNetworkMotionAuthority();
+    T.Move->RestoreHandlingForMove(Accepted);
+    TestTrue(TEXT("An old load epoch cannot survive the world's authority handoff"),T.Move->GetMaxSpeed()>Speed);
     return true;
 }
 #endif

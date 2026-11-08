@@ -9,13 +9,16 @@ the Blueprint widget layout.
 | Hold Shift | Sprint while held; does not request a dash. |
 | Ctrl | Dash on a fresh press; holding the key does not repeat it. |
 | Mouse wheel | Switch tools. |
-| Shift + mouse wheel | Zoom the camera without switching tools or requesting a dash. |
+| Ctrl + mouse wheel | Zoom the camera without switching tools. |
 | E near small food fragments | Toggle stack collection while keeping the selected tool. |
 | Hold LMB | Continue tool swings or cleaning at the tool's normal cooldown. |
 | Hold Tab | Names, points, ping, player colors and the host crown. |
 | Hold T | Open radial categories for face emotes, body gestures and attention/help alarms; release to finish selection. |
 | T menu color buttons | Choose a player color shared by the body and UI icons. |
 | Left/right or LMB/RMB while dead | Switch between living players until respawn. |
+
+Ctrl still requests its existing dash on the initial press, including when it
+is then held for wheel zoom. The wheel modifier change preserves that timing.
 
 ## Designer settings
 

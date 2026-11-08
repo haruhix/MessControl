@@ -21,7 +21,7 @@ AMCGameState::AMCGameState()
 {
     Progression=CreateDefaultSubobject<UMCProgressionComponent>(TEXT("Progression"));
     PrimaryActorTick.bCanEverTick=true;
-    PrimaryActorTick.bStartWithTickEnabled=false;
+    PrimaryActorTick.bStartWithTickEnabled=true;
 }
 int32 AMCGameState::AvailableArenaTeeth() const
 {

@@ -1,0 +1,12 @@
+newmtl FoamCream
+Kd .94 .93 .87
+Ks .54 .54 .54
+Ns 90
+d 1
+illum 2
+newmtl BubbleFilm
+Kd .79 .93 .91
+Ks .9 .9 .9
+Ns 120
+d .29
+illum 2

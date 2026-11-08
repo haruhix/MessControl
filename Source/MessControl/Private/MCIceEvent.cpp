@@ -1466,7 +1466,7 @@ void AMCIceEvent::RefreshIceCoatings()
 void AMCIceEvent::RefreshFrostSurface()
 {
     if(!IsActive() || !IsValid(Tongue)) {UpdateComposerFrostSurface(false);FrostSurface->ClearAllMeshSections();return;}
-    const FProcMeshSection* SourceSection=Tongue->Surface->GetProcMeshSection(0);
+    const FProcMeshSection* SourceSection=Tongue->VisualSurface->GetProcMeshSection(0);
     const auto& SourceIndices=Tongue->TriangleIndices();
     if(!SourceSection || SourceSection->ProcVertexBuffer.IsEmpty() || SourceIndices.IsEmpty())
     {UpdateComposerFrostSurface(false);FrostSurface->ClearAllMeshSections();return;}
@@ -1519,7 +1519,7 @@ void AMCIceEvent::RefreshFrostSurface()
     Mesh.Vertices.Reserve(Count); Mesh.Normals.Reserve(Count);
     Mesh.UV.Reserve(Count); Mesh.Colors.Reserve(Count); Mesh.Tangents.Reserve(Count);
     const FTransform Transform=FrostSurface->GetComponentTransform();
-    const FTransform TongueTransform=Tongue->Surface->GetComponentTransform();
+    const FTransform TongueTransform=Tongue->VisualSurface->GetComponentTransform();
     struct FLocalBrushPatch { FVector Center;float Radius; };
     TArray<FLocalBrushPatch,TInlineAllocator<32>> BrushPatches;
     for(const auto& Patch:BrushedWarmPatches) {

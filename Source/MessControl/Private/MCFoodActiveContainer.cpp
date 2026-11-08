@@ -10,7 +10,7 @@ bool AMCFoodActor::TryEnterActiveContainer(AActor* Container,AMCToothCharacter* 
     if(!HasAuthority() || !IsValid(Container) || Container->GetWorld()!=GetWorld() || Container->IsActorBeingDestroyed()
         || !IsValid(Hero) || Hero->GetWorld()!=GetWorld() || Container->GetInstigator()!=Hero || !Claim.IsValid()
         || !Hero->Status || !Hero->Status->IsAlive() || !bFragment || bBrushTool || FoodData.Kind!=EMCFoodKind::Food
-        || IsNutEncounterFragment() || ActiveContainer || StackCarrier || !Holders.IsEmpty()
+        || IsNutEncounterFragment() || !FitsHandPortion() || ActiveContainer || StackCarrier || !Holders.IsEmpty()
         || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling) || bMouthEntry) return false;
     EndManualThrowFlight();
     ActiveContainer=Container;ActiveContainerCarrier=Hero;ActiveContainerClaim=Claim;

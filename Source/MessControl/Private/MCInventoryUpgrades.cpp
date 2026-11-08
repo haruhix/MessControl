@@ -125,7 +125,7 @@ bool UMCInventoryComponent::UpgradeIdleGrip(FTransform& RightHandWorld) const
     Idle.SetScale3D(InHand.GetScale3D());
     // Solve the wrist from the authored tool pose, retaining the artist's
     // attachment offset and the character rig's brush-pivot correction.
-    RightHandWorld=InHand.Inverse()*Idle*Hero->GetActorTransform();
+    RightHandWorld=InHand.Inverse()*Idle*Hero->GetPresentedActorTransform();
     return !RightHandWorld.ContainsNaN();
 }
 FTransform UMCInventoryComponent::UpgradeAttachment() const
@@ -146,7 +146,7 @@ bool UMCInventoryComponent::UpgradeWorkToolPose(FTransform& ToolWorld) const
         ?(Settings->bUseWorkingToolPoses?Settings->BufferWorkPose:Settings->BufferIdlePose)
         :(Settings->bUseWorkingToolPoses?Settings->WatergunWorkPose:Settings->WatergunIdlePose);
     Pose.SetScale3D(UpgradeAttachment().GetScale3D()*Hero->BrushPivot->GetRelativeScale3D());
-    ToolWorld=Pose*Hero->GetActorTransform();
+    ToolWorld=Pose*Hero->GetPresentedActorTransform();
     return !ToolWorld.ContainsNaN();
 }
 bool UMCInventoryComponent::WatergunHandGoal(FTransform& RightHandWorld) const

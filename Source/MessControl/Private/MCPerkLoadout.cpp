@@ -47,7 +47,7 @@ int32 UMCPerkComponent::FindFreeActiveSlot() const
 bool UMCPerkComponent::CanOfferPerk(FName ID) const
 {
     const auto* Row=FindDefinition(ID);
-    if(!Row || !IsDefinitionUsable(*Row) || OwnsPerk(ID)) return false;
+    if(!Row || !IsDefinitionUsable(*Row) || OwnsPerk(ID) || ActionID(ID,*Row)==TEXT("RecoveryMouthHeal")) return false;
     const EMCPerkKind Kind=ResolvePerkKind(*Row,ID);
     if(Kind==EMCPerkKind::Automatic || uint8(Kind)>uint8(EMCPerkKind::ToolUpgrade)) return false;
     if((Kind==EMCPerkKind::ToolUpgrade)!=(Row->ToolUpgrade!=EMCToolUpgrade::None)) return false;
@@ -328,10 +328,9 @@ bool UMCPerkComponent::CanExecuteSkill(FName ID,const FMCPerkDefinition& Row) co
 {
     const FName Action=ActionID(ID,Row);const auto* State=Cast<AMCPlayerState>(GetOwner());
     const auto* Hero=State?Cast<AMCToothCharacter>(State->GetPawn()):nullptr;
-    const auto* Game=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
     if(!Hero || !Hero->Status) return false;
     if(Action==TEXT("RecoverySelfHeal")) return Hero->Status->State.Health<Hero->Status->State.MaxHealth;
-    if(Action==TEXT("RecoveryMouthHeal")) return Game && Game->MouthHealth<Game->RunSettings.MaxMouthHealth;
+    if(Action==TEXT("RecoveryMouthHeal")) return false;
     if(Action==TEXT("RecoveryCleanse")) return Hero->Status->State.CoffeeLeft>0 || Hero->Status->State.RepairLeft>0;
     if(IsTeamStageBoosterID(Action)) return !IsFuryActive() && (Action!=TEXT("Fallback_Grenade") || !bGrenadeArmed);
     const auto* Effect=Effects.Find(ID);return Effect && *Effect && (*Effect)->CanActivate(ID,Row);
@@ -343,15 +342,10 @@ bool UMCPerkComponent::ExecuteSkill(FName ID,const FMCPerkDefinition& Row)
     auto* State=Cast<AMCPlayerState>(GetOwner());auto* Hero=State?Cast<AMCToothCharacter>(State->GetPawn()):nullptr;
     if(IsRecovery(Action)) {
         if(!CanExecuteSkill(ID,Row) || !Hero || !Hero->Status) return false;
-        if(Action==TEXT("RecoveryMouthHeal")) {
-            auto* Game=GetWorld()->GetGameState<AMCGameState>();
-            Game->MouthHealth=FMath::Min(Game->RunSettings.MaxMouthHealth,Game->MouthHealth+10.f);Game->ForceNetUpdate();
-        } else {
-            FMCToothStatus Status=Hero->Status->State;
-            if(Action==TEXT("RecoverySelfHeal")) Status.Health=FMath::Min(Status.MaxHealth,Status.Health+25.f);
-            else {Status.CoffeeLeft=0;Status.RepairLeft=0;}
-            Hero->Status->Restore(Status);
-        }
+        FMCToothStatus Status=Hero->Status->State;
+        if(Action==TEXT("RecoverySelfHeal")) Status.Health=FMath::Min(Status.MaxHealth,Status.Health+25.f);
+        else {Status.CoffeeLeft=0;Status.RepairLeft=0;}
+        Hero->Status->Restore(Status);
         return true;
     }
     auto* Effect=Effects.Find(ID);return Effect && *Effect && (*Effect)->OnActivate(ID,Row);

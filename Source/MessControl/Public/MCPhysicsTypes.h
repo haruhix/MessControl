@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Engine/NetSerialization.h"
+#include "SharedMCNetworkFrames.h"
 #include "MCPhysicsTypes.generated.h"
 
 UENUM(BlueprintType)
@@ -54,6 +55,14 @@ USTRUCT()
 struct FMCRagdollFrame
 {
     GENERATED_BODY()
+    UPROPERTY() FGuid MotionLoadEpoch;
+    UPROPERTY() uint32 MotionOwnerRevision=0;
+    UPROPERTY() uint32 MotionResetRevision=0;
+    UPROPERTY() uint8 MotionOwnerKind=uint8(EMCPresentationOwner::CMC);
+    FMCNetworkCorrectionContext MotionContext() const
+    {FMCNetworkCorrectionContext C;C.LoadEpoch=MotionLoadEpoch;C.OwnerRevision=MotionOwnerRevision;C.ResetRevision=MotionResetRevision;C.Owner=EMCPresentationOwner(MotionOwnerKind);return C;}
+    void SetMotionContext(const FMCNetworkCorrectionContext& C)
+    {MotionLoadEpoch=C.LoadEpoch;MotionOwnerRevision=C.OwnerRevision;MotionResetRevision=C.ResetRevision;MotionOwnerKind=uint8(C.Owner);}
     UPROPERTY() EMCBodyState State = EMCBodyState::Standing;
     UPROPERTY() uint16 Revision = 0;
     UPROPERTY() float StateStartedAt = 0.f;
@@ -61,6 +70,9 @@ struct FMCRagdollFrame
     UPROPERTY() FRotator MeshRotation = FRotator::ZeroRotator;
     UPROPERTY() FVector_NetQuantize10 CapsuleLocation = FVector::ZeroVector;
     UPROPERTY() float CapsuleYaw = 0.f;
+    UPROPERTY() FVector_NetQuantize10 PhysicalCenter=FVector::ZeroVector;
+    UPROPERTY() FVector_NetQuantize10 CanonicalVelocity=FVector::ZeroVector;
+    UPROPERTY() float SampledAt=0.f;
     UPROPERTY() bool bFromSlipperyFall=false;
     UPROPERTY() bool bAuthoredSlipRecovery=false;
     UPROPERTY() FVector_NetQuantizeNormal SlipFloorNormal=FVector::UpVector;

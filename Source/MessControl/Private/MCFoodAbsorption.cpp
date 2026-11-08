@@ -15,12 +15,12 @@ void AMCFoodActor::FinishAbsorption() {}
 void AMCFoodActor::AttendFood()
 {
     if(!HasAuthority() || bBrushTool || IsDisposed()) return;
-    if(SpoilAt<=0 && FoodData.Kind==EMCFoodKind::Food) SpoilAt=HazardNow()+FoodData.SpoilSeconds;
+    if(SpoilAt<=0 && HasFreshnessTimer()) SpoilAt=HazardNow()+FoodData.SpoilSeconds;
 }
 void AMCFoodActor::UpdateAbsorption(float Dt)
 {
     if (AMCTutorialDirector::IsSafeTutorial(GetWorld())) return;
-    if(!HasAuthority() || bBrushTool || IsDisposed() || FoodData.Kind!=EMCFoodKind::Food || ItemName.IsNone()) return;
+    if(!HasAuthority() || bBrushTool || IsDisposed() || !HasFreshnessTimer() || ItemName.IsNone()) return;
     if(SpoilAt<=0) SpoilAt=HazardNow()+FoodData.SpoilSeconds;
     // A pickup after an already elapsed deadline cannot revive freshness by
     // adding a fraction of this frame to the old timestamp.

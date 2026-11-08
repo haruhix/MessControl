@@ -184,7 +184,7 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
         const float LD=Tongue->IndentationAt(Light->GetActorLocation()),HD=Tongue->IndentationAt(Heavy->GetActorLocation());
         const float Trail=Tongue->IndentationAt(PressureTrailPoint);
         float TrailMask=0; FHitResult TrailHit;
-        const auto* Section=Tongue->Surface->GetProcMeshSection(0);
+        const auto* Section=Tongue->VisualSurface->GetProcMeshSection(0);
         if (Section && Tongue->SurfacePoint(PressureTrailPoint,TrailHit) && TrailHit.FaceIndex>=0 && TrailHit.FaceIndex*3+2<Section->ProcIndexBuffer.Num())
             for (int32 J=0;J<3;++J) TrailMask+=Section->ProcVertexBuffer[Section->ProcIndexBuffer[TrailHit.FaceIndex*3+J]].Color.G/(255.f*3);
         if (T>3 && T<6 && FVector::Dist2D(PressureTrailPoint,Heroes[2]->GetActorLocation())>Tongue->PressureSettings.PlayerRadius*1.5f
@@ -201,17 +201,24 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
         if (T>21 && T<24 && Tongue->ActivePressurePreset && Tongue->Profile && Tongue->Profile->PressurePresets.IsValidIndex(1)
             && Tongue->ActivePressurePreset==Tongue->Profile->PressurePresets[1]
             && Tongue->PressureSettings.MaxDepth==Tongue->ActivePressurePreset->Settings.MaxDepth
-            && Tongue->Surface->GetMaterial(0)==Tongue->ActivePressurePreset->SurfaceMaterial) DevSeen|=1024;
+            && Tongue->VisualSurface->GetMaterial(0)==Tongue->ActivePressurePreset->SurfaceMaterial) DevSeen|=1024;
         if (T>25 && !Tongue->PressureSettings.bEnabled && Tongue->Profile && Tongue->ActivePressurePreset==Tongue->Profile->DefaultPressurePreset
             && Tongue->PressureSettings.MaxDepth==(Tongue->Profile->DefaultPressurePreset?Tongue->Profile->DefaultPressurePreset->Settings.MaxDepth:Tongue->Profile->Pressure.MaxDepth)
             && Tongue->IndentationAt(Heroes[2]->GetActorLocation())<.01) DevSeen|=2048;
         bTongueInvalid|=HeavyCount>1 || Sources.Num()>Tongue->PressureSettings.MaxSources || HD>Tongue->PressureSettings.MaxDepth+.1;
         const auto& V=Tongue->CurrentVertices(); const auto& Idx=Tongue->TriangleIndices(); int32 Probes=0;
-        for (int32 I=0;I+2<Idx.Num();I+=93)
+        const auto* Support=Tongue->Surface->GetProcMeshSection(0);
+        if(!Support || Support->ProcVertexBuffer.Num()!=V.Num()) bTongueInvalid=true;
+        else for (int32 I=0;I+2<Idx.Num();I+=93)
         {
-            const FVector P=Tongue->GetActorTransform().TransformPosition((V[Idx[I]]+V[Idx[I+1]]+V[Idx[I+2]])/3);
+            const auto& Canonical=Support->ProcVertexBuffer;
+            const FVector P=Tongue->Surface->GetComponentTransform().TransformPosition((Canonical[Idx[I]].Position+Canonical[Idx[I+1]].Position+Canonical[Idx[I+2]].Position)/3);
             if (P.X<-800 || P.X>1000 || FMath::Abs(P.Y)>450) continue;
-            FHitResult Hit; if (Tongue->SurfacePoint(P,Hit)) { TongueError=FMath::Max(TongueError,float(FMath::Abs(P.Z-Hit.ImpactPoint.Z))); ++Probes; }
+            FHitResult Hit; FVector VisualPoint,VisualNormal;
+            if (Tongue->SurfacePoint(P,Hit) && Tongue->VisualSurfacePoint(Hit,VisualPoint,VisualNormal)) {
+                const FVector Rendered=Tongue->VisualSurface->GetComponentTransform().TransformPosition((V[Idx[I]]+V[Idx[I+1]]+V[Idx[I+2]])/3);
+                TongueError=FMath::Max3(TongueError,float(FMath::Abs(P.Z-Hit.ImpactPoint.Z)),float(FVector::Distance(VisualPoint,Rendered))); ++Probes;
+            }
             else bTongueInvalid=true;
         }
         if (Probes>8) DevSeen|=32;

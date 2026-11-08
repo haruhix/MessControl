@@ -174,7 +174,8 @@ void AMCDayOneScenario::Tick(float Dt)
         if (Patch && Patch->LiquidSeed>0 && Patch->WipeMask.Num()==FMCCoffeeWipe::Count && FMCCoffeeWipe::Remaining(Patch->WipeMask)<.98f) Seen|=256;
     if (Stage>=4) { bool Any=false; for (auto Hero:Heroes) if (Hero && Hero->EquippedBrush) Any=true; if (!Any) Seen|=4; }
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (It->bFragment && It->ItemMesh) Seen|=8;
-    for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if (It->bUlcer && GS->MouthHealth<100) Seen|=16;
+    // Observe the actual untreated hazard; shared mouth HP is a retired compatibility field.
+    for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if (It->bUlcer && !It->IsHealed()) Seen|=16;
     if (Stage==6 && Heroes.Num()==4)
     {
         if (Heroes[0] && Heroes[0]->ClingTooth) Seen|=32;

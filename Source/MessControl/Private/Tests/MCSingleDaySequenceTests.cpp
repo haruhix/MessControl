@@ -30,6 +30,7 @@
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/WorldSettings.h"
+#include "UObject/StrongObjectPtr.h"
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
 #endif
@@ -45,6 +46,10 @@ struct FSequenceWorld
     UMCDayPlan* Plan=nullptr;
     UMCGameDirectorProfile* Support=nullptr;
     UMCSingleDayProfile* Sequence=nullptr;
+    // TimeOnly ticks may collect garbage. Soft asset paths and Outer alone do
+    // not retain these authored fixture objects for later serving attempts.
+    TStrongObjectPtr<UMCSingleDayProfile> SequenceOwner;
+    TStrongObjectPtr<UDataTable> MenuOwner;
     FSequenceWorld(int32 SavedPrototypeSlots=0)
     {
         GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
@@ -63,6 +68,7 @@ struct FSequenceWorld
         // Lifecycle clock cases must not create unrelated hazards or meals.
         for (auto& Rule:Support->Events) Rule.Weight=0;
         Sequence=NewObject<UMCSingleDayProfile>(World);
+        SequenceOwner.Reset(Sequence);
         // Use three slots to exercise repeated Patterns and prototype expansion.
         Sequence->KeyEvents.RemoveAll([](const FMCSingleDayKeyEvent& Slot) {return Slot.Kind==EMCSingleDayKeyEventKind::Jellies;});
         if(SavedPrototypeSlots==1 || SavedPrototypeSlots==2) {
@@ -215,7 +221,7 @@ struct FSequenceWorld
         FActorSpawnParameters Params;Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
         auto* Hero=World->SpawnActor<AMCToothCharacter>(Mode->DefaultPawnClass,FVector(0,0,150),FRotator::ZeroRotator,Params);
         auto* Controller=World->SpawnActor<APlayerController>();Controller->Possess(Hero);
-        auto* Menu=NewObject<UDataTable>(World);Menu->RowStruct=FMCFoodRow::StaticStruct();
+        auto* Menu=NewObject<UDataTable>(World);MenuOwner.Reset(Menu);Menu->RowStruct=FMCFoodRow::StaticStruct();
         auto* FoodMesh=SolidFood?LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")):Mesh;
 #if WITH_EDITOR
         if(FoodMesh) FStaticMeshCompilingManager::Get().FinishCompilation({FoodMesh});
@@ -244,7 +250,7 @@ bool FMCSingleDayOpeningMealGateTest::RunTest(const FString&)
     for(TActorIterator<AMCFoodActor> It(F.World);It;++It) if(It->GetOwner()==F.Loop) {Whole=*It;break;}
     if(!TestNotNull(TEXT("The real serving path issued its ordinary ingredient"),Whole)) return false;
     const int32 Batch=Whole->Batch;
-    TestEqual(TEXT("Serving also commits a real cleanup task"),MCCountDirectedFoodDirt(F.World,Batch),1);
+    TestEqual(TEXT("Serving food creates no cleanup stain"),MCCountDirectedFoodDirt(F.World,Batch),0);
     TestTrue(TEXT("The replicated instruction tells players to deliver fragments"),F.State->DirectorState.Instruction.Contains(TEXT("Q")));
     Whole->Destroy();
     auto* Fragment=F.World->SpawnActor<AMCFoodActor>();
@@ -411,12 +417,23 @@ bool FMCSingleDayOpeningFiveTest::RunTest(const FString&)
     F.Loop->Initialize(F.Plan,F.Sequence,F.Support);
     F.RestoreTongueCollision();F.Loop->BeginFirstPerk();F.Loop->Tick(.1f);
     TArray<AMCFoodActor*> Served;
+    const auto Diagnose=[&](int32 Index,const TCHAR* Point) {
+        const auto Pipeline=MCMeasureFoodPipeline(F.World);
+        const auto* RunProfile=F.Loop->GetRunProfile();
+        AddInfo(FString::Printf(TEXT("MC_OPENING_FIVE iteration=%d point=%s world=%.6f server=%.6f paused=%d dilation=%.6f stage=%d served=%d target=%d known=%d whole=%d fragments=%d throat_busy=%d authored_drop=%.6f runtime_drop=%.6f"),
+            Index,Point,F.World->GetTimeSeconds(),F.State->GetServerWorldTimeSeconds(),F.World->IsPaused()?1:0,
+            F.World->GetWorldSettings()->GetEffectiveTimeDilation(),int32(F.Loop->Stage),F.Loop->MealPortionSpawned,
+            F.Loop->MealPortionTarget,Served.Num(),Pipeline.Whole,Pipeline.Fragments,Pipeline.bThroatBusy?1:0,
+            F.Sequence->OpeningMealDropSeconds,RunProfile?RunProfile->OpeningMealDropSeconds:-1.f));
+    };
     for(int32 Index=0;Index<5;++Index) {
         F.Loop->Tick(.1f);
         for(auto* Food:F.PatternFood()) if(!Served.Contains(Food)) {
             Served.Add(Food);Food->SetActorTickEnabled(false);Food->SetActorEnableCollision(false);
         }
+        Diagnose(Index,TEXT("before_clock"));
         F.AdvanceClockTo(float(F.World->GetTimeSeconds())+F.Sequence->OpeningMealDropSeconds+.01f);
+        Diagnose(Index,TEXT("after_clock"));
     }
     if(!TestEqual(TEXT("The native first portion issues exactly five whole items"),Served.Num(),5)) return false;
     const int32 Batch=Served[0]->Batch;
@@ -425,10 +442,9 @@ bool FMCSingleDayOpeningFiveTest::RunTest(const FString&)
     TestNull(TEXT("No wave overlaps live food"),F.PatternWave());
     for(auto* Food:Served) Food->Destroy();
     F.Loop->Tick(.1f);
-    TestEqual(TEXT("Disposal alone cannot skip floor cleanup"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
-    F.ClearMealDirt();F.Loop->Tick(.1f);
+    TestEqual(TEXT("Disposal can finish a portion that spawned no floor dirt"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
     TestFalse(TEXT("The clean first portion creates no reward"),F.Loop->bStageRewardPending);
-    TestEqual(TEXT("Cleaning the five-item portion starts coffee"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
+    TestEqual(TEXT("Completing the five-item portion starts coffee"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
     auto* Wave=F.PatternWave();
     if(!TestNotNull(TEXT("The first cleanup started an owned wave"),Wave)) return false;
     auto* OwnedFood=F.World->SpawnActor<AMCFoodActor>();OwnedFood->Batch=Batch;

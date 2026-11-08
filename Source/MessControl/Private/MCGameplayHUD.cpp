@@ -1602,7 +1602,6 @@ void UMCGameplayHUD::RefreshState()
     // An almost erased tile must not round up to "100%" while the same live
     // residue still holds the meal/cleanup gate open.
     if(HasDirt) Clean=FMath::Min(Clean,.99f);
-    const float Health=GS->MouthHealth/FMath::Max(1.f,GS->RunSettings.MaxMouthHealth);
     SetCopy(TEXT("TaskLabel"),Directed && !GS->bSingleDayLoop?Copy(TEXT("UI.HUD.FoodCompleted"),LOCTEXT("FoodCompleted","ЕДА ЗАВЕРШЕНА")):Copy(TEXT("UI.HUD.Task"),LOCTEXT("Task","ЗАДАЧА")));
     SetCopy(TEXT("TaskValue"),FText::Format(Copy(TEXT("UI.HUD.CountPair"),LOCTEXT("CountPair","{Current} / {Maximum}")),FFormatNamedArguments{{TEXT("Current"),FText::AsNumber(Directed?Director.FinishedFood:FMath::Max(0,GS->TasksTotal-GS->TasksLeft))},{TEXT("Maximum"),FText::AsNumber(Directed?Director.SpawnedFood:GS->TasksTotal)}})); Bar(TEXT("TaskProgress"),Done);
     if(Cataclysm) {
@@ -1613,7 +1612,7 @@ void UMCGameplayHUD::RefreshState()
         Bar(TEXT("TaskProgress"),Cataclysm->DirtTotal>0?1-float(Cataclysm->DirtLeft)/Cataclysm->DirtTotal:0.f);
     }
     SetCopy(TEXT("CleanValue"),FText::Format(Copy(TEXT("UI.HUD.Percent"),LOCTEXT("Percent","{Value}%")),FFormatNamedArguments{{TEXT("Value"),FText::AsNumber(FMath::RoundToInt(Clean*100))}})); Bar(TEXT("CleanProgress"),Clean);
-    SetCopy(TEXT("HealthValue"),FText::Format(Copy(TEXT("UI.HUD.Percent"),LOCTEXT("Percent","{Value}%")),FFormatNamedArguments{{TEXT("Value"),FText::AsNumber(FMath::RoundToInt(Health*100))}})); Bar(TEXT("HealthProgress"),Health);
+    Show(TEXT("HealthValue"),false);Show(TEXT("HealthProgress"),false);Show(TEXT("HealthLabel"),false);
     const double EndAt=Directed && GS->Phase==EMCShiftPhase::Working?Director.DayEndAt:GS->PhaseEndsAt;
     const bool Timed=EndAt>0 && !Finished && (Directed || !GS->bDevManualEvents);
     const float Remaining=float(FMath::Max(0.,EndAt-Now));const int32 Seconds=FMath::CeilToInt(Remaining);

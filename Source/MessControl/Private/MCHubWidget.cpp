@@ -364,7 +364,7 @@ void UMCHubWidget::BuildPresentationTree()
     BallHintSlot->SetAnchors(FAnchors(.5f,1.f));BallHintSlot->SetAlignment(FVector2D(.5f,1.f));
     BallHintSlot->SetPosition(FVector2D(0,-116));BallHintSlot->SetAutoSize(true);BallHintSlot->SetZOrder(3);
     BasketballReticle=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("HubBasketballReticle"));
-    BasketballReticle->SetText(FText::AsCultureInvariant(TEXT("+")));
+    BasketballReticle->SetText(FText::GetEmpty());
     BasketballReticle->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),24));
     BasketballReticle->SetShadowColorAndOpacity(FLinearColor::Black);BasketballReticle->SetShadowOffset(FVector2D(1,1));
     auto* BallAimSlot=RootCanvas->AddChildToCanvas(BasketballReticle);
@@ -438,7 +438,7 @@ void UMCHubWidget::BindPresentationTree()
         if(const auto* ThemeData=GetResolvedTheme()) Label->SetFont(ThemeData->MakeGameplayFont(FontSize,true));
         Label->SetJustification(ETextJustify::Center);
         Label->SetShadowColorAndOpacity(FLinearColor::Black);Label->SetShadowOffset(FVector2D(1,1));
-        if(!bHint) Label->SetText(FText::AsCultureInvariant(TEXT("+")));
+        if(!bHint) Label->SetText(FText::GetEmpty());
         auto* LabelSlot=RootCanvas->AddChildToCanvas(Label);
         LabelSlot->SetAnchors(FAnchors(.5f,bHint?1.f:.5f));
         LabelSlot->SetAlignment(FVector2D(.5f,bHint?1.f:.5f));
@@ -450,6 +450,8 @@ void UMCHubWidget::BindPresentationTree()
     };
     BasketballHint=BallLabel(TEXT("HubBasketballHint"),20,true);
     BasketballReticle=BallLabel(TEXT("HubBasketballReticle"),24,false);
+    // The source snapshot paints the same bracket reticle in Current and New UI.
+    if(BasketballReticle) BasketballReticle->SetText(FText::GetEmpty());
     FishingPanel=Cast<UBorder>(WidgetTree->FindWidget(TEXT("HubFishingPanel")));
     FishingCount=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubFishingCount")));
     if(!FishingCount && RootCanvas) {
@@ -834,7 +836,7 @@ void UMCHubWidget::RefreshFromState()
     if(BasketballHint) BasketballHint->SetText(BallHeld
         ? Localized(Gamepad?TEXT("hub.basketball.controls.gamepad"):TEXT("hub.basketball.controls"),Gamepad
             ?LOCTEXT("BasketballAimThrowGamepad","LB — прицел · RT / Y — бросить · X — отпустить")
-            :LOCTEXT("BasketballAimThrow","ПКМ — прицел · ЛКМ / Q — бросить · E — отпустить"))
+            :LOCTEXT("BasketballAimThrow","ЛКМ — прицел · ПКМ — бросить · E — отпустить"))
         : Localized(Gamepad?TEXT("hub.basketball.pickup.gamepad"):TEXT("hub.basketball.pickup"),Gamepad
             ?LOCTEXT("BasketballPickupGamepad","X — подобрать мяч"):LOCTEXT("BasketballPickup","E — подобрать мяч")));
     if(BasketballHint && ShowFishing && !ShowBall) BasketballHint->SetText(Hero->FishingRod->bLineOut || Hero->FishingRod->CanCastLine()
@@ -1086,75 +1088,80 @@ FMCHubControlsPresentation UMCHubWidget::EvaluateControlsPresentation(const FGeo
     Result.Reticle.bSourceVisible=IsVisible() && (!GetRootWidget() || GetRootWidget()->IsVisible());
     Result.Reticle.bPaintGeometryCompatible=LocalSize.X>1 && LocalSize.Y>1 && SourcePaint.GetLocalSize().Equals(LocalSize,.5);
     Result.bHintVisible=BasketballHint && BasketballHint->IsVisible();Result.Hint=BasketballHint?BasketballHint->GetText():FText::GetEmpty();
+    const auto& Palette=GetResolvedTheme()->Palette;
+    auto Stroke=[&](const TArray<FVector2D>& Points,float Width=2.f) {
+        FMCUIReticleStroke Back;Back.Points=Points;Back.Color=Palette.Ink.CopyWithNewOpacity(.85f);Back.Width=Width+2.f;Back.Layer=1;Result.Reticle.Strokes.Add(MoveTemp(Back));
+        FMCUIReticleStroke Ink;Ink.Points=Points;Ink.Color=Palette.OnMarine;Ink.Width=Width;Ink.Layer=2;Result.Reticle.Strokes.Add(MoveTemp(Ink));
+    };
     auto Finalize=[&]() {
+        if(BasketballReticle && BasketballReticle->IsVisible() && LocalSize.X>4 && LocalSize.Y>4) {
+            const FVector2D Center=LocalSize*.5;
+            for(FVector2D Axis:{FVector2D(1,0),FVector2D(-1,0),FVector2D(0,1),FVector2D(0,-1)})
+                Stroke({Center+Axis*6.,Center+Axis*12.},1.8f);
+        }
+        // Both UI versions consume these strokes, including the center brackets.
         Result.NativeTrajectoryStrokeCount=Result.Reticle.Strokes.Num();
         Result.Reticle.MaximumLayer=2;
-        if(BasketballReticle && BasketballReticle->IsVisible()) {
-            const auto Renderer=FSlateApplication::IsInitialized()?FSlateApplication::Get().GetRenderer():nullptr;
-            const FGeometry GlyphPaint=BasketballReticle->GetPaintSpaceGeometry();
-            if(!Renderer || GlyphPaint.GetLocalSize().X<=0 || GlyphPaint.GetLocalSize().Y<=0) Result.Reticle.bPaintGeometryCompatible=false;
-            else {
-                const auto Font=GetControlsReticleFont();
-                const FVector2D Advance=Renderer->GetFontMeasureService()->Measure(FText::AsCultureInvariant(TEXT("+")),Font,1.f);
-                const FVector2D Center=SourcePaint.AbsoluteToLocal(GlyphPaint.LocalToAbsolute(GlyphPaint.GetLocalSize()*.5));
-                const FVector2D Span=SourcePaint.AbsoluteToLocal(GlyphPaint.LocalToAbsolute(FVector2D(Advance.X,0)))-SourcePaint.AbsoluteToLocal(GlyphPaint.LocalToAbsolute(FVector2D::ZeroVector));
-                const float Half=FMath::Max(1.f,float(Span.Size())*.5f),Width=FMath::Max(1.f,float(Span.Size())/7.f);
-                const FVector2D Shadow=SourcePaint.AbsoluteToLocal(GlyphPaint.LocalToAbsolute(BasketballReticle->GetShadowOffset()))-SourcePaint.AbsoluteToLocal(GlyphPaint.LocalToAbsolute(FVector2D::ZeroVector));
-                const auto Tint=BasketballReticle->GetColorAndOpacity().GetSpecifiedColor(),Shade=BasketballReticle->GetShadowColorAndOpacity();
-                for(FVector2D Axis:{FVector2D(1,0),FVector2D(0,1)}) {
-                    FMCUIReticleStroke Back;Back.Points={Center+Shadow-Axis*Half,Center+Shadow+Axis*Half};Back.Color=Shade;Back.Width=Width;Back.Layer=3;Result.Reticle.Strokes.Add(MoveTemp(Back));
-                    FMCUIReticleStroke Ink;Ink.Points={Center-Axis*Half,Center+Axis*Half};Ink.Color=Tint;Ink.Width=Width;Ink.Layer=4;Result.Reticle.Strokes.Add(MoveTemp(Ink));
-                }
-                Result.Reticle.MaximumLayer=4;
-            }
-        }
         return MoveTemp(Result);
     };
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
     auto* PC=GetOwningPlayer();
     const auto* Ball=Hero?AMCHubBasketball::HeldBy(Hero):nullptr;
     if(!Ball || !PC || !Ball->IsAiming() || BasketballTrajectory.Num()<2) return Finalize();
-    int32 Width=0,Height=0;PC->GetViewportSize(Width,Height);
-    if(Width<=0 || Height<=0) return Finalize();
-    const FVector2D Size=LocalSize;
-    const float Scale=FMath::Clamp(float(Size.X/1600.),.5f,2.f);
-    const float Dash=18.f*Scale,Gap=13.f*Scale;
+    FVector ViewOrigin;FRotator ViewRotation;PC->GetPlayerViewPoint(ViewOrigin,ViewRotation);
+    const FVector ViewForward=ViewRotation.Vector();
+    const FGeometry& ProjectionGeometry=GetTickSpaceGeometry();
     auto Project=[&](const FVector& Point,FVector2D& Local) {
         FVector2D Pixel;
-        if(!PC->ProjectWorldLocationToScreen(Point,Pixel,true)) return false;
-        Local=FVector2D(Pixel.X*Size.X/Width,Pixel.Y*Size.Y/Height);return true;
+        if(!ProjectionGeometry.GetLocalSize().Equals(LocalSize,.5) || Point.ContainsNaN()
+            || FVector::DotProduct(Point-ViewOrigin,ViewForward)<=1.
+            || !PC->ProjectWorldLocationToScreen(Point,Pixel,false)) return false;
+        USlateBlueprintLibrary::ScreenToWidgetLocal(this,ProjectionGeometry,Pixel,Local);
+        const double Limit=FMath::Max(LocalSize.X,LocalSize.Y)*100.;
+        return FMath::IsFinite(Local.X) && FMath::IsFinite(Local.Y) && FMath::Abs(Local.X)<Limit && FMath::Abs(Local.Y)<Limit;
     };
-    auto Stroke=[&](const TArray<FVector2D>& Points) {
-        FMCUIReticleStroke Back;Back.Points=Points;Back.Color=FLinearColor(0,0,0,.35f);Back.Width=4.f*Scale;Back.Layer=1;Result.Reticle.Strokes.Add(MoveTemp(Back));
-        FMCUIReticleStroke Ink;Ink.Points=Points;Ink.Color=FLinearColor(1,1,1,.96f);Ink.Width=2.5f*Scale;Ink.Layer=2;Result.Reticle.Strokes.Add(MoveTemp(Ink));
-    };
-    double Walked=0;
-    for(int32 I=1;I<BasketballTrajectory.Num();++I) {
-        FVector2D A,B;
-        if(!Project(BasketballTrajectory[I-1],A) || !Project(BasketballTrajectory[I],B)) {Walked=0;continue;}
-        const float Length=(B-A).Size();
-        if(!FMath::IsFinite(Length) || Length<.01f || Length>10000.f*Scale) continue;
-        const FVector2D Direction=(B-A)/Length;
-        float Along=0;
-        while(Along<Length) {
-            const float Phase=FMath::Fmod(float(Walked+Along),Dash+Gap);
-            const bool Visible=Phase<Dash;
-            const float Count=FMath::Min(Length-Along,(Visible?Dash:Dash+Gap)-Phase);
-            if(Count<.001f) {Along+=.001f;continue;}
-            if(Visible) Stroke({A+Direction*Along,A+Direction*(Along+Count)});
-            Along+=Count;
+    auto Clip=[&](FVector2D& Start,FVector2D& End) {
+        const FVector2D Delta=End-Start;
+        double Enter=0.,Exit=1.;
+        for(int32 Axis=0;Axis<2;++Axis) {
+            const double Min=2.,Max=LocalSize[Axis]-2.;
+            if(FMath::IsNearlyZero(Delta[Axis])) {
+                if(Start[Axis]<Min || Start[Axis]>Max) return false;
+                continue;
+            }
+            double A=(Min-Start[Axis])/Delta[Axis],B=(Max-Start[Axis])/Delta[Axis];
+            if(A>B) Swap(A,B);
+            Enter=FMath::Max(Enter,A);Exit=FMath::Min(Exit,B);
+            if(Enter>=Exit) return false;
         }
-        Walked+=Length;
+        End=Start+Delta*Exit;Start+=Delta*Enter;
+        return !Start.Equals(End,.01);
+    };
+    // Keep the existing physics prediction; only draw its arc like grenade aim.
+    TArray<FVector2D> Run;
+    Run.Reserve(BasketballTrajectory.Num());
+    auto Flush=[&] {if(Run.Num()>1) Stroke(Run);Run.Reset();};
+    FVector2D Previous;
+    bool PreviousValid=Project(BasketballTrajectory[0],Previous);
+    for(int32 Index=1;Index<BasketballTrajectory.Num();++Index) {
+        FVector2D Current;
+        const bool Valid=Project(BasketballTrajectory[Index],Current);
+        if(PreviousValid && Valid) {
+            FVector2D A=Previous,B=Current;
+            if(Clip(A,B)) {
+                if(!Run.IsEmpty() && !Run.Last().Equals(A,.1)) Flush();
+                if(Run.IsEmpty()) Run.Add(A);
+                Run.Add(B);
+            } else Flush();
+        } else Flush();
+        if(Valid) Previous=Current;
+        PreviousValid=Valid;
     }
+    Flush();
     FVector2D End;
-    if(Project(BasketballTrajectory.Last(),End)) {
-        TArray<FVector2D> Circle;
-        for(int32 I=0;I<=20;++I) {
-            const float Angle=I*(2.f*PI/20.f);
-            Circle.Add(End+FVector2D(FMath::Cos(Angle),FMath::Sin(Angle))*5.f*Scale);
-        }
-        Stroke(Circle);
-    }
+    if(Project(BasketballTrajectory.Last(),End) && End.X>=9. && End.X<=LocalSize.X-9. && End.Y>=9. && End.Y<=LocalSize.Y-9.)
+        Stroke({End+FVector2D(0,-7),End+FVector2D(7,0),End+FVector2D(0,7),
+            End+FVector2D(-7,0),End+FVector2D(0,-7)},2.5f);
     return Finalize();
 }
 void UMCHubWidget::CacheControlsPresentation(FVector2D LocalSize)

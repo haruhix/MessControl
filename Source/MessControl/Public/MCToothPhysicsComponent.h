@@ -43,11 +43,17 @@ public:
     float RecoveryAlpha() const;
     float EffectiveRecoverySeconds(float Base) const;
     FVector PhysicalLocation() const;
+    bool HasNetworkBodyFrameContext(const FMCNetworkCorrectionContext& Context) const;
+    FTransform NetworkBodySimulationTransform() const;
+    void PopulateCanonicalPhysicsFrame(FMCActorSimulationFrame& Out) const;
+    /** Called immediately after visual compensation before Chaos, with PostPhysics fallback. */
+    void RefreshNetworkPresentationBalance();
     int32 KnockdownCount = 0;
     int32 RecoveryCount = 0;
 private:
 #if WITH_DEV_AUTOMATION_TESTS
     friend class FMCCombatThunderAlly; // Read-only failure diagnostics for the actual ApplyHit gate.
+    friend class FMCNetworkBodyFrameHandoff;
 #endif
     void EnterRagdoll();
     void EnterRecovery();
@@ -60,6 +66,7 @@ private:
     void BuildSlippingPose(TArray<FTransform>& Pose) const;
     void SetState(EMCBodyState NewState);
     void CaptureFrame();
+    void CaptureCanonicalPhysicsSample();
     void SetMuscles(bool bEnable);
     void ConfigureStandingBody();
     bool UsesActiveMuscles() const { return ActiveRagdollMode!=EMCActiveRagdollMode::Off || bPhysicalGripLeft || bPhysicalGripRight; }
@@ -72,6 +79,7 @@ private:
     UPROPERTY() TObjectPtr<AMCToothCharacter> Tooth;
     UPROPERTY() TObjectPtr<UPhysicsControlComponent> Muscles;
     UPROPERTY(ReplicatedUsing=OnRep_Frame) FMCRagdollFrame Frame;
+    UPROPERTY(Transient) FMCRagdollFrame AcceptedFrame;
     EMCBodyState LocalState = EMCBodyState::Standing;
     TArray<FTransform> DisplayPose;
     float SendAccumulator = 0.f;
@@ -86,6 +94,8 @@ private:
     float GripReleaseSeconds[2]={0,0};
     FName BalanceControl;
     FTransform BalanceRest=FTransform::Identity;
+    bool bOwnsNetworkBalanceTranslation=false;
+    FVector NetworkBalanceWritten=FVector::ZeroVector;
     struct FJointTarget { FName Control,Role; int32 Parent=INDEX_NONE,Child=INDEX_NONE; };
     TArray<FJointTarget> JointTargets;
     struct FGripJoint { FName Name,Role; FConstraintProfileProperties Profile; };

@@ -1,4 +1,5 @@
 #include "MCFoodActor.h"
+#include "MCMovementContactPolicy.h"
 #include "MCToothCharacter.h"
 #include "MCPlayerState.h"
 #include "MCFoodCollectionComponent.h"
@@ -18,14 +19,14 @@ void AMCFoodActor::SetStackCarrier(AMCToothCharacter* Hero)
 {
     if(!HasAuthority() || StackCarrier==Hero) return;
     if(auto* Previous=StackCarrier.Get()) {
-        Body->IgnoreActorWhenMoving(Previous,false); Previous->GetCapsuleComponent()->IgnoreActorWhenMoving(this,false);
+        Body->IgnoreActorWhenMoving(Previous,false); Previous->SetMovementContactReason(this,EMCMovementContactReason::CarriedFood,false);
     }
     StackCarrier=Hero; CollisionIgnoredCarrier=Hero;
     if(!Hero) StackPickup.StartedAt=-100;
     if(Hero) {
         bManuallyThrown=false;
         LastHandledBy=Hero->GetPlayerState<AMCPlayerState>();
-        Body->IgnoreActorWhenMoving(Hero,true); Hero->GetCapsuleComponent()->IgnoreActorWhenMoving(this,true);
+        Body->IgnoreActorWhenMoving(Hero,true); Hero->SetMovementContactReason(this,EMCMovementContactReason::CarriedFood,true);
         if(Phase==EMCFoodPhase::Falling) Phase=EMCFoodPhase::Free;
     }
     OnRep_Phase();ForceNetUpdate();
@@ -43,7 +44,7 @@ void AMCFoodActor::BeginStackPickup(AMCToothCharacter* Hero,float SlotHeight)
 float AMCFoodActor::PrepareHorizontalStackPose(const FMCFoodStackSettings* StackSettings,int32 Slot)
 {
     if(!StackSettings) StackSettings=&FoodData.Stack;
-    const FVector Extent=Body->GetScaledBoxExtent();
+    const FVector Extent=PortionExtent();
     const FQuat Rotation=StackSettings->RestRotation(Visual->GetStaticMesh(),Extent,Slot);
     StackPickup.SlotRotation=Rotation.Rotator();
     StackPickup.SlotOffset=StackSettings->SlotOffset(Extent,Rotation,Slot);
@@ -56,7 +57,7 @@ float AMCFoodActor::PrepareHorizontalStackPose(const FMCFoodStackSettings* Stack
 FQuat AMCFoodActor::StackRestRotation(const FQuat& BaseRotation) const
 { return BaseRotation*StackPickup.SlotRotation.Quaternion(); }
 float AMCFoodActor::StackHalfHeight() const
-{ return float(FMCFoodStackSettings::RotatedExtent(Body->GetScaledBoxExtent(),StackPickup.SlotRotation.Quaternion()).Z); }
+{ return float(FMCFoodStackSettings::RotatedExtent(PortionExtent(),StackPickup.SlotRotation.Quaternion()).Z); }
 void AMCFoodActor::StackVerticalBounds(float& MinHeight,float& MaxHeight) const
 {
     // Cut pieces retain the original actor origin and box; measure the visible

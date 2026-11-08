@@ -51,8 +51,8 @@ struct FSkillWorld
         Table->AddRow(TEXT("LegacyPack"),Legacy);
         FMCPerkDefinition Self;Self.Kind=EMCPerkKind::Active;Self.CooldownSeconds=5;
         Self.ActivationAdapterID=TEXT("RecoverySelfHeal");Table->AddRow(TEXT("ActiveHeal"),Self);
-        FMCPerkDefinition Mouth=Self;Mouth.ActivationAdapterID=TEXT("RecoveryMouthHeal");Mouth.CooldownSeconds=3;
-        Table->AddRow(TEXT("ActiveMouth"),Mouth);
+        FMCPerkDefinition Cleanse=Self;Cleanse.ActivationAdapterID=TEXT("RecoveryCleanse");Cleanse.CooldownSeconds=3;
+        Table->AddRow(TEXT("ActiveCleanse"),Cleanse);
         FMCPerkDefinition Tool;Tool.Kind=EMCPerkKind::ToolUpgrade;Tool.ToolUpgrade=EMCToolUpgrade::Chainsaw;
         Tool.Rarity=EMCPerkRarity::Rare;Table->AddRow(TEXT("TestSaw"),Tool);
         FMCPerkDefinition SawPassive;SawPassive.Kind=EMCPerkKind::Passive;SawPassive.bRoguePerk=true;
@@ -154,8 +154,8 @@ bool FMCSkillCooldownTest::RunTest(const FString&)
 {
     FSkillWorld W;
     TestTrue(TEXT("First reusable active equipped"),W.P->TryAcquirePerk(TEXT("ActiveHeal")));
-    TestTrue(TEXT("Second reusable active equipped"),W.P->TryAcquirePerk(TEXT("ActiveMouth")));
-    W.Health(10);W.GS->MouthHealth=10;
+    TestTrue(TEXT("Second reusable active equipped"),W.P->TryAcquirePerk(TEXT("ActiveCleanse")));
+    W.Health(10);W.Hero->Status->ApplyCoffee();
     const FGuid First=W.P->ActiveSkillSlots[0].InstanceID,Second=W.P->ActiveSkillSlots[1].InstanceID;
     TestTrue(TEXT("First active starts its cooldown"),W.P->ActivateSkillSlot(0,First));
     TestFalse(TEXT("Same active cannot be spammed during cooldown"),W.P->ActivateSkillSlot(0,First));

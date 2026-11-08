@@ -5,8 +5,8 @@
 #include "MCTongueProfile.h"
 #include "MCTongue.generated.h"
 
-/** One vertex buffer drives both the visible tongue and its Chaos triangle surface.
- * Fixed topology keeps the rendered vertices and Chaos collision in sync.
+/** Authored tissue is stable gameplay support; breathing, pressure and waves deform
+ * only its presentation. Both surfaces retain the authored triangle topology.
  */
 UCLASS()
 class MESSCONTROL_API AMCTongue : public AActor
@@ -18,7 +18,9 @@ public:
     virtual void BeginPlay() override;
     virtual void Tick(float Dt) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+    // Preserve this component's identity for movement bases and gameplay traces.
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> Surface;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> VisualSurface;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Tongue") TObjectPtr<UStaticMesh> SourceMesh;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Tongue") TObjectPtr<UMaterialInterface> SurfaceMaterial;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Tongue") TObjectPtr<UMCTongueProfile> Profile;
@@ -51,7 +53,11 @@ public:
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Tongue|Yawn",meta=(ClampMin="0",ClampMax="500",Units="cm/s")) float YawnWindSpeed=260;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tongue|Yawn") bool bAutomaticYawns=true;
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue") void ResetPain();
+    // Canonical gameplay support, independent of local visual deformation.
     bool SurfacePoint(FVector WorldPoint,FHitResult& Hit) const;
+    // Presentation only: map a hit on canonical support to the matching animated
+    // triangle. Never use this point/normal for movement, clearance or damage.
+    bool VisualSurfacePoint(const FHitResult& SupportHit,FVector& Point,FVector& Normal) const;
     // Shared spawn footprint for stains, vomit and ice on the authored arena.
     bool InteriorSurfacePoint(FVector WorldPoint,float Margin,FHitResult& Hit) const;
     bool RandomInteriorPoint(FRandomStream& Random,float Margin,float Separation,TConstArrayView<FVector> Excluded,FHitResult& Hit);
@@ -74,12 +80,12 @@ public:
     // must not give server and clients different grime layouts.
     bool RestSurfacePoint(FVector WorldPoint,FVector& Point) const;
     float ServerTime() const;
-    // Used by validation to compare the rendered triangle with collision.
+    // Animated presentation vertices; gameplay support is Surface/SurfacePoint.
     const TArray<FVector>& CurrentVertices() const { return Positions; }
-    // Game-thread snapshot shared by floor guides; valid until the next surface/transform change.
+    // Animated game-thread snapshot for floor artwork; valid until its next write/transform change.
     const TArray<FVector>& CurrentWorldVertices() const;
     const TArray<int32>& TriangleIndices() const { return Indices; }
-    // Local version of CurrentVertices, advanced after each surface write.
+    // Local version of CurrentVertices, advanced after each visual surface write.
     uint64 SurfaceRevision() const { return SurfaceGeometryRevision; }
     int32 PlayerPushes=0,FoodPushes=0;
 private:

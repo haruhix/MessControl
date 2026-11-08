@@ -63,6 +63,8 @@ public:
     void BeginPlaytestSequence();
     /** Human players and allied test controllers count alike; spectators do not. */
     int32 GetGameplayParticipantCount() const;
+    /** Loss requires every player tooth and every available replacement tooth to be gone. */
+    bool HasLostAllTeeth() const;
     static bool IsGameplayParticipant(const AController* Controller);
     void StartLobby(APlayerController* Requester);
     void FinishTutorial();

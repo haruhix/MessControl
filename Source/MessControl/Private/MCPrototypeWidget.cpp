@@ -76,8 +76,9 @@ void UMCPrototypeWidget::NativeOnInitialized()
     TaskLabel = AddText(Header,TEXT("Waiting for the first challenge"),15,Mint);
     ArenaLabel = AddText(Header,TEXT("ARENA TEETH / --"),14,Mint);
     UBorder* HealthBorder; auto* Health = Panel(FVector2D(-28,28),FVector2D(270,126),FAnchors(1,0),FVector2D(1,0),HealthBorder);
-    HealthLabel = AddText(Health,TEXT("MOUTH HEALTH / --"),15,Cream);
+    HealthLabel = AddText(Health,TEXT(""),15,Cream);HealthLabel->SetVisibility(ESlateVisibility::Collapsed);
     HealthBar = WidgetTree->ConstructWidget<UProgressBar>(); HealthBar->SetFillColorAndOpacity(Mint); HealthBar->SetPercent(1); Health->AddChildToVerticalBox(HealthBar)->SetPadding(FMargin(0,8));
+    HealthBar->SetVisibility(ESlateVisibility::Collapsed);
     TimeLabel = AddText(Health,TEXT("SHIFT STARTS IN 08"),19,Mint);
     HeaderBorder->SetVisibility(ESlateVisibility::Collapsed); HealthBorder->SetVisibility(ESlateVisibility::Collapsed);
     UBorder* CareBorder; auto* Care=Panel(FVector2D(0,-110),FVector2D(790,110),FAnchors(.5f,1),FVector2D(.5f,1),CareBorder);
@@ -132,7 +133,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     Button(PhysicsBox,TEXT("LOOSEN ALL LIVING TEETH"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::LooseClicked);
     Button(PhysicsBox,TEXT("DROP STUCK FOOD AHEAD"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::DropFoodClicked);
     Button(PhysicsBox,TEXT("DIE / TEST RESPAWN COST"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::RespawnClicked);
-    AddText(PhysicsBox,TEXT("Host changes apply to teeth already in this room. Spawn a practice tooth, close F1, then F to bonk. Hold RMB near food, players or walls. Mouse: orbit; wheel: tools; Shift + wheel: zoom."),12,Cream);
+    AddText(PhysicsBox,TEXT("Host changes apply to teeth already in this room. Spawn a practice tooth, close F1, then F to bonk. Hold RMB near food, players or walls. Mouse: orbit; wheel: tools; Ctrl + wheel: zoom."),12,Cream);
     Button(PhysicsBox,TEXT("SPAWN PRACTICE TOOTH"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::DummyClicked);
     Button(PhysicsBox,TEXT("TEST FALL"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::FallClicked);
     Button(PhysicsBox,TEXT("GET UP WHEN CLEAR"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::GetUpClicked);
@@ -226,7 +227,7 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     {
         PlayerStatusLabel->SetText(FText::FromString(Hero->Status->Summary()));
         FString Hint=Hero->bSelfCare?TEXT("SELF CARE: hold LMB to clean / heal. C returns to others."):TEXT("Hold LMB near a target: pick up, clean or heal. C: self care.");
-        if (State->bPhysicalBrushes && !Hero->HasBrush()) Hint=TEXT("LMB: pick up a brush or food. RMB: hold on. F: hit. Mouse: camera. Wheel: tools. Shift + wheel: zoom. Q: throw.");
+        if (State->bPhysicalBrushes && !Hero->HasBrush()) Hint=TEXT("LMB: pick up a brush or food. RMB: hold on. F: hit. Mouse: camera. Wheel: tools. Ctrl + wheel: zoom. Q: throw.");
         if (Hero->bInCoffee) Hint=Hero->ClingTooth?TEXT("ДЕРЖИ ЛКМ — удерживаться. Отпусти ЛКМ — отпустить зуб."):
             ActiveFlood && ActiveFlood->bRiverFlood?TEXT("ПОТОП | WASD + Shift — бежать. ПКМ у еды, стены или игрока — держаться."):
             TEXT("COFFEE | WASD: paddle. Hold LMB near arena teeth to cling.");
@@ -265,7 +266,6 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
         for (TActorIterator<AMCCoreScenario> It(GetWorld());It;++It) { EventLabel->SetText(FText::FromString(It->Caption())); break; }
         InstructionLabel->SetText((bWon || bLost) ? FText::FromString(TEXT("Host: press R to start another shift.")) : bWorking && State->CurrentEvent ? State->CurrentEvent->Instruction : FText::FromString(TEXT("Get ready. Something messy is coming.")));
         TaskLabel->SetText(FText::FromString(bWorking ? FString::Printf(TEXT("%02d / %02d JOBS DONE    |    %d / %d TEETH"),State->TasksTotal-State->TasksLeft,State->TasksTotal,State->PlayerArray.Num(),State->RunSettings.MaxPlayers) : FString::Printf(TEXT("%d / %d TEETH ON DUTY"),State->PlayerArray.Num(),State->RunSettings.MaxPlayers)));
-        HealthLabel->SetText(FText::FromString(FString::Printf(TEXT("MOUTH HEALTH / %03d"),FMath::RoundToInt(State->MouthHealth)))); HealthBar->SetPercent(State->MouthHealth/FMath::Max(1.f,State->RunSettings.MaxMouthHealth));
         const int32 Seconds = FMath::CeilToInt(State->SecondsLeft());
         TimeLabel->SetText(FText::FromString((bWon || bLost) ? FString(TEXT("SHIFT COMPLETE")) : bWorking ? FString::Printf(TEXT("%02d SECONDS LEFT"),Seconds) : FString::Printf(TEXT("NEXT SHIFT IN %02d"),Seconds)));
         if (bWorking && State->DayPlan && State->DayPlan->Steps.IsValidIndex(State->StepIndex))

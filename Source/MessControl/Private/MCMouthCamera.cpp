@@ -32,7 +32,7 @@ FVector AMCToothCharacter::OrbitCameraPivot() const
 FVector AMCToothCharacter::GetCameraFocusLocation() const
 {
     if(IsValid(MimicCaptor)) return MimicCaptor->GetMimicCaptureLocation()+FVector(0,0,20);
-    return bMouthCameraHeld?FVector(ThroatCaptureStart)+OrbitPivotOffset:GetActorLocation()+OrbitCameraPivot();
+    return bMouthCameraHeld?FVector(ThroatCaptureStart)+OrbitPivotOffset:GetPresentedActorTransform().GetLocation()+OrbitCameraPivot();
 }
 
 void AMCToothCharacter::InitializeCameraOrbit()
@@ -42,7 +42,7 @@ void AMCToothCharacter::InitializeCameraOrbit()
     const FRotator View=Camera->GetComponentRotation();
     const FVector Pivot=OrbitCameraPivot()+ToolShoulderInWorld(SprayCameraOffset,View);
     CameraOrbitYaw=float(View.Yaw); CameraOrbitPitch=FMath::Clamp(float(View.Pitch),-OrbitPitchLimit,OrbitPitchLimit);
-    CameraOrbitDistance=FMath::Clamp(float(FVector::Dist(Eye,GetActorLocation()+Pivot)),250.f,1600.f);
+    CameraOrbitDistance=FMath::Clamp(float(FVector::Dist(Eye,GetPresentedActorTransform().GetLocation()+Pivot)),250.f,1600.f);
     CameraOrbitViewDistance=CameraOrbitDistance;
     CameraOrbitViewRotation=FRotator(CameraOrbitPitch,CameraOrbitYaw,0);
     // Start at the current view, then ease the pivot onto the avatar.
@@ -107,7 +107,7 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     {
         // The hub extends beyond the mouth arena's automatic camera bounds.
         // Start its existing free orbit aimed at the avatar, then follow normally.
-        const FVector Aim=GetActorLocation()+OrbitCameraPivot()-Camera->GetComponentLocation();
+        const FVector Aim=GetPresentedActorTransform().GetLocation()+OrbitCameraPivot()-Camera->GetComponentLocation();
         if(!Aim.IsNearlyZero()) Camera->SetWorldRotation(Aim.Rotation());
         InitializeCameraOrbit();
     }
@@ -121,7 +121,8 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     const FVector Shoulder=bSkillAim || bSprayAim?FVector(0,140,75):FVector::ZeroVector;
     SprayCameraOffset=FMath::Lerp(SprayCameraOffset,Shoulder,1.f-FMath::Exp(-12.f*FMath::Max(0.f,Dt)));
     if(SprayCameraOffset.Equals(Shoulder,.01f)) SprayCameraOffset=Shoulder;
-    const FVector P=GetActorLocation();
+    const FVector P=GetActorLocation(); // Collision / wall probe origin.
+    const FVector PresentedP=GetPresentedActorTransform().GetLocation();
     float Suction=0;
     for(TActorIterator<AMCThroat> It(GetWorld());It;++It)
         Suction=FMath::Max(Suction,It->GetAmbientSuctionStrengthAt(P));
@@ -164,9 +165,9 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     }
     if (bManualCameraOrbit)
     {
-        const bool Reset=!bMouthCameraInitialized || FVector::DistSquared(P,MouthCameraFocus)>FMath::Square(1400.f);
+        const bool Reset=!bMouthCameraInitialized || FVector::DistSquared(PresentedP,MouthCameraFocus)>FMath::Square(1400.f);
         const float Blend=bSmoothCamera?1-FMath::Exp(-FMath::Max(1.f,FollowSpeed)*FMath::Max(0.f,Dt)):1.f;
-        MouthCameraFocus=Reset?P:FMath::Lerp(MouthCameraFocus,P,Blend);
+        MouthCameraFocus=Reset?PresentedP:FMath::Lerp(MouthCameraFocus,PresentedP,Blend);
         const FRotator Wanted(CameraOrbitPitch,CameraOrbitYaw,0);
         const FRotator View=Reset || !bSmoothCamera?Wanted:FMath::RInterpTo(CameraOrbitViewRotation,Wanted,Dt,FollowSpeed);
         CameraOrbitViewRotation=View;
@@ -188,7 +189,7 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         UpdateCameraWallReveal(Dt,MouthCameraEye,P+OrbitPivotOffset);
         return;
     }
-    const FVector TrackedP=bMouthCameraHeld?ThroatCaptureStart:P;
+    const FVector TrackedP=bMouthCameraHeld?FVector(ThroatCaptureStart):PresentedP;
     float CenterY=0;
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {CenterY=It->GetActorLocation().Y;break;}
     if(!MouthCameraBounds.IsValid())

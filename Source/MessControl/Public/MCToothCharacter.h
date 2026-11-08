@@ -4,6 +4,10 @@
 #include "Engine/NetSerialization.h"
 #include "MCDataAssets.h"
 #include "MCActiveSkillAimPreview.h"
+#include "SharedMCNetworkFrames.h"
+#include "MCMotionAuthorityState.h"
+#include "MCNetworkPresentation.h"
+#include "MCMovementContactPolicy.h"
 #include "MCToothCharacter.generated.h"
 class UCameraComponent;
 class USpringArmComponent;
@@ -52,6 +56,33 @@ public:
     virtual void OnConstruction(const FTransform& Transform) override;
     virtual void PostInitializeComponents() override;
     virtual void Tick(float DeltaSeconds) override;
+    virtual bool TeleportTo(const FVector& DestLocation,const FRotator& DestRotation,bool bIsATest=false,bool bNoCheck=false) override;
+    FMCActorSimulationFrame GetSimulationFrame() const;
+    FMCActorPresentationFrame GetPresentationFrame() const;
+    FTransform GetPresentedActorTransform() const;
+    /** Evaluated sockets already contain mesh presentation; gameplay explicitly removes it. */
+    FTransform GetPresentedMeshSocketTransform(FName Socket) const;
+    FTransform GetSimulationMeshSocketTransform(FName Socket) const;
+    FMCNetworkCorrectionContext CaptureNetworkCorrectionContext();
+    EMCNetworkCorrectionDecision AdoptNetworkCorrectionContext(const FMCNetworkCorrectionContext& Context,bool bPositionResponse=true);
+    EMCNetworkCorrectionDecision AcceptNetworkBodyFrameContext(const FMCNetworkCorrectionContext& Context);
+    bool ConsumeNetworkBodyPresentationHandoff(FTransform& ShownMeshWorld);
+    EMCPresentationOwner GetNetworkPresentationOwner() const;
+    bool IsNetworkMotionOwnerReady() const;
+    USkeletalMeshComponent* BeginNetworkPresentationCorrection();
+    void EndNetworkPresentationCorrection(bool bAwaitingReplay,bool bNativeAdjustmentApplied=true);
+    USkeletalMeshComponent* BeginNetworkPresentationReplay();
+    void EndNetworkPresentationReplay();
+    void TickNetworkPresentation(float Dt);
+    void RefreshNetworkMotionAuthority();
+    /** Explicit authority gateway after an intentional position reset; not distance inference. */
+    void NotifyNetworkPositionReset();
+    void TeleportWithNetworkContext(FVector Location,FVector Velocity=FVector::ZeroVector);
+    void SetMovementContactReason(AActor* Other,EMCMovementContactReason Reason,bool Ignore);
+    void RefreshNetworkMovementContacts(bool Force=false);
+    void RefreshFoodMovementContact(AMCFoodActor* Food);
+    void ForgetFoodMovementContact(AMCFoodActor* Food);
+    static void NotifyFoodMovementContact(AMCFoodActor* Food,bool Removed=false);
     /** Borrow the already assigned body MID before the location/preview barrier. */
     bool PreparePresentationMaterialContext(UMCWorldPreloadSubsystem* Loading,FString& Error);
     /** Explicit per-real-hero preparation. Profiles/NI masters must already be resident. */
@@ -70,9 +101,13 @@ public:
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
     virtual void PawnClientRestart() override;
     virtual void PossessedBy(AController* NewController) override;
+    virtual void UnPossessed() override;
     virtual void Landed(const FHitResult& Hit) override;
     virtual void FellOutOfWorld(const UDamageType& DamageType) override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
+    virtual void OnRep_ReplicatedMovement() override;
+    virtual void OnRep_ReplicatedBasedMovement() override;
+    virtual void PostNetInit() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     /** GameMode's initial entrance barrier; replicated to the owning client too. */
     void SetArenaArrivalHeld(bool bHeld);
@@ -202,6 +237,7 @@ public:
     UFUNCTION(BlueprintCallable,Category="Action|Input") void SetJumpInputHeld(bool Held);
     UFUNCTION(BlueprintCallable,Category="Action|Input") void SetSelfCareInput(bool Enabled);
     void SetFoodCollectionInput(bool Enabled);
+    bool ApplyFoodCollectionIntent(bool Desired);
     UFUNCTION(Server,Reliable) void ServerSetPrimary(bool bActive);
     bool CanContact(AActor* Target) const;
     void UpdateMouthCamera(float Dt);
@@ -289,7 +325,39 @@ public:
     int32 SuccessfulBrushContacts=0;
 protected:
     virtual void BeginPlay() override;
+    virtual void OnPlayerStateChanged(APlayerState* NewPlayerState,APlayerState* OldPlayerState) override;
 private:
+    FMCMovementContactPolicy MovementContacts;
+    bool bStableFoodMovementEligible=false;
+    bool AllowsStableFoodMovementPassThrough() const;
+    UPROPERTY(ReplicatedUsing=OnRep_MotionAuthority) FMCMotionAuthorityState MotionAuthority;
+    UPROPERTY(Transient) FMCMotionAuthorityState AcceptedMotionAuthority;
+    UFUNCTION() void OnRep_MotionAuthority();
+    UFUNCTION(Client,Reliable) void ClientApplyNetworkTeleport(FMCMotionAuthorityState Authority,FVector_NetQuantize10 Location,FVector_NetQuantize10 Velocity);
+    FMCNetworkCorrectionContext ObservedMotionContext,LastAppliedNativeContext,PendingNativeContext;
+    EMCNetworkCorrectionDecision PendingNativeDecision=EMCNetworkCorrectionDecision::Ignore;
+    FMCOwnerReconciliationPresentation NetworkPresentation;
+    FMCNetworkCorrectionContext BodyPresentationHandoffContext;
+    FTransform BodyPresentationHandoffWorld;
+    bool bHasBodyPresentationHandoff=false;
+    FGuid FallbackMotionEpoch;
+    bool bApplyingMotionAuthority=false,bMotionAuthorityPending=false,bNetworkPresentationStarted=false,bHeldForMotionAuthority=false;
+    bool bApplyingNetworkTeleport=false;
+    FMCMotionAuthorityState DesiredMotionAuthority() const;
+    bool ObserveMotionContext(const FMCNetworkCorrectionContext& Context);
+    void ApplyMotionAuthorityDescriptor();
+    bool AllowsMotionClaim(EMCMotionClaimKind Claim,const AActor* Source,int32 SubIndex=INDEX_NONE) const;
+    void ReleaseNetworkPresentation(bool bResetCamera=false);
+    bool CanReconcileNetworkPresentation() const;
+    bool AllowsPeerMovementPassThrough() const;
+    void RefreshPeerMovementCollision(bool bForce=false);
+    void SetPeerMovementIgnored(AMCToothCharacter* Peer,bool bIgnore);
+    void ClearPeerMovementCollision();
+    bool bPeerMovementCollisionStarted=false,bPeerMovementEligible=false;
+#if WITH_DEV_AUTOMATION_TESTS
+    friend class FMCNetworkBodyFrameHandoff;
+#endif
+    TArray<TWeakObjectPtr<AMCToothCharacter>> PeerMovementIgnores;
     TWeakObjectPtr<AMCActiveSkillAction> ActiveSkillPresentation;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> SkillAimProp;
     FMCActiveSkillAimPose SkillAimPose;

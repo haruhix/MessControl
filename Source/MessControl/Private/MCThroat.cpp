@@ -311,6 +311,9 @@ bool AMCThroat::ContainsDeliveryPosition(FVector Position) const
 }
 bool AMCThroat::CanAcceptDelivery(const AMCFoodActor* Food) const
 {
+    // Ordinary meals follow the same portion limit as hand pickup, including thrown intake.
+    if(IsValid(Food) && Food->FoodData.Kind==EMCFoodKind::Food && !Food->IsWrongIngredient()
+        && !Food->IsNutEncounterFragment() && !Food->FitsHandPortion()) return false;
     if(bManualIntake) return HasAuthority() && IsValid(Food) && Food->GetWorld()==GetWorld()
         && !Food->bBrushTool && !Food->IsDisposed() && !Food->IsMouthEntryActive() && Food->WasManuallyThrown()
         && !Food->StackCarrier && !Food->EquippedBy && Food->Holders.IsEmpty()
@@ -498,6 +501,8 @@ bool AMCThroat::AcceptThrownDelivery(AMCFoodActor* Food)
         || !Food->WasManuallyThrown()
         || Food->StackCarrier || Food->EquippedBy || !Food->Holders.IsEmpty()
         || (Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling)) return false;
+    if(Food->FoodData.Kind==EMCFoodKind::Food && !Food->IsWrongIngredient()
+        && !Food->IsNutEncounterFragment() && !Food->FitsHandPortion()) return false;
     if(!Food->BeginSwallow()) return false;
     Food->PauseFuse(this);
     FVector Inlet,Axis,Right,Up;IntakeFrame(Inlet,Axis,Right,Up);
@@ -864,9 +869,8 @@ void AMCThroat::SpitOut(bool Reset)
     int32 I=0;
     for(const auto& Entry:SwallowedPlayers) if(auto* Hero=Entry.Hero.Get()) {
         const FVector Exit=Reset?Entry.Start:GetActorTransform().TransformPosition(VomitOrigin+FVector(-25,(I++%4-1.5f)*90,0));
-        Hero->SetActorLocation(Exit,false,nullptr,ETeleportType::TeleportPhysics); Hero->SetThroatCapture(nullptr);
-        if(!Reset) Hero->LaunchCharacter(-Forward*1050+FVector(0,0,470),true,true);
-        if(!Hero->IsLocallyControlled()) Hero->ClientThroatExit(Exit,Reset?FVector::ZeroVector:-Forward*1050+FVector(0,0,470));
+        Hero->SetThroatCapture(nullptr);
+        Hero->TeleportWithNetworkContext(Exit,Reset?FVector::ZeroVector:-Forward*1050+FVector(0,0,470));
     }
     SwallowedPlayers.Reset();
     for(const auto& Piece:Meal) if(auto* Food=Piece.Food.Get(); IsValid(Food) && !Food->IsDisposed()) {

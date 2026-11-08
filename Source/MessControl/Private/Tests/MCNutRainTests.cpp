@@ -181,6 +181,47 @@ bool FMCNutRainLifecycle::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutFreshnessTest,"MessControl.CoreLoop.NutRain.NutsNeverRotOrDisplayFreshnessTimers",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutFreshnessTest::RunTest(const FString&)
+{
+    FNutRainWorld T;T.Event->Start(nullptr,T.Profile.Get());
+    if(!TestTrue(TEXT("The actual event issues a walnut"),T.Event->Nuts.Num()>0)) return false;
+    auto* RainNut=T.Event->Nuts[0].Get();
+    TestEqual(TEXT("Rain nuts start without an absolute spoil deadline"),RainNut->SpoilAt,0.);
+    RainNut->Phase=EMCFoodPhase::Free;
+    RainNut->SpoilAt=T.World->GetTimeSeconds()-1.;RainNut->Tick(1.f);
+    TestFalse(TEXT("An elapsed old deadline cannot rot encounter nuts on their actual tick"),RainNut->bSpoiled);
+    TestFalse(TEXT("Encounter nuts supply no freshness timer to presentation"),RainNut->HasFreshnessTimer());
+    FRandomStream Random(17);
+    for(FName Name:{FName(TEXT("Nut")),FName(TEXT("Walnut"))}) for(bool Fragment:{false,true}) {
+        auto* Piece=T.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),FTransform::Identity,
+            nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        Piece->ConfigureItem(Name,*T.Menu->FindRow<FMCFoodRow>(TEXT("Walnut"),TEXT("Freshness test")),Random,Fragment);
+        Piece->SpoilAt=1.;Piece->bSpoiled=true;Piece->FinishSpawning(FTransform::Identity);
+        TestFalse(TEXT("Untied menu nuts and their pieces never retain spoilage"),Piece->bSpoiled);
+        TestEqual(TEXT("Saved nut deadlines are cleared on startup"),Piece->SpoilAt,0.);
+        Piece->SpoilAt=T.World->GetTimeSeconds()-1.;Piece->Tick(1.f);
+        TestFalse(TEXT("Whole and cut menu nuts ignore elapsed spoil deadlines"),Piece->bSpoiled);
+    }
+    const FTransform CustomPose(FVector(0,0,600));
+    auto* Custom=T.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),CustomPose,
+        T.Event,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+    Custom->ConfigureItem(TEXT("CustomEncounterNut"),*T.Menu->FindRow<FMCFoodRow>(TEXT("Walnut"),TEXT("Freshness test")),Random);
+    Custom->FinishSpawning(CustomPose);Custom->Settings.MaxHandDimensions=FVector(30);
+    if(!TestTrue(TEXT("A custom encounter row can use the actual planar-cut path"),
+        Custom->HitFood(999.f,FVector::RightVector,nullptr,Custom->Visual->Bounds.Origin,FVector::ForwardVector))) return false;
+    int32 CustomPieces=0;
+    for(TActorIterator<AMCFoodActor> It(T.World);It;++It) if(It->bFragment && It->ItemName==TEXT("CustomEncounterNut")) {
+        ++CustomPieces;
+        TestTrue(TEXT("Planar nut pieces retain their replicated encounter owner"),It->GetOwner()==T.Event);
+        TestEqual(TEXT("Planar nut pieces start with no rot deadline"),It->SpoilAt,0.);
+        It->SpoilAt=T.World->GetTimeSeconds()-1.;It->Tick(1.f);
+        TestFalse(TEXT("A custom planar nut piece never resumes rotting"),It->bSpoiled);
+    }
+    TestEqual(TEXT("The real cut produced both custom encounter pieces"),CustomPieces,2);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutEnemyTargeting,"MessControl.CoreLoop.NutRain.LiveTargetsAndInterruptibleBites",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCNutEnemyTargeting::RunTest(const FString&)
 {

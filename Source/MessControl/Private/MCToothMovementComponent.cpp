@@ -26,6 +26,7 @@
 #include "Engine/ScopedMovementUpdate.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PhysicsVolume.h"
+#include "Misc/ScopeExit.h"
 
 struct FMCSwimWaterSample
 {
@@ -69,6 +70,22 @@ bool FMCLocomotionRootMotionSource::NetSerialize(FArchive& Ar,UPackageMap* Map,b
     Success=Success && !Ar.IsError();
     return Result && Success;
 }
+void FMCLocomotionRootMotionSource::PrepareRootMotion(float SimulationTime,float MovementTickTime,
+    const ACharacter& Character,const UCharacterMovementComponent& Movement)
+{
+    float Speed=0,Rate=0;bool Locked=false;
+    if(const auto* M=Cast<UMCToothMovementComponent>(&Movement);M && M->ReadAcceptedSteeringParameters(*this,Speed,Rate,Locked)) {
+        FVector Heading=Force.GetSafeNormal2D(SMALL_NUMBER,Character.GetActorForwardVector().GetSafeNormal2D());
+        // Native replay prepares RMS in PrepMoveFor before MoveAutonomous has
+        // installed that move's acceleration. Read the already-selected move.
+        const auto* Saved=Movement.GetCurrentReplayedSavedMove();
+        const FVector Input=(Saved?Saved->Acceleration:Movement.GetCurrentAcceleration()).GetSafeNormal2D();
+        if(!Locked && !Input.IsNearlyZero() && FMath::IsFinite(SimulationTime) && SimulationTime>0)
+            Heading=FRotator(0,FMath::FixedTurn(Heading.Rotation().Yaw,Input.Rotation().Yaw,Rate*FMath::Clamp(SimulationTime,0.f,.1f)),0).Vector();
+        Force=Heading*Speed;
+    }
+    FRootMotionSource_ConstantForce::PrepareRootMotion(SimulationTime,MovementTickTime,Character,Movement);
+}
 
 UMCToothMovementComponent::UMCToothMovementComponent()
 {
@@ -85,8 +102,11 @@ void UMCToothMovementComponent::BeginPlay()
 }
 void UMCToothMovementComponent::TickComponent(float Dt,ELevelTick TickType,FActorComponentTickFunction* TickFunction)
 {
+    if(auto* Hero=Cast<AMCToothCharacter>(CharacterOwner)) Hero->RefreshNetworkMovementContacts();
     Super::TickComponent(Dt,TickType,TickFunction);
     auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    CheckAcceptedExternalValidity();
+    if(Hero) Hero->TickNetworkPresentation(Dt);
     UMCDefenseSprayPassives::UpdateDashVisibility(Hero);
     if(!Hero || !Hero->Status || !Hero->ToothPhysics || Hero->GetLocalRole()==ROLE_SimulatedProxy) return;
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
@@ -180,6 +200,9 @@ void FMCStaminaMoveResponse::ServerFillResponseData(const UCharacterMovementComp
     Stamina=CastChecked<UMCToothMovementComponent>(&Movement)->GetStaminaResponseSnapshot();
     Swim=CastChecked<UMCToothMovementComponent>(&Movement)->GetSwimResponseSnapshot();
     Dash=CastChecked<UMCToothMovementComponent>(&Movement)->GetDashResponseSnapshot();
+    ExternalMotion=CastChecked<UMCToothMovementComponent>(&Movement)->GetExternalMotionResponseSnapshot();
+    Context=CastChecked<UMCToothMovementComponent>(&Movement)->GetCorrectionContextSnapshot();
+    Handling=CastChecked<UMCToothMovementComponent>(&Movement)->GetHandlingResponseSnapshot();
     bSwimUsesMoveLedger=CastChecked<UMCToothMovementComponent>(&Movement)->SwimResponseUsesMoveLedger();
 }
 bool FMCStaminaMoveResponse::Serialize(UCharacterMovementComponent& Movement,FArchive& Ar,UPackageMap* Map)
@@ -189,7 +212,7 @@ bool FMCStaminaMoveResponse::Serialize(UCharacterMovementComponent& Movement,FAr
     Ar<<Swim.Value<<Swim.DrowningElapsed<<Swim.bInDeepWater;
     Ar<<bSwimUsesMoveLedger;
     for(float& Remaining:Dash.Remaining) Ar<<Remaining;
-    return !Ar.IsError() && FMath::IsFinite(Stamina.Value) && FMath::IsFinite(Stamina.RecoveryDelay)
+    return Context.Serialize(Ar) && ExternalMotion.Serialize(Ar) && Handling.Serialize(Ar) && !Ar.IsError() && FMath::IsFinite(Stamina.Value) && FMath::IsFinite(Stamina.RecoveryDelay)
         && FMath::IsFinite(Swim.Value) && FMath::IsFinite(Swim.DrowningElapsed)
         && FMath::IsFinite(Dash.Remaining[0]) && FMath::IsFinite(Dash.Remaining[1]);
 }
@@ -375,13 +398,15 @@ namespace
         FVector Suction=FVector::ZeroVector;
         FVector River=FVector::ZeroVector;
         FMCBraceMovementState BraceState;
-        virtual void Clear() override { Super::Clear(); Sprint=Climb=Dash=false;DashBefore=DashAfter={};DashRechargeSeconds=RaftCooldown=0;Suction=River=FVector::ZeroVector;BraceState={};StaminaBefore=StaminaAfter={};SwimBefore=SwimAfter={};SprintRequested=DashCharged=SwimDeep=SwimRecover=bSwimUsesMoveLedger=false;SwimEffort=0; }
+        FMCHandlingMoveSample Handling;
+        virtual void Clear() override { Super::Clear(); Sprint=Climb=Dash=false;DashBefore=DashAfter={};DashRechargeSeconds=RaftCooldown=0;Suction=River=FVector::ZeroVector;BraceState={};Handling={};StaminaBefore=StaminaAfter={};SwimBefore=SwimAfter={};SprintRequested=DashCharged=SwimDeep=SwimRecover=bSwimUsesMoveLedger=false;SwimEffort=0; }
         virtual uint8 GetCompressedFlags() const override { return Super::GetCompressedFlags() | (Sprint?FLAG_Custom_0:0) | (Climb?FLAG_Custom_1:0) | (Dash?FLAG_Custom_2:0); }
         virtual bool CanCombineWith(const FSavedMovePtr& Move,ACharacter* Hero,float MaxDelta) const override
         {
             const auto* Other=static_cast<const FMCStrideMove*>(Move.Get());
             return !Dash && !Other->Dash && Sprint==Other->Sprint && Climb==Other->Climb && Suction.Equals(Other->Suction,.1) && River.Equals(Other->River,.1)
                 && BraceState.Equals(Other->BraceState)
+                && Handling.Equals(Other->Handling)
                 && StaminaBefore.Exhausted==Other->StaminaBefore.Exhausted
                 && !SwimDeep && !Other->SwimDeep && SwimRecover==Other->SwimRecover
                 && SwimBefore.bInDeepWater==Other->SwimBefore.bInDeepWater
@@ -392,8 +417,9 @@ namespace
         virtual bool IsImportantMove(const FSavedMovePtr& LastAcked) const override { return Dash || Super::IsImportantMove(LastAcked); }
         virtual void SetMoveFor(ACharacter* Hero,float Dt,FVector const& Accel,FNetworkPredictionData_Client_Character& Data) override
         {
-            Super::SetMoveFor(Hero,Dt,Accel,Data);
             auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
+            Handling=M->CaptureHandlingForMove();
+            Super::SetMoveFor(Hero,Dt,Accel,Data);
             Sprint=M->WantsToSprint();Climb=M->WantsClimb();Dash=M->WantsDash();DashBefore=M->GetDashPrediction();
             StaminaBefore=M->GetStaminaPrediction();
             SwimBefore=M->GetSwimPrediction(); RaftCooldown=M->GetRaftBoardingCooldown();
@@ -407,8 +433,9 @@ namespace
         }
         virtual void PrepMoveFor(ACharacter* Hero) override
         {
-            Super::PrepMoveFor(Hero);
             auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
+            M->RestoreHandlingForMove(Handling);
+            Super::PrepMoveFor(Hero);
             M->SetSprinting(Sprint);M->SetWantsClimb(Climb);M->SetWantsDash(Dash);M->RestoreSuctionForMove(Suction);
             M->RestoreRiverForMove(River);
             M->RestoreBraceForMove(BraceState);
@@ -456,6 +483,15 @@ FNetworkPredictionData_Client* UMCToothMovementComponent::GetPredictionData_Clie
 }
 bool UMCToothMovementComponent::ClientUpdatePositionAfterServerUpdate()
 {
+    auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    auto* ClientData=GetPredictionData_Client_Character();
+    const auto Owner=Hero?Hero->GetNetworkPresentationOwner():EMCPresentationOwner::CMC;
+    if(ClientData->bUpdatePosition && Hero && (!Hero->IsNetworkMotionOwnerReady()
+        || (Owner!=EMCPresentationOwner::CMC && Owner!=EMCPresentationOwner::WorldAnchoredCMC))) {
+        // A newer BodyFrame/Transit descriptor superseded this pending native
+        // replay. Keep the data object/timestamp, never replay old walking.
+        ResetClientMovementAfterNetworkTeleport();return false;
+    }
     // PrepMoveFor restores old input while replaying corrections. Preserve the
     // live intents, including a fresh Shift press not yet captured in a move.
     const bool Sprint=bWantsToSprint,Climb=bWantsToClimb,Dash=bWantsDash;
@@ -467,7 +503,22 @@ bool UMCToothMovementComponent::ClientUpdatePositionAfterServerUpdate()
         if(bReplayingAuthoritativeSwim) RestoreSwimPrediction(PendingSwimCorrection);
         bReplayingAuthoritativeStamina=true;
     }
-    const bool Replayed=Super::ClientUpdatePositionAfterServerUpdate();
+#if !UE_BUILD_SHIPPING
+    if(HookReplayDiagnostic.bAwaitingReplay && UpdatedComponent) HookReplayDiagnostic.BeforeReplay=UpdatedComponent->GetComponentLocation();
+#endif
+    const bool HadReplay=ClientData->bUpdatePosition;
+    bool Replayed=false;
+    {
+        const FScopedPreventAttachedComponentMove Hold(HadReplay && Hero?Hero->BeginNetworkPresentationReplay():nullptr);
+        Replayed=Super::ClientUpdatePositionAfterServerUpdate();
+    }
+    if(HadReplay && Hero) Hero->EndNetworkPresentationReplay();
+#if !UE_BUILD_SHIPPING
+    if(HookReplayDiagnostic.bAwaitingReplay) {
+        LogHookReplayDiagnostic(TEXT("afterReplay"),HookReplayDiagnostic.BeforeReplay,Replayed);
+        HookReplayDiagnostic.bAwaitingReplay=false;
+    }
+#endif
     bPendingStaminaCorrection=false; bReplayingAuthoritativeStamina=false;
     bPendingSwimCorrection=false; bReplayingAuthoritativeSwim=false;
     bWantsToSprint=Sprint;bWantsToClimb=Climb;bWantsDash=Dash;
@@ -480,16 +531,49 @@ void UMCToothMovementComponent::ServerMoveHandleClientError(float TimeStamp,floa
     // A throttled correction may still describe an older move. Capture only
     // when the engine updates that adjustment, rather than at response send.
     if (GetPredictionData_Server_Character()->PendingAdjustment.TimeStamp==TimeStamp) {
+        if(auto* Hero=Cast<AMCToothCharacter>(CharacterOwner)) ServerCorrectionContext=Hero->CaptureNetworkCorrectionContext();
         ServerStaminaSnapshot=StaminaState; ServerSwimSnapshot=SwimState; ServerDashSnapshot=DashState;
+        ServerHandlingSnapshot=HandlingState;
+        CaptureExternalResponseSnapshot();
         bServerSwimUsesMoveLedger=UsesSwimMoveLedger();
     }
 }
 void UMCToothMovementComponent::ClientHandleMoveResponse(const FCharacterMoveResponseDataContainer& Response)
 {
     auto* Data=GetPredictionData_Client_Character();
-    const bool Recognized=Data && Data->GetSavedMoveIndex(Response.ClientAdjustment.TimeStamp)!=INDEX_NONE;
-    Super::ClientHandleMoveResponse(Response);
+    const int32 MoveIndex=Data?Data->GetSavedMoveIndex(Response.ClientAdjustment.TimeStamp):INDEX_NONE;
+    const bool Recognized=MoveIndex!=INDEX_NONE;
+    auto MotionResponse=static_cast<const FMCStaminaMoveResponse&>(Response);
+    auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    auto Decision=EMCNetworkCorrectionDecision::SnapAndReset;
+    if(Recognized && Hero) {
+        Decision=Hero->AdoptNetworkCorrectionContext(MotionResponse.Context,!MotionResponse.IsGoodMove());
+        if(Decision==EMCNetworkCorrectionDecision::Ignore) {
+            CheckAcceptedExternalValidity();
+            // Retire known input without applying stale mode, pose, resources
+            // or a source from a superseded authority owner/reset context.
+            if(MotionResponse.Context.Equals(Hero->CaptureNetworkCorrectionContext())) Data->AckMove(MoveIndex,*this);
+            return;
+        }
+    }
+    PrepareExternalMoveResponse(MotionResponse,Data,MoveIndex);
+    const bool HoldPresentation=Recognized && !MotionResponse.IsGoodMove() && Hero && Decision==EMCNetworkCorrectionDecision::Reconcile;
+    {
+        const FScopedPreventAttachedComponentMove Hold(HoldPresentation?Hero->BeginNetworkPresentationCorrection():nullptr);
+        Super::ClientHandleMoveResponse(MotionResponse);
+    }
+    const bool Applied=Recognized && Data->LastAckedMove.IsValid() && Data->LastAckedMove->TimeStamp==Response.ClientAdjustment.TimeStamp;
+    if(Recognized && !MotionResponse.IsGoodMove() && Hero)
+        Hero->EndNetworkPresentationCorrection(Data->bUpdatePosition,Applied);
+#if !UE_BUILD_SHIPPING
+    if(HookReplayDiagnostic.bAwaitingReplay && HookReplayDiagnostic.Ack==Response.ClientAdjustment.TimeStamp) {
+        LogHookReplayDiagnostic(TEXT("afterAdjustment"),HookReplayDiagnostic.BeforeResponse);
+        if(!Data->bUpdatePosition) HookReplayDiagnostic.bAwaitingReplay=false;
+    }
+#endif
     if (!Recognized || !Data->LastAckedMove.IsValid() || Data->LastAckedMove->TimeStamp!=Response.ClientAdjustment.TimeStamp) return;
+    RestoreHandlingForMove(MotionResponse.Handling);
+    static_cast<FMCStrideMove*>(Data->LastAckedMove.Get())->Handling=HandlingState;
     const auto& State=static_cast<const FMCStaminaMoveResponse&>(Response).Stamina;
     const auto& Swim=static_cast<const FMCStaminaMoveResponse&>(Response).Swim;
     const auto& Dash=static_cast<const FMCStaminaMoveResponse&>(Response).Dash;
@@ -540,8 +624,7 @@ void UMCToothMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 }
 bool UMCToothMovementComponent::HasHeavyGrip() const
 {
-    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
-    return Hero && Hero->Grip && (Hero->Grip->GrabbedPlayer || (Hero->HeldFood && !Hero->Grip->CanCarry(Hero->HeldFood)));
+    return HandlingForMovement().bHeavyGrip;
 }
 bool UMCToothMovementComponent::CanSprintAction() const
 {
@@ -552,7 +635,7 @@ bool UMCToothMovementComponent::CanSprint() const { return CanSprintAction() && 
 bool UMCToothMovementComponent::CanDashAction() const
 {
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
-    const float Incoming=bHasBraceSample?BraceMovement.IncomingMass:Hero && Hero->Grip?Hero->Grip->IncomingChainMass():0;
+    const float Incoming=HandlingForMovement().IncomingMass;
     return Hero && Hero->CanWork() && !Hero->HasFrozenLegs() && !Hero->ClingTooth && !Hero->OrderJumpTarget && !Hero->bBrushing && !HasHeavyGrip()
         && (!Hero->Inventory || !Hero->Inventory->IsChainsawRunning())
         && (!UMCPerkComponent::ForActor(Hero) || !UMCPerkComponent::ForActor(Hero)->IsFuryActive())
@@ -741,7 +824,7 @@ FVector UMCToothMovementComponent::CaptureRiverForMove()
     if(Hero && Hero->Grip)
     {
         if(Hero->Grip->IsWorldAnchored()) Sample=FVector::ZeroVector;
-        else Sample/=FMath::Sqrt(1+Hero->Grip->IncomingChainMass()/FMath::Max(3.f,Hero->ToothPhysics->Settings.Mass));
+        else Sample/=FMath::Sqrt(1+HandlingForMovement().IncomingMass/FMath::Max(3.f,Hero->ToothPhysics->Settings.Mass));
     }
     // Preserve the tsunami's bulk and crest speeds. This only bounds malformed
     // or stacked fields; the previous walking-speed cap erased the wave impact.
@@ -797,6 +880,41 @@ void UMCToothMovementComponent::RestoreBraceForMove(const FMCBraceMovementState&
 {
     BraceMovement=State; bHasBraceSample=true;
 }
+FMCHandlingMoveSample UMCToothMovementComponent::HandlingForMovement() const
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    const FGuid Epoch=Hero?Hero->GetSimulationFrame().LoadEpoch:FGuid();
+    if(bHasHandlingSample && (!HandlingState.Revision || HandlingState.LoadEpoch==Epoch)) return HandlingState;
+    auto Sample=Hero && Hero->Grip?Hero->Grip->CaptureHandlingForMove():FMCHandlingMoveSample();
+    if(!Sample.IsWellFormed() || (Sample.Revision && Sample.LoadEpoch!=Epoch)) Sample={};
+    if(AcceptedHandlingState.Revision && AcceptedHandlingState.LoadEpoch==Epoch
+        && (!Sample.Revision || int32(AcceptedHandlingState.Revision-Sample.Revision)>0)) return AcceptedHandlingState;
+    return Sample;
+}
+void UMCToothMovementComponent::RestoreHandlingForMove(const FMCHandlingMoveSample& State)
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    const FGuid Epoch=Hero?Hero->GetSimulationFrame().LoadEpoch:FGuid();
+    if(!State.IsWellFormed() || (State.Revision && State.LoadEpoch!=Epoch)) return;
+    if(AcceptedHandlingState.Revision && AcceptedHandlingState.LoadEpoch!=Epoch) AcceptedHandlingState={};
+    // Every candidate is server-authored: an ACK or the replicated Grip
+    // snapshot. Old saved moves cannot roll an accepted load revision back.
+    if(!AcceptedHandlingState.Revision || (State.Revision
+        && int32(State.Revision-AcceptedHandlingState.Revision)>=0)) AcceptedHandlingState=State;
+    HandlingState=AcceptedHandlingState;bHasHandlingSample=true;
+}
+FMCHandlingMoveSample UMCToothMovementComponent::CaptureHandlingForMove()
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    const auto Before=AcceptedHandlingState;
+    RestoreHandlingForMove(Hero && Hero->Grip?Hero->Grip->CaptureHandlingForMove():FMCHandlingMoveSample());
+    if(Hero && Hero->HasAuthority() && !Before.Equals(AcceptedHandlingState)) {
+        // A changed movement constraint must reach the owner together with
+        // the corresponding native correction, not merely a good ACK.
+        GetPredictionData_Server_Character()->bForceClientUpdate=true;ForceClientAdjustment();
+    }
+    return HandlingState;
+}
 float UMCToothMovementComponent::Traction() const { return GroundSurface==EMCGroundSurface::Slippery?.32f:1.f; }
 FVector UMCToothMovementComponent::Intent() const
 {
@@ -834,14 +952,13 @@ float UMCToothMovementComponent::GetMaxSpeed() const
     if (Hero->ClingTooth) return 0;
     float Speed=bWantsToSprint && CanSprint()?SprintSpeed:WalkSpeed;
     const auto* Perks=UMCPerkComponent::ForActor(Hero);
-    if (Hero->HeldFood && HasHeavyGrip()) Speed=FMath::Min(Speed,Hero->HeldFood->DragSpeed());
-    if (Hero->Grip->GrabbedPlayer) Speed=FMath::Min(Speed,220.f);
-    const float Load=bHasBraceSample?BraceMovement.LoadMass:Hero->Grip->LoadMass();
-    const float Incoming=bHasBraceSample?BraceMovement.IncomingMass:Hero->Grip->IncomingChainMass();
+    const auto Handling=HandlingForMovement();
+    if(Handling.DragSpeedLimit>0) Speed=FMath::Min(Speed,Handling.DragSpeedLimit);
+    if(Handling.bPlayerPull) Speed=FMath::Min(Speed,220.f);
+    const float Load=Handling.LoadMass,Incoming=Handling.IncomingMass;
     float OwnFactor=1.f/FMath::Sqrt(1+Load/35.f);
-    if(Perks && Hero->FoodCollection && !Hero->FoodCollection->Pieces.IsEmpty()) {
-        float FoodMass=0;for(const auto& Piece:Hero->FoodCollection->Pieces) if(IsValid(Piece)) FoodMass+=Piece->Settings.Mass;
-        const float WithoutFood=1.f/FMath::Sqrt(1+FMath::Max(0.f,Load-FoodMass)/35.f);
+    if(Perks && Handling.StackMass>0) {
+        const float WithoutFood=1.f/FMath::Sqrt(1+FMath::Max(0.f,Load-Handling.StackMass)/35.f);
         OwnFactor=WithoutFood*FMath::Max(.05f,1-(1-OwnFactor/WithoutFood)*Perks->RogueValue(EMCRogueStat::CarryPenalty));
     }
     Speed*=OwnFactor/FMath::Sqrt(1+Incoming/FMath::Max(3.f,Hero->ToothPhysics->Settings.Mass)*.75f);
@@ -855,8 +972,7 @@ float UMCToothMovementComponent::GetMaxAcceleration() const
 {
     if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasFrozenLegs()) return 0.f;
     if (!IsMovingOnGround()) return Super::GetMaxAcceleration();
-    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
-    const float Load=bHasBraceSample?BraceMovement.LoadMass:Hero && Hero->Grip?Hero->Grip->LoadMass():0;
+    const float Load=HandlingForMovement().LoadMass;
     return GroundAcceleration*Traction()*(GroundSurface==EMCGroundSurface::Sticky?.72f:1.f)/(1+Load/22.f);
 }
 float UMCToothMovementComponent::GetMaxBrakingDeceleration() const
@@ -1047,7 +1163,7 @@ void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
     MovementIntent=Acceleration.GetSafeNormal2D();
     // Keep turn speed predictable on the owner and server. A constraint based on
     // delayed food transforms can leave their facing directions permanently different.
-    RotationRate.Yaw=IsSwimming()?180:HasHeavyGrip()?FMath::Min(60.f,Hero->Grip->Settings.TurnRate):Hero->Grip->LoadMass()>0?90:bSprintActive?240:380;
+    RotationRate.Yaw=IsSwimming()?180:HasHeavyGrip()?FMath::Min(60.f,Hero->Grip->Settings.TurnRate):HandlingForMovement().LoadMass>0?90:bSprintActive?240:380;
     if (DeepWaterAt(UpdatedComponent->GetComponentLocation(),IsSwimming()))
     {
         if (!IsSwimming()) SetMovementMode(MOVE_Swimming);
@@ -1059,6 +1175,11 @@ void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
 }
 void UMCToothMovementComponent::PerformMovement(float Dt)
 {
+    if(auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasAuthority()) Hero->RefreshNetworkMotionAuthority();
+    ON_SCOPE_EXIT {bHasHandlingSample=false;};
+    if(CharacterOwner && CharacterOwner->GetLocalRole()!=ROLE_SimulatedProxy && !bHasHandlingSample) CaptureHandlingForMove();
+    CheckAcceptedExternalValidity();
+    ConsumeExternalParametersForMove();
     bStaminaSprintRequested=false; bStaminaDashCharged=false; DashMoveRechargeSeconds=0.f;
     // Recharge also during ice, raft and selection movement locks. Remote owners
     // advance on their received CMC move timestamps, never a second server tick.
@@ -1122,7 +1243,7 @@ void UMCToothMovementComponent::TickCharacterPose(float Dt)
 void UMCToothMovementComponent::CalcVelocity(float Dt,float Friction,bool bFluid,float BrakingDeceleration)
 {
     if (IsMovingOnGround()) Friction=GroundSurface==EMCGroundSurface::Slippery?.22f:GroundSurface==EMCGroundSurface::Sticky?6.f:2.6f;
-    if(IsMovingOnGround() && bHasBraceSample && BraceMovement.IncomingMass>0)
+    if(IsMovingOnGround() && HandlingForMovement().IncomingMass>0)
     {
         BrakingDeceleration=FMath::Min(BrakingDeceleration,80.f);
     }

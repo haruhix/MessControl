@@ -3,6 +3,7 @@
 #include "Components/ActorComponent.h"
 #include "Engine/DataAsset.h"
 #include "Engine/NetSerialization.h"
+#include "MCHandlingState.h"
 #include "MCGripComponent.generated.h"
 class AMCToothCharacter;
 class AMCFoodActor;
@@ -71,6 +72,8 @@ struct FMCGripFrame
     UPROPERTY() FVector_NetQuantizeNormal LiftNormal=-FVector::UpVector;
     UPROPERTY(BlueprintReadOnly) bool bContact=false;
     UPROPERTY() int32 Serial=0;
+    UPROPERTY() FGuid FoodEpoch;
+    UPROPERTY() uint32 FoodRevision=0;
 };
 
 /** A held RMB contact. The server chooses the surface; no client supplied actor is trusted. */
@@ -135,6 +138,7 @@ public:
     static float AttachedMassFor(const AActor* Target);
     bool WouldCreateBraceCycle(const AMCToothCharacter* Player) const;
     FMCBraceMovementState CaptureBraceMovement() const;
+    FMCHandlingMoveSample CaptureHandlingForMove() const;
     bool BeginGrip(AMCFoodActor* Food);
     void EndGrip(AMCFoodActor* Food=nullptr);
     bool BeginPlayerGrip(AMCToothCharacter* Player);
@@ -154,6 +158,7 @@ public:
     FVector DriveForce(const AMCFoodActor* Food=nullptr) const;
     FVector DriveTorque(const AMCFoodActor* Food=nullptr) const;
     FVector ContactPoint(bool Left) const;
+    FVector CanonicalContactPoint(bool Left) const;
     FVector PalmPoint(bool Left) const;
     bool IsReady(const AMCFoodActor* Food=nullptr) const;
     bool CanCarry(const AMCFoodActor* Food) const;
@@ -168,6 +173,9 @@ public:
     static EMCGripPose SelectPose(EMCGripPose Previous,float Angle,float Approach,const FMCGripSettings& S);
     static bool UsesHand(EMCGripPose Pose,bool Left);
 private:
+    UPROPERTY(Replicated) FMCHandlingMoveSample AcceptedHandling;
+    uint32 HandlingMembershipHash=0;
+    void RefreshCanonicalHandling();
     UPROPERTY() TObjectPtr<AMCToothCharacter> Tooth;
     UPROPERTY(Transient) FMCBraceAnchor PredictedBrace;
     uint16 LocalBraceRequestId=0;
@@ -214,4 +222,5 @@ private:
     void CacheRig();
     const FMCGripFrame* HandFrame(bool Left) const;
     void ResolveContact(bool Left,FVector& Point,FVector& Normal) const;
+    void ResolveCanonicalContact(bool Left,FVector& Point,FVector& Normal) const;
 };

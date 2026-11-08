@@ -11,16 +11,17 @@ struct FHitResult;
 struct MESSCONTROL_API FMCActiveSkillMotionLease
 {
     bool Begin(AMCToothCharacter* Pawn,const FGuid& ActionID,FVector Velocity,bool bFreeFlight=false,float Duration=-1.f);
+    bool BeginSteered(AMCToothCharacter* Pawn,const FGuid& ActionID,FVector Velocity,float TurnRate,float Duration);
     bool Update(FVector Velocity);
+    bool SetSteeringHeading(FVector Heading,float LockSeconds=0);
+    bool Sample(float& SimulationTime,FVector& Heading) const;
+    bool SampleStep(float ActorSeconds,float& PreviousSimulationTime,float& Seconds,FVector& Heading,float MaxSimulationDelta=.25f) const;
     bool IsOwned() const;
     void End();
 private:
     TWeakObjectPtr<AMCToothCharacter> Character;
     TWeakObjectPtr<UMCToothMovementComponent> Movement;
-    FName SourceName;
-    uint16 SourceID=0;
-    uint8 PreviousMode=0,PreviousCustomMode=0;
-    bool bOwnsFlying=false;
+    FGuid OperationID;
 };
 
 namespace MCActiveSkillMotion

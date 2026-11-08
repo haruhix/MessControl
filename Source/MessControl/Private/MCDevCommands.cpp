@@ -1047,7 +1047,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     case EMCDevAction::Ragdoll:
         if (Hero) Hero->ToothPhysics->ApplyHit(Hero->GetActorForwardVector()*600+FVector(0,0,300),Hero->GetActorLocation());
         break;
-    case EMCDevAction::RestoreMouth: GS->MouthHealth=GS->RunSettings.MaxMouthHealth; break;
+    case EMCDevAction::RestoreMouth: break; // Serialized compatibility: shared mouth HP is retired.
     case EMCDevAction::StopCoffee: if (IsValid(DayDirector->Flood)) DayDirector->Flood->Stop(); break;
     default: break;
     }

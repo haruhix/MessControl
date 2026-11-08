@@ -1,7 +1,6 @@
 #include "MCRecoveryPerkEffect.h"
 #include "MCPerkComponent.h"
 #include "MCPlayerState.h"
-#include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "Engine/World.h"
@@ -30,11 +29,8 @@ void UMCRecoveryPerkEffect::ApplyPendingRecovery()
     bool Applied=false;
     if (RecoveryID==TEXT("RecoveryMouthHeal"))
     {
-        if (auto* Game=GetWorld()->GetGameState<AMCGameState>())
-        {
-            Game->MouthHealth=FMath::Min(Game->RunSettings.MaxMouthHealth,Game->MouthHealth+Pending*10.f);
-            Game->ForceNetUpdate(); Applied=true;
-        }
+        // Retained saved rows are inert; retire their pending stacks without a retry timer.
+        Applied=true;
     }
     else if (RecoveryID==TEXT("RecoverySelfHeal") || RecoveryID==TEXT("RecoveryCleanse"))
     {

@@ -23,7 +23,7 @@ FVector CollectionPoint(const AMCFoodActor* Food,const FVector& From)
         const float Distance=Food->Body->GetClosestPointOnCollision(From,Closest);
         if(Distance>0 && !Closest.ContainsNaN()) return Closest;
         // The origin of a sliced piece can lie outside the remaining mesh.
-        return Food->CutVisual->Bounds.GetBox().GetClosestPointTo(From);
+        return Food->Body->Bounds.GetBox().GetClosestPointTo(From);
     }
     return Food->GetActorLocation();
 }
@@ -58,7 +58,9 @@ bool UMCFoodCollectionComponent::IsLoosePileFood(const AActor* Actor) const
     const auto* F=Cast<AMCFoodActor>(Actor);
     return IsValid(F) && !F->UsesLegacyGrip() && !F->StackCarrier && F->Holders.IsEmpty()
         && (F->Phase==EMCFoodPhase::Free || F->Phase==EMCFoodPhase::Falling)
-        && (F->bFragment || F->Body->GetScaledBoxExtent().GetMax()<=55)
+        // A resting cut heap does not become solid scenery just because one
+        // fragment still needs cutting. CanCollect owns the pickup size gate.
+        && (F->bFragment || F->FitsHandPortion())
         && F->Body->GetPhysicsLinearVelocity().Size()*F->Settings.Mass<ContactThreshold();
 }
 bool UMCFoodCollectionComponent::CanCollect(const AMCFoodActor* F) const
@@ -69,8 +71,8 @@ bool UMCFoodCollectionComponent::CanCollect(const AMCFoodActor* F) const
     // Boss debris is one piece in the hand for Q. It cannot join a food tower,
     // nor can automatic collection build a tower on top of held ammunition.
     if(HasNutAmmunition() || (F->IsNutEncounterFragment() && !Pieces.IsEmpty())) return false;
-    // Large whole vegetables must be cut first. No shrinking of their physics body at pickup.
-    if(!F->bFragment && (F->Body->GetScaledBoxExtent().GetMax()>55 || F->Visual->Bounds.SphereRadius>85)) return false;
+    // Whole ingredients and generated cuts use the same hand-sized portion gate.
+    if(!F->IsNutEncounterFragment() && !F->FitsHandPortion()) return false;
     const double* Drop=DroppedAt.Find(F); if(Drop && GetWorld()->GetTimeSeconds()-*Drop<2) return false;
     const FVector Point=CollectionPoint(F,H->GetActorLocation());
     if(FVector::DistSquared(Point,H->GetActorLocation())>FMath::Square(EffectiveCollectionReach(F))) return false;
@@ -108,9 +110,12 @@ bool UMCFoodCollectionComponent::HasNutAmmunition() const
     });
 }
 void UMCFoodCollectionComponent::Toggle()
+{if(GetOwner()->HasAuthority()) SetCollectingAccepted(!bCollecting);}
+void UMCFoodCollectionComponent::SetCollectingAccepted(bool Enabled)
 {
     if(!GetOwner()->HasAuthority()) return;
-    if(bCollecting) {Stop();return;}
+    if(!Enabled) {if(bCollecting || !Pieces.IsEmpty()) Stop();return;}
+    if(bCollecting) return;
     bCollecting=true; bHasHand=false; SwayAngle=SwayVelocity=FVector2D::ZeroVector; NextCollectAt=0; GetOwner()->ForceNetUpdate();
     // E picks one nearby boss nut immediately. The same replicated hand pose,
     // aim and Q launch are reused without starting a repeated stack pickup.
@@ -333,7 +338,8 @@ void UMCFoodCollectionComponent::HandleCarrierCollision(AActor* Other,UPrimitive
     if(const auto* Food=Cast<AMCFoodActor>(Other);Food && Food->bFragment) return;
     if(auto* Player=Cast<AMCToothCharacter>(Other)) {
         // A harmless fragment load must not turn an ordinary capsule bump into a knockdown.
-        if(Pieces.ContainsByPredicate([](const auto& Piece){return IsValid(Piece) && !Piece->bFragment;}))
+        if(Pieces.ContainsByPredicate([](const auto& Piece){return IsValid(Piece) && !Piece->bFragment;})
+            && ContactStrength(CastChecked<AMCToothCharacter>(GetOwner())->ToothPhysics->Settings.Mass,Other,OtherComponent,Impulse,Hit.ImpactNormal)>=ContactThreshold())
             SpillOnPlayerContact(Player,Hit.ImpactNormal,Hit.ImpactPoint);
         return;
     }
@@ -350,7 +356,7 @@ void UMCFoodCollectionComponent::HandleStackCollision(AMCFoodActor* Food,AActor*
 {
     if(!GetOwner()->HasAuthority() || !Contains(Food) || !IsValid(Other) || Other==GetOwner()) return;
     if(auto* Player=Cast<AMCToothCharacter>(Other)) {
-        if(!Food->bFragment) SpillOnPlayerContact(Player,Hit.ImpactNormal,Hit.ImpactPoint);
+        if(!Food->bFragment && ContactStrength(Food->Settings.Mass,Other,OtherComponent,Impulse,Hit.ImpactNormal)>=ContactThreshold()) SpillOnPlayerContact(Player,Hit.ImpactNormal,Hit.ImpactPoint);
         return;
     }
     if(const auto* Piece=Cast<AMCFoodActor>(Other); Piece && (Contains(Piece) || IsSettlingRelease(Piece))) return;
@@ -481,4 +487,4 @@ void UMCFoodCollectionComponent::TickComponent(float Dt,ELevelTick Type,FActorCo
     }
 }
 void UMCFoodCollectionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{Super::GetLifetimeReplicatedProps(OutLifetimeProps);DOREPLIFETIME(UMCFoodCollectionComponent,bCollecting);DOREPLIFETIME(UMCFoodCollectionComponent,Pieces);}
+{Super::GetLifetimeReplicatedProps(OutLifetimeProps);DOREPLIFETIME(UMCFoodCollectionComponent,bCollecting);DOREPLIFETIME(UMCFoodCollectionComponent,Pieces);DOREPLIFETIME(UMCFoodCollectionComponent,CollectionIntent);}

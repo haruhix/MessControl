@@ -36,11 +36,13 @@ private:
     void RunOver(FVector From,FVector To,float Seconds);
     void UpdateParts(float Distance,float DeltaSeconds);
     void UpdateRideVFX();
+    void UpdateRidePresentation();
     FMCActiveSkillMotionLease Motion;
     FVector Heading=FVector::ForwardVector,PreviousFoot=FVector::ZeroVector,PreviousClean=FVector::ZeroVector;
     FVector PreviousVisual=FVector::ZeroVector;
     FVector PreviousVisualHeading=FVector::ForwardVector;
     double EndsAt=0,LastSampleAt=0;
+    float PreviousSimulationTime=0;
     TSet<TWeakObjectPtr<AMCToothCharacter>> ContactedAllies;
 };
 

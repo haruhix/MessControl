@@ -71,7 +71,15 @@ void AMCGameState::OnRep_MouthIngressOpenUntil()
 void AMCGameState::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    // Native OnRep still estimates and smooths the server clock. Bound its
+    // accumulated history so loading stalls do not bias short gameplay events
+    // for the next 250 samples. Keep recent samples weighted, never invent time.
+    if(!HasAuthority() && NumServerWorldTimeSecondsDeltas>8) {
+        SumServerWorldTimeSecondsDelta=SumServerWorldTimeSecondsDelta/NumServerWorldTimeSecondsDeltas*8;
+        NumServerWorldTimeSecondsDeltas=8;
+    }
     const bool bOpen=MouthIngressOpenUntil>GetServerWorldTimeSeconds();
+    if(!HasAuthority() && !bOpen && MouthIngressProgress<=0.f) return;
     if(auto* Mesh=FindMouthEntrance())
     {
         MouthIngressProgress=FMath::FInterpConstantTo(MouthIngressProgress,bOpen?1.f:0.f,DeltaSeconds,bOpen?10.f:3.f);
@@ -87,5 +95,5 @@ void AMCGameState::Tick(float DeltaSeconds)
         }
     }
     else MouthIngressProgress=0.f;
-    if(!bOpen && MouthIngressProgress<=0.f) SetActorTickEnabled(false);
+    if(HasAuthority() && !bOpen && MouthIngressProgress<=0.f) SetActorTickEnabled(false);
 }

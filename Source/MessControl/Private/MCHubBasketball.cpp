@@ -1,6 +1,7 @@
 #include "MCHubBasketball.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCToothPhysicsComponent.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCGameplayUIFactory.h"
 #include "MCHubGameState.h"
@@ -17,6 +18,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Internationalization/Internationalization.h"
+#include "Internationalization/Culture.h"
 #include "Net/UnrealNetwork.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "NiagaraFunctionLibrary.h"
@@ -124,7 +127,7 @@ AMCHubBasketball* AMCHubBasketball::LocalHintBall(const AMCToothCharacter* Hero)
     const auto* Hub=Hero->GetWorld()->GetGameState<AMCHubGameState>();
     if(!PC || !PC->IsLocalController() || PC->GetPawn()!=Hero || !Hub || Hub->Phase!=EMCHubPhase::Gathering
         || Hero->GetWorld()->IsPaused() || PC->IsMoveInputIgnored() || PC->IsLookInputIgnored() || PC->bShowMouseCursor) return nullptr;
-    // Q throws only the ball this player actually owns. Another player's ball
+    // RMB throws only the ball this player actually owns. Another player's ball
     // never supplies either hint, even if it is in pickup range.
     if(auto* Ball=HeldBy(Hero)) return Ball;
     if(Hero->IsSeatedOnRaft() || !Hero->Inventory || Hero->Inventory->IsChainsawRunning()) return nullptr;
@@ -149,7 +152,8 @@ void AMCHubBasketball::UpdateInteractionPrompt()
             if(Widget->GetOwningPlayer()!=PC) Widget->SetOwningPlayer(PC);
             const auto* Player=Cast<AMCPlayerController>(PC);
             const bool Gamepad=Player && Player->IsUsingGamepad();
-            const FText Key=FText::AsCultureInvariant(Holder==Hero?(Gamepad?TEXT("Y"):TEXT("Q")):(Gamepad?TEXT("X"):TEXT("E")));
+            const bool Russian=FInternationalization::Get().GetCurrentLanguage()->GetTwoLetterISOLanguageName()==TEXT("ru");
+            const FText Key=FText::AsCultureInvariant(Holder==Hero?(Gamepad?TEXT("Y"):(Russian?TEXT("ПКМ"):TEXT("RMB"))):(Gamepad?TEXT("X"):TEXT("E")));
             if(!Widget->KeyLabel.EqualTo(Key)) {Widget->KeyLabel=Key;Widget->BuildPresentationTree();}
         }
     }
@@ -315,7 +319,8 @@ void AMCHubBasketball::Tick(float DeltaSeconds)
     // A paused menu still clears local keycaps; ball gameplay stays frozen.
     if(GetWorld()->IsPaused()) {UpdateInteractionPrompt();return;}
     if(IsValid(Holder)) {
-        if(HasAuthority() && (!Holder->Status->IsAlive() || !Holder->GetController())) Release(FVector::ZeroVector);
+        if(HasAuthority() && (!Holder->Status->IsAlive() || !Holder->ToothPhysics->CanAct() || !Holder->GetController()))
+            Release(Holder->GetVelocity()*.3f);
         else UpdateHeldPosition();
     } else if(HasAuthority() && !Body->IsSimulatingPhysics()) {
         Holder=nullptr;SetOwner(nullptr);OnRep_Holder();ForceNetUpdate();

@@ -160,17 +160,19 @@ bool FMCRecoveryChoiceTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Cleanse removes the repair condition"),Hero->Status->State.RepairLeft,0);
     TestEqual(TEXT("Recovery cannot farm task points"),Player->Points,0);
     W.State->MouthHealth=50;
-    TestTrue(TEXT("Mouth recovery stored in freed slot"),Player->Perks->ServerGrantPerk(TEXT("RecoveryMouthHeal")));
-    TestEqual(TEXT("Stored mouth recovery does not apply immediately"),W.State->MouthHealth,50.f);
-    TestTrue(TEXT("Explicit mouth recovery succeeds"),Player->Perks->ActivateSkillSlot(1,Player->Perks->ActiveSkillSlots[1].InstanceID));
-    TestEqual(TEXT("Mouth recovery restores ten shared health"),W.State->MouthHealth,60.f);
+    TestFalse(TEXT("Mouth recovery cannot be acquired into a freed slot"),Player->Perks->ServerGrantPerk(TEXT("RecoveryMouthHeal")));
+    TestFalse(TEXT("Retired mouth recovery cannot be offered"),Player->Perks->CanOfferPerk(TEXT("RecoveryMouthHeal")));
+    auto& RetiredSlot=Player->Perks->ActiveSkillSlots[1];
+    RetiredSlot.PerkID=TEXT("RecoveryMouthHeal");RetiredSlot.InstanceID=FGuid::NewGuid();RetiredSlot.Charges=1;
+    TestFalse(TEXT("Retained mouth recovery cannot activate"),Player->Perks->ActivateSkillSlot(1,Player->Perks->ActiveSkillSlots[1].InstanceID));
+    TestEqual(TEXT("Retired mouth recovery changes no shared health"),W.State->MouthHealth,50.f);
 
     auto* Target=W.Player(22);auto* TargetPC=Cast<APlayerController>(Target->GetOwner());
     auto* NewHero=W.World->SpawnActor<AMCToothCharacter>();TargetPC->Possess(NewHero);
     NewHero->Status->Initialize(100);NewHero->Status->Damage(70);
     Player->CopyProperties(Target);
     TestEqual(TEXT("Handoff never replays prior healing"),NewHero->Status->State.Health,30.f);
-    TestEqual(TEXT("Handoff never replays mouth recovery"),W.State->MouthHealth,60.f);
+    TestEqual(TEXT("Handoff never replays mouth recovery"),W.State->MouthHealth,50.f);
     TestEqual(TEXT("Handoff preserves the one unspent charge"),Target->Perks->ActiveSkillSlots[0].Charges,1);
     TestTrue(TEXT("Handoff preserves slot identity"),Target->Perks->ActiveSkillSlots[0].InstanceID==Heal);
     TestTrue(TEXT("The unspent charge remains usable"),Target->Perks->ActivateSkillSlot(0,Heal));

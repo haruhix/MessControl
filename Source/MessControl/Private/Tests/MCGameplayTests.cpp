@@ -277,11 +277,11 @@ bool FMCWorkValidationTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCTimeoutTest,"MessControl.Gameplay.TimeoutAndLoss",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCTimeoutTest::RunTest(const FString& Parameters)
 {
-    FTestMouth Mouth; Mouth.NextPhase(); const float Expected=FMath::Max(0.f,100.f-Mouth.State->TasksLeft*Mouth.State->CurrentEvent->MissedTaskDamage);
-    Mouth.NextPhase(); TestEqual(TEXT("Missed tasks damage health"),Mouth.State->MouthHealth,Expected);
-    Mouth.State->MouthHealth=1; Mouth.NextPhase(); Mouth.NextPhase();
-    TestEqual(TEXT("Zero health loses run"),Mouth.State->Phase,EMCShiftPhase::Lost);
-    TestEqual(TEXT("Health clamped to zero"),Mouth.State->MouthHealth,0.f);
+    FTestMouth Mouth; Mouth.NextPhase(); const float Expected=Mouth.State->MouthHealth;
+    Mouth.NextPhase(); TestEqual(TEXT("Missed tasks leave legacy mouth health unchanged"),Mouth.State->MouthHealth,Expected);
+    Mouth.State->MouthHealth=0; Mouth.NextPhase(); Mouth.NextPhase();
+    TestEqual(TEXT("Legacy zero mouth health cannot lose a run with surviving teeth"),Mouth.State->Phase,EMCShiftPhase::Intermission);
+    TestEqual(TEXT("The compatibility field has no passive damage"),Mouth.State->MouthHealth,0.f);
     TestTrue(TEXT("No legacy placeholder tasks spawned"),Mouth.Tasks().IsEmpty());
     return true;
 }
@@ -294,9 +294,10 @@ bool FMCRunRulesTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Default mouth health"),DefaultRules->Settings.MaxMouthHealth,100.f);
     TestEqual(TEXT("Default days"),DefaultRules->Settings.DaysToSurvive,7);
     TestEqual(TEXT("Default players"),DefaultRules->Settings.MaxPlayers,4);
-    TestEqual(TEXT("Planned arena teeth exclude starting players"),DefaultRules->Settings.InitialArenaTeeth,8);
+    FMCRunSettings SavedRules=DefaultRules->Settings;SavedRules.Sanitize();
 
     FTestMouth Mouth;
+    TestEqual(TEXT("Runtime reserve budget follows the sanitized saved profile"),Mouth.State->RunSettings.InitialArenaTeeth,SavedRules.InitialArenaTeeth);
     auto* Custom=NewObject<UMCRunRules>(Mouth.Mode);
     Custom->Settings.MaxMouthHealth=40; Custom->Settings.DaysToSurvive=2;
     Custom->Settings.MaxPlayers=2; Custom->Settings.InitialArenaTeeth=3;
@@ -323,7 +324,7 @@ bool FMCRunRulesTest::RunTest(const FString& Parameters)
     {
         Mouth.NextPhase(); Mouth.State->MouthHealth=39.5f;
         Mouth.CompleteDay();
-        TestEqual(TEXT("Healing respects active snapshot, not edited asset"),Mouth.State->MouthHealth,40.f);
+        TestEqual(TEXT("Completing tasks does not heal the retired mouth health field"),Mouth.State->MouthHealth,39.5f);
         TestEqual(TEXT("Victory follows custom two-day rule"),Mouth.State->Phase,Day==2?EMCShiftPhase::Won:EMCShiftPhase::Intermission);
     }
     Mouth.Mode->RestartShift();
@@ -559,11 +560,13 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCArenaToothTest,"MessControl.Gameplay.ArenaTo
 bool FMCArenaToothTest::RunTest(const FString& Parameters)
 {
     FTestMouth Mouth;
-    TestEqual(TEXT("Eight real teeth, separate from players"),Mouth.State->ArenaTeeth.Num(),8);
-    TestEqual(TEXT("Eight available"),Mouth.State->AvailableArenaTeeth(),8);
+    const int32 InitialCount=Mouth.State->RunSettings.InitialArenaTeeth;
+    if(!TestTrue(TEXT("The saved reserve profile supplies the three teeth needed by this fixture"),InitialCount>=3)) return false;
+    TestEqual(TEXT("Concrete reserve teeth follow the active run profile"),Mouth.State->ArenaTeeth.Num(),InitialCount);
+    TestEqual(TEXT("Every initial reserve is available"),Mouth.State->AvailableArenaTeeth(),InitialCount);
     TSet<int32> Ids;
     for (AMCArenaTooth* Tooth:Mouth.State->ArenaTeeth) Ids.Add(Tooth->State.ToothId);
-    TestEqual(TEXT("Unique IDs"),Ids.Num(),8);
+    TestEqual(TEXT("Unique IDs"),Ids.Num(),InitialCount);
     AMCArenaTooth* Tooth=Mouth.State->ArenaTeeth[2];
     Tooth->SetCoffee(1);
     TestEqual(TEXT("Coffee does not silently deal damage"),Tooth->State.Health,100.f);
@@ -577,15 +580,15 @@ bool FMCArenaToothTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Coffee persists across days"),Tooth->State.Coffee,1.f);
     const float MouthHealth=Mouth.State->MouthHealth;
     Tooth->ReceiveArenaHit(100,FVector::RightVector);
-    TestEqual(TEXT("Only this tooth is lost"),Mouth.State->AvailableArenaTeeth(),7);
+    TestEqual(TEXT("Only this tooth is lost"),Mouth.State->AvailableArenaTeeth(),InitialCount-1);
     TestEqual(TEXT("Tooth damage is separate from mouth health"),Mouth.State->MouthHealth,MouthHealth);
     TestFalse(TEXT("Lost tooth cannot take damage twice"),Tooth->ReceiveArenaHit(25,FVector::RightVector));
     TestEqual(TEXT("Lost health clamped"),Tooth->State.Health,0.f);
-    TestEqual(TEXT("No double spending"),Mouth.State->AvailableArenaTeeth(),7);
+    TestEqual(TEXT("No double spending"),Mouth.State->AvailableArenaTeeth(),InitialCount-1);
     Mouth.Mode->RestartShift();
-    TestEqual(TEXT("Restart restores real teeth"),Mouth.State->AvailableArenaTeeth(),8);
+    TestEqual(TEXT("Restart restores real teeth"),Mouth.State->AvailableArenaTeeth(),InitialCount);
     int32 Actors=0; for (TActorIterator<AMCArenaTooth> It(Mouth.World);It;++It) ++Actors;
-    TestEqual(TEXT("Restart does not duplicate actors"),Actors,8);
+    TestEqual(TEXT("Restart does not duplicate actors"),Actors,InitialCount);
     TestNotNull(TEXT("Editable profile exists"),LoadObject<UMCArenaToothProfile>(nullptr,TEXT("/Game/Data/DA_ArenaTooth.DA_ArenaTooth")));
     return true;
 }
@@ -860,7 +863,7 @@ bool FMCDayOneSequenceTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Menu food actually spawns"),D->CountFood(2)>0);
     D->Next(); const float Before=Mouth.State->MouthHealth; D->Next(true);
     TestEqual(TEXT("Failed event advances inside day"),Mouth.State->Day,1);
-    TestTrue(TEXT("Failure costs configured mouth health"),Mouth.State->MouthHealth<Before && Mouth.State->FailedEvents==1);
+    TestTrue(TEXT("Failure is recorded without legacy mouth damage"),Mouth.State->MouthHealth==Before && Mouth.State->FailedEvents==1);
     TestTrue(TEXT("Coffee starts a real volume"),D->Flood && D->Flood->IsActive());
     D->Next(); TestFalse(TEXT("Coffee ends before cleaning"),D->Flood->IsActive());
     D->Next(); TestTrue(TEXT("Cold cola is a real next event"),D->ColdCola && D->ColdCola->bActive);
@@ -993,7 +996,7 @@ bool FMCUlcerAndFloodTest::RunTest(const FString& Parameters)
     FTestMouth Mouth; Mouth.State->Phase=EMCShiftPhase::Working;
     auto* Patch=Mouth.World->SpawnActor<AMCMouthSurface>(FVector(300,300,5),FRotator::ZeroRotator); Patch->bUlcer=true; Patch->HealSeconds=7;
     const float Before=Mouth.State->MouthHealth; Patch->Tick(.5f);
-    TestTrue(TEXT("Untreated ulcer hurts mouth without healing"),Patch->Healing==0 && Mouth.State->MouthHealth<Before);
+    TestTrue(TEXT("Untreated ulcer preserves treatment and retired mouth health"),Patch->Healing==0 && Mouth.State->MouthHealth==Before);
     auto* Hero=Mouth.Worker(); Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
     Hero->SetActorLocation(FVector(300,300,65)); Patch->Tick(.1f);
     Patch->Healing=.25f; Patch->Disturb(); TestEqual(TEXT("Walking over ulcer preserves treatment progress"),Patch->Healing,.25f);
@@ -1193,7 +1196,7 @@ bool FMCDevEventsTest::RunTest(const FString& Parameters)
     if (Ulcer)
     {
         const float HP=Mouth.State->MouthHealth; Ulcer->Tick(.1f);
-        TestTrue(TEXT("Manual mode keeps ulcer damage active"),Mouth.State->MouthHealth<HP);
+        TestEqual(TEXT("Manual mode cannot reactivate retired mouth damage"),Mouth.State->MouthHealth,HP);
     }
     Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::StartStep,Index(EMCDayStep::StuckFood));
     TestEqual(TEXT("Stuck food has configured count"),Mouth.Mode->DayDirector->CountFood(3),Plan->StuckCount);
@@ -1763,14 +1766,20 @@ bool FMCTongueWeightTest::RunTest(const FString&)
     TestTrue(TEXT("One food object has one load"),Tongue->PressureLoads().Num()==1 && FMath::IsNearlyEqual(FoodLoad(),28*Tongue->PressureSettings.DepthPerKg,.1f));
     auto CheckContact=[&]()
     {
-        FHitResult Floor; if (!TestTrue(TEXT("Deformed floor remains queryable"),Tongue->SurfacePoint(Start,Floor))) return;
+        FHitResult Floor; if (!TestTrue(TEXT("Stable support remains queryable beneath a visual dent"),Tongue->SurfacePoint(Start,Floor))) return;
         const float Depth=Tongue->IndentationAt(Start);
-        TestTrue(TEXT("Collision lowers by the full pressure depth"),FMath::Abs(Hit.ImpactPoint.Z-Floor.ImpactPoint.Z-Depth)<.05f);
-        const auto* Section=Tongue->Surface->GetProcMeshSection(0);
+        TestTrue(TEXT("Changing visual pressure leaves gameplay collision at its authored height"),FMath::Abs(Hit.ImpactPoint.Z-Floor.ImpactPoint.Z)<.05f);
+        FVector VisualPoint,VisualNormal;
+        TestTrue(TEXT("The full pressure depth remains visible independently of gameplay support"),
+            Tongue->VisualSurfacePoint(Floor,VisualPoint,VisualNormal) && FMath::Abs(Floor.ImpactPoint.Z-VisualPoint.Z-Depth)<.05f);
+        const auto* Section=Tongue->VisualSurface->GetProcMeshSection(0);
         if (!Section || !TestTrue(TEXT("Contact identifies a rendered triangle"),Floor.FaceIndex>=0 && Floor.FaceIndex*3+2<Section->ProcIndexBuffer.Num())) return;
         FVector Center=FVector::ZeroVector;
         for(int32 J=0;J<3;++J) Center+=Section->ProcVertexBuffer[Section->ProcIndexBuffer[Floor.FaceIndex*3+J]].Position/3;
-        FHitResult Triangle; TestTrue(TEXT("Physics follows the rendered pressure triangle"),Tongue->SurfacePoint(Center,Triangle) && FMath::Abs(Triangle.ImpactPoint.Z-Center.Z)<.05f);
+        FHitResult Triangle; FVector VisualCenter,VisualCenterNormal;
+        TestTrue(TEXT("Presentation resolves the rendered pressure triangle while collision remains stable"),
+            Tongue->SurfacePoint(Center,Triangle) && Tongue->VisualSurfacePoint(Triangle,VisualCenter,VisualCenterNormal)
+            && FMath::Abs(VisualCenter.Z-Center.Z)<.05f);
     };
     CheckContact();
     const float BeforeTuning=Tongue->IndentationAt(Start);
@@ -1778,24 +1787,45 @@ bool FMCTongueWeightTest::RunTest(const FString&)
     Tongue->PressureSettings.FoodMargin=100; Tongue->PressureSettings.PressSeconds=.3f;
     Tongue->PressureSettings.TrailHoldSeconds=.35f;
     Step(2);
-    TestTrue(TEXT("Changing pressure tuning deepens the same physical surface"),Tongue->IndentationAt(Start)>BeforeTuning*1.5f);
+    TestTrue(TEXT("Changing pressure tuning deepens the visible surface"),Tongue->IndentationAt(Start)>BeforeTuning*1.5f);
     CheckContact();
     const FVector OldPlace=Food->GetActorLocation();
     const float HeldDepth=Tongue->IndentationAt(OldPlace);
     bool PressureMask=false,RimMask=false;
-    for (const auto& Vertex:Tongue->Surface->GetProcMeshSection(0)->ProcVertexBuffer)
+    for (const auto& Vertex:Tongue->VisualSurface->GetProcMeshSection(0)->ProcVertexBuffer)
     { PressureMask|=Vertex.Color.G>0; RimMask|=Vertex.Color.B>0; }
     TestTrue(TEXT("The shared pressure field supplies depth and rim material masks"),PressureMask && RimMask);
+    // This fixture holds the item above support. Its ordinary unreachable-food
+    // recovery would otherwise teleport it back after 2.25s despite gravity off.
+    const bool RecoveryFoodTickEnabled=Food->IsActorTickEnabled(); Food->SetActorTickEnabled(false);
     Food->Body->SetEnableGravity(false); Food->Body->SetPhysicsLinearVelocity(FVector::ZeroVector);
     Food->SetActorLocation(OldPlace+FVector(0,0,350),false,nullptr,ETeleportType::TeleportPhysics); Step(.2f);
     TestEqual(TEXT("Lifted food stops loading the floor"),FoodLoad(),0.f);
-    TestTrue(TEXT("Trail hold keeps the vacated physical imprint before recovery"),FMath::Abs(Tongue->IndentationAt(OldPlace)-HeldDepth)<.05f);
+    TestTrue(TEXT("Trail hold keeps the vacated visual imprint before recovery"),FMath::Abs(Tongue->IndentationAt(OldPlace)-HeldDepth)<.05f);
     TestTrue(TEXT("Vacated dent recovers gradually"),Tongue->IndentationAt(OldPlace)>0 && Tongue->IndentationAt(OldPlace)<Tongue->PressureSettings.MaxDepth);
     CheckContact();
     // Recovery must use elapsed time even with very slow frames (4 Hz).
-    for (int32 I=0;I<8;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.25f); }
+    const double RecoveryStart=Mouth.World->GetTimeSeconds();
+    const float RecoveryDepthBefore=Tongue->IndentationAt(OldPlace),RecoveryFoodLoadBefore=FoodLoad();
+    const int32 RecoveryLoadsBefore=Tongue->PressureLoads().Num();
+    const FBox RecoveryFoodBoundsBefore=Food->Body->Bounds.GetBox();
+    FString RecoveryTickDeltas; bool bReloadedDuringRecovery=false;
+    for (int32 I=0;I<8;++I)
+    {
+        const double TickStart=Mouth.World->GetTimeSeconds();
+        ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.25f);
+        bReloadedDuringRecovery|=FoodLoad()>0;
+        RecoveryTickDeltas+=FString::Printf(TEXT("%s%.6f/%.6f"),I?TEXT(","):TEXT(""),Mouth.World->GetDeltaSeconds(),Mouth.World->GetTimeSeconds()-TickStart);
+    }
+    const FBox RecoveryFoodBoundsAfter=Food->Body->Bounds.GetBox();
+    AddInfo(FString::Printf(TEXT("MC_PRESSURE_RECOVERY time=%.6f->%.6f elapsed=%.6f depth=%.6f->%.6f threshold=0.1 recover=%.6f hold=%.6f loads=%d->%d food_load=%.6f->%.6f food_bounds_z=[%.3f,%.3f]->[%.3f,%.3f] ticks_worlddelta/elapsed=[%s]"),
+        RecoveryStart,Mouth.World->GetTimeSeconds(),Mouth.World->GetTimeSeconds()-RecoveryStart,RecoveryDepthBefore,Tongue->IndentationAt(OldPlace),
+        Tongue->PressureSettings.RecoverSeconds,Tongue->PressureSettings.TrailHoldSeconds,RecoveryLoadsBefore,Tongue->PressureLoads().Num(),RecoveryFoodLoadBefore,FoodLoad(),
+        RecoveryFoodBoundsBefore.Min.Z,RecoveryFoodBoundsBefore.Max.Z,RecoveryFoodBoundsAfter.Min.Z,RecoveryFoodBoundsAfter.Max.Z,*RecoveryTickDeltas));
+    TestFalse(TEXT("The held-out fixture food stays unsupported throughout recovery"),bReloadedDuringRecovery);
     TestTrue(TEXT("Surface recovers after lifting even at 4 Hz"),Tongue->IndentationAt(OldPlace)<.1f);
     CheckContact();
+    Food->SetActorTickEnabled(RecoveryFoodTickEnabled);
     Food->SetActorLocation(Start,false,nullptr,ETeleportType::TeleportPhysics); Food->Body->SetEnableGravity(true); Step(2);
     TestTrue(TEXT("Putting food down restores its load"),FoodLoad()>0);
     Food->Dispose(); Step(.2f); TestEqual(TEXT("Disposed item has no load"),FoodLoad(),0.f);
@@ -1818,9 +1848,9 @@ bool FMCTongueDesignerTest::RunTest(const FString&)
     Preset->SurfaceMaterial=LoadObject<UMaterialInterface>(nullptr,TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"));
     const auto Motion=Tongue->Motion; const float Idle=Tongue->Settings.IdleHeight;
     Tongue->ApplyPressurePreset(Preset);
-    TestEqual(TEXT("Preset supplies physical depth"),Tongue->PressureSettings.MaxDepth,17.f);
+    TestEqual(TEXT("Preset supplies visual pressure depth"),Tongue->PressureSettings.MaxDepth,17.f);
     TestEqual(TEXT("Preset supplies footprint shape"),Tongue->PressureSettings.FalloffPower,2.3f);
-    TestEqual(TEXT("Preset changes the presentation material"),Tongue->Surface->GetMaterial(0),Preset->SurfaceMaterial.Get());
+    TestEqual(TEXT("Preset changes the visible presentation material"),Tongue->VisualSurface->GetMaterial(0),Preset->SurfaceMaterial.Get());
     TestTrue(TEXT("Pressure presets preserve independent event motion"),Tongue->Motion.Serial==Motion.Serial && Tongue->Settings.IdleHeight==Idle);
     Preset->Settings.MaxDepth=14; Tongue->ApplyPressurePreset(Preset);
     TestEqual(TEXT("The same preset can be reapplied after designer edits"),Tongue->PressureSettings.MaxDepth,14.f);
@@ -1849,10 +1879,14 @@ bool FMCTonguePlayerWeightTest::RunTest(const FString&)
     Step(2); const auto* Standing=Find();
     TestTrue(TEXT("Grounded character loads the tongue"),Standing && Standing->Kind==EMCTongueLoadKind::Player);
     if (!Standing) return false;
-    FHitResult Pressed; Tongue->SurfacePoint(Hero->GetActorLocation(),Pressed);
-    TestTrue(TEXT("Player stands inside its physical dent"),Hit.ImpactPoint.Z-Pressed.ImpactPoint.Z>.5f && Hero->GetCharacterMovement()->IsMovingOnGround());
+    FHitResult Pressed; const bool Supported=Tongue->SurfacePoint(Hero->GetActorLocation(),Pressed);
+    TestTrue(TEXT("Player retains the authored gameplay floor while its visible dent develops"),
+        Supported && FMath::Abs(Hit.ImpactPoint.Z-Pressed.ImpactPoint.Z)<.05f && Hero->GetCharacterMovement()->IsMovingOnGround());
+    FVector VisualPoint,VisualNormal;
+    TestTrue(TEXT("Standing pressure still produces a visible dent below stable gameplay support"),
+        Supported && Tongue->VisualSurfacePoint(Pressed,VisualPoint,VisualNormal) && Pressed.ImpactPoint.Z-VisualPoint.Z>.5f);
     const float Sole=Hero->GetActorLocation().Z-Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-    TestTrue(TEXT("Capsule stays on the deformed floor"),Sole-Pressed.ImpactPoint.Z>=-.5f && Sole-Pressed.ImpactPoint.Z<4);
+    TestTrue(TEXT("Capsule stays on stable gameplay support"),Sole-Pressed.ImpactPoint.Z>=-.5f && Sole-Pressed.ImpactPoint.Z<4);
     const float RestLoad=Standing->Depth;
     Hero->LaunchCharacter(FVector(0,0,600),false,true); Step(.2f);
     TestNull(TEXT("Airborne character has no standing load"),Find());
@@ -2895,9 +2929,14 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCWaveDodgeTest,"MessControl.Hazards.JumpClear
 bool FMCWaveDodgeTest::RunTest(const FString&)
 {
     FTestMouth M; M.Mode->SetActorTickEnabled(false);
+    auto* Floor=M.World->SpawnActor<AActor>();
+    auto* FloorBox=NewObject<UBoxComponent>(Floor); Floor->SetRootComponent(FloorBox);
+    FloorBox->SetBoxExtent(FVector(600,600,10)); FloorBox->SetCollisionProfileName(TEXT("BlockAll"));
+    FloorBox->RegisterComponent(); Floor->SetActorLocation(FVector(5000,0,-10));
     auto* Low=M.Worker(); auto* High=M.Worker();
     Low->SetActorLocation(FVector(5000,100,Low->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
     High->SetActorLocation(FVector(5000,-100,High->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+90));
+    High->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
     auto* Wave=M.World->SpawnActor<AMCHazardWave>(FVector(5000,0,0),FRotator::ZeroRotator);
     Wave->MaxRadius=300; Wave->WarningSeconds=.1f; Wave->Damage=12; Wave->TravelSeconds=1;
     const float LowHP=Low->Status->State.Health,HighHP=High->Status->State.Health;
@@ -2944,7 +2983,7 @@ bool FMCUlcerSurfaceWaveTest::RunTest(const FString&)
         Wave->StartedAt=Tongue->ServerTime()-Wave->WarningSeconds-Age;
         Tongue->Tick(.033f);
         float Sum=0,WeightedRadius=0,Outside=0,Peak=0; int32 PeakIndex=INDEX_NONE;
-        const auto* Section=Tongue->Surface->GetProcMeshSection(0);
+        const auto* Section=Tongue->VisualSurface->GetProcMeshSection(0);
         bool Red=false,OutsideRed=false;
         for(int32 I=0;I<Rest.Num();++I)
         {
@@ -2962,7 +3001,12 @@ bool FMCUlcerSurfaceWaveTest::RunTest(const FString&)
         if(PeakIndex!=INDEX_NONE)
         {
             const FVector P=Tongue->CurrentVertices()[PeakIndex]; FHitResult Hit;
-            TestTrue(TEXT("Collision follows the visible crest"),Tongue->SurfacePoint(P,Hit) && FMath::Abs(Hit.ImpactPoint.Z-P.Z)<1);
+            const bool Supported=Tongue->SurfacePoint(P,Hit);
+            TestTrue(TEXT("The visible pain crest leaves gameplay collision at the authored surface"),
+                Supported && Hit.GetComponent()==Tongue->Surface && FMath::Abs(Hit.ImpactPoint.Z-Rest[PeakIndex].Z)<1);
+            FVector VisualPoint,VisualNormal;
+            TestTrue(TEXT("Presentation can resolve the moving crest separately from stable support"),
+                Supported && Tongue->VisualSurfacePoint(Hit,VisualPoint,VisualNormal) && FMath::Abs(VisualPoint.Z-P.Z)<1);
         }
         return WeightedRadius/FMath::Max(1.f,Sum);
     };
@@ -2992,9 +3036,43 @@ bool FMCUlcerSurfaceWaveTest::RunTest(const FString&)
     Tongue->Tick(.033f);
     float Remaining=0; for(int32 I=0;I<Rest.Num();++I) Remaining=FMath::Max(Remaining,float(FVector::Distance(Rest[I],Tongue->CurrentVertices()[I])));
     TestTrue(TEXT("Treatment stops the surface wave immediately"),Remaining<.001f);
-    bool RemainingRed=false; for(const auto& V:Tongue->Surface->GetProcMeshSection(0)->ProcVertexBuffer) RemainingRed|=V.Color.R!=0;
+    bool RemainingRed=false; for(const auto& V:Tongue->VisualSurface->GetProcMeshSection(0)->ProcVertexBuffer) RemainingRed|=V.Color.R!=0;
     TestFalse(TEXT("Treatment also stops the local pain redness"),RemainingRed);
     Wave->Tick(.01f); TestTrue(TEXT("Treatment also removes the damage wave"),Wave->IsActorBeingDestroyed());
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCTonguePainJumpTest,"MessControl.Hazards.JumpClearsUlcerTonguePush",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCTonguePainJumpTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->Phase=EMCShiftPhase::Working;
+    const FTransform Pose(FVector(5000,0,0));
+    auto* Tongue=M.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),Pose);
+    Tongue->SourceMesh=ReadyCareTestMesh(TEXT("/Game/Gameplay/Arena/SM_TongueSurface.SM_TongueSurface"));
+    Tongue->FinishSpawning(Pose); Tongue->SetActorTickEnabled(false);
+    Tongue->Settings.IdleHeight=0; Tongue->PressureSettings.bEnabled=false; Tongue->Tick(.033f);
+    FHitResult Origin;
+    if(!TestTrue(TEXT("The pain fixture has real tongue collision"),Tongue->SurfacePoint(FBox(Tongue->CurrentWorldVertices()).GetCenter(),Origin))) return false;
+    if(!TestTrue(TEXT("The actual ulcer disturbance starts its pain motion"),Tongue->TriggerPain(Origin.ImpactPoint))) return false;
+    constexpr float Distance=100.f;
+    Tongue->Motion.StartedAt=Tongue->ServerTime()-Tongue->Motion.Settings.Anticipation-Distance/Tongue->Motion.Settings.Speed;
+    Tongue->Tick(.016f);
+    FHitResult LowFloor,HighFloor;
+    if(!TestTrue(TEXT("Both players have stable gameplay support under the visible pain wave"),
+        Tongue->SurfacePoint(Origin.ImpactPoint+FVector(0,Distance,0),LowFloor)
+        && Tongue->SurfacePoint(Origin.ImpactPoint-FVector(0,Distance,0),HighFloor))) return false;
+    auto* Low=M.Worker(); auto* High=M.Worker();
+    Low->SetActorLocation(LowFloor.ImpactPoint+FVector(0,0,Low->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3));
+    High->SetActorLocation(HighFloor.ImpactPoint+FVector(0,0,High->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+40));
+    High->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+    if(!TestTrue(TEXT("Airborne sole clearance uses stable gameplay support rather than the cosmetic crest"),High->ClearsGroundWave())) return false;
+    const int32 Before=Tongue->PlayerPushes;
+    Tongue->Tick(.016f);
+    TestEqual(TEXT("The same pain front pushes only the grounded player"),Tongue->PlayerPushes,Before+1);
+    TestTrue(TEXT("The jumping player retains physical control"),High->ToothPhysics->CanAct());
+    High->SetActorLocation(HighFloor.ImpactPoint+FVector(0,0,High->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3));
+    High->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    Tongue->Tick(.016f);
+    TestEqual(TEXT("Landing after the recorded crossing never applies a delayed push"),Tongue->PlayerPushes,Before+1);
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCClimbTest,"MessControl.Locomotion.ClimbHangReleaseAndPredictedJump",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

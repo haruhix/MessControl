@@ -12,6 +12,9 @@
 #include "MCTongue.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMeshActor.h"
+#include "Engine/StaticMesh.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -31,9 +34,9 @@
 void MCTickActiveRagdollValidation(UWorld* World)
 {
     struct FRun {
-        TWeakObjectPtr<UWorld> World; TWeakObjectPtr<ACameraActor> Camera;
-        double Age=0,NextLog=0,NextPing=6; int32 Stage=0,Seen=0,Captured=0,FootSamples=0,PingSamples=0;
-        bool Started=false,Jumped=false,ClientGuard=false,Failed=false,FinalPeersObserved=false,FinalPeersValid=true;
+        TWeakObjectPtr<UWorld> World; TWeakObjectPtr<ACameraActor> Camera; TWeakObjectPtr<AStaticMeshActor> StaticFloorActor;
+        double Age=0,NextLog=0,NextPing=6,NextFloorTraceDiagnostic=0; int32 Stage=0,Seen=0,Captured=0,FootSamples=0,PingSamples=0;
+        bool Started=false,Jumped=false,ClientGuard=false,Failed=false,FinalPeersObserved=false,FinalPeersValid=true,FloorTraceLogged=false;
         float MaxBodyOffset=0,MaxFootDepth=0,BadPoseSeconds=0,NextOffsetDiagnostic=60;
         float PingTotal=0,MinPing=MAX_flt,MaxPing=0;
         TMap<TWeakObjectPtr<AMCToothCharacter>,uint8> PeerStates;
@@ -46,40 +49,109 @@ void MCTickActiveRagdollValidation(UWorld* World)
     if(!GS || !PC || !H || !Tongue) return;
     const bool Host=World->GetNetMode()!=NM_Client;
     const bool SoftOnly=FParse::Param(FCommandLine::Get(),TEXT("MCActiveRagdollSoftOnly"));
+    const bool StaticFloor=FParse::Param(FCommandLine::Get(),TEXT("MCActiveRagdollStaticFloor"));
+    const FVector FloorOrigin(0,0,10000),FloorScale(60,60,.2);
+    const FName FloorTag=TEXT("MCActiveRagdollStaticFloor");
     float ExpectedPing=0; FParse::Value(FCommandLine::Get(),TEXT("MCExpectedPingMs="),ExpectedPing);
     int32 Expected=1; FParse::Value(FCommandLine::Get(),TEXT("MCExpectedPlayers="),Expected);
+    auto Finish=[&](bool Pass) {
+        UE_LOG(LogTemp,Display,TEXT("MC_ACTIVE_RAGDOLL_%s net=%d soft_only=%d seen=%d peer_states=%d body_offset=%.2f foot_depth=%.2f foot_samples=%d bad_pose=%.3f client_guard=%d ping_min=%.1f ping_avg=%.1f ping_max=%.1f ping_samples=%d static_floor=%d floor_valid=%d"),
+            Pass?TEXT("PASS"):TEXT("FAIL"),int32(World->GetNetMode()),SoftOnly,R.Seen,R.PeerStates.Num(),R.MaxBodyOffset,R.MaxFootDepth,R.FootSamples,R.BadPoseSeconds,R.ClientGuard,
+            R.PingSamples?R.MinPing:0,R.PingSamples?R.PingTotal/R.PingSamples:0,R.MaxPing,R.PingSamples,StaticFloor,R.StaticFloorActor.IsValid());
+        FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
+    };
+    // Preparation can legitimately outlast the old 100-second fixture budget
+    // in Editor-target network processes. Outcome windows below stay unchanged.
+    if(R.Age>180) { Finish(false); return; }
 #if WITH_EDITOR
     if(GShaderCompilingManager && GShaderCompilingManager->IsCompiling()) return;
 #endif
-    auto Finish=[&](bool Pass) {
-        UE_LOG(LogTemp,Display,TEXT("MC_ACTIVE_RAGDOLL_%s net=%d soft_only=%d seen=%d peer_states=%d body_offset=%.2f foot_depth=%.2f foot_samples=%d bad_pose=%.3f client_guard=%d ping_min=%.1f ping_avg=%.1f ping_max=%.1f ping_samples=%d"),
-            Pass?TEXT("PASS"):TEXT("FAIL"),int32(World->GetNetMode()),SoftOnly,R.Seen,R.PeerStates.Num(),R.MaxBodyOffset,R.MaxFootDepth,R.FootSamples,R.BadPoseSeconds,R.ClientGuard,
-            R.PingSamples?R.MinPing:0,R.PingSamples?R.PingTotal/R.PingSamples:0,R.MaxPing,R.PingSamples);
-        FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
+    auto LocalReady=[&]() {
+        return PC->IsWorldPresentationReady() && PC->HasAcknowledgedGameplay()
+            && H->GetController()==PC && !H->IsArenaArrivalHeld()
+            && !PC->IsMoveInputIgnored() && !PC->IsLookInputIgnored();
     };
-    if(R.Age>100) { Finish(false); return; }
+    if(StaticFloor && !Host && !R.StaticFloorActor.IsValid()) {
+        for(TActorIterator<AStaticMeshActor> It(World);It;++It) {
+            auto* Component=It->GetStaticMeshComponent();
+            // Actor tags are not replicated. Owner plus the actual replicated mesh/transform identifies this fixture.
+            if(It->GetOwner()==GS && It->GetActorLocation().Equals(FloorOrigin,1) && It->GetActorScale3D().Equals(FloorScale,.01)
+                && Component && Component->IsRegistered() && Component->GetStaticMesh()
+                && Component->GetStaticMesh()->GetPathName()==TEXT("/Engine/BasicShapes/Cube.Cube")
+                && Component->GetCollisionEnabled()!=ECollisionEnabled::NoCollision && Component->GetCollisionResponseToChannel(ECC_Pawn)==ECR_Block) {
+                It->Tags.AddUnique(FloorTag);R.StaticFloorActor=*It;break;
+            }
+        }
+    }
+    auto SurfacePoint=[&](const FVector& Point,FHitResult& Hit) {
+        if(!StaticFloor) return Tongue->SurfacePoint(Point,Hit);
+        auto* Floor=R.StaticFloorActor.Get();auto* Component=Floor?Floor->GetStaticMeshComponent():nullptr;
+        if(!Component || !Component->IsRegistered() || !Component->GetStaticMesh()) return false;
+        const FBox Bounds=Component->Bounds.GetBox();
+        const FCollisionQueryParams Query(SCENE_QUERY_STAT(MCActiveRagdollStaticFloor),false);
+        const bool GeometryHit=Component->LineTraceComponent(Hit,FVector(Point.X,Point.Y,Bounds.Max.Z+500),FVector(Point.X,Point.Y,Bounds.Min.Z-500),Query);
+        // Chaos body-instance geometry rays use an overlap-all query filter; bBlockingHit is not a collision-profile verdict.
+        const bool BlocksPawn=Component->GetCollisionEnabled()==ECollisionEnabled::QueryAndPhysics && Component->GetCollisionResponseToChannel(ECC_Pawn)==ECR_Block;
+        const bool Valid=GeometryHit && BlocksPawn && Hit.GetComponent()==Component && Hit.ImpactNormal.Z>.9f
+            && FMath::IsNearlyEqual(Hit.ImpactPoint.Z,Bounds.Max.Z,.5);
+        if(!R.FloorTraceLogged || (!Valid && R.Age>=R.NextFloorTraceDiagnostic)) {
+            R.FloorTraceLogged=true;R.NextFloorTraceDiagnostic=R.Age+3;
+            const auto* Body=Component->GetBodyInstance();
+            UE_LOG(LogTemp,Display,TEXT("MC_ACTIVE_STATIC_FLOOR_TRACE net=%d raw_hit=%d blocking=%d pawn_block=%d component_match=%d body_valid=%d normal_z=%.3f hit_z=%.3f top_z=%.3f valid=%d component=%s expected=%s"),
+                int32(World->GetNetMode()),GeometryHit,Hit.bBlockingHit,BlocksPawn,Hit.GetComponent()==Component,Body && Body->IsValidBodyInstance(),Hit.ImpactNormal.Z,Hit.ImpactPoint.Z,Bounds.Max.Z,Valid,
+                *GetNameSafe(Hit.GetComponent()),*GetNameSafe(Component));
+        }
+        return Valid;
+    };
     if(Host && !R.Started && GS->PlayerArray.Num()>=Expected && R.Age>3) {
+        // Player count/possession can precede prewarm and the loading cover's
+        // input release. Start the shared phase clock only after the real ACK
+        // barrier; never spend the movement window behind that cover.
+        bool TeamReady=LocalReady(); int32 ReadyPlayers=0;
+        for(FConstPlayerControllerIterator It=World->GetPlayerControllerIterator();It;++It) {
+            const auto* Player=Cast<AMCPlayerController>(It->Get());
+            const auto* Hero=Player?Cast<AMCToothCharacter>(Player->GetPawn()):nullptr;
+            if(!Player || !Hero || !Player->HasAcknowledgedGameplay() || Hero->IsArenaArrivalHeld()
+                || (!Player->IsLocalController() && Player->AcknowledgedPawn!=Hero)) TeamReady=false;
+            else ++ReadyPlayers;
+        }
+        if(!TeamReady || ReadyPlayers<Expected) return;
         World->GetAuthGameMode()->SetActorTickEnabled(false);
         GS->bDevManualEvents=true; GS->Phase=EMCShiftPhase::Working; GS->PhaseEndsAt=0;
         GS->DayStartedAt=GS->GetServerWorldTimeSeconds()+2; GS->ForceNetUpdate();
         for(TActorIterator<AMCFoodActor> It(World);It;++It) It->Dispose();
+        if(StaticFloor) {
+            const FTransform FloorTransform(FRotator::ZeroRotator,FloorOrigin,FloorScale);
+            auto* Floor=World->SpawnActorDeferred<AStaticMeshActor>(AStaticMeshActor::StaticClass(),FloorTransform,GS,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+            if(!Floor) {Finish(false);return;}
+            Floor->Tags.Add(FloorTag);Floor->SetMobility(EComponentMobility::Movable);
+            Floor->SetReplicates(true);Floor->bAlwaysRelevant=true;Floor->SetReplicateMovement(true);
+            auto* Component=Floor->GetStaticMeshComponent();Component->SetIsReplicated(true);
+            Component->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")));
+            Component->SetCollisionProfileName(TEXT("BlockAll"));Floor->FinishSpawning(FloorTransform);Floor->ForceNetUpdate();
+            R.StaticFloorActor=Floor;
+        }
         int32 I=0;
         for(TActorIterator<AMCToothCharacter> It(World);It;++It) {
             R.Failed|=It->ToothPhysics->GetActiveRagdollMode()!=EMCActiveRagdollMode::Soft;
             FHitResult Floor; const FVector P(-420,(I++-(Expected-1)*.5f)*140,0);
-            if(!Tongue->SurfacePoint(P,Floor)) { R.Failed=true; continue; }
+            if(!SurfacePoint(P,Floor)) { R.Failed=true; continue; }
             It->GetCharacterMovement()->StopMovementImmediately();
             It->SetActorLocationAndRotation(Floor.ImpactPoint+FVector(0,0,61),FRotator::ZeroRotator,false,nullptr,ETeleportType::TeleportPhysics);
+            It->NotifyNetworkPositionReset();
             It->GetCharacterMovement()->SetMovementMode(MOVE_Walking); It->Status->Initialize(100);
         }
         R.Started=true;
     }
     if(!Host && GS->bDevManualEvents && !R.Started) {
+        if(!LocalReady()) return;
+        if(StaticFloor) {FHitResult Support;if(!R.StaticFloorActor.IsValid() || !SurfacePoint(FloorOrigin,Support)) return;}
         const auto Before=H->ToothPhysics->GetActiveRagdollMode(); PC->RequestDevAction(EMCDevAction::ActiveRagdoll,2);
         R.Failed|=Before!=EMCActiveRagdollMode::Soft;
         R.ClientGuard=!PC->CanUseDevPanel() && H->ToothPhysics->GetActiveRagdollMode()==Before; R.Started=true;
     }
     if(!R.Started) return;
+    if(StaticFloor && !R.StaticFloorActor.IsValid()) {Finish(false);return;}
     const double T=GS->GetServerWorldTimeSeconds()-GS->DayStartedAt;
     if(T<0) return;
     // Owner ping is measured RTT averaged by the engine; sample after its warmup.
@@ -201,7 +273,12 @@ void MCTickActiveRagdollValidation(UWorld* World)
             if(Core && Foot && !Core->IsInstanceSimulatingPhysics() && Foot->IsInstanceSimulatingPhysics() && Core->PhysicsBlendWeight==0 && Foot->PhysicsBlendWeight>.99f) R.Seen|=8;
             for(FName Side:{FName("toe_l"),FName("toe_r")}) {
                 const FVector P=Mesh->GetSocketLocation(H->RigBone(Side)); FHitResult Floor;
-                if(Tongue->SurfacePoint(P,Floor)) { ++R.FootSamples; R.MaxFootDepth=FMath::Max(R.MaxFootDepth,float(Floor.ImpactPoint.Z-P.Z)); }
+                if(SurfacePoint(P,Floor)) { ++R.FootSamples; R.MaxFootDepth=FMath::Max(R.MaxFootDepth,float(Floor.ImpactPoint.Z-P.Z)); }
+                else if(StaticFloor) {
+                    if(!R.Failed) UE_LOG(LogTemp,Error,TEXT("MC_ACTIVE_STATIC_FLOOR_FAIL actor=%s t=%.3f toe=%s point=%s floor=%s"),
+                        *H->GetName(),T,*Side.ToString(),*P.ToCompactString(),*GetNameSafe(R.StaticFloorActor.Get()));
+                    R.Failed=true;
+                }
             }
         }
         if(Bad && !SoftOnly) R.BadPoseSeconds+=World->GetDeltaSeconds();

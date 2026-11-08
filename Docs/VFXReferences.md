@@ -1,5 +1,17 @@
 # eeproducible VFX reference library
 
+## Procedural strawberry cut interior — 2026-11-07
+
+- [Tatjana Mink's procedural strawberry pulp](https://yarobot.artstation.com/projects/R3R4ny) informed the pale axial core and red flesh. This experiment uses an original HLSL volume field, authored in `M_FoodCutPulp` through the native material MCP and retained in `Tools/Unreal/author_food_cut_pulp_mcp.py`.
+- [Epic Custom Material Expressions](https://dev.epicgames.com/documentation/en-us/unreal-engine/custom-material-expressions-in-unreal-engine) describes Custom inputs, shader code and constant-folding limitations. Original local position and normalization use ordinary graph nodes. The Custom node computes the tapered core, interpolated volume noise and roughness. The graph adds no texture samples, transparency or displacement.
+- [Epic Vector Material Expressions](https://dev.epicgames.com/documentation/en-us/unreal-engine/vector-material-expressions-in-unreal-engine) describes bounds-derived object position. This material uses fixed source-mesh coordinates and editable center/extent parameters, so successive procedural caps sample the same interior as the body moves and its remaining bounds shrink.
+
+The experiment is assigned to the existing `MI_FoodCut_Strawberry`. Its arena preload root reaches the new parent. A targeted transient Strawberry fixture in the shared `Tool.Knife` Composer action observed real Swing, Hit and FoodCut events and two native cut fragments. Retained geometry provided separate frames for the old flat material and the new material. Additional native-slicing studies cover the central, transverse and repeated oblique cut. The ordinary Composer target still chooses its food automatically, so it does not always show this Strawberry variant.
+
+Solo `L_Mouth` PIE confirmed both material packages retained before Ready, then accepted normal knife input and built two Strawberry cut meshes with the new material. The first attempt tried to select the knife before the pawn could switch tools. A retry waited for ordinary selection readiness and passed. The gameplay-camera capture was dark and showed the outer skin, so it does not establish artistic acceptance of the cap. The useful review frames are from the isolated Composer world. The surface remains a smooth first prototype and needs further art review.
+
+The local Editor material statistics report 421 pixel instructions versus 267 for the flat parent, with the same three renderer texture samples and samplers. Those totals include Default Lit rendering work. No GPU-time or packaged first-launch measurement has been performed. Evidence and media are under `E:/CodexWork/MessControl/Validation/FoodCutPulp_20261107/`.
+
 ## Sponge contact foam and wet wake — 2026-11-07
 
 - [Lush’s soap suds discussion](https://realtimevfx.com/t/real-time-foam-soap-suds-shader/9919/2) informed the cream silhouettes and darker recesses. The first pass used a connected foam bank at the deck and separate low mesh clumps at the edges of its wake. An atlas-based edge pass produced flat transverse streaks in the Composer preview and was replaced by the mesh clumps.

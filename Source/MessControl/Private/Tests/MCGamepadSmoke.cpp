@@ -103,11 +103,11 @@ bool FMCToolWheelGuardTest::RunTest(const FString&)
     W.Controller->bShowMouseCursor=false;W.Controller->SetIgnoreMoveInput(true);
     TestFalse(TEXT("Loading/movement input barriers block tool scrolling"),MCToolScrollInput::Handle(*W.Hero,1.f,Cursor));
     W.Controller->SetIgnoreMoveInput(false);
-    W.World->GetGameState<AMCGameState>()->TeamToolUpgrades|=1<<(uint8(EMCToolUpgrade::Chainsaw)-1);
-    W.Hero->Inventory->ServerSelect(EMCToolSlot::Knife);W.Hero->Inventory->bChainsawRunning=true;
+    if(!TestTrue(TEXT("The fixture grants the actual inventory chainsaw upgrade"),W.Hero->Inventory->GrantDevToolUpgrade(EMCToolUpgrade::Chainsaw))) return false;
+    W.Hero->Inventory->ServerSelect(EMCToolSlot::Knife);W.Hero->Inventory->StartChainsaw();
     if(!TestTrue(TEXT("The fixture has a selected, upgraded, actively running chainsaw"),W.Hero->Inventory->IsChainsawRunning())) return false;
     TestFalse(TEXT("An active chainsaw retains the existing tool lock"),MCToolScrollInput::Handle(*W.Hero,1.f,Cursor));
-    W.Hero->Inventory->bChainsawRunning=false;W.Hero->Inventory->ServerSelect(EMCToolSlot::Brush);Cursor.Reset();
+    W.Hero->Inventory->CancelUpgradeUse();W.Hero->Inventory->ServerSelect(EMCToolSlot::Brush);Cursor.Reset();
     auto* Other=W.World->SpawnActor<AMCToothCharacter>(FVector(1000,0,10000),FRotator::ZeroRotator);
     W.Hero->Grip->GrabbedPlayer=Other;
     TestFalse(TEXT("An incompatible player grip blocks scroll selection"),MCToolScrollInput::Handle(*W.Hero,1.f,Cursor));
@@ -119,7 +119,7 @@ bool FMCToolWheelGuardTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCToolWheelBindingsTest,"MessControl.Input.Tools.ShiftWheelRoutesZoom",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCToolWheelBindingsTest,"MessControl.Input.Tools.ControlWheelRoutesZoom",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCToolWheelBindingsTest::RunTest(const FString&)
 {
@@ -162,35 +162,42 @@ bool FMCToolWheelBindingsTest::RunTest(const FString&)
     // Feed normal engine key events and process them. Never write FKeyState or
     // a synthetic modifier flag: the production route reads IsInputKeyDown.
     if(!W.Controller->PlayerInput) W.Controller->PlayerInput=NewObject<UEnhancedPlayerInput>(W.Controller);
-    auto Shift=[&](FKey Key,bool Down) {
+    auto Modifier=[&](FKey Key,bool Down) {
         auto Args=FInputKeyEventArgs::CreateSimulated(Key,Down?IE_Pressed:IE_Released,Down?1.f:0.f,1,
             IPlatformInputDeviceMapper::Get().GetDefaultInputDevice());
         Args.DeltaTime=1.f/60;W.Controller->InputKey(Args);
         const TArray<UInputComponent*> EmptyStack;
         W.Controller->PlayerInput->ProcessInputStack(EmptyStack,1.f/60,false);
-        TestEqual(TEXT("Controller observes the actual processed Shift key state"),W.Controller->IsInputKeyDown(Key),Down);
+        TestEqual(TEXT("Controller observes the actual processed modifier key state"),W.Controller->IsInputKeyDown(Key),Down);
     };
     Scroll(1.f);
     TestEqual(TEXT("The bound wheel action selected the next tool"),W.Hero->Inventory->Selected,EMCToolSlot::Pickaxe);
     TestEqual(TEXT("The bound wheel action did not zoom"),W.Hero->CameraOrbitDistance,Distance);
-    for(const FKey Key:{EKeys::LeftShift,EKeys::RightShift}) {
+    for(const FKey Key:{EKeys::LeftControl,EKeys::RightControl}) {
         const EMCToolSlot Before=W.Hero->Inventory->Selected;
-        Shift(Key,true);Scroll(1.f);
-        TestTrue(TEXT("Either Shift plus wheel up zooms in"),W.Hero->CameraOrbitDistance<Distance);
-        TestEqual(TEXT("Shift zoom does not change the selected tool"),W.Hero->Inventory->Selected,Before);
+        Modifier(Key,true);Scroll(1.f);
+        TestTrue(TEXT("Either Control plus wheel up zooms in"),W.Hero->CameraOrbitDistance<Distance);
+        TestEqual(TEXT("Control zoom does not change the selected tool"),W.Hero->Inventory->Selected,Before);
         Scroll(-1.f);
-        TestTrue(TEXT("Either Shift plus wheel down restores the previous camera distance"),FMath::IsNearlyEqual(W.Hero->CameraOrbitDistance,Distance,.01f));
-        Shift(Key,false);Scroll(1.f);
+        TestTrue(TEXT("Either Control plus wheel down restores the previous camera distance"),FMath::IsNearlyEqual(W.Hero->CameraOrbitDistance,Distance,.01f));
+        Modifier(Key,false);Scroll(1.f);
         const EMCToolSlot Next=EMCToolSlot((int32(Before)+1)%(int32(EMCToolSlot::Spray)+1));
-        TestEqual(TEXT("Releasing Shift immediately restores ordinary tool scrolling"),W.Hero->Inventory->Selected,Next);
+        TestEqual(TEXT("Releasing Control immediately restores ordinary tool scrolling"),W.Hero->Inventory->Selected,Next);
         TestTrue(TEXT("No zoom modifier remains latched after release"),FMath::IsNearlyEqual(W.Hero->CameraOrbitDistance,Distance,.01f));
     }
+    for(const FKey Key:{EKeys::LeftShift,EKeys::RightShift}) {
+        const EMCToolSlot Before=W.Hero->Inventory->Selected;
+        Modifier(Key,true);Scroll(1.f);Modifier(Key,false);
+        const EMCToolSlot Next=EMCToolSlot((int32(Before)+1)%(int32(EMCToolSlot::Spray)+1));
+        TestEqual(TEXT("Shift leaves the wheel available for tool switching"),W.Hero->Inventory->Selected,Next);
+        TestTrue(TEXT("Shift no longer zooms the camera"),FMath::IsNearlyEqual(W.Hero->CameraOrbitDistance,Distance,.01f));
+    }
     const EMCToolSlot BeforeUI=W.Hero->Inventory->Selected;
-    W.Controller->bShowMouseCursor=true;Scroll(1.f);Shift(EKeys::LeftShift,true);Scroll(1.f);Shift(EKeys::LeftShift,false);
-    TestEqual(TEXT("Cursor UI blocks ordinary scrolling and Shift zoom tool changes"),W.Hero->Inventory->Selected,BeforeUI);
-    TestTrue(TEXT("Cursor UI blocks Shift zoom"),FMath::IsNearlyEqual(W.Hero->CameraOrbitDistance,Distance,.01f));
+    W.Controller->bShowMouseCursor=true;Scroll(1.f);Modifier(EKeys::LeftControl,true);Scroll(1.f);Modifier(EKeys::LeftControl,false);
+    TestEqual(TEXT("Cursor UI blocks ordinary scrolling and Control zoom tool changes"),W.Hero->Inventory->Selected,BeforeUI);
+    TestTrue(TEXT("Cursor UI blocks Control zoom"),FMath::IsNearlyEqual(W.Hero->CameraOrbitDistance,Distance,.01f));
     W.Controller->bShowMouseCursor=false;
-    W.Controller->SetIgnoreLookInput(true);Scroll(-1.f);Shift(EKeys::RightShift,true);Scroll(-1.f);Shift(EKeys::RightShift,false);
+    W.Controller->SetIgnoreLookInput(true);Scroll(-1.f);Modifier(EKeys::RightControl,true);Scroll(-1.f);Modifier(EKeys::RightControl,false);
     TestEqual(TEXT("A look-blocking modal preserves the selected tool"),W.Hero->Inventory->Selected,BeforeUI);
     TestTrue(TEXT("A look-blocking modal preserves the camera distance"),FMath::IsNearlyEqual(W.Hero->CameraOrbitDistance,Distance,.01f));
     W.Controller->SetIgnoreLookInput(false);
@@ -211,7 +218,7 @@ bool FMCToolWheelBindingsTest::RunTest(const FString&)
     TestFalse(TEXT("Holding Shift does not queue a dash"),Move->WantsDash());
     Trigger(KeyboardSprint,ETriggerEvent::Completed);
     TestFalse(TEXT("Releasing Shift stops sprint"),Move->WantsToSprint());
-    TestFalse(TEXT("Releasing Shift cannot turn zoom into a dash"),Move->WantsDash());
+    TestFalse(TEXT("Releasing Shift does not queue a dash"),Move->WantsDash());
     Trigger(ControlDash,ETriggerEvent::Started);
     TestTrue(TEXT("The Control action queues the independent dash"),Move->WantsDash());
     TestFalse(TEXT("Control alone does not start sprint"),Move->WantsToSprint());

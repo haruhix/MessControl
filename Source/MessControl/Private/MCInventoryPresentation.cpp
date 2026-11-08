@@ -43,7 +43,8 @@ bool UMCInventoryComponent::PresentAcceptedSprayContact(FVector Point)
     SprayContactPresentationAt=Time;SprayContactPresentationPoint=Point;
     bSprayContactPointKnown=true;
     auto* Source=MCInventoryPresentation::Channel(Hero);if(!Source)return false;
-    const FVector Origin=SprayOrigin(),Direction=SprayDirection();
+    const FVector Origin=Hero?Hero->GetPresentationFrame().FromCanonicalWorld(SprayOrigin()):SprayOrigin();
+    const FVector Direction=(SprayAim()-Origin).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
     auto V=MCInventoryPresentation::Inputs(Hero,Origin,Direction,SprayReach(),SprayWidthMultiplier(),
         HasUpgrade(EMCToolUpgrade::Watergun),Point,true,Time,float(Time-SprayContactPresentationStarted));
     FString Error;
@@ -58,7 +59,8 @@ bool UMCInventoryComponent::UpdateSprayComposerPresentation(bool Spray,bool Wate
     const double Time=Now();
     const FName Event=Spray?FName(TEXT("Start")):Water?FName(TEXT("WaterCare")):NAME_None;
     auto* Source=MCInventoryPresentation::Channel(Hero);
-    const FVector Origin=SprayOrigin(),Direction=SprayDirection();
+    const FVector Origin=Hero?Hero->GetPresentationFrame().FromCanonicalWorld(SprayOrigin()):SprayOrigin();
+    const FVector Direction=(SprayAim()-Origin).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
     const float Reach=SprayReach(),Width=SprayWidthMultiplier();
     const float AuthoredReach=Water?(Settings?Settings->WatergunCareReach:1000.f):(Settings?Settings->SprayReach:235.f);
     const float BaseReach=FMath::IsFinite(AuthoredReach)?FMath::Clamp(AuthoredReach,10.f,3000.f):235.f;

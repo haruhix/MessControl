@@ -322,7 +322,7 @@ void AMCPlayerController::Tick(float DeltaSeconds)
         auto Stick=[](float Value){return FMath::Sign(Value)*FMath::Clamp((FMath::Abs(Value)-.2f)/.8f,0.f,1.f);};
         const FVector2D StickDelta=FVector2D(Stick(GetInputAnalogKeyState(EKeys::Gamepad_RightX)),Stick(GetInputAnalogKeyState(EKeys::Gamepad_RightY)))*Scale;
         ApplySpectatorOrbitInput(Settings?Settings->ScaleLookInput(StickDelta,true):StickDelta);
-        if(IsInputKeyDown(EKeys::LeftShift) || IsInputKeyDown(EKeys::RightShift))
+        if(IsInputKeyDown(EKeys::LeftControl) || IsInputKeyDown(EKeys::RightControl))
             ZoomSpectatorCamera(GetInputAnalogKeyState(EKeys::MouseWheelAxis));
     }
 }

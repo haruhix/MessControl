@@ -140,7 +140,7 @@ void AMCRocketSkillAction::UpdateHeldLauncher()
     Pose.AddToTranslation(-Direction*(Kick*9.f)+Right*(Recovery*4.f)+FVector(0,0,Kick*3.f-Recovery*16.f));
     Pose.SetRotation((FQuat(Right,FMath::DegreesToRadians(-Kick*5.f))*Pose.GetRotation()).GetNormalized());
     KeepRocketOutsideBody(*Hero(),PropAsset.Get(),Right,Pose);
-    LauncherRoot->SetWorldTransform(PropTransform.Inverse()*Pose);
+    LauncherRoot->SetWorldTransform(PropTransform.Inverse()*Hero()->GetPresentationFrame().FromCanonicalWorld(Pose));
 }
 
 bool AMCRocketSkillAction::ReadLaunch(FVector& Origin,FVector& Direction,FHitResult* Block,FTransform* PropWorld) const

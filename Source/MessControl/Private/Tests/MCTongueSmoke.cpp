@@ -96,20 +96,28 @@ void UMCValidationSubsystem::TickTongue(float Dt)
     if (T>=0)
     {
         const auto& V=Tongue->CurrentVertices(); const auto& Indices=Tongue->TriangleIndices();
-        // Compare actual render triangle centroids to collision; sampling the formula alone would miss a stale cook.
+        const auto* Support=Tongue->Surface->GetProcMeshSection(0);
+        // Compare canonical triangles to actual Chaos, and their presentation
+        // correspondence to rendered triangles. A stable query alone is insufficient.
         int32 Probes=0;
-        for (int32 I=0;I+2<Indices.Num();I+=93)
+        if(!Support || Support->ProcVertexBuffer.Num()!=V.Num()) bTongueInvalid=true;
+        else for (int32 I=0;I+2<Indices.Num();I+=93)
         {
-            const FVector P=Tongue->GetActorTransform().TransformPosition((V[Indices[I]]+V[Indices[I+1]]+V[Indices[I+2]])/3);
+            const auto& Canonical=Support->ProcVertexBuffer;
+            const FVector P=Tongue->Surface->GetComponentTransform().TransformPosition((Canonical[Indices[I]].Position+Canonical[Indices[I+1]].Position+Canonical[Indices[I+2]].Position)/3);
             if (P.X<-800 || P.X>1000 || FMath::Abs(P.Y)>450) continue;
-            FHitResult Hit;
-            if (Tongue->SurfacePoint(P,Hit)) { TongueError=FMath::Max(TongueError,float(FMath::Abs(Hit.ImpactPoint.Z-P.Z))); ++Probes; }
+            FHitResult Hit; FVector VisualPoint,VisualNormal;
+            if (Tongue->SurfacePoint(P,Hit) && Tongue->VisualSurfacePoint(Hit,VisualPoint,VisualNormal)) {
+                const FVector Rendered=Tongue->VisualSurface->GetComponentTransform().TransformPosition((V[Indices[I]]+V[Indices[I+1]]+V[Indices[I+2]])/3);
+                TongueError=FMath::Max3(TongueError,float(FMath::Abs(Hit.ImpactPoint.Z-P.Z)),float(FVector::Distance(VisualPoint,Rendered))); ++Probes;
+            }
             else bTongueInvalid=true;
         }
         if (Probes>8) DevSeen|=1;
-        FHitResult Center; Tongue->SurfacePoint(FVector(-100,-100,0),Center);
-        if (TongueRestZ>9999) TongueRestZ=Center.ImpactPoint.Z;
-        TongueMinZ=FMath::Min(TongueMinZ,float(Center.ImpactPoint.Z)); TongueMaxZ=FMath::Max(TongueMaxZ,float(Center.ImpactPoint.Z));
+        FHitResult Center; FVector CenterVisual=FVector::ZeroVector,CenterNormal=FVector::UpVector;
+        if(!Tongue->SurfacePoint(FVector(-100,-100,0),Center) || !Tongue->VisualSurfacePoint(Center,CenterVisual,CenterNormal)) bTongueInvalid=true;
+        if (TongueRestZ>9999) TongueRestZ=CenterVisual.Z;
+        TongueMinZ=FMath::Min(TongueMinZ,float(CenterVisual.Z)); TongueMaxZ=FMath::Max(TongueMaxZ,float(CenterVisual.Z));
         if (TongueMaxZ-TongueMinZ>(JoltTest?100:8)) DevSeen|=2;
         if (JoltTest)
         {
@@ -127,7 +135,7 @@ void UMCValidationSubsystem::TickTongue(float Dt)
             for (const auto* Hero:Heroes) AllStanding&=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Standing;
             if (T>6 && AllStanding && (DevSeen&16)) DevSeen|=32;
             if (TongueMinZ<TongueRestZ-10) DevSeen|=64;
-            if (T>9 && Tongue->Motion.Serial==1 && FMath::Abs(Center.ImpactPoint.Z-TongueRestZ)<8) DevSeen|=128;
+            if (T>9 && Tongue->Motion.Serial==1 && FMath::Abs(CenterVisual.Z-TongueRestZ)<8) DevSeen|=128;
             if (Host && T>6 && DevStage==3)
             {
                 bTongueInvalid|=Tongue->Motion.Serial!=1 || Tongue->PlayerPushes!=Expected || Tongue->FoodPushes<1;
@@ -140,7 +148,7 @@ void UMCValidationSubsystem::TickTongue(float Dt)
             DevSeen|=4;
             if (Host && DevStage==2) { bTongueInvalid|=Tongue->TriggerPain(Center.ImpactPoint); ++DevStage; }
         }
-        if (const auto* Section=Tongue->Surface->GetProcMeshSection(0))
+        if (const auto* Section=Tongue->VisualSurface->GetProcMeshSection(0))
             for (const auto& Vertex:Section->ProcVertexBuffer) if (Vertex.Color.R>100) { DevSeen|=8; break; }
         for (auto* Hero:Heroes)
         {
@@ -154,7 +162,7 @@ void UMCValidationSubsystem::TickTongue(float Dt)
             FHitResult Hit; Tongue->SurfacePoint(It->GetActorLocation(),Hit);
             TonguePatchError=FMath::Max(TonguePatchError,float(FMath::Abs(It->GetActorLocation().Z-Hit.ImpactPoint.Z-5)));
             if (It->Healing>.3) DevSeen|=64;
-            // This validates attachment to the moving surface. Input-driven spray
+            // This validates attachment to canonical support. Input-driven spray
             // treatment is covered separately by the inventory network test.
             if(Host && !JoltTest && T>6 && !Heroes.IsEmpty()) It->Treat(Heroes[0],Dt);
         }

@@ -2,6 +2,7 @@
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
+#include "MCToothMovementComponent.h"
 #include "MCSuperCarVisualComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -92,7 +93,7 @@ void AMCDriverSkillAction::StartCommitted()
     PreviousVisual=Pose.GetLocation();PreviousVisualHeading=Heading;
     if(SuperCarVisual) {SuperCarVisual->SetTravelDistance(0);SuperCarVisual->SetSteeringAngle(0);}
     const float Speed=FMath::Clamp(Param(TEXT("RideSpeed"),720.f),100.f,1200.f);
-    if(!Motion.Begin(Hero(),GetActionID(),Heading*Speed,false,RideDuration)) Finish(EMCActiveSkillEndReason::InputCanceled);
+    if(!Motion.BeginSteered(Hero(),GetActionID(),Heading*Speed,FMath::Clamp(Param(TEXT("TurnRate"),130.f),20.f,720.f),RideDuration)) Finish(EMCActiveSkillEndReason::InputCanceled);
     else {UpdateRideVFX();PlaySkillCue(TEXT("Start"),PreviousClean+FVector(0,0,3),Heading);StartLoop();UpdateRideVFX();}
 }
 void AMCDriverSkillAction::Tick(float DeltaSeconds)
@@ -102,7 +103,10 @@ void AMCDriverSkillAction::Tick(float DeltaSeconds)
     if(!HasAuthority()) {UpdateParts(float(FVector::Dist2D(PreviousVisual,GetActorLocation())),DeltaSeconds);PreviousVisual=GetActorLocation();return;}
     if(Now()>=EndsAt) {Finish(EMCActiveSkillEndReason::Completed);return;}
     if(!MCActiveSkillMotion::IsEligible(Hero(),true) || !Motion.IsOwned()) {Finish(EMCActiveSkillEndReason::InputCanceled);return;}
-    const float Seconds=float(Now()-LastSampleAt),Speed=FMath::Clamp(Param(TEXT("RideSpeed"),720.f),100.f,1200.f);
+    const float Speed=FMath::Clamp(Param(TEXT("RideSpeed"),720.f),100.f,1200.f);
+    float Seconds=0;FVector ConsumedHeading;
+    if(!Motion.SampleStep(float(Now()-LastSampleAt),PreviousSimulationTime,Seconds,ConsumedHeading)) {Finish(EMCActiveSkillEndReason::InputCanceled);return;}
+    if(!ConsumedHeading.IsNearlyZero()) Heading=ConsumedHeading;
     const FVector Foot=MCActiveSkillMotion::FootPoint(Hero());
     if(Seconds>0 && !MCActiveSkillMotion::ContinuousPath(PreviousFoot,Foot,Seconds,Speed)) {Finish(EMCActiveSkillEndReason::InputCanceled);return;}
     const FVector Clean=MCActiveSkillMotion::RidePose(Hero(),Heading).TransformPosition(FVector(FMath::Clamp(Param(TEXT("CleanForwardOffset"),136.7746f),0.f,200.f),0,0));
@@ -110,12 +114,11 @@ void AMCDriverSkillAction::Tick(float DeltaSeconds)
         FMath::Clamp(Param(TEXT("CleanRate"),2.f),.01f,20.f),Speed+500.f);
     const float Travel=float(FVector::Dist2D(PreviousFoot,Foot));RunOver(PreviousFoot,Foot,Seconds);
     PreviousFoot=Foot;PreviousClean=Clean;LastSampleAt=Now();
-    Heading=MCActiveSkillMotion::Steering(Hero(),Heading,FMath::Clamp(Param(TEXT("TurnRate"),130.f),20.f,720.f),DeltaSeconds);
     if(!MCActiveSkillMotion::ClearRideFootprint(Hero(),this,Heading,
         FVector(FMath::Clamp(Param(TEXT("RideHalfLength"),180.f),30.f,250.f),FMath::Clamp(Param(TEXT("RideHalfWidth"),135.f),30.f,200.f),68),FMath::Min(DeltaSeconds,.05f),Speed)) {
         Finish(EMCActiveSkillEndReason::Completed);return;
     }
-    Motion.Update(Heading*Speed);const FTransform Pose=MCActiveSkillMotion::RidePose(Hero(),Heading);
+    const FTransform Pose=MCActiveSkillMotion::RidePose(Hero(),Heading);
     SetActorLocationAndRotation(Pose.GetLocation(),Pose.GetRotation());
     UpdateParts(Travel,DeltaSeconds);
     UpdateRideVFX();
@@ -150,7 +153,7 @@ void AMCDriverSkillAction::RunOver(FVector From,FVector To,float Seconds)
 }
 void AMCDriverSkillAction::UpdateParts(float Distance,float DeltaSeconds)
 {
-    const FVector Forward=GetActorForwardVector().GetSafeNormal2D();
+    const FVector Forward=(SuperCarVisual?SuperCarVisual->GetForwardVector():GetActorForwardVector()).GetSafeNormal2D();
     const float Turn=FMath::FindDeltaAngleDegrees(PreviousVisualHeading.Rotation().Yaw,Forward.Rotation().Yaw);
     PreviousVisualHeading=Forward;
     if(!SuperCarVisual) return;
@@ -158,12 +161,27 @@ void AMCDriverSkillAction::UpdateParts(float Distance,float DeltaSeconds)
     const float Steering=FMath::Clamp(Rate/TurnRate,-1.f,1.f)*SuperCarVisual->MaxSteeringAngle;
     SuperCarVisual->UpdateTravel(Distance,Steering,DeltaSeconds);
 }
+void AMCDriverSkillAction::UpdateRidePresentation()
+{
+    if(!Hero() || !SuperCarVisual) return;
+    FTransform Canonical=GetActorTransform();
+    if(!HasAuthority()) {
+        FVector Facing=GetActorForwardVector();float Time=0;FVector PredictedHeading;
+        if(const auto* M=Cast<UMCToothMovementComponent>(Hero()->GetCharacterMovement());M && M->SampleAcceptedExternalMotion(GetActionID(),Time,PredictedHeading)
+            && !PredictedHeading.IsNearlyZero()) Facing=PredictedHeading;
+        // A replicated action pose is on the server's timeline. Reconstruct
+        // rider-relative presentation from this pawn's current simulation.
+        Canonical=MCActiveSkillMotion::RidePose(Hero(),Facing);Canonical.SetScale3D(GetActorScale3D());
+    }
+    SuperCarVisual->SetWorldTransform(Hero()->GetPresentationFrame().FromCanonicalWorld(Canonical));
+}
 void AMCDriverSkillAction::UpdateRideVFX()
 {
+    UpdateRidePresentation();
     if(!Hero() || !LoopComponent) return;
-    const FVector Forward=GetActorForwardVector().GetSafeNormal2D();
+    const FVector Forward=(SuperCarVisual?SuperCarVisual->GetForwardVector():GetActorForwardVector()).GetSafeNormal2D();
     const float Offset=FMath::Clamp(Param(TEXT("CleanForwardOffset"),136.7746f),0.f,200.f);
-    LoopComponent->SetWorldLocation(MCActiveSkillMotion::FootPoint(Hero())+Forward*Offset+FVector(0,0,3));
+    LoopComponent->SetWorldLocation(Hero()->GetPresentationFrame().FromCanonicalWorld(MCActiveSkillMotion::FootPoint(Hero()))+Forward*Offset+FVector(0,0,3));
     UpdateLoopVFX(Forward);
 }
 void AMCDriverSkillAction::OnFinished(EMCActiveSkillEndReason Reason)
