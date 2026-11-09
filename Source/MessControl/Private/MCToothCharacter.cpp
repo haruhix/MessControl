@@ -145,6 +145,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     GetCapsuleComponent()->InitCapsuleSize(34.f, 58.f);
     GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     GetCapsuleComponent()->SetCollisionResponseToChannel(AMCFoodActor::FragmentCollisionChannel,ECR_Ignore);
+    GetCapsuleComponent()->SetCollisionResponseToChannel(AMCFoodActor::WalkingObstacleChannel,ECR_Block);
     // Food movement is driven by grip strength, not CharacterMovement's large automatic push force.
     GetCharacterMovement()->bEnablePhysicsInteraction=false;
     GetCharacterMovement()->MaxWalkSpeed = 440.f;
@@ -300,6 +301,8 @@ void AMCToothCharacter::BeginPlay()
         Collider->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
         // Apply after Blueprint construction/profile overrides, including ragdoll bodies.
         Collider->SetCollisionResponseToChannel(AMCFoodActor::FragmentCollisionChannel,ECR_Ignore);
+        Collider->SetCollisionResponseToChannel(AMCFoodActor::WalkingObstacleChannel,
+            Collider==GetCapsuleComponent()?ECR_Block:ECR_Ignore);
     }
     // Choose once on the server; owning clients, proxies and late joiners share it.
     if (HasAuthority())

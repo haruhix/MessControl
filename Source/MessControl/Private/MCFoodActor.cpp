@@ -70,6 +70,16 @@ AMCFoodActor::AMCFoodActor()
     Body->SetGenerateOverlapEvents(false);
     Body->SetNotifyRigidBodyCollision(true); Body->BodyInstance.bUseCCD=true;
     Body->SetLinearDamping(.7f); Body->SetAngularDamping(2.f);
+    WalkingBlocker=CreateDefaultSubobject<UMCFoodBodyComponent>(TEXT("FoodWalkingBlocker"));
+    WalkingBlocker->SetupAttachment(Body);
+    WalkingBlocker->SetAbsolute(true,true,true);
+    WalkingBlocker->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    WalkingBlocker->SetCollisionObjectType(WalkingObstacleChannel);
+    WalkingBlocker->SetCollisionResponseToAllChannels(ECR_Ignore);
+    WalkingBlocker->SetGenerateOverlapEvents(false);
+    WalkingBlocker->SetNotifyRigidBodyCollision(false);
+    WalkingBlocker->SetCanEverAffectNavigation(false);
+    WalkingBlocker->CanCharacterStepUpOn=ECB_No;
     Visual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FoodMesh")); Visual->SetupAttachment(PresentationRoot);
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision); Visual->SetRelativeLocation(FVector(0,0,-25)); Visual->SetRelativeScale3D(FVector(1.5));
     Visual->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
@@ -93,6 +103,8 @@ void AMCFoodActor::BeginPlay()
     // canonical-body versus decorative-root boundary for older placed actors.
     Visual->AttachToComponent(PresentationRoot,FAttachmentTransformRules::KeepRelativeTransform);
     GripSurface->AttachToComponent(Body,FAttachmentTransformRules::KeepRelativeTransform);
+    WalkingBlocker->AttachToComponent(Body,FAttachmentTransformRules::KeepRelativeTransform);
+    WalkingBlocker->SetAbsolute(true,true,true);
     Label->AttachToComponent(PresentationRoot,FAttachmentTransformRules::KeepRelativeTransform);
     PreviousPhysicsLocation=GetActorLocation();
     if (HasAuthority()) { if (!bStagedCutPortion) if (const auto* P=Profile.LoadSynchronous()) Settings=P->Settings; Settings.Sanitize(); }
@@ -151,6 +163,7 @@ bool AMCFoodActor::ApplyNutImpulse(FVector VelocityChange,FVector WorldPoint)
     if(VelocityChange.IsNearlyZero()) return false;
     const float Mass=Body->GetMass();
     if(!FMath::IsFinite(Mass) || Mass<=0) return false;
+    ResetWalkingObstacle();
     // A true impulse leaves subsequent nut-to-nut momentum exchange to Chaos.
     // Bound the lever arm so a spell's impact point cannot inject excessive spin.
     const FVector Center=Body->GetCenterOfMass();
@@ -189,6 +202,7 @@ void AMCFoodActor::BeginMouthEntry(FVector LaunchVelocity,float PushSpeed,TOptio
 {
     if (!HasAuthority() || !HasActorBegunPlay() || IsDisposed() || bBrushTool || StackCarrier || !Holders.IsEmpty()
         || Phase!=EMCFoodPhase::Falling || LaunchVelocity.ContainsNaN() || LaunchVelocity.IsNearlyZero() || !FMath::IsFinite(PushSpeed)) return;
+    ResetWalkingObstacle();
     bMouthEntry=true; MouthEntryPushSpeed=FMath::Clamp(PushSpeed,0.f,180.f);
     MouthEntryLanding.Reset();
     if(ExpectedLanding.IsSet() && !ExpectedLanding.GetValue().ContainsNaN()) MouthEntryLanding=ExpectedLanding;
@@ -249,6 +263,7 @@ void AMCFoodActor::OnRep_ActorScale()
 }
 void AMCFoodActor::OnRep_Phase()
 {
+    RefreshWalkingCollision();
     if(bCutTransactionStaged && !bCutIntakeReceipt) {
         // Allocate the final kinematic body during its budgeted staging tick,
         // with no gameplay contacts or queries until the transaction commits.
@@ -280,6 +295,7 @@ void AMCFoodActor::OnRep_Phase()
     Body->SetCollisionResponseToChannel(FragmentCollisionChannel,StackCarrier?ECR_Overlap:ECR_Block);
     // Simulated proxies are kinematic; only the server applies springs and impact damage.
     if (bSimulate) Body->SetSimulatePhysics(true);
+    RefreshWalkingCollision();
     RefreshAcceptedInteraction();AMCToothCharacter::NotifyFoodMovementContact(this);
 }
 bool AMCFoodActor::TryGrab(AMCToothCharacter* Hero)
@@ -536,6 +552,7 @@ void AMCFoodActor::Tick(float Dt)
     UpdateNutFragmentThrowImpact();
     if(HasAuthority()) PreviousPhysicsLocation=GetActorLocation();
     Super::Tick(Dt);
+    UpdateWalkingCollision(Dt);
     UpdateFoodPresentation(Dt);
     if(IsCutTransactionPending())return;
     if (bMouthEntry && (GetWorld()->GetTimeSeconds()>=MouthEntryEndsAt || !Body->IsSimulatingPhysics()
@@ -667,6 +684,8 @@ void AMCFoodActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCFoodActor,Settings); DOREPLIFETIME(AMCFoodActor,Phase);
     DOREPLIFETIME(AMCFoodActor,bCutTransactionPending);
+    DOREPLIFETIME(AMCFoodActor,bWalkingObstacle);
+    DOREPLIFETIME(AMCFoodActor,WalkingObstacleTransform);
     DOREPLIFETIME(AMCFoodActor,ReplicatedActorScale);
     DOREPLIFETIME(AMCFoodActor,CarryPresentation);
     DOREPLIFETIME(AMCFoodActor,InteractionState);
@@ -1079,6 +1098,7 @@ void AMCFoodActor::LaunchManualThrow(AMCToothCharacter* Hero,FVector Direction,f
     if(!HasAuthority() || !IsValid(Hero) || Hero->GetWorld()!=GetWorld() || IsDisposed()
         || StackCarrier || !Holders.IsEmpty() || !Body->IsSimulatingPhysics()
         || Direction.ContainsNaN() || Direction.IsNearlyZero() || !FMath::IsFinite(Speed)) return;
+    ResetWalkingObstacle();
     MarkManualThrow(Hero);bManualThrowInFlight=true;ManualThrower=Hero;
     NutThrowSweepStart=GetActorLocation();
     PreviousPhysicsLocation=GetActorLocation();

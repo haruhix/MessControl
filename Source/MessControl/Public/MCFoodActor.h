@@ -8,6 +8,7 @@
 #include "MCFoodActor.generated.h"
 class UBoxComponent;
 class UStaticMeshComponent;
+class UMCFoodBodyComponent;
 class UTextRenderComponent;
 class UMCWorldStatusComponent;
 class USceneComponent;
@@ -186,6 +187,14 @@ public:
     bool WasAutomaticallyDiscarded() const { return bAutomaticallyDiscarded; }
     // Config/DefaultEngine.ini: distinguish fragments from player ragdoll PhysicsBody shapes.
     static constexpr ECollisionChannel FragmentCollisionChannel=ECC_GameTraceChannel2;
+    /** Query-only frozen walking proxy; tools and physical bodies ignore this channel. */
+    static constexpr ECollisionChannel WalkingObstacleChannel=ECC_GameTraceChannel3;
+    FBox GetWalkingCollisionBounds() const;
+    bool IsSubstantialWalkingObstacle() const;
+    bool HasWalkingObstacle() const;
+    void RefreshWalkingCollision();
+    void UpdateWalkingCollision(float Dt);
+    void ResetWalkingObstacle();
     static AMCFoodActor* FindNearbySpoiledFood(UWorld* World,FVector Point,float Radius=280);
     bool TryGrab(AMCToothCharacter* Hero);
     bool FindGripSurface(FVector From,FHitResult& Hit) const;
@@ -262,6 +271,7 @@ public:
     float DragSpeed() const;
     bool IsDisposed() const { return Phase==EMCFoodPhase::Disposed; }
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UBoxComponent> Body;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UMCFoodBodyComponent> WalkingBlocker;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USceneComponent> PresentationRoot;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> GripSurface;
@@ -302,6 +312,17 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AActor> StuckTooth;
     int32 ConfirmedImpacts=0;
 private:
+    /** Authority publishes a fixed query pose, never a moving Chaos support. */
+    UPROPERTY(Transient,ReplicatedUsing=OnRep_WalkingCollision) bool bWalkingObstacle=false;
+    UPROPERTY(Transient,ReplicatedUsing=OnRep_WalkingCollision) FTransform WalkingObstacleTransform=FTransform::Identity;
+    UFUNCTION() void OnRep_WalkingCollision();
+    bool CanUseWalkingCollision() const;
+    bool IsWalkingBoundsClearOfPlayers(const FBox& Bounds) const;
+    void NudgeSmallWalkingDebris(float Dt);
+    float WalkingSettleSeconds=0.f,WalkingNudgeScanSeconds=0.f,WalkingClearanceScanSeconds=0.f;
+    double NextWalkingNudgeAt=-100;
+    bool bWalkingSettleCandidate=false;
+    FTransform WalkingSettleTransform=FTransform::Identity;
     friend class FMCFoodIslandActorAccounting;
     friend class FMCFoodAutomaticSliverVolume;
     friend class FMCFoodAutomaticSpoiledCutTransaction;

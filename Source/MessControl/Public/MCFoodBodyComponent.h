@@ -32,6 +32,8 @@ public:
     bool SetCutCollision(const TArray<FVector>& Vertices);
     /** Install validated prebuilt hull/vertex/index data; does not construct a convex. GT only. */
     bool InstallPreparedCutCollision(const MCFoodCutGeometry::FPreparedCollision& Prepared);
+    /** Query proxy reuses a prepared immutable setup; never cooks a second hull. */
+    bool SharePreparedCollision(UMCFoodBodyComponent* Source);
     virtual void UpdateBodySetup() override;
     virtual FPrimitiveSceneProxy* CreateSceneProxy() override { return nullptr; }
     bool HasMeshCollision() const;

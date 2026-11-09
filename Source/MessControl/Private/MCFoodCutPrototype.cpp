@@ -549,7 +549,7 @@ bool AMCFoodActor::SpawnPortionActors(const TArray<TArray<FMCFoodCutPlane>>& His
         if(const auto* GS=Plan->GameState.Get()){Plan->GameplayLoadId=GS->GameplayLoadId;Plan->Day=GS->Day;Plan->ShiftPhase=GS->Phase;}
         Plan->bWasSimulating=Body->IsSimulatingPhysics();Plan->Velocity=Body->GetPhysicsLinearVelocity();Plan->AngularVelocity=Body->GetPhysicsAngularVelocityInRadians();
         Plan->QueuedAtSeconds=FPlatformTime::Seconds();Plan->ContactStartedSeconds=CutContactStartedSeconds>0?CutContactStartedSeconds:Plan->QueuedAtSeconds;
-        PendingCutTransaction=Plan;bCutTransactionPending=true;Body->SetSimulatePhysics(false);
+        PendingCutTransaction=Plan;bCutTransactionPending=true;ResetWalkingObstacle();Body->SetSimulatePhysics(false);
         Scheduler->Enqueue(this);ForceNetUpdate();
         ++MCFoodCutGeometry::PreparationStats().QueuedCuts;
         UE_LOG(LogMCFoodCuts,Log,TEXT("MC_FOOD_CUT_BEGIN source=%s parts=%d physical=%d preflight_ms=%.3f"),*GetName(),Histories.Num(),PhysicalMeshes.Num(),(Plan->QueuedAtSeconds-Plan->ContactStartedSeconds)*1000.);

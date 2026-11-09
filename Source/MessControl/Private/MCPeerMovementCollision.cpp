@@ -3,6 +3,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
+#include "MCFoodBodyComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -43,18 +44,22 @@ void AMCToothCharacter::SetMovementContactReason(AActor* Other,EMCMovementContac
 void AMCToothCharacter::RefreshFoodMovementContact(AMCFoodActor* Food)
 {
     if(!Food || Food->GetWorld()!=GetWorld()) return;
-    const bool Stable=AllowsStableFoodMovementPassThrough() && !Food->IsDisposed();
+    const bool Eligible=AllowsStableFoodMovementPassThrough() && !Food->IsDisposed();
+    const bool Stable=Eligible && !Food->HasWalkingObstacle();
     SetMovementContactReason(Food,EMCMovementContactReason::StableFood,Stable);
     const bool Carried=Food->StackCarrier==this || (Food->Phase==EMCFoodPhase::Carried && Food->Holders.Contains(this));
     SetMovementContactReason(Food,EMCMovementContactReason::CarriedFood,Carried);
-    if(Stable) {
+    {
         auto* Move=GetCharacterMovement();
         const auto* Base=GetMovementBase();
-        // A previously cached food floor/base bypasses a new sweep exclusion.
-        // Only invalidate that food; real world/raft bases retain ownership.
-        const bool FoodBase=Base && Base->GetOwner()==Food;
+        // Simulated food never owns character movement. A fixed query-only
+        // blocker is stable support; world and raft bases retain ownership.
+        const bool FixedBase=Food->HasWalkingObstacle() && Base==Food->WalkingBlocker;
+        const bool FoodBase=Base && Base->GetOwner()==Food && !FixedBase;
         if(FoodBase) SetBase(static_cast<FMovementBaseInterfaceData*>(nullptr));
-        if(FoodBase || Move->CurrentFloor.HitResult.GetActor()==Food) {
+        const bool PhysicalFloor=Move->CurrentFloor.HitResult.GetActor()==Food
+            && (!Food->HasWalkingObstacle() || Move->CurrentFloor.HitResult.GetComponent()!=Food->WalkingBlocker);
+        if(FoodBase || PhysicalFloor) {
             Move->CurrentFloor.Clear();Move->bForceNextFloorCheck=true;
         }
     }
@@ -63,6 +68,14 @@ void AMCToothCharacter::RefreshFoodMovementContact(AMCFoodActor* Food)
 void AMCToothCharacter::ForgetFoodMovementContact(AMCFoodActor* Food)
 {
     MovementContacts.Forget(GetCapsuleComponent(),Food);
+    if(!Food)return;
+    auto* Move=GetCharacterMovement();
+    const auto* Base=GetMovementBase();
+    const bool FoodBase=Base && Base->GetOwner()==Food;
+    if(FoodBase)SetBase(static_cast<FMovementBaseInterfaceData*>(nullptr));
+    if(FoodBase || Move->CurrentFloor.HitResult.GetActor()==Food) {
+        Move->CurrentFloor.Clear();Move->bForceNextFloorCheck=true;
+    }
 }
 
 void AMCToothCharacter::NotifyFoodMovementContact(AMCFoodActor* Food,bool Removed)

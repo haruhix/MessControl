@@ -145,6 +145,23 @@ bool UMCFoodBodyComponent::HasMeshCollision() const
     return CollisionMesh && ShapeBodySetup && !ShapeBodySetup->AggGeom.ConvexElems.IsEmpty();
 }
 
+bool UMCFoodBodyComponent::SharePreparedCollision(UMCFoodBodyComponent* Source)
+{
+    check(IsInGameThread());
+    if(!IsValid(Source) || Source==this)return false;
+    UBodySetup* Prepared=Source->GetBodySetup();
+    if(!IsValid(Prepared) || !Prepared->bCreatedPhysicsMeshes || Prepared->AggGeom.GetElementCount()==0)return false;
+    if(ShapeBodySetup==Prepared && bHasCutCollision)return true;
+    // The source owns all preparation. A second query shape borrows the same
+    // immutable setup/Chaos geometry, including an already prepared cut hull.
+    SetSimulatePhysics(false);DestroyPhysicsState();
+    CollisionMesh=nullptr;CollisionData=nullptr;CollisionScale=Source->CollisionScale;
+    bHasCutCollision=true;ShapeBodySetup=Prepared;
+    InitBoxExtent(Source->GetUnscaledBoxExtent());UpdateBounds();MarkRenderStateDirty();
+    if(IsRegistered())RecreatePhysicsState();
+    return true;
+}
+
 // Prototype: vertices are in Body-local space, preserving the plane and actor transform.
 bool UMCFoodBodyComponent::SetCutCollision(const TArray<FVector>& Vertices)
 {
