@@ -318,11 +318,14 @@ private:
     UFUNCTION() void OnRep_WalkingCollision();
     bool CanUseWalkingCollision() const;
     bool IsWalkingBoundsClearOfPlayers(const FBox& Bounds) const;
+    bool SeparateWalkingFoodFromPlayers(const FBox& Bounds);
     void NudgeSmallWalkingDebris(float Dt);
     float WalkingSettleSeconds=0.f,WalkingNudgeScanSeconds=0.f,WalkingClearanceScanSeconds=0.f;
     double NextWalkingNudgeAt=-100;
     bool bWalkingSettleCandidate=false;
     FTransform WalkingSettleTransform=FTransform::Identity;
+    bool bWalkingSeparationActive=false;
+    FVector WalkingSeparationGoal=FVector::ZeroVector;
     friend class FMCFoodIslandActorAccounting;
     friend class FMCFoodAutomaticSliverVolume;
     friend class FMCFoodAutomaticSpoiledCutTransaction;

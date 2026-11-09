@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "CollisionShape.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ProfilingDebugging/CpuProfilerTrace.h"
 
@@ -14,6 +15,7 @@ namespace
 constexpr float ObstacleHeight=45.f,ObstacleWidth=50.f,SettleSeconds=.35f;
 constexpr float ArmSpeed=40.f,KeepSpeed=70.f,ArmAngularSpeed=15.f,KeepAngularSpeed=25.f;
 constexpr float AnchorDistance=6.f,AnchorAngle=5.f;
+constexpr float SeparationLimit=400.f,SeparationStep=16.f,SeparationMargin=5.f;
 
 bool PoseStayedNear(const FTransform& Pose,const FTransform& Anchor)
 {
@@ -48,7 +50,8 @@ bool AMCFoodActor::IsSubstantialWalkingObstacle() const
     const FBox Bounds=GetWalkingCollisionBounds();
     if(!Bounds.IsValid || Bounds.Min.ContainsNaN() || Bounds.Max.ContainsNaN())return false;
     const FVector Size=Bounds.GetSize();
-    return Size.Z>=ObstacleHeight && FMath::Min(Size.X,Size.Y)>=ObstacleWidth;
+    // A broad upright slice still blocks walking when its thickness is small.
+    return Size.Z>=ObstacleHeight && FMath::Max(Size.X,Size.Y)>=ObstacleWidth;
 }
 
 bool AMCFoodActor::CanUseWalkingCollision() const
@@ -72,15 +75,170 @@ bool AMCFoodActor::HasWalkingObstacle() const
 
 bool AMCFoodActor::IsWalkingBoundsClearOfPlayers(const FBox& Bounds) const
 {
-    if(!GetWorld() || !Bounds.IsValid)return false;
+    if(!GetWorld() || !Bounds.IsValid || !Body || !Body->IsPhysicsStateCreated())return false;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
         if(It->IsActorBeingDestroyed())continue;
         const auto* Capsule=It->GetCapsuleComponent();
+        // Bounds are only broadphase. Corners of a rotated/cut slab can contain
+        // a worker without its real prepared collision touching the capsule.
+        // Query the physical source at its current pose, not the inactive proxy.
         if(Capsule && Capsule->GetCollisionEnabled()!=ECollisionEnabled::NoCollision
-            && CapsuleTouchesBounds(Capsule,Bounds,5.f))return false;
+            && CapsuleTouchesBounds(Capsule,Bounds,5.f)
+            && Body->OverlapComponent(Capsule->GetComponentLocation(),Capsule->GetComponentQuat(),
+                Capsule->GetCollisionShape(5.f)))return false;
     }
     return true;
+}
+
+bool AMCFoodActor::SeparateWalkingFoodFromPlayers(const FBox& Bounds)
+{
+    // A cut may settle around a worker. Resolve that exceptional overlap by
+    // moving the food only; enabling a blocker here would depenetrate the pawn.
+    if(!HasAuthority() || !CanUseWalkingCollision() || Phase!=EMCFoodPhase::Free
+        || !Bounds.IsValid || !Body->IsPhysicsStateCreated())return false;
+    struct FWorker
+    {
+        UCapsuleComponent* Capsule=nullptr;
+        bool bOverlapping=false;
+        FMTDResult Penetration;
+    };
+    TArray<FWorker,TInlineAllocator<8>> Workers;
+    FMTDResult Deepest;
+    UCapsuleComponent* DeepestCapsule=nullptr;
+    FComponentQueryParams WorldQuery(SCENE_QUERY_STAT(MCFoodWalkingSeparation),this);
+    WorldQuery.bFindInitialOverlaps=true;
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+    {
+        auto* Capsule=It->GetCapsuleComponent();
+        if(It->IsActorBeingDestroyed() || !Capsule
+            || Capsule->GetCollisionEnabled()==ECollisionEnabled::NoCollision)continue;
+        auto& Worker=Workers.AddDefaulted_GetRef();Worker.Capsule=Capsule;
+        // Pawn responses intentionally ignore moving fragments. Test all workers
+        // explicitly rather than letting that filter hide them in the world sweep.
+        WorldQuery.AddIgnoredActor(*It);
+        Worker.bOverlapping=Body->OverlapComponent(Capsule->GetComponentLocation(),
+            Capsule->GetComponentQuat(),Capsule->GetCollisionShape(SeparationMargin));
+        if(Worker.bOverlapping && Body->ComputePenetration(Worker.Penetration,
+            Capsule->GetCollisionShape(SeparationMargin),Capsule->GetComponentLocation(),Capsule->GetComponentQuat())
+            && FMath::IsFinite(Worker.Penetration.Distance) && !Worker.Penetration.Direction.ContainsNaN()
+            && (!DeepestCapsule || Worker.Penetration.Distance>Deepest.Distance))
+        {Deepest=Worker.Penetration;DeepestCapsule=Capsule;}
+    }
+    if(!DeepestCapsule)return false;
+    const FVector Origin=Body->GetComponentLocation();
+    struct FCandidate {FVector Direction;float Distance;};
+    TArray<FCandidate,TInlineAllocator<6>> Candidates;
+    auto AddCandidate=[&](FVector Direction,float Distance=0.f)
+    {
+        Direction=Direction.GetSafeNormal2D();
+        if(Direction.IsNearlyZero() || Direction.ContainsNaN() || Candidates.Num()>=6)return;
+        for(const auto& Candidate:Candidates)
+            if(FVector::DotProduct(Direction,Candidate.Direction)>.99f)return;
+        Candidates.Add({Direction,Distance});
+    };
+    // Retain the chosen escape goal between steps instead of changing sides
+    // when the minimum penetration axis changes in a compound hull.
+    if(bWalkingSeparationActive)
+    {
+        const FVector Remaining=WalkingSeparationGoal-Origin;
+        if(Remaining.Size2D()<=SeparationLimit && FMath::Abs(Remaining.Z)<.1f)
+            AddCandidate(Remaining,Remaining.Size2D());
+    }
+    const float HorizontalNormal=Deepest.Direction.Size2D();
+    if(HorizontalNormal>.1f)
+        AddCandidate(-Deepest.Direction,(Deepest.Distance+2.f)/HorizontalNormal);
+    AddCandidate(Bounds.GetCenter()-DeepestCapsule->GetComponentLocation());
+    AddCandidate(FVector::ForwardVector);AddCandidate(-FVector::ForwardVector);
+    AddCandidate(FVector::RightVector);AddCandidate(-FVector::RightVector);
+    auto ClearsWorkers=[&](const FVector& Delta)
+    {
+        for(const auto& Worker:Workers)
+            if(Body->OverlapComponent(Worker.Capsule->GetComponentLocation()-Delta,
+                Worker.Capsule->GetComponentQuat(),Worker.Capsule->GetCollisionShape(SeparationMargin)))return false;
+        return true;
+    };
+    for(const auto& Candidate:Candidates)
+    {
+        float Distance=Candidate.Distance;
+        // For fallback directions, translate the food's near bound beyond every
+        // overlapping capsule. This is only a candidate; exact hull tests follow.
+        const float NearBound=FVector::DotProduct(Bounds.GetCenter(),Candidate.Direction)
+            -FVector::DotProduct(Bounds.GetExtent(),Candidate.Direction.GetAbs());
+        float BoundsDistance=2.f;
+        for(const auto& Worker:Workers)if(Worker.bOverlapping)
+            BoundsDistance=FMath::Max(BoundsDistance,float(FVector::DotProduct(
+                Worker.Capsule->GetComponentLocation(),Candidate.Direction))-NearBound
+                +Worker.Capsule->GetScaledCapsuleRadius()+SeparationMargin+2.f);
+        if(Distance<=0)Distance=BoundsDistance;
+        if(!FMath::IsFinite(Distance) || Distance<=0 || Distance>SeparationLimit)continue;
+        FVector Delta=Candidate.Direction*Distance;
+        if(!ClearsWorkers(Delta))
+        {
+            Distance=FMath::Max(Distance,BoundsDistance);
+            if(Distance>SeparationLimit)continue;
+            Delta=Candidate.Direction*Distance;
+            if(!ClearsWorkers(Delta))continue;
+        }
+        TArray<FHitResult> WorldHits;
+        GetWorld()->ComponentSweepMulti(WorldHits,Body,Origin,Origin+Delta,Body->GetComponentQuat(),WorldQuery);
+        bool Safe=true;
+        for(const auto& Hit:WorldHits)
+        {
+            const auto* Other=Hit.GetComponent();
+            const bool Blocks=Other
+                && Body->GetCollisionResponseToChannel(Other->GetCollisionObjectType())==ECR_Block
+                && Other->GetCollisionResponseToChannel(Body->GetCollisionObjectType())==ECR_Block;
+            // Multi-sweeps can report initial penetrations as Touch to keep
+            // searching for later blockers. Those solid contacts still matter.
+            if(!Blocks || (!Hit.bBlockingHit && !Hit.bStartPenetrating && Hit.Time>KINDA_SMALL_NUMBER))continue;
+            // Resting contact with the floor is allowed only while travelling
+            // tangentially/outward. A wall further along the path rejects it.
+            const bool Existing=Hit.bStartPenetrating || Hit.Time<=KINDA_SMALL_NUMBER;
+            if(!Existing || Hit.Normal.ContainsNaN() || Hit.Normal.IsNearlyZero()
+                || FVector::DotProduct(Candidate.Direction,Hit.Normal)<-.001f){Safe=false;break;}
+        }
+        if(!Safe)continue;
+        const FVector Step=Candidate.Direction*FMath::Min(Distance,SeparationStep);
+        for(const auto& Worker:Workers)
+        {
+            auto* Capsule=Worker.Capsule;
+            if(!Worker.bOverlapping)
+            {
+                FHitResult Hit;
+                // Translation duality tests the entire proposed food path
+                // against this capsule without moving either component.
+                if(Body->SweepComponent(Hit,Capsule->GetComponentLocation(),
+                    Capsule->GetComponentLocation()-Delta,Capsule->GetComponentQuat(),
+                    Capsule->GetCollisionShape(SeparationMargin))){Safe=false;break;}
+            }
+            else if(Body->OverlapComponent(Capsule->GetComponentLocation()-Step,Capsule->GetComponentQuat(),
+                Capsule->GetCollisionShape(SeparationMargin)))
+            {
+                FMTDResult After;
+                if(!Body->ComputePenetration(After,Capsule->GetCollisionShape(SeparationMargin),
+                    Capsule->GetComponentLocation()-Step,Capsule->GetComponentQuat())
+                    || !FMath::IsFinite(After.Distance) || Worker.Penetration.Distance<=0
+                    || After.Distance>Worker.Penetration.Distance+.05f){Safe=false;break;}
+                // Equal depth is valid for a deep overlap whose shortest MTD
+                // is vertical: the full horizontal goal above is proven clear.
+            }
+        }
+        if(!Safe)continue;
+        const FVector Velocity=Body->GetPhysicsLinearVelocity();
+        const FVector Angular=Body->GetPhysicsAngularVelocityInRadians();
+        const bool Simulating=Body->IsSimulatingPhysics();
+        if(!SetActorLocation(GetActorLocation()+Step,false,nullptr,ETeleportType::TeleportPhysics))continue;
+        if(Simulating){Body->SetPhysicsLinearVelocity(Velocity);Body->SetPhysicsAngularVelocityInRadians(Angular);}
+        WalkingSettleTransform=Body->GetComponentTransform();bWalkingSettleCandidate=true;
+        WalkingSeparationGoal=Origin+Delta;
+        if(!bWalkingSeparationActive)
+            UE_LOG(LogTemp,Log,TEXT("Food walking clearance started: %s; goal %.1f cm; food moves only"),*GetName(),Distance);
+        bWalkingSeparationActive=true;ForceNetUpdate();return true;
+    }
+    // No safe bounded route: retain pass-through until a worker exits instead
+    // of pushing a worker, tunnelling through the world or forcing a blocker.
+    return false;
 }
 
 void AMCFoodActor::ResetWalkingObstacle()
@@ -88,6 +246,11 @@ void AMCFoodActor::ResetWalkingObstacle()
     const bool WasBlocking=bWalkingObstacle || (WalkingBlocker
         && WalkingBlocker->GetCollisionResponseToChannel(ECC_Pawn)==ECR_Block);
     if(HasAuthority())bWalkingObstacle=false;
+    if(bWalkingSeparationActive)
+    {
+        UE_LOG(LogTemp,Log,TEXT("Food walking clearance ended: %s; interrupted by state/motion"),*GetName());
+        bWalkingSeparationActive=false;
+    }
     WalkingSettleSeconds=0;WalkingClearanceScanSeconds=0;bWalkingSettleCandidate=false;
     if(WalkingBlocker)
     {
@@ -179,7 +342,13 @@ void AMCFoodActor::UpdateWalkingCollision(float Dt)
     // A worker standing inside many remnants must not cause a per-food player
     // scan every frame while those pieces wait for a clear footprint.
     WalkingClearanceScanSeconds=.1f;
-    if(!IsWalkingBoundsClearOfPlayers(GetWalkingCollisionBounds()))return;
+    const FBox Bounds=GetWalkingCollisionBounds();
+    if(!IsWalkingBoundsClearOfPlayers(Bounds)){SeparateWalkingFoodFromPlayers(Bounds);return;}
+    if(bWalkingSeparationActive)
+    {
+        UE_LOG(LogTemp,Log,TEXT("Food walking clearance ended: %s; clear, walking blocker armed"),*GetName());
+        bWalkingSeparationActive=false;
+    }
     WalkingObstacleTransform=Pose;bWalkingObstacle=true;
     RefreshWalkingCollision();ForceNetUpdate();
 }
