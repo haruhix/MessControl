@@ -175,6 +175,7 @@ bool AMCFoodActor::SpawnFragments(FVector Direction,TArray<AMCFoodActor*>* OutPi
         Piece->FinishSpawning(Entry.Pose);
         Piece->Settings.bAutoConsumeSmallCuts=Settings.bAutoConsumeSmallCuts;
         Piece->Settings.MaxAutoConsumeDimensions=Settings.MaxAutoConsumeDimensions;
+        if(Piece->UsesAutomaticCutIntake() && Piece->MeasuredPortionLocalVolume<0)Piece->BuildCutVisual();
         const FVector Ray=(Entry.Pose.GetLocation()-Center).GetSafeNormal2D();
         const FVector Velocity=(Ray*22+Direction.GetSafeNormal()*12)*ScatterFactor+FVector(0,0,45);
         Piece->Body->SetPhysicsLinearVelocity(Velocity);

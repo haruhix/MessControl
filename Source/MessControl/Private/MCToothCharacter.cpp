@@ -2205,13 +2205,13 @@ void AMCToothCharacter::AdvanceCare(float Dt)
     if (!FMath::IsFinite(Dt) || Dt<=0) return;
     if (bBrushing) if (auto* Surface=Cast<AMCMouthSurface>(Target->GetOwner())) {
         if(!Surface->BrushLiquid(this,FMath::Min(Dt,.1f))) ResetContact();
-        else { ContactProgress=1-Surface->RemainingLiquid(); if(Surface->IsClean() && Surface->ShouldShowCleaningCompletionFeedback()) NotifyTaskFeedback(true,Surface->GetActorLocation()); }
+        else { ContactProgress=1-Surface->RemainingLiquid(); if(Surface->IsClean() && Surface->ShouldShowCleaningCompletionFeedback()) NotifyTaskFeedback(true,BrushContact->ContactPoint()); }
         return;
     }
     if (bBrushing) if (auto* Arena=Cast<AMCArenaTooth>(Target->GetOwner()))
     {
         if (!Arena->BrushGrime(this,FMath::Min(Dt,.1f))) ResetContact();
-        else { ContactProgress=1-Arena->RemainingGrime(); if(!Target->NeedsCare(true) && Arena->IsGrimeRewardEligible()) NotifyTaskFeedback(true,Arena->GetActorLocation()); }
+        else { ContactProgress=1-Arena->RemainingGrime(); if(!Target->NeedsCare(true)) NotifyTaskFeedback(true,BrushContact->ContactPoint()+BrushContact->ContactNormal()*80.f); }
         return;
     }
     if (bBrushing) if (const auto* Player=Cast<AMCToothCharacter>(Target->GetOwner()); Player && Player!=this)

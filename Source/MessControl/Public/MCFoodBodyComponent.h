@@ -6,6 +6,7 @@
 
 class UStaticMesh;
 class UMCFoodCollisionData;
+namespace MCFoodCutGeometry {struct FPreparedCollision;}
 
 /** Detailed hand/tool queries without a second copy of the food's compound hulls. */
 UCLASS()
@@ -29,6 +30,8 @@ public:
     void SetCollisionMesh(UStaticMesh* Mesh, FVector ItemScale, UMCFoodCollisionData* Data=nullptr);
     /** Replace the parent hull with a convex approximation of one sliced half. */
     bool SetCutCollision(const TArray<FVector>& Vertices);
+    /** Install validated prebuilt hull/vertex/index data; does not construct a convex. GT only. */
+    bool InstallPreparedCutCollision(const MCFoodCutGeometry::FPreparedCollision& Prepared);
     virtual void UpdateBodySetup() override;
     virtual FPrimitiveSceneProxy* CreateSceneProxy() override { return nullptr; }
     bool HasMeshCollision() const;

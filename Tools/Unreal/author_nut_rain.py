@@ -193,7 +193,7 @@ def main():
             "Name": "Walnut", "Label": "WALNUT",
             "WholeMeshes": [whole.get_path_name()], "FragmentMeshes": [m.get_path_name() for m in fragments],
             "Scale": dict(X=scale, Y=scale, Z=scale),
-            "FragmentScale": dict(X=scale*.55, Y=scale*.55, Z=scale*.55),
+            "FragmentScale": dict(X=scale, Y=scale, Z=scale),
             "Resistance": "Hard", "Kind": "Food", "Health": 90,
             "Mass": 7, "SelectionWeight": 1, "Fragments": 3, "SpoilSeconds": 600,
             "AbsorbSeconds": 10, "HalfExtent": dict(X=42, Y=42, Z=42),
@@ -230,7 +230,8 @@ def main():
     bounds = whole.get_bounding_box()
     height = bounds.max.z - bounds.min.z
     scale = settings.get_editor_property("large_nut_height") / max(.001, height)
-    fragment_scale = boss.get_editor_property("creep_height") / max(.001, max(m.get_bounding_box().max.z-m.get_bounding_box().min.z for m in fragments))
+    # These are isolated pieces of the same artist model, not summoned creeps.
+    fragment_scale = scale
     walnut["Scale"] = dict(X=scale, Y=scale, Z=scale)
     walnut["FragmentScale"] = dict(X=fragment_scale, Y=fragment_scale, Z=fragment_scale)
     walnut["WholeMeshes"] = [whole.get_path_name()]

@@ -274,6 +274,7 @@ double AMCThroat::ServerNow() const
 }
 bool AMCThroat::ContainsFood(const AMCFoodActor* Food) const
 {
+    if(IsValid(Food) && (Food->IsCutTransactionPending() || Food->IsCutTransactionStaged()))return false;
     if (!IsValid(Food) || Food->bBrushTool || Food->IsDisposed() || Food->Phase==EMCFoodPhase::Stuck
         || Food->StackCarrier || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Swallowing || Food->Phase==EMCFoodPhase::Absorbing || !Food->Holders.IsEmpty()) return false;
     if(bManualIntake) return !Food->IsMouthEntryActive() && IsInsideIntakeAperture(Food->GetActorLocation());
@@ -311,6 +312,7 @@ bool AMCThroat::ContainsDeliveryPosition(FVector Position) const
 }
 bool AMCThroat::CanAcceptDelivery(const AMCFoodActor* Food) const
 {
+    if(IsValid(Food) && (Food->IsCutTransactionPending() || Food->IsCutTransactionStaged()))return false;
     // Ordinary meals follow the same portion limit as hand pickup, including thrown intake.
     if(IsValid(Food) && Food->FoodData.Kind==EMCFoodKind::Food && !Food->IsWrongIngredient()
         && !Food->IsNutEncounterFragment() && !Food->FitsHandPortion()) return false;

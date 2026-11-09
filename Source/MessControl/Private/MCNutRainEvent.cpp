@@ -138,12 +138,16 @@ void AMCNutRainEvent::ConfigureNutRow()
         NutRow.WholeMeshes={Settings.Boss.WholeMesh};
         if(UStaticMesh* Mesh=NutRow.WholeMeshes[0].LoadSynchronous())
             NutRow.Scale=FVector(Settings.Enemy.BodyRadius/FMath::Max(1.,Mesh->GetBounds().BoxExtent.GetMax()));
-        NutRow.FragmentMeshes={Settings.Boss.ShellMesh,Settings.Boss.KernelMesh}; NutRow.FragmentScale=NutRow.Scale*.55;
+        NutRow.FragmentMeshes={Settings.Boss.ShellMesh,Settings.Boss.KernelMesh}; NutRow.FragmentScale=NutRow.Scale;
         NutRow.Resistance=EMCFoodResistance::Hard; NutRow.Health=90; NutRow.Mass=7; NutRow.SpoilSeconds=600;
     }
     if(Settings.bBossEncounter && !NutRow.WholeMeshes.IsEmpty())
-        if(const UStaticMesh* Mesh=NutRow.WholeMeshes[0].LoadSynchronous())
+        if(const UStaticMesh* Mesh=NutRow.WholeMeshes[0].LoadSynchronous()) {
             NutRow.Scale=FVector(Settings.LargeNutHeight/FMath::Max(.001,Mesh->GetBounds().BoxExtent.Z*2));
+            // Shell and kernel are isolated parts of this same artist model.
+            // Keep their proportions to the falling nut, independently of minion size.
+            NutRow.FragmentScale=NutRow.Scale;
+        }
     NutRow.Sanitize();
 }
 

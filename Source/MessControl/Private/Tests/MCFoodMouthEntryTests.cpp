@@ -49,7 +49,11 @@ struct FMouthEntryWorld
         const FTransform Transform(Position);
         auto* Piece=World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Transform,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         FRandomStream Random(7); Piece->ConfigureItem(TEXT("MouthEntryFixture"),Row,Random);
-        Piece->FinishSpawning(Transform); return Piece;
+        Piece->FinishSpawning(Transform);
+        // This fixture exercises retained carry/delivery behavior around the
+        // entry flight. Select it explicitly despite the automatic default.
+        Piece->Settings.bAutoConsumeSmallCuts=false;
+        return Piece;
     }
     void Contact(AMCFoodActor* Food,AActor* Other,UPrimitiveComponent* Component,FVector Normal)
     {
@@ -133,6 +137,7 @@ bool FMCMouthEntryLifecycle::RunTest(const FString&)
     auto* Piece=T.Food(FVector(-4000,0,2000));
     Piece->BeginMouthEntry(FVector(600,0,-300),140);
     auto* Exit=T.World->SpawnActor<AMCFoodDisposal>(Piece->GetActorLocation(),FRotator::ZeroRotator);
+    Exit->bEnableLegacyDeliveryZone=true; // Explicit legacy intake fixture, retired by default in normal play.
     TestFalse(TEXT("An incoming piece cannot enter a delivery intake"),Exit->CanAcceptDelivery(Piece));
     Exit->bBrushBin=true;
     const FVector EntryPosition=Piece->GetActorLocation();

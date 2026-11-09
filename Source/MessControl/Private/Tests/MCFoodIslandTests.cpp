@@ -130,15 +130,23 @@ bool MixedSavedFixture(FAutomationTestBase& Test,FMCFoodRow& Row,UStaticMesh*& S
             }
             TArray<FIsland> Islands;FString Error;
             if(!MCFoodCutGeometry::FindIslands(Geometry.Get(),Islands,&Error) || Islands.Num()<2) continue;
-            double LargestClosed=0;
-            for(const auto& Island:Islands) if(Island.Bounds.GetSize().GetMin()>.001)
-                LargestClosed=FMath::Max(LargestClosed,Island.Bounds.GetSize().GetMax());
-            if(LargestClosed<=0) continue;
-            const double Scale=330./LargestClosed;
+            constexpr double IntakeVolume=110.*110.*110.;
+            double LargestVolume=0;
+            for(const auto& Island:Islands) if(Island.Bounds.GetSize().GetMin()>.001
+                && Island.VolumeMethod!=MCFoodCutGeometry::EVolumeMethod::Invalid)
+                LargestVolume=FMath::Max(LargestVolume,Island.Volume);
+            if(LargestVolume<=0) continue;
+            // Keep one genuinely oversized 3D body after the volume policy
+            // change; a 330 cm-long body may itself have very little volume.
+            const double Scale=FMath::Pow(2.*IntakeVolume/LargestVolume,1./3.);
+            const FTransform Measurement(FQuat::Identity,FVector::ZeroVector,FVector(Scale));
+            if(!MCFoodCutGeometry::FindIslands(Geometry.Get(),Islands,&Error,256,Measurement)) continue;
             int32 Small=0,Large=0;bool InvalidLarge=false;
             for(const auto& Island:Islands) {
                 const FVector Size=Island.Bounds.GetSize()*Scale;
-                if(Size.GetMax()<=220.+KINDA_SMALL_NUMBER) ++Small;
+                const bool FitsVolume=Island.VolumeMethod!=MCFoodCutGeometry::EVolumeMethod::Invalid
+                    && FMath::IsFinite(Island.Volume) && Island.Volume>0 && Island.Volume<=IntakeVolume;
+                if(FitsVolume) ++Small;
                 else {++Large;InvalidLarge|=Size.GetMin()<=.001;}
             }
             if(!Small || !Large || InvalidLarge) continue;
@@ -278,16 +286,21 @@ bool FMCFoodIslandActorAccounting::RunTest(const FString&)
     TStrongObjectPtr<UStaticMesh> RetainMesh(StaticMesh);
     FActorWorld T;
     if(!TestNotNull(TEXT("The actor test has a worker"),T.Hero) || !TestNotNull(TEXT("The actor test has a real intake"),T.Throat)) return false;
+    const auto FinishAcceptedCut=[&](AMCFoodActor* Food) {
+        for(int32 Frame=0;Frame<120 && Food->IsCutTransactionPending();++Frame)T.World->Tick(LEVELTICK_All,1.f/60.f);
+        return TestFalse(TEXT("An accepted island transaction completes within bounded world ticks"),Food->IsCutTransactionPending());
+    };
     const FTransform Pose(FVector(0,0,2000));
     auto* Parent=T.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if(!TestNotNull(TEXT("The ordinary food actor spawns"),Parent)) return false;
     FRandomStream Random(918191);Parent->ConfigureItem(TEXT("IslandRegression"),Row,Random);
     Parent->Batch=FActorWorld::Batch;Parent->FinishSpawning(Pose);
-    Parent->Settings.bAutoConsumeSmallCuts=true;Parent->Settings.MaxAutoConsumeDimensions=FVector(220);
+    Parent->Settings.bAutoConsumeSmallCuts=true;Parent->Settings.MaxAutoConsumeDimensions=FVector(110);
     Parent->Settings.MinCutVolume=1;Parent->Settings.MinCutThickness=1;
     Parent->Phase=EMCFoodPhase::Free;Parent->Body->SetSimulatePhysics(false);Parent->SetActorTickEnabled(false);
     const float OriginalMass=Parent->FoodData.Mass;const int32 OriginalAwards=Parent->FoodData.FragmentCount();
     if(!TestTrue(TEXT("One accepted production knife contact separates disconnected geometry"),Parent->HitFood(1,FVector::ForwardVector,T.Hero,Parent->Visual->Bounds.Origin,FVector::RightVector))) return false;
+    if(!FinishAcceptedCut(Parent))return false;
     TestTrue(TEXT("The grouped parent is retired without its own delivery receipt"),Parent->IsDisposed() && !Parent->WasAutomaticallyConsumed() && !Parent->bDeliveryScored);
     TArray<AMCFoodActor*> Leaves=T.Foods();Leaves.Remove(Parent);
     if(!TestEqual(TEXT("Every referenced component has an independent actor or consumed receipt"),Leaves.Num(),ExpectedSmall+ExpectedLarge)) return false;
@@ -337,6 +350,7 @@ bool FMCFoodIslandActorAccounting::RunTest(const FString&)
     const FVector Point=RecutPose.TransformPosition(LocalBounds.GetCenter());
     const FVector Normal=RecutPose.TransformVectorNoScale(Axis);
     if(!TestTrue(TEXT("A selected large component can be cut again through its preserved history"),Recut->HitFood(999,FVector::ForwardVector,T.Hero,Point,Normal))) return false;
+    if(!FinishAcceptedCut(Recut))return false;
     Leaves.Remove(Recut);
     for(auto* Part:T.Foods()) if(!BeforeActors.Contains(Part)) Leaves.Add(Part);
     Mass=0;Awards=0;

@@ -5,6 +5,8 @@
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Chaos/Convex.h"
 #include "Chaos/TriangleMeshImplicitObject.h"
+#include "MCFoodCutGeometry.h"
+#include "ProfilingDebugging/CpuProfilerTrace.h"
 
 namespace
 {
@@ -146,12 +148,17 @@ bool UMCFoodBodyComponent::HasMeshCollision() const
 // Prototype: vertices are in Body-local space, preserving the plane and actor transform.
 bool UMCFoodBodyComponent::SetCutCollision(const TArray<FVector>& Vertices)
 {
-    if(Vertices.Num()<4) return false;
-    TArray<Chaos::FConvex::FVec3Type> Points; Points.Reserve(Vertices.Num());
-    FBox CutBounds(ForceInit);
-    for(const FVector& V:Vertices) { if(V.ContainsNaN()) return false; Points.Add(Chaos::FConvex::FVec3Type(V)); CutBounds+=V; }
-    Chaos::FConvexPtr Convex=new Chaos::FConvex(Points,0);
-    if(!Convex->IsValidGeometry()) return false;
+    check(IsInGameThread());
+    TArray<MCFoodCutGeometry::FConvexRequest> Requests;auto& Request=Requests.AddDefaulted_GetRef();Request.Vertices=Vertices;
+    TArray<TUniquePtr<MCFoodCutGeometry::FPreparedCollision>> Prepared;
+    return MCFoodCutGeometry::PrepareConvexBatch(Requests,Prepared) && Prepared.Num()==1 && InstallPreparedCutCollision(*Prepared[0]);
+}
+
+bool UMCFoodBodyComponent::InstallPreparedCutCollision(const MCFoodCutGeometry::FPreparedCollision& Prepared)
+{
+    check(IsInGameThread());
+    TRACE_CPUPROFILER_EVENT_SCOPE(MCFoodInstallCollisionGT);
+    if(!Prepared.IsValid())return false;
     const bool Simulating=IsSimulatingPhysics();
     const FVector Velocity=GetPhysicsLinearVelocity(),Spin=GetPhysicsAngularVelocityInRadians();
     DestroyPhysicsState();
@@ -159,11 +166,14 @@ bool UMCFoodBodyComponent::SetCutCollision(const TArray<FVector>& Vertices)
     ShapeBodySetup->CollisionTraceFlag=CTF_UseSimpleAsComplex;
     ShapeBodySetup->bNeverNeedsCookedCollisionData=true;
     auto& Hull=ShapeBodySetup->AggGeom.ConvexElems.AddDefaulted_GetRef();
-    for(int32 I=0;I<Convex->NumVertices();++I) Hull.VertexData.Add(FVector(Convex->GetVertex(I)));
-    Hull.UpdateElemBox(); Hull.SetConvexMeshObject(MoveTemp(Convex));
+    Hull.VertexData=Prepared.HullVertices;Hull.IndexData=Prepared.HullIndices;Hull.UpdateElemBox();
+    // The default setter rebuilds indices with another convex construction.
+    // Both arrays were already validated and must be present at this boundary.
+    Chaos::FConvexPtr Convex=Prepared.Convex;
+    Hull.SetConvexMeshObject(MoveTemp(Convex),FKConvexElem::EConvexDataUpdateMethod::UpdateConvexDataOnlyIfMissing);
     ShapeBodySetup->bCreatedPhysicsMeshes=true;
-    InitBoxExtent(CutBounds.Min.GetAbs().ComponentMax(CutBounds.Max.GetAbs()));
+    InitBoxExtent(Prepared.Bounds.Min.GetAbs().ComponentMax(Prepared.Bounds.Max.GetAbs()));
     UpdateBounds(); MarkRenderStateDirty();
     if(IsRegistered()) { RecreatePhysicsState(); if(Simulating) {SetPhysicsLinearVelocity(Velocity);SetPhysicsAngularVelocityInRadians(Spin);} UpdateOverlaps(); }
-    return true;
+    ++MCFoodCutGeometry::PreparationStats().CollisionInstalls;return true;
 }

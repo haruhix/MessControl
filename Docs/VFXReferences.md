@@ -1,5 +1,13 @@
 # eeproducible VFX reference library
 
+## Juicy food-break preview — 2026-11-09
+
+- [Ashif Ali / CGHOW: Egg Burst](https://cghow.com/ue4-niagara-egg-explode/) is a creator-authored breakup reference: a short readable separation of food-like chunks. Reviewed the original page; no downloadable creator artwork copied.
+- [Ashif Ali / CGHOW: Emit Particles on Mesh Particles](https://cghow.com/emit-particles-on-mesh-particles-in-ue5-niagara-tutorial/) informs separating readable primary pieces from a secondary crumb layer. This draft uses independent small bursts, without particle-ID coupling or mesh sampling.
+- Reuse the official Scratch Pad and endpoint-flight references below. The proposed draft keeps gameplay-owned endpoints, CPU mesh particles, no collision, a bounded early scatter and a staggered target curve. Existing lit crumbs/materials and Effect Type are preferred; Chaos destruction is unnecessary for decorative pieces.
+
+Tried as an unapplied draft in MessControl: `NS_Food_Juicy_Draft_20261109`, two CPU opaque mesh emitters (7 readable pieces + 22 small crumbs per accepted portion), separate wet-look material and named draft profile. Compile/save/reload, actual Composer knife/split/accepted cues, scoped prewarm and reset passed. The recorded split accepts two halves, peaking at 58 draft particles. Root inspected the corrected chronological frames; the review GIF uses a closer hero-relative camera and neutral transient fill in the actual isolated gameplay world. Original profile/artwork remains assigned. Early framing/exposure/dark-lighting recordings are retained as diagnostics. Artistic approval and normal Mouth lighting/integration remain pending. GIF is silent; no new crunch recording or final audio mix is claimed.
+
 ## Food crumbs to mouth — 2026-11-08
 
 - [Ashif Ali / CGHOW: Particles Attracting to Camera](https://cghow.com/particles-attracting-to-camera-in-unreal-engine-5-1-niagara/) informed the readable gathering motion towards a supplied endpoint. Adapted as an original short crumb burst and curved inward flight, without copying source art. The full page was rate-limited during research; its creator/search synopsis was available.

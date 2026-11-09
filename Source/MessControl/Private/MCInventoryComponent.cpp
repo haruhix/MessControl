@@ -290,6 +290,7 @@ float UMCInventoryComponent::SpraySecondsLeft() const
 }
 bool UMCInventoryComponent::CanBreak(const AMCFoodActor* Food) const
 {
+    if(IsValid(Food) && (Food->IsCutTransactionPending() || Food->IsCutTransactionStaged()))return false;
     if(IsValid(Food) && Selected==EMCToolSlot::Knife && HasUpgrade(EMCToolUpgrade::Chainsaw)
         && Food->FoodData.Kind==EMCFoodKind::Food && !Food->bBrushTool && !Food->IsDisposed()) return true;
     return IsValid(Food) && !Food->bBrushTool && !Food->IsDisposed()

@@ -12,6 +12,8 @@ class UTextRenderComponent;
 class UMCWorldStatusComponent;
 class USceneComponent;
 class AMCToothCharacter;
+struct FMCPreparedFoodCutState;
+struct FMCFoodCutTransaction;
 DECLARE_MULTICAST_DELEGATE_OneParam(FMCFoodEntryLanding,const FHitResult&);
 
 USTRUCT(BlueprintType)
@@ -36,8 +38,8 @@ struct FMCFoodSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Grab") float BreakDistance=340;
     /** Full dimensions in the flat hand pose, in cm; independent of fragment identity. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Portions",meta=(ClampMin="1")) FVector MaxHandDimensions=FVector(110);
-    /** Automatic feeding has its own larger portion limit; legacy hand carrying keeps MaxHandDimensions. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Portions",meta=(ClampMin="1",Units="cm")) FVector MaxAutoConsumeDimensions=FVector(220);
+    /** Product of these cm values is the automatic intake volume budget; no per-axis acceptance. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Portions",meta=(ClampMin="1",Units="cm")) FVector MaxAutoConsumeDimensions=FVector(110);
     /** Disable to restore the retained hand-stack and manual throat-delivery pattern. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Portions") bool bAutoConsumeSmallCuts=true;
     /** Both cut results must retain this much physical convex-hull volume (cm cubed). */
@@ -176,11 +178,12 @@ public:
     UFUNCTION(BlueprintPure,Category="Food|Portions") bool FitsHandPortion() const;
     UFUNCTION(BlueprintPure,Category="Food|Portions") FVector GetHandPortionSize() const;
     UFUNCTION(BlueprintPure,Category="Food|Portions") bool FitsAutomaticIntakePortion() const;
-    /** Fresh ordinary food uses automatic intake; hazards and boss ammunition keep their own rules. */
+    /** Fresh/rotten ordinary food uses automatic routing; hazards and boss ammunition keep their own rules. */
     UFUNCTION(BlueprintPure,Category="Food|Portions") bool UsesAutomaticCutIntake() const;
     /** Server-only, accepted once after a knife cut. The VFX never owns delivery/accounting. */
     bool TryConsumeCutPortion(FVector Direction);
     bool WasAutomaticallyConsumed() const { return bAutomaticallyConsumed; }
+    bool WasAutomaticallyDiscarded() const { return bAutomaticallyDiscarded; }
     // Config/DefaultEngine.ini: distinguish fragments from player ragdoll PhysicsBody shapes.
     static constexpr ECollisionChannel FragmentCollisionChannel=ECC_GameTraceChannel2;
     static AMCFoodActor* FindNearbySpoiledFood(UWorld* World,FVector Point,float Radius=280);
@@ -222,6 +225,9 @@ public:
     void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
     void ConfigureBrush();
     bool HitFood(float Damage,FVector Direction,AMCToothCharacter* Worker=nullptr, FVector CutPoint=FVector::ZeroVector, FVector CutNormal=FVector::ZeroVector);
+    /** Accepted large cuts reserve their source until all hidden children are prepared. */
+    bool IsCutTransactionPending() const {return bCutTransactionPending;}
+    bool IsCutTransactionStaged() const {return bCutTransactionStaged;}
     bool IsHardFood() const;
     void AttendFood();
     /** A real river sweep preserves the new position even after the water leaves. */
@@ -297,6 +303,12 @@ public:
     int32 ConfirmedImpacts=0;
 private:
     friend class FMCFoodIslandActorAccounting;
+    friend class FMCFoodAutomaticSliverVolume;
+    friend class FMCFoodAutomaticSpoiledCutTransaction;
+    friend class FMCFoodPreparedCutReuse;
+    friend class UMCFoodCutStagingSubsystem;
+    friend class UMCFoodProcessingRecoverySubsystem;
+    friend class FMCFoodProcessingRecoveryTest;
     UPROPERTY(ReplicatedUsing=OnRep_InteractionState) FMCFoodInteractionState InteractionState;
     UFUNCTION() void OnRep_InteractionState();
     UPROPERTY(Transient) FMCFoodInteractionState PresentedInteraction;
@@ -361,16 +373,37 @@ private:
     /** 0 = already connected, 1 = all independent portions staged, -1 = atomic refusal. */
     int32 SpawnDisconnectedPortions(FVector Direction,TArray<AMCFoodActor*>& OutPieces);
     bool SpawnPortionActors(const TArray<TArray<FMCFoodCutPlane>>& Histories,const TArray<double>& Weights,
-        const TArray<FBox>& LocalBounds,FVector Direction,TArray<AMCFoodActor*>& OutPieces);
+        const TArray<FBox>& LocalBounds,const TArray<double>& LocalVolumes,FVector Direction,TArray<AMCFoodActor*>& OutPieces,
+        const TArray<TSharedPtr<const FMCPreparedFoodCutState>>& Prepared={});
     bool BuildCutVisual();
+    bool PrepareCutGeometry();
+    void ApplyPreparedSourceMaterials();
     FTransform PortionSourceTransform() const;
     FVector PortionExtent() const;
+    bool FitsAutomaticIntakeMetrics(double LocalVolume) const;
+    double AutomaticIntakeVolume() const;
+    bool ResolveAutomaticCutDestination(FVector Start,FVector& OutTarget,class AMCThroat*& OutThroat) const;
+    /** Actual selected geometry in actor-local cubic cm; negative means not measured. */
+    double MeasuredPortionLocalVolume=-1;
     FVector PendingCutPoint=FVector::ZeroVector,PendingCutNormal=FVector::ZeroVector;
     bool bCutVisualReady=false;
+    TSharedPtr<const FMCPreparedFoodCutState> PreparedCutState;
+    /** Parent tuning/geometry was staged before FinishSpawning; BeginPlay must not overwrite it. */
+    bool bStagedCutPortion=false;
     /** Server-only receipt: accepted small geometry never needs a physical replicated actor. */
     bool bCutIntakeReceipt=false;
     FBox CutIntakeReceiptBounds=FBox(ForceInit);
     bool bProcessingAutomaticCutDamage=false;
+    double CutContactStartedSeconds=0;
+    UPROPERTY(ReplicatedUsing=OnRep_Phase) bool bCutTransactionPending=false;
+    bool bCutTransactionStaged=false,bHasStagedCollisionResponses=false;
+    FCollisionResponseContainer StagedCollisionResponses;
+    TSharedPtr<FMCFoodCutTransaction> PendingCutTransaction;
+    AMCFoodActor* SpawnPreparedPortion(const FMCFoodCutTransaction& Plan,int32 Index,bool bQueued);
+    bool AdvancePendingCut();
+    void CancelPendingCut(bool bRestoreSource=true);
+    void SetPendingCutCompletion(AMCToothCharacter* Worker,bool bWeaponPassives,bool bPlayBreak,class AMCPlayerState* PreviousHandler);
+    void CompleteCutPortions(const TArray<AMCFoodActor*>& Pieces,FVector Direction,AMCToothCharacter* Worker,bool bWeaponPassives,bool bPlayBreak);
     FBox CutStackLocalBounds=FBox(ForceInit);
     int32 CutAwardUnits=1;
     bool ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,class AMCPlayerState* SourcePS,bool bWeaponPassives);
@@ -386,6 +419,7 @@ private:
     UPROPERTY() TObjectPtr<class AMCPlayerState> LastHandledBy;
     bool bDeliveryScored=false;
     bool bAutomaticallyConsumed=false;
+    bool bAutomaticallyDiscarded=false;
     bool bManuallyThrown=false;
     UPROPERTY() TArray<TObjectPtr<class UMaterialInstanceDynamic>> HazardMaterials;
     UPROPERTY() TObjectPtr<class UMaterialInstanceDynamic> ReactionMaterial;

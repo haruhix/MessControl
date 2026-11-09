@@ -23,7 +23,7 @@ AMCGameState::AMCGameState()
     Progression=CreateDefaultSubobject<UMCProgressionComponent>(TEXT("Progression"));
     FoodCutIntakePresentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("FoodCutIntakePresentation"));
     FoodCutIntakePresentation->SourceID=TEXT("Food.AutoMouth");
-    FoodCutIntakePresentation->Events={TEXT("Consume")};
+    FoodCutIntakePresentation->Events={TEXT("Consume"),TEXT("Discard")};
     PrimaryActorTick.bCanEverTick=true;
     PrimaryActorTick.bStartWithTickEnabled=true;
 }

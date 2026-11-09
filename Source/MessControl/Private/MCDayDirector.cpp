@@ -99,9 +99,15 @@ void AMCDayDirector::AddDirt(bool bCoffee,int32 Patches,int32 Batch,int32 ToothL
     if(!HasAuthority() || !Settings) return;
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
     const float Amount=ToothAmount<0?(bCoffee?1.f:.5f):FMath::Clamp(ToothAmount,0.f,1.f);
-    int32 Dirtied=0;
-    for (AMCArenaTooth* Tooth:GS->ArenaTeeth) if (IsValid(Tooth) && Tooth->IsAvailable() && (ToothLimit<0 || Dirtied<ToothLimit))
-    { Tooth->Status->ApplyCoffee(ToothLimit<0?Amount:FMath::Max(Amount,Tooth->Status->CoffeeAmount())); ++Dirtied; }
+    TArray<AMCArenaTooth*> Teeth;
+    for(AMCArenaTooth* Tooth:GS->ArenaTeeth) if(IsValid(Tooth) && Tooth->IsAvailable()) Teeth.Add(Tooth);
+    const int32 OriginalToothBudget=ToothLimit<0?Teeth.Num():FMath::Min(Teeth.Num(),ToothLimit);
+    // Both rows share one reduced tooth budget. Keep the original quota spent
+    // for the player loop so fewer dirty teeth cannot add dirty players.
+    for(int32 I=Teeth.Num()-1;I>0 && OriginalToothBudget>0;--I) Teeth.Swap(I,Random.RandRange(0,I));
+    for(int32 I=0;I<(OriginalToothBudget+1)/2;++I)
+        Teeth[I]->Status->ApplyCoffee(ToothLimit<0?Amount:FMath::Max(Amount,Teeth[I]->Status->CoffeeAmount()));
+    int32 Dirtied=OriginalToothBudget;
     if (bCoffee) for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
         if (It->Status->IsAlive() && (ToothLimit<0 || Dirtied<ToothLimit)) { It->Status->ApplyCoffee(ToothLimit<0?Amount:FMath::Max(Amount,It->Status->CoffeeAmount())); ++Dirtied; }
     TArray<AMCTongue*> Tongues; for (TActorIterator<AMCTongue> It(GetWorld());It;++It) Tongues.Add(*It);

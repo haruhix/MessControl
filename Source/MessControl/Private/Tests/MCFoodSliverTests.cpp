@@ -86,6 +86,8 @@ struct FSliverWorld
         auto* Food=World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if(!Food) return nullptr;
         FRandomStream Random(7);Food->ConfigureItem(TEXT("SliverFixture"),Row,Random);Food->FinishSpawning(Pose);
+        // These thickness/cap regressions exercise the retained manual pattern.
+        Food->Settings.bAutoConsumeSmallCuts=false;
         Food->Settings.MaxHandDimensions=FVector(110);Food->Settings.MinCutVolume=1000;Food->Settings.MinCutThickness=12;
         Food->Phase=EMCFoodPhase::Free;Food->Body->SetSimulatePhysics(false);Food->SetActorTickEnabled(false);
         return Food;

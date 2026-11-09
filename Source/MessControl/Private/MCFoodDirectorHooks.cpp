@@ -2,6 +2,7 @@
 
 #include "MCDayPlan.h"
 #include "MCFoodActor.h"
+#include "MCFoodProcessingRecoverySubsystem.h"
 #include "MCGameState.h"
 #include "MCTongue.h"
 #include "MCThroat.h"
@@ -164,6 +165,10 @@ AMCFoodActor* MCSpawnDirectedFoodEntry(UWorld* World,const UMCDayPlan* Plan,FNam
     for(const auto& Mesh:Row->WholeMeshes) AuthoredMesh|=Mesh.Get()==Food->ItemMesh.Get() && Food->ItemMesh!=nullptr;
     // A missing authored variant must not silently become a prototype food ticket.
     if(!AuthoredMesh) {Food->Destroy();return nullptr;}
+    if(!UMCFoodProcessingRecoverySubsystem::CanAdmit(Food)) {
+        UE_LOG(LogTemp,Warning,TEXT("MC_FOOD_ADMISSION_REJECT item=%s batch=%d mesh=%s"),*RowName.ToString(),Batch,*GetPathNameSafe(Food->ItemMesh.Get()));
+        Food->Destroy();return nullptr;
+    }
     Food->Batch=Batch;
     const float Margin=Food->Body->GetScaledBoxExtent().Size2D()+20.f;
     FHitResult Floor;AMCTongue* LandingTongue=nullptr;
@@ -231,6 +236,9 @@ AMCFoodActor* MCSpawnDirectedStuckFood(UWorld* World,const UMCDayPlan* Plan,FNam
     if(bDiagnostic) UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC MESH path=%s authored=%d body_registered=%d"),
         *GetPathNameSafe(Food->ItemMesh.Get()),AuthoredMesh,Food->Body->IsRegistered());
     if(!AuthoredMesh) {Food->Destroy();return Failed(TEXT("authored_mesh_guard"));}
+    if(!UMCFoodProcessingRecoverySubsystem::CanAdmit(Food)) {
+        Food->Destroy();return Failed(TEXT("automatic_processing_guard"));
+    }
     const FVector Extent=Food->Body->GetScaledBoxExtent();
     const float Margin=Extent.Size2D()+20.f;
     // Diagnostic-only copy of GameplaySpawnFootprint's outer-strip calculation.

@@ -54,6 +54,8 @@ struct MESSCONTROL_API FMCFoodPipelineLoad
 
 /** One call attempts one explicit whole item. Food entry creates no tongue dirt; a failed attempt leaves no issued work.
  * Requires a valid menu row, authored tongue footprint and mouth-entry trajectory.
+ * Automatic food also needs supported processing metadata and both intake routes
+ * before the caller can count it as issued work.
  * The caller owns admission, row selection, Batch lineage and the seeded random stream.
  * DirtServices is retained for caller compatibility and optional diagnostics, not stain production.
  */

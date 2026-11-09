@@ -26,9 +26,13 @@ if not profile:
  factory=u.DataAssetFactory();factory.set_editor_property('data_asset_class',u.MCPerkVFXProfile)
  profile=tools.create_asset('DA_Food_AutoMouth',ROOT,u.MCPerkVFXProfile,factory);assert profile
  slot=u.MCPerkVFXSlot();slot.set_editor_properties(dict(mode=u.MCPerkVFXSlotMode.REPLACE,system=system))
- profile.set_editor_property('slots',{u.Name('Consume'):slot})
+ profile.set_editor_property('slots',{u.Name('Consume'):slot,u.Name('Discard'):slot.copy()})
  assert lib.save_loaded_asset(profile,only_if_is_dirty=False)
-slots=dict(profile.get_editor_property('slots'));assert set(map(str,slots))=={'Consume'}
+slots=dict(profile.get_editor_property('slots'));assert u.Name('Consume') in slots
+if u.Name('Discard') not in slots:
+ slots[u.Name('Discard')]=slots[u.Name('Consume')].copy()
+ profile.set_editor_property('slots',slots)
+ assert lib.save_loaded_asset(profile,only_if_is_dirty=False)
 assert slots[u.Name('Consume')].get_editor_property('mode')==u.MCPerkVFXSlotMode.REPLACE
 profiles=dict(before)
 if u.Name('Food.AutoMouth') not in profiles:

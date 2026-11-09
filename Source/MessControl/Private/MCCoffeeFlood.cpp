@@ -528,7 +528,7 @@ void AMCCoffeeFlood::UpdateRiverDebris()
 }
 void AMCCoffeeFlood::InitializeResidue()
 {
-    ResidueCells.Reset(); ResiduePatches.Reset(); LastResidueTime=-100;
+    ResidueCells.Reset(); ResiduePatches.Reset(); ResidueTeeth.Reset(); LastResidueTime=-100;
     auto* Tongue=FindRiverTongue(); if (!Tongue) return;
     ResidueCells.SetNum(ResidueSize*ResidueSize);
     for (int32 Y=0;Y<ResidueSize;++Y) for (int32 X=0;X<ResidueSize;++X) {
@@ -549,6 +549,18 @@ void AMCCoffeeFlood::InitializeResidue()
     uint32 PlacementSeed=HashCombine(GetTypeHash(StartedAt),GetTypeHash(ArenaCenter));
     if(const auto* Game=GetWorld()->GetGameState<AMCGameState>())
         PlacementSeed=HashCombine(PlacementSeed,GetTypeHash(Game->RunSeed));
+    // One shared budget for both rows, retained for this entire pour. Separate
+    // randomness keeps the floor-puddle plan unchanged by tooth selection.
+    TArray<AMCArenaTooth*> Teeth;
+    for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) {
+        const FBox Bounds=It->Visual->Bounds.GetBox();
+        if(It->IsAvailable() && Bounds.Min.X<=ArenaCenter.X+HalfSize.X && Bounds.Max.X>=ArenaCenter.X-HalfSize.X
+            && Bounds.Min.Y<=ArenaCenter.Y+HalfSize.Y && Bounds.Max.Y>=ArenaCenter.Y-HalfSize.Y) Teeth.Add(*It);
+    }
+    Teeth.Sort([](const AMCArenaTooth& A,const AMCArenaTooth& B){return A.State.ToothId<B.State.ToothId;});
+    FRandomStream ToothRandom(HashCombine(PlacementSeed,0x544F4F54u));
+    for(int32 I=Teeth.Num()-1;I>0;--I)Teeth.Swap(I,ToothRandom.RandRange(0,I));
+    for(int32 I=0;I<(Teeth.Num()+1)/2;++I)ResidueTeeth.Add(Teeth[I]);
     FRandomStream Random(PlacementSeed);
     // Choose supported footprints before arrival. Their visibility is solely the
     // swept wet mask, never a random spawn performed when the event finishes.
@@ -628,7 +640,7 @@ void AMCCoffeeFlood::DepositResidue()
     if(!NewWet) return;
     for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) {
         const FBox Bounds=It->Visual->Bounds.GetBox();
-        if(!It->IsAvailable() || Bounds.Min.X>ArenaCenter.X+HalfSize.X || Bounds.Max.X<ArenaCenter.X-HalfSize.X
+        if(!ResidueTeeth.Contains(*It) || !It->IsAvailable() || Bounds.Min.X>ArenaCenter.X+HalfSize.X || Bounds.Max.X<ArenaCenter.X-HalfSize.X
             || Bounds.Min.Y>ArenaCenter.Y+HalfSize.Y || Bounds.Max.Y<ArenaCenter.Y-HalfSize.Y) continue;
         const auto CellIndex=[&](double Position,double Center,double Half) {
             return FMath::Clamp(FMath::FloorToInt(((Position-Center)/(Half*2)+.5)*ResidueSize),0,ResidueSize-1);

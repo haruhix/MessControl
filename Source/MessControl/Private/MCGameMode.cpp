@@ -695,7 +695,10 @@ void AMCGameMode::StartDay()
     auto AddObjective=[&](AActor* Target) { FMCEventObjective O; O.Target=Target; O.Kind=Event->Kind; Objectives.Add(O); };
     if (Event->Kind==EMCTaskKind::Coffee)
     {
-        for (AMCArenaTooth* Tooth:State->ArenaTeeth) if (IsValid(Tooth) && Tooth->IsAvailable()) { Tooth->SetCoffee(1); AddObjective(Tooth); }
+        TArray<AMCArenaTooth*> Teeth;
+        for(AMCArenaTooth* Tooth:State->ArenaTeeth)if(IsValid(Tooth)&&Tooth->IsAvailable())Teeth.Add(Tooth);
+        for(int32 I=Teeth.Num()-1;I>0;--I)Teeth.Swap(I,Random.RandRange(0,I));
+        for(int32 I=0;I<(Teeth.Num()+1)/2;++I){Teeth[I]->SetCoffee(1);AddObjective(Teeth[I]);}
         for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if (It->Status->IsAlive()) { It->Status->ApplyCoffee(); AddObjective(*It); }
     }
     else if (Event->Kind==EMCTaskKind::LooseTooth)

@@ -163,6 +163,7 @@ private:
     TArray<FResidueCell> ResidueCells;
     struct FResiduePatch { FVector Point=FVector::ZeroVector; float HalfSize=240; TWeakObjectPtr<class AMCMouthSurface> Surface; };
     TArray<FResiduePatch> ResiduePatches;
+    TSet<TWeakObjectPtr<class AMCArenaTooth>> ResidueTeeth;
     float LastResidueTime=-100;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> JetMaterial;

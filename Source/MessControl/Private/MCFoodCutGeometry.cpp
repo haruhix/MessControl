@@ -3,7 +3,92 @@
 #include "KismetProceduralMeshLibrary.h"
 #include "GeomTools.h"
 #include "Algo/Reverse.h"
+#include "Chaos/Convex.h"
+#include "Materials/MaterialInterface.h"
+#include "Async/ParallelFor.h"
+#include "ProfilingDebugging/CpuProfilerTrace.h"
 DEFINE_LOG_CATEGORY(LogMCFoodCuts);
+
+MCFoodCutGeometry::FPreparationStats& MCFoodCutGeometry::PreparationStats()
+{static FPreparationStats Stats;return Stats;}
+MCFoodCutGeometry::FPreparationStats MCFoodCutGeometry::GetPreparationStats(){return PreparationStats();}
+void MCFoodCutGeometry::ResetPreparationStats(){PreparationStats()={};}
+bool MCFoodCutGeometry::FPreparedMesh::MaterialsValid() const
+{for(const auto& Material:Materials)if(!Material.IsExplicitlyNull() && !Material.IsValid())return false;return true;}
+
+bool MCFoodCutGeometry::FPreparedCollision::IsValid() const
+{
+    if(!Convex || !Convex->IsValidGeometry() || !Bounds.IsValid || Bounds.Min.ContainsNaN() || Bounds.Max.ContainsNaN()
+        || HullVertices.Num()<3 || HullIndices.IsEmpty() || HullIndices.Num()%3)return false;
+    for(const auto& V:HullVertices)if(V.ContainsNaN())return false;
+    for(int32 I:HullIndices)if(!HullVertices.IsValidIndex(I))return false;
+    return true;
+}
+
+namespace
+{
+// This function owns one plain-data result. No UObject, shared-pointer control
+// block, weak index or global diagnostic counter is accessed by a worker.
+TUniquePtr<MCFoodCutGeometry::FPreparedCollision> BuildFoodConvex(const MCFoodCutGeometry::FConvexRequest& Request,uint32& Attempts)
+{
+    TRACE_CPUPROFILER_EVENT_SCOPE(MCFoodBuildPreparedConvex);
+    using namespace MCFoodCutGeometry;
+    for(const auto& V:Request.Vertices)if(V.ContainsNaN())return {};
+    auto Build=[&](const TArray<FVector>& Input,bool Proxy)->TUniquePtr<FPreparedCollision> {
+        if(Input.Num()<4)return {};
+        TArray<Chaos::FConvex::FVec3Type> Points;Points.Reserve(Input.Num());FBox Bounds(ForceInit);
+        for(const auto& V:Input){const Chaos::FConvex::FVec3Type Point(V);if(Point.ContainsNaN())return {};Points.Add(Point);Bounds+=V;}
+        ++Attempts;
+        auto Result=MakeUnique<FPreparedCollision>();Result->Convex=new Chaos::FConvex(Points,0);
+        if(!Result->Convex->IsValidGeometry())return {};
+        Result->Bounds=Bounds;Result->bPlanarProxy=Proxy;
+        for(int32 V=0;V<Result->Convex->NumVertices();++V)Result->HullVertices.Add(FVector(Result->Convex->GetVertex(V)));
+        // Reuse the hull's own merged faces, rather than calling BuildIndices
+        // (which would construct a second hull on the game thread at install).
+        for(int32 Face=0;Face<Result->Convex->NumPlanes();++Face) {
+            const int32 Count=Result->Convex->NumPlaneVertices(Face);if(Count<3)continue;
+            const FVector Normal=FVector(Result->Convex->GetPlane(Face).Normal());
+            for(int32 T=1;T<Count-1;++T) {
+                const int32 A=Result->Convex->GetPlaneVertex(Face,0);
+                int32 B=Result->Convex->GetPlaneVertex(Face,T),C=Result->Convex->GetPlaneVertex(Face,T+1);
+                if(!Result->HullVertices.IsValidIndex(A) || !Result->HullVertices.IsValidIndex(B) || !Result->HullVertices.IsValidIndex(C))return {};
+                const FVector Cross=FVector::CrossProduct(Result->HullVertices[B]-Result->HullVertices[A],Result->HullVertices[C]-Result->HullVertices[A]);
+                const double Winding=FVector::DotProduct(Cross,Normal);
+                if(Cross.SizeSquared()<=1.e-20 || FMath::Abs(Winding)<=1.e-20)continue;
+                if(Winding<0)Swap(B,C);
+                Result->HullIndices.Append({A,B,C});
+            }
+        }
+        return Result->IsValid()?MoveTemp(Result):TUniquePtr<FPreparedCollision>();
+    };
+    if(auto Result=Build(Request.Vertices,false))return Result;
+    if(!Request.bAllowPlanarProxy || Request.Vertices.Num()<3)return {};
+    FVector Normal=FVector::ZeroVector,Edge=FVector::ZeroVector;
+    for(int32 I=1;I<Request.Vertices.Num();++I){if(Edge.IsNearlyZero()){Edge=Request.Vertices[I]-Request.Vertices[0];continue;}Normal=FVector::CrossProduct(Edge,Request.Vertices[I]-Request.Vertices[0]).GetSafeNormal();if(!Normal.IsNearlyZero())break;}
+    if(Normal.IsNearlyZero())return {};
+    TArray<FVector> Proxy;Proxy.Reserve(Request.Vertices.Num()*2);
+    for(const auto& P:Request.Vertices){Proxy.Add(P+Normal*.05);Proxy.Add(P-Normal*.05);}
+    return Build(Proxy,true);
+}
+}
+
+bool MCFoodCutGeometry::PrepareConvexBatch(const TArray<FConvexRequest>& Requests,TArray<TUniquePtr<FPreparedCollision>>& Out)
+{
+    check(IsInGameThread());
+    TRACE_CPUPROFILER_EVENT_SCOPE(MCFoodPrepareConvexBatch);
+    Out.Reset();if(Requests.IsEmpty())return true;if(Requests.Num()>512)return false;
+    struct FResult {TUniquePtr<FPreparedCollision> Collision;uint32 Attempts=0;};
+    TArray<FResult> Results;Results.SetNum(Requests.Num());
+    ++PreparationStats().ConvexBatches;
+    if(Requests.Num()>1)PreparationStats().ConvexParallelItems+=Requests.Num();
+    ParallelFor(Requests.Num(),[&](int32 I){Results[I].Collision=BuildFoodConvex(Requests[I],Results[I].Attempts);},
+        Requests.Num()>1?EParallelForFlags::Unbalanced:EParallelForFlags::ForceSingleThread);
+    bool Valid=true;
+    for(const auto& Result:Results){PreparationStats().ConvexBuilds+=Result.Attempts;Valid&=bool(Result.Collision);}
+    if(!Valid)return false;
+    Out.Reserve(Results.Num());for(auto& Result:Results)Out.Add(MoveTemp(Result.Collision));
+    return true;
+}
 
 namespace
 {
@@ -162,7 +247,57 @@ struct FFoodIslandTriangle
 struct FFoodIslandEdge
 {
     int32 A=0,B=0,Triangle=0;
+    int32 Count=1,Direction=0;
 };
+
+// Ordinary welded edges must occur twice in opposite directions. At a cap's
+// collinear T-junction, a long edge may instead be covered by several reverse
+// edges. Verify that coverage without changing the render mesh or its indices.
+bool ClosedFoodIsland(const TArray<FFoodIslandEdge>& Edges,const TArray<int32>& Indices,
+    const TArray<FVector>& Positions)
+{
+    if(Indices.IsEmpty())return false;
+    TArray<int32> Boundary;
+    for(int32 Index:Indices) {
+        const auto& Edge=Edges[Index];
+        if(Edge.Count==2 && Edge.Direction==0)continue;
+        if(Edge.Count!=1)return false;
+        Boundary.Add(Index);
+    }
+    if(Boundary.IsEmpty())return true;
+    // Large/open artwork takes the conservative hull path rather than turning
+    // closure inspection into an unbounded quadratic repair operation.
+    if(Boundary.Num()>1024)return false;
+    for(int32 Index:Boundary) {
+        const auto& Edge=Edges[Index];
+        const FVector A=Positions[Edge.Direction>0?Edge.A:Edge.B];
+        const FVector B=Positions[Edge.Direction>0?Edge.B:Edge.A];
+        const FVector Along=B-A;const double Length=Along.Size();
+        if(Length<=WeldTolerance)return false;
+        const FVector Axis=Along/Length;
+        TArray<FVector2D> Coverage;
+        for(int32 OtherIndex:Boundary) {
+            if(OtherIndex==Index)continue;
+            const auto& Other=Edges[OtherIndex];
+            const FVector C=Positions[Other.Direction>0?Other.A:Other.B];
+            const FVector D=Positions[Other.Direction>0?Other.B:Other.A];
+            if(FVector::DotProduct(D-C,Axis)>=0)continue;
+            if(FVector::CrossProduct(C-A,Axis).SizeSquared()>FMath::Square(WeldTolerance)
+                || FVector::CrossProduct(D-A,Axis).SizeSquared()>FMath::Square(WeldTolerance))continue;
+            const double Low=FMath::Max(0.,FVector::DotProduct(D-A,Axis));
+            const double High=FMath::Min(Length,FVector::DotProduct(C-A,Axis));
+            if(High>Low)Coverage.Emplace(Low,High);
+        }
+        Coverage.Sort([](const FVector2D& A,const FVector2D& B){return A.X<B.X;});
+        double Covered=0;
+        for(const auto& Interval:Coverage) {
+            if(FMath::Abs(Interval.X-Covered)>WeldTolerance)return false;
+            Covered=Interval.Y;
+        }
+        if(FMath::Abs(Covered-Length)>WeldTolerance)return false;
+    }
+    return true;
+}
 
 struct FFoodIslandSets
 {
@@ -195,11 +330,16 @@ const FProcMeshSection* ReadFoodIslandSection(const UProceduralMeshComponent* Me
 }
 
 bool BuildFoodIslandTopology(const UProceduralMeshComponent* Mesh,TArray<FFoodIslandTriangle>& Triangles,
-    TArray<int32>& TriangleIslands,TArray<MCFoodCutGeometry::FIsland>& Islands,FString* Error,int32 MaxIslands)
+    TArray<int32>& TriangleIslands,TArray<MCFoodCutGeometry::FIsland>& Islands,FString* Error,int32 MaxIslands,
+    const FTransform* MeasurementTransform=nullptr)
 {
+    ++MCFoodCutGeometry::PreparationStats().TopologyPasses;
     Triangles.Reset();TriangleIslands.Reset();Islands.Reset();if(Error)Error->Reset();
     auto Fail=[&](const TCHAR* Message){if(Error)*Error=Message;Islands.Reset();return false;};
     if(!Mesh || MaxIslands<1)return Fail(TEXT("Island inspection requires a mesh and a positive component limit."));
+    if(MeasurementTransform && (MeasurementTransform->ContainsNaN()
+        || MeasurementTransform->GetScale3D().GetAbs().GetMin()<SMALL_NUMBER))
+        return Fail(TEXT("Island volume requires a finite, non-zero measurement scale."));
 
     FContourPoints Points;
     for(int32 S=0;S<Mesh->GetNumSections();++S) {
@@ -241,10 +381,14 @@ bool BuildFoodIslandTopology(const UProceduralMeshComponent* Mesh,TArray<FFoodIs
             const int32 A=Triangle.Welded[K],B=Triangle.Welded[(K+1)%3];
             if(A==B)continue;
             const FIntPoint Key(FMath::Min(A,B),FMath::Max(A,B));
-            if(const int32* Existing=EdgeLookup.Find(Key))Sets.Join(I,Edges[*Existing].Triangle);
+            const int32 Direction=A==Key.X?1:-1;
+            if(const int32* Existing=EdgeLookup.Find(Key)) {
+                auto& Edge=Edges[*Existing];++Edge.Count;Edge.Direction+=Direction;
+                Sets.Join(I,Edge.Triangle);
+            }
             else {
                 const int32 EdgeIndex=Edges.Num();
-                FFoodIslandEdge Edge;Edge.A=Key.X;Edge.B=Key.Y;Edge.Triangle=I;
+                FFoodIslandEdge Edge;Edge.A=Key.X;Edge.B=Key.Y;Edge.Triangle=I;Edge.Direction=Direction;
                 Edges.Add(Edge);EdgeLookup.Add(Key,EdgeIndex);
                 IncidentEdges[Edge.A].Add(EdgeIndex);IncidentEdges[Edge.B].Add(EdgeIndex);
             }
@@ -310,14 +454,75 @@ bool BuildFoodIslandTopology(const UProceduralMeshComponent* Mesh,TArray<FFoodIs
             Island.Vertices.Add(Position);Island.Bounds+=Position;
         }
     }
+    if(!MeasurementTransform)return true;
+
+    // Accumulate from referenced triangles, relative to each part's own centre.
+    // Neither empty AABB space, an unused vertex nor a distant mesh origin is
+    // food volume. Transform vectors keep translation out of these metrics.
+    TArray<double> SignedSixVolume;SignedSixVolume.Init(0,Islands.Num());
+    TArray<double> LargestFace;LargestFace.Init(0,Islands.Num());
+    TBitArray<> CollapsedWeld(false,Islands.Num());
+    TArray<FVector> PlaneNormals;PlaneNormals.Init(FVector::ZeroVector,Islands.Num());
+    TArray<FVector> PlanePoints;PlanePoints.Init(FVector::ZeroVector,Islands.Num());
+    TArray<TArray<int32>> IslandEdges;IslandEdges.SetNum(Islands.Num());
+    for(int32 E=0;E<Edges.Num();++E)IslandEdges[TriangleIslands[Edges[E].Triangle]].Add(E);
+    for(int32 I=0;I<Triangles.Num();++I) {
+        const int32 Index=TriangleIslands[I];auto& Island=Islands[Index];
+        const auto& Triangle=Triangles[I];const auto* Section=ReadFoodIslandSection(Mesh,Triangle.Section);
+        CollapsedWeld[Index]=CollapsedWeld[Index] || Triangle.Welded.X==Triangle.Welded.Y
+            || Triangle.Welded.Y==Triangle.Welded.Z || Triangle.Welded.Z==Triangle.Welded.X;
+        const FVector Centre=Island.Bounds.GetCenter();FVector P[3];
+        for(int32 K=0;K<3;++K)P[K]=MeasurementTransform->TransformVector(Section->ProcVertexBuffer[Triangle.Vertices[K]].Position-Centre);
+        const FVector Cross=FVector::CrossProduct(P[1]-P[0],P[2]-P[0]);
+        const double TwiceFaceArea=Cross.Size();
+        Island.SurfaceArea+=TwiceFaceArea*.5;
+        SignedSixVolume[Index]+=FVector::DotProduct(P[0],FVector::CrossProduct(P[1],P[2]));
+        if(TwiceFaceArea>LargestFace[Index]) {
+            LargestFace[Index]=TwiceFaceArea;PlaneNormals[Index]=Cross/TwiceFaceArea;PlanePoints[Index]=P[0];
+        }
+    }
+    for(int32 Index=0;Index<Islands.Num();++Index) {
+        auto& Island=Islands[Index];
+        if(!FMath::IsFinite(Island.SurfaceArea) || Island.SurfaceArea<=0 || !FMath::IsFinite(SignedSixVolume[Index]))
+            return Fail(TEXT("Island volume found a non-finite or empty surface."));
+        const double SolidVolume=FMath::Abs(SignedSixVolume[Index])/6.;
+        if(SolidVolume>0 && !CollapsedWeld[Index] && ClosedFoodIsland(Edges,IslandEdges[Index],Points.Positions)) {
+            Island.Volume=SolidVolume;Island.VolumeMethod=MCFoodCutGeometry::EVolumeMethod::ClosedMesh;continue;
+        }
+        bool Planar=!PlaneNormals[Index].IsNearlyZero();
+        TArray<Chaos::FConvex::FVec3Type> HullPoints;HullPoints.Reserve(Island.Vertices.Num());
+        const FVector Centre=Island.Bounds.GetCenter();
+        for(const FVector& Vertex:Island.Vertices) {
+            const FVector P=MeasurementTransform->TransformVector(Vertex-Centre);
+            if(P.ContainsNaN())return Fail(TEXT("Island volume found a non-finite transformed vertex."));
+            Planar&=FMath::Abs(FVector::DotProduct(P-PlanePoints[Index],PlaneNormals[Index]))<=WeldTolerance;
+            HullPoints.Add(Chaos::FConvex::FVec3Type(P));
+        }
+        if(Planar) {
+            // A leaf/skin ornament has no enclosed solid. Give its real area
+            // the same explicit 0.1 cm nominal thickness as the collision proxy.
+            Island.Volume=Island.SurfaceArea*.1;
+            Island.VolumeMethod=MCFoodCutGeometry::EVolumeMethod::PlanarSurface;
+        } else {
+            // Inconsistent winding/open imported artwork cannot safely use a
+            // cancelling signed sum. Its hull is an upper bound, never zero.
+            const Chaos::FConvex Hull(HullPoints,0);
+            if(!Hull.IsValidGeometry() || !FMath::IsFinite(Hull.GetVolume()) || Hull.GetVolume()<=0)
+                return Fail(TEXT("Island volume could not measure an open non-planar surface; original food must be retained."));
+            Island.Volume=Hull.GetVolume();Island.VolumeMethod=MCFoodCutGeometry::EVolumeMethod::ConvexHull;
+        }
+        if(!FMath::IsFinite(Island.Volume) || Island.Volume<=0)
+            return Fail(TEXT("Island volume must be finite and positive; original food must be retained."));
+    }
     return true;
 }
 }
 
-bool MCFoodCutGeometry::FindIslands(const UProceduralMeshComponent* Mesh,TArray<FIsland>& Out,FString* Error,int32 MaxIslands)
+bool MCFoodCutGeometry::FindIslands(const UProceduralMeshComponent* Mesh,TArray<FIsland>& Out,FString* Error,int32 MaxIslands,
+    const FTransform& MeasurementTransform)
 {
     TArray<FFoodIslandTriangle> Triangles;TArray<int32> TriangleIslands;
-    return BuildFoodIslandTopology(Mesh,Triangles,TriangleIslands,Out,Error,MaxIslands);
+    return BuildFoodIslandTopology(Mesh,Triangles,TriangleIslands,Out,Error,MaxIslands,&MeasurementTransform);
 }
 
 bool MCFoodCutGeometry::FilterIsland(UProceduralMeshComponent* Mesh,int32 IslandIndex,FString* Error)
@@ -353,4 +558,82 @@ bool MCFoodCutGeometry::FilterIsland(UProceduralMeshComponent* Mesh,int32 Island
     }
     for(int32 S=0;S<Sections.Num();++S)Mesh->SetProcMeshSection(S,Sections[S]);
     return true;
+}
+
+namespace
+{
+bool FillPreparedSections(const UProceduralMeshComponent* Mesh,const FTransform& Transform,
+    const TArray<FFoodIslandTriangle>& Triangles,const TArray<int32>* TriangleIslands,
+    TArray<TSharedPtr<MCFoodCutGeometry::FPreparedMesh>>& Parts)
+{
+    using namespace MCFoodCutGeometry;
+    TArray<TArray<TMap<int32,int32>>> Maps;Maps.SetNum(Parts.Num());
+    for(int32 P=0;P<Parts.Num();++P) {
+        auto& Out=*Parts[P];Out.Sections.SetNum(Mesh->GetNumSections());Out.Materials.SetNum(Mesh->GetNumSections());Maps[P].SetNum(Mesh->GetNumSections());
+        for(int32 S=0;S<Mesh->GetNumSections();++S) {
+            Out.Sections[S].bEnableCollision=false;
+            if(const auto* Source=ReadFoodIslandSection(Mesh,S))Out.Sections[S].bSectionVisible=Source->bSectionVisible;
+            Out.Materials[S]=Mesh->GetMaterial(S);
+        }
+    }
+    for(int32 I=0;I<Triangles.Num();++I) {
+        const int32 P=TriangleIslands?(*TriangleIslands)[I]:0;
+        if(!Parts.IsValidIndex(P))return false;
+        auto& Out=*Parts[P];const auto& Triangle=Triangles[I];const auto* Source=ReadFoodIslandSection(Mesh,Triangle.Section);
+        auto& Target=Out.Sections[Triangle.Section];auto& Map=Maps[P][Triangle.Section];
+        for(int32 K=0;K<3;++K) {
+            const int32 Old=Triangle.Vertices[K];int32 New;
+            if(const int32* Existing=Map.Find(Old))New=*Existing;
+            else {
+                const auto& Vertex=Source->ProcVertexBuffer[Old];New=Target.ProcVertexBuffer.Add(Vertex);Map.Add(Old,New);
+                Target.SectionLocalBox+=Vertex.Position;const FVector V=Transform.TransformPosition(Vertex.Position);
+                if(V.ContainsNaN())return false;
+                Out.Vertices.Add(V);Out.Bounds+=V;
+            }
+            Target.ProcIndexBuffer.Add(uint32(New));
+        }
+    }
+    for(const auto& Part:Parts)if(!Part->Bounds.IsValid || Part->Vertices.Num()<3)return false;
+    return true;
+}
+}
+
+bool MCFoodCutGeometry::CapturePreparedMesh(const UProceduralMeshComponent* Mesh,const FTransform& Transform,FPreparedMesh& Out)
+{
+    if(!Mesh || Transform.ContainsNaN())return false;
+    TArray<FFoodIslandTriangle> Triangles;
+    for(int32 S=0;S<Mesh->GetNumSections();++S)if(const auto* Section=ReadFoodIslandSection(Mesh,S)) {
+        if(Section->ProcIndexBuffer.Num()%3)return false;
+        for(int32 I=0;I<Section->ProcIndexBuffer.Num();I+=3) {
+            FFoodIslandTriangle T;T.Section=S;
+            for(int32 K=0;K<3;++K){const uint32 V=Section->ProcIndexBuffer[I+K];if(!Section->ProcVertexBuffer.IsValidIndex(V))return false;T.Vertices[K]=int32(V);}
+            Triangles.Add(T);
+        }
+    }
+    if(Triangles.IsEmpty())return false;
+    TArray<TSharedPtr<FPreparedMesh>> Parts;Parts.Add(MakeShared<FPreparedMesh>());
+    if(!FillPreparedSections(Mesh,Transform,Triangles,nullptr,Parts))return false;
+    Out=MoveTemp(*Parts[0]);return true;
+}
+
+bool MCFoodCutGeometry::MaterializePreparedMesh(UProceduralMeshComponent* Mesh,const FPreparedMesh& Prepared)
+{
+    if(!Mesh || !Prepared.MaterialsValid() || !Prepared.Bounds.IsValid)return false;
+    ++PreparationStats().Materializations;
+    Mesh->ClearAllMeshSections();
+    for(int32 S=0;S<Prepared.Sections.Num();++S){Mesh->SetProcMeshSection(S,Prepared.Sections[S]);Mesh->SetMaterial(S,Prepared.Materials.IsValidIndex(S)?Prepared.Materials[S].Get():nullptr);}
+    return true;
+}
+
+bool MCFoodCutGeometry::ExtractPreparedIslands(const UProceduralMeshComponent* Mesh,const FTransform& Transform,
+    TArray<TSharedPtr<const FPreparedMesh>>& Out,FString* Error)
+{
+    Out.Reset();TArray<FFoodIslandTriangle> Triangles;TArray<int32> TriangleIslands;TArray<FIsland> Islands;
+    if(!BuildFoodIslandTopology(Mesh,Triangles,TriangleIslands,Islands,Error,256,&Transform))return false;
+    ++PreparationStats().IslandExtractions;
+    TArray<TSharedPtr<FPreparedMesh>> Parts;
+    for(const auto& Island:Islands){auto Part=MakeShared<FPreparedMesh>();Part->LocalVolume=Island.Volume;Parts.Add(Part);}
+    if(!FillPreparedSections(Mesh,Transform,Triangles,&TriangleIslands,Parts))return false;
+    for(auto& Part:Parts)Out.Add(MoveTemp(Part));
+    return !Out.IsEmpty();
 }

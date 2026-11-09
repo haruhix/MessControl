@@ -19,5 +19,6 @@ void MCFoodCutIntakePresentation::Play(AMCFoodActor* Food,const FTransform& Sour
     // One captured seed identifies a cosmetic burst; it never changes gameplay decisions.
     Values.Seed=GetTypeHash(Food->GetFName())^uint32(State->RunSeed);Values.bHasSeed=true;
     const FTransform Frame(FQuat::Identity,Source.GetLocation(),FVector::OneVector);
-    State->FoodCutIntakePresentation->PlaySourceEvent(TEXT("Food.AutoMouth"),TEXT("Consume"),Frame,Values);
+    State->FoodCutIntakePresentation->PlaySourceEvent(TEXT("Food.AutoMouth"),
+        Food->bSpoiled?TEXT("Discard"):TEXT("Consume"),Frame,Values);
 }

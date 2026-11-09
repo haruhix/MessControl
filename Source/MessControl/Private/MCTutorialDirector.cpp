@@ -199,7 +199,8 @@ void AMCTutorialDirector::NotifyAction(AMCToothCharacter* Worker,EMCTutorialActi
         if (Action==EMCTutorialAction::FoodCut && (Food->bFragment || Food->Health>0)) return;
         if (Action==EMCTutorialAction::FoodDelivered && (Food->IsWrongIngredient()
             || (!Food->WasManuallyThrown() && !Food->WasAutomaticallyConsumed()))) return;
-        if (Action==EMCTutorialAction::SpoiledDiscarded && (!Food->bSpoiled || !Food->WasManuallyThrown() || !Food->IsDisposed())) return;
+        if (Action==EMCTutorialAction::SpoiledDiscarded && (!Food->bSpoiled
+            || (!Food->WasManuallyThrown() && !Food->WasAutomaticallyDiscarded()) || !Food->IsDisposed())) return;
         if (Action==EMCTutorialAction::TrashDiscarded && (Food->FoodData.Kind!=EMCFoodKind::ForeignObject || !Food->WasManuallyThrown() || !Food->IsDisposed())) return;
     }
     if (FMCTutorialProgressRules::CreditAction(*Progress,Stage,Action,true))
