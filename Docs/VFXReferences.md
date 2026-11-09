@@ -2090,6 +2090,31 @@ The previously linked `unreal-niagara-mcp` is archived; its maintained successor
 Status: primary-source review only. No plugin installation, foreign-code execution or UE5.8.1 build/coexistence test was performed. Batch handlers may leave partial changes; do not assume rollback or retry an unknown result. A future isolated comparison should use two owned copies of one test NS and measure calls, elapsed time, peak Editor RAM, typed readbacks, compile/save/reopen and failure handling. Composer remains the shared authoring/review entry point and runtime context/loading contracts still apply. [Local comparison and concrete pilot](E:/CodexWork/MessControl/Validation/NiagaraMCPComparison_20261101/Addendum_API52_20261102.md).
 
 
+## Food pulp wedges and crumbs — 2026-11-09
+
+- [Ashif Ali / CGHOW: Egg Burst](https://cghow.com/ue4-niagara-egg-explode/): reviewed the creator's page description of separate large/small chunks and their initial motion. Adapted the size hierarchy and brief outward separation; its liquid splash, bubbles, collision and decals are not part of this pass. Full tutorial video playback is not claimed.
+- [CGHOW: Emit Particles on Mesh Particles](https://cghow.com/emit-particles-on-mesh-particles-in-ue5-niagara-tutorial/): reviewed the source's position/orientation inheritance technique. The food effect uses independent analytic wedges/crumbs; particle-ID coupling and secondary spawn events were not implemented.
+- [Epic: Niagara Renderers](https://dev.epicgames.com/documentation/en-us/unreal-engine/render-module-reference-for-niagara-effects-in-unreal-engine): mesh material usage, overrides and particle bindings. The new system retains explicit ParticleColor, MeshScale and MeshOrientation bindings with two opaque mesh renderers.
+- [Epic: Material Coordinates](https://dev.epicgames.com/documentation/en-us/unreal-engine/coordinates-material-expressions-in-unreal-engine): detail attached through authored UVs. Applied as a single narrow peel face and stable pulp grain on each rotating piece, without world-position texture swimming.
+
+Actually authored: `M_FoodJuicy_Pulp`, two original 16/12-triangle food wedges,
+and editable `NS_FoodJuicy_Pulp` under `Food/VFX/Juicy`. The material uses
+ParticleColor, a UV peel mask, procedural fibers/flecks and varied roughness.
+The system has six primary pieces and eighteen crumbs, a .10–.155 s outward
+pop, staggered analytic travel to the accepted endpoint and late shrink.
+No collision, physical debris, dynamic lights or translucent cloud were added.
+Niagara compile/save passed without errors or warnings; imported mesh/UV and
+fresh renderer readbacks passed. Both real Composer scenarios and 2/2 ordinary
+solo PIE cases passed with actual 6+18 particles and five retained resources
+before contact. Root inspected close and gameplay frames; the small Apple
+burst can be occluded by the large remainder. Artistic user review is pending.
+[Validation, recordings and limits](Validation/FoodJuicyVFX_20261109.md).
+
+This is a shared stylized particle material. The current food event supplies
+color, radius and endpoints; reproducing each original food's real peel/cut
+material needs a separate typed source-material contract. No universal real
+food-interior shader, new crunch recording, or packaged GPU timing is claimed.
+
 ## Food cut liquid splash — 2026-11-04
 
 - [Rimaye: Blood VFX Pack — Sword Trail](https://www.youtube.com/watch?v=98SJf-uOe8A): user-supplied motion reference. The visible demonstration combines red streaks and detached droplets around a fast weapon motion. Adapt that visual language into a short food-contact cue; do not reuse the creator's pack assets.
