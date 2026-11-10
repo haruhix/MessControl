@@ -1738,25 +1738,53 @@ void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaT
         if(auto* Trail=FindComponentByClass<UMCWeaponTrailComponent>())
             Trail->PublishAcceptedSwing(SourceID,StartedAt,AcceptedVisualStep);
     }
-    if(SoundPalette) SoundPalette->PlayWithParameters(this,Event,GetActorLocation(),.65f,.5f,SourceID,TEXT("Swing"));
+    if(SoundPalette) {
+        SoundPalette->PlayWithParameters(this,Event,GetActorLocation(),.65f,.5f,SourceID,TEXT("Swing"));
+        // The accepted food-targeted chop already has a reachable, eligible
+        // target. Play its cosmetic crunch with the press for responsive input;
+        // the authoritative cut and its visual feedback still wait for contact.
+        if(AcceptedVisualStep==4 && ToolSlot==uint8(EMCToolSlot::Knife)) {
+            const FName FoodEvent=SoundPalette->Events.Contains(TEXT("KnifeFoodHit"))?FName(TEXT("KnifeFoodHit")):FName(TEXT("KnifeHit"));
+            SoundPalette->PlayWithParameters(this,FoodEvent,GetActorLocation(),.65f,.5f,SourceID,TEXT("Hit"));
+        }
+    }
 }
+namespace
+{
+    // Food-contact audio can be sent before expensive cut preparation; accepted-hit
+    // presentation still happens separately after HitFood reports success.
+    constexpr uint8 KnifeFoodHitFlag=0x80;
+    constexpr uint8 KnifeFoodAudioOnlyFlag=0x40;
+    constexpr uint8 KnifeFoodAudioPlayedFlag=0x20;
+    static_assert(uint8(EMCToolSlot::Spray)<KnifeFoodAudioPlayedFlag,"Tool slot overlaps the food-contact flags");
+}
+
 void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location,uint8 ToolSlot,float Intensity)
 {
+    const bool bFoodKnifeHit=(ToolSlot&KnifeFoodHitFlag)!=0;
+    const bool bAudioOnly=(ToolSlot&KnifeFoodAudioOnlyFlag)!=0;
+    const bool bAudioAlreadyPlayed=(ToolSlot&KnifeFoodAudioPlayedFlag)!=0;
+    ToolSlot &= ~(KnifeFoodHitFlag|KnifeFoodAudioOnlyFlag|KnifeFoodAudioPlayedFlag);
+    const bool bHasFoodHit=bFoodKnifeHit && SoundPalette && SoundPalette->Events.Contains(TEXT("KnifeFoodHit"));
+    const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(bHasFoodHit?TEXT("KnifeFoodHit"):TEXT("KnifeHit")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeHit")):FName(TEXT("Hit"));
+    const FName SourceID=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("Tool.Knife")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("Tool.Pickaxe")):NAME_None;
+    if(bAudioOnly) {
+        if(SoundPalette) SoundPalette->PlayWithParameters(this,Event,Location,Intensity,.5f,SourceID,TEXT("Hit"));
+        return;
+    }
     MCWeaponImpact::ConfirmSwing(this,ToolSlot);
     if(IsLocallyControlled() && IsPlayerControlled()) if(auto* PlayerCamera=Cast<UMCPlayerCameraComponent>(Camera))
         PlayerCamera->AddCombatConfirm(.35f+.65f*FMath::Clamp(Intensity,0.f,1.f));
-    const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeHit")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeHit")):FName(TEXT("Hit"));
-    const FName SourceID=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("Tool.Knife")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("Tool.Pickaxe")):NAME_None;
+    if(!bAudioAlreadyPlayed && SoundPalette) SoundPalette->PlayWithParameters(this,Event,Location,Intensity,.5f,SourceID,TEXT("Hit"));
     if(!SourceID.IsNone()) {
         FMCPerkVFXGameplayValues Values;Values.VisualSubject=GetMesh();Values.Intensity=Intensity;
         MCWorldPresentation::Pulse(this,SourceID,TEXT("Hit"),FTransform(GetActorQuat(),Location),Values,.32f);
     }
-    if(SoundPalette) SoundPalette->PlayWithParameters(this,Event,Location,Intensity,.5f,SourceID,TEXT("Hit"));
 }
-void AMCToothCharacter::MulticastFoodCutSplash_Implementation(FVector Location,FVector CutNormal)
+void AMCToothCharacter::MulticastFoodCutSplash_Implementation(FVector Location,FVector CutNormal,FLinearColor FoodColor)
 {
     if(GetNetMode()==NM_DedicatedServer || Location.ContainsNaN() || CutNormal.ContainsNaN())return;
-    FMCPerkVFXGameplayValues Values;Values.VisualSubject=GetMesh();
+    FMCPerkVFXGameplayValues Values;Values.VisualSubject=GetMesh();Values.Color=FoodColor;Values.bHasColor=true;
     Values.Direction=(CutNormal.GetSafeNormal()*.55f+FVector::UpVector*.85f).GetSafeNormal();
     if(Values.Direction.IsNearlyZero())Values.Direction=FVector::UpVector;
     MCWorldPresentation::Pulse(this,TEXT("Tool.Knife"),TEXT("FoodCut"),
@@ -1958,10 +1986,16 @@ void AMCToothCharacter::ResolveSwing()
         FHitResult CutContact;
         const bool bKnifeContact=Inventory->Selected==EMCToolSlot::Knife && FoodTarget->FindToolContact(this,Inventory->MeleeReach(),CutContact);
         const FVector CutNormal=bKnifeContact?GetActorRightVector():FVector::ZeroVector;
+        // Capture before HitFood: a successful cut may dispose of the source actor.
+        const FLinearColor FoodColor=FoodTarget->FoodData.CrumbColor;
+        // Ordinary food chops already played their crunch at the accepted
+        // swing. Other knife paths retain immediate contact audio.
+        if(bKnifeContact && !FoodChop)
+            MulticastHitSound(CutContact.ImpactPoint,uint8(AudioTool|KnifeFoodHitFlag|KnifeFoodAudioOnlyFlag),HitIntensity);
         if (FoodTarget->HitFood(Inventory->Damage(),GetActorForwardVector(),this,bKnifeContact?CutContact.ImpactPoint:FVector::ZeroVector,CutNormal))
         {
-            ++ConfirmedHitCount; MulticastHitSound(FoodTarget->GetActorLocation(),AudioTool,HitIntensity);
-            if(bKnifeContact) {++ConfirmedFoodCutCount;MulticastFoodCutSplash(CutContact.ImpactPoint,CutNormal);}
+            ++ConfirmedHitCount; MulticastHitSound(FoodTarget->GetActorLocation(),bKnifeContact?uint8(AudioTool|KnifeFoodHitFlag|KnifeFoodAudioPlayedFlag):AudioTool,HitIntensity);
+            if(bKnifeContact) {++ConfirmedFoodCutCount;MulticastFoodCutSplash(CutContact.ImpactPoint,CutNormal,FoodColor);}
             if (FoodTarget->IsDisposed()) if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyAction(this,EMCTutorialAction::FoodCut,FoodTarget);
         }
         return;

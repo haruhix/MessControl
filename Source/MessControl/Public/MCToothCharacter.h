@@ -453,7 +453,7 @@ private:
     UFUNCTION(Server,Reliable) void ServerSwingBrush();
     UFUNCTION(NetMulticast,Reliable) void MulticastSwing(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal,uint8 ToolSlot);
     UFUNCTION(NetMulticast,Unreliable) void MulticastHitSound(FVector Location,uint8 ToolSlot,float Intensity);
-    UFUNCTION(NetMulticast,Unreliable) void MulticastFoodCutSplash(FVector Location,FVector CutNormal);
+    UFUNCTION(NetMulticast,Unreliable) void MulticastFoodCutSplash(FVector Location,FVector CutNormal,FLinearColor FoodColor);
     UFUNCTION(Client,Unreliable) void ClientCameraImpact(float ImpactSpeed,FVector_NetQuantizeNormal Direction);
     UFUNCTION(Client,Unreliable) void ClientGroundImpact(float Strength,FVector_NetQuantize Source);
     UFUNCTION() void OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit);

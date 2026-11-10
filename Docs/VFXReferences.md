@@ -2189,3 +2189,45 @@ The current sources are registered under `Hub.Grill` with `Intake`, `Spin` and
 `Result`.
 [Epic's Slate clipping guidance](https://dev.epicgames.com/documentation/unreal-engine/clipping-for-umg-widgets-in-unreal-engine)
 and [Slate easing reference](https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/SlateCore/ECurveEaseFunction).
+
+
+## Food-cut droplets settling — 2026-11-10
+
+The existing `Tool.Knife / FoodCut` Niagara system `NS_FoodCutSplash_JuiceContact` keeps its mesh droplets and warm tint. The short arc sprite burst is disabled; CPU droplets use Niagara's ray-traced Collision immediately before the solver, zero restitution, high friction and rest after contact. Their lifetime is 2.1–2.6 s and their mesh scales down near the end. No new material or gameplay collision was added. [Epic: Niagara particle update and collision](https://dev.epicgames.com/documentation/en-us/unreal-engine/particle-update-group-reference-for-niagara-effects-in-unreal-engine).
+
+The system was compiled in the Niagara editor and saved; the existing Knife profile still references it. An isolated system burst in local L_Mouth PIE produced 18 particles and all 18 reached zero velocity on level collision surfaces in the sampled run. Editor preload reported the existing system ready. A second spawned burst reached zero remaining particles after their 2.1–2.6 s simulation lifetimes. These were spawned test bursts, not an observed player knife hit or gameplay-camera artistic review; behavior on a moving tongue in normal play still needs visual confirmation.
+
+
+## Food-cut droplet color — 2026-11-10
+
+Knife FoodCut now captures the target food row's existing `CrumbColor` before the accepted cut can dispose of the actor, passes it in the cosmetic multicast, and sets Niagara `User.Color` through the existing gameplay-value binding. The existing particle-color material and saved Tool.Knife profile are reused, with no new assets. Menu rows already contain individual colors, including green broccoli/cabbage, orange carrot and red tomato.
+
+Editor build succeeded. The actual Composer target scenario accepted two knife contacts: the first used the saved apple color and the second set the transient target's color to the saved broccoli color; in both cases the live Niagara component's `User.Color` matched the food value. The second fixture retained the apple mesh and only substituted its transient color. A separate solo L_Mouth session remained in its asset preload phase during the check, so no real solo knife contact or in-game visual review was established. The editor was restored after the build.
+
+
+## Food-cut soft crunch variations — 2026-11-10
+
+Four short softer crunch WAVs are retained in `ContentSource/Audio/FoodCrunchSoft` and imported under `/Game/Audio/FoodCrunchSoft`. They combine the project's existing cut recording with procedurally made crackle/wet layers and softened high frequencies. `SC_FruitCrunchSoft_Random` uses a standard editable Random node with four wave-player branches and randomization without replacement. The saved mouth sound palette retains the cue as `KnifeFoodHit`; its reflected reference keeps the cue in the existing gameplay audio dependency closure.
+
+An accepted knife contact with food selects that palette event through the existing cosmetic hit multicast; missing event entries fall back to the ordinary knife-hit route. Other knife targets, the generic hit cue and the tool hit presentation remain unchanged. The editor build succeeded. Composer's real food target produced Swing, Hit and FoodCut, and the palette log selected the new cue. This preview disables audio output, so it verifies routing and saved graph configuration, not audible game mix or packaged audio readiness.
+
+
+## Food-cut sound timing — 2026-11-10
+
+Food knife contact now sends the existing palette crunch as an audio-only cosmetic multicast immediately after the eligible blade/food collision, before `HitFood` performs cut preparation. The ordinary accepted-hit presentation still follows the result, with a flag preventing a second sound. A valid physical contact can therefore make a sound even when subsequent cut geometry is refused; it does not claim a successful cut or award gameplay. All four short crunch waves use PCM and Force Inline loading rather than inherited streaming/compression.
+
+Editor build succeeded. The real Composer target and a solo L_Mouth PIE run both selected the random food-crunch cue. In the solo test, two accepted food contacts each logged one sound dispatch immediately before the corresponding staged cut, approximately 2 ms earlier in the editor log; the exact speaker output latency was not measured. The random node still has four branches and avoids consecutive repeats. No multiplayer or packaged cold-start audio measurement was performed.
+
+
+## Food-cut crunch onset — 2026-11-10
+
+The four food-crunch assets were reimported from `ContentSource/Audio/FoodCrunchFast`: 60 ms was removed from their fronts and a 4 ms fade-in prevents a click. The largest 10 ms RMS window now starts around 20–30 ms, versus 80–90 ms in the previous softened recordings. The random cue still has four branches without immediate repetition; all waves retain PCM and Force Inline. The untrimmed softened source files are retained separately. No hit, animation, gameplay or timer code was changed in this pass.
+
+A solo L_Mouth test recorded the real master mix during an accepted tomato cut. The asset waveform correlated with the recorded mix beginning around 1.259 s, while the event log timestamp was about 1.228 s after recording began. This is an approximate editor/mixer timing check with logging, resampling and capture-boundary uncertainty; it does not include hardware or Bluetooth output latency. Test-only background-audio and throttle settings were restored, and PIE was stopped.
+
+
+## Food-cut sound on press — 2026-11-10
+
+For a knife swing with an eligible food target already in reach, `MulticastSwing` starts `KnifeFoodHit` along with the swing, and the later food-contact sound is suppressed. The target query includes the existing reach and obstruction checks. Because this anticipates the cut, the crunch can still play if the target moves away or the later cut is rejected. Other hit and upgrade paths keep their prior behavior.
+
+Editor build succeeded. Composer produced Swing, Hit and FoodCut with one crunch, while an empty swing had no food crunch. In solo PIE the injected press selected KnifeSwing and KnifeFoodHit in the same frame (36 ms after the press marker), and the test captured the master mix; this does not measure output-device latency. Test settings were restored and PIE stopped. No packaged or multiplayer test was performed.
