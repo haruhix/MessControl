@@ -585,7 +585,12 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     });
     Input->BindAction(GamepadSprintAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::CancelSprintInput);
     Input->BindAction(DashAction,ETriggerEvent::Started,this,&AMCToothCharacter::RequestDashInput);
-    const auto PrimaryInput=[this](bool bPressed) {
+    const auto PrimaryInput=[this](ETriggerEvent Event) {
+        const bool bPressed=Event==ETriggerEvent::Started;
+        if(!bPressed && bFishingPrimaryInputHeld) {
+            if(Event==ETriggerEvent::Completed) ReleasePrimary();else StopPrimary();
+            return;
+        }
         if(auto* PC=Cast<AMCPlayerController>(GetController())) {
             // Latch the physical source for Completed/Canceled, when the key is already up.
             if(bPressed) bPrimaryMouseGesture=PC->IsInputKeyDown(EKeys::LeftMouseButton);
@@ -598,9 +603,8 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
         }
         if(bPressed) StartPrimary();else StopPrimary();
     };
-    Input->BindActionValueLambda(BrushAction,ETriggerEvent::Started,[PrimaryInput](const FInputActionValue&) {PrimaryInput(true);});
-    for(const auto Event:{ETriggerEvent::Completed,ETriggerEvent::Canceled})
-        Input->BindActionValueLambda(BrushAction,Event,[PrimaryInput](const FInputActionValue&) {PrimaryInput(false);});
+    for(const auto Event:{ETriggerEvent::Started,ETriggerEvent::Completed,ETriggerEvent::Canceled})
+        Input->BindActionValueLambda(BrushAction,Event,[PrimaryInput,Event](const FInputActionValue&) {PrimaryInput(Event);});
     Input->BindAction(HandleAction, ETriggerEvent::Started, this, &AMCToothCharacter::StartHandle);
     Input->BindAction(HandleAction, ETriggerEvent::Completed, this, &AMCToothCharacter::StopHandle);
     Input->BindAction(HandleAction, ETriggerEvent::Canceled, this, &AMCToothCharacter::StopHandle);
@@ -932,7 +936,6 @@ void AMCToothCharacter::StartHandle()
     if(auto* PC=Cast<AMCPlayerController>(Controller);PC && PC->TryInteractHubGrill()) return;
     if(AMCHubBasketball::HeldBy(this) || AMCHubBasketball::PickupCandidate(this)) {ServerInteractBasketball();return;}
     if(FishingRod && FishingRod->TryInteract()) return;
-    if(FishingRod && FishingRod->IsPresented()) {FishingRod->ServerSetReeling(true);return;}
     AMCRewardChest* Rescue=nullptr; double RescueDistance=TNumericLimits<double>::Max();
     for(TActorIterator<AMCRewardChest> It(GetWorld());It;++It) if(It->CanRescue(this)) {
         const double Distance=FVector::DistSquared(GetActorLocation(),It->GetActorLocation());
@@ -1003,7 +1006,11 @@ void AMCToothCharacter::StartPrimary()
     if (!Status->IsAlive()) { if (auto* PC=Cast<AMCPlayerController>(Controller)) PC->NextSpectator(); return; }
     if(IsSeatedOnRaft()) return; // WASD owns the paddle; primary use does not start a second action.
     if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->SetAimHeld(true);return;}
-    if(FishingRod && FishingRod->IsPresented()) {FishingRod->CastLine();return;}
+    if(FishingRod && FishingRod->IsPresented()) {
+        bFishingPrimaryInputHeld=true;
+        FishingRod->PrimaryPressed();
+        return;
+    }
     StopRowing();
     Inventory->UpdateSprayAim(true);
     ServerSetPrimary(true);
@@ -1036,22 +1043,31 @@ void AMCToothCharacter::NotifyTaskFeedback(bool Success,FVector Point)
     (Success?TaskSuccessAt:TaskFailureAt)=Now; ForceNetUpdate();
     if(Success) AMCReactionVFX::Spawn(GetWorld(),Point.IsNearlyZero()?GetActorLocation()+FVector(0,0,90):Point+FVector(0,0,110),EMCReactionEffect::Stars,2.5f,155);
 }
+void AMCToothCharacter::ReleasePrimary()
+{
+    if(bFishingPrimaryInputHeld) {
+        bFishingPrimaryInputHeld=false;
+        FishingRod->PrimaryReleased();
+        return;
+    }
+    StopPrimary();
+}
 void AMCToothCharacter::StopPrimary() {
+    if(bFishingPrimaryInputHeld) {
+        bFishingPrimaryInputHeld=false;
+        FishingRod->CancelPrimaryInput();
+    }
     if(auto* Ball=AMCHubBasketball::HeldBy(this)) Ball->SetAimHeld(false);
     StopRowing(); Inventory->UpdateSprayAim(true); ServerSetPrimary(false);
 }
 void AMCToothCharacter::SetPrimaryInputHeld(bool Held)
 {
-    if(FishingRod && FishingRod->IsPresented()) {
-        if(Held && !bSharedPrimaryInputHeld) FishingRod->CastLine();
-        bSharedPrimaryInputHeld=Held;return;
-    }
     if ((!HasAuthority() && !IsLocallyControlled()) || (Held && !CanWork())) return;
     // Swimming/cling uses the ordinary RPC even while work is unavailable.
     // A release must also clear that actual action state after leaving water.
-    if (bSharedPrimaryInputHeld==Held && (Held || (!bPrimaryHeld && !bRowingInputHeld && !bRowing))) return;
+    if (bSharedPrimaryInputHeld==Held && (Held || (!bPrimaryHeld && !bRowingInputHeld && !bRowing && !bFishingPrimaryInputHeld))) return;
     bSharedPrimaryInputHeld=Held;
-    if(Held) StartPrimary(); else StopPrimary();
+    if(Held) StartPrimary(); else ReleasePrimary();
 }
 void AMCToothCharacter::SetHandleInputHeld(bool Held)
 {
@@ -1420,6 +1436,7 @@ void AMCToothCharacter::CancelGameplayInput()
     StopThrowItem();
     if(Inventory) Inventory->CancelUpgradeUse();
     bSharedPrimaryInputHeld=false; bSharedHandleInputHeld=false; bSharedJumpInputHeld=false;
+    if(FishingRod && FishingRod->bEquipped && !bFishingPrimaryInputHeld) FishingRod->CancelPrimaryInput();
     StopBrace();
     if(!ShouldPreserveFoodForPerkChoice()) FoodCollection->Stop();
     CancelSprintInput();CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->CancelDash();

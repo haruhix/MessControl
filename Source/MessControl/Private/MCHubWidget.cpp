@@ -12,6 +12,7 @@
 #include "MCHubGameState.h"
 #include "MCHubReadyZone.h"
 #include "MCHubBasketball.h"
+#include "MCHubFishingPresentation.h"
 #include "MCFishingRodComponent.h"
 #include "MCToothCharacter.h"
 #include "MCHubTypes.h"
@@ -79,6 +80,14 @@ int32 UMCHubCurrencyIcon::NativePaint(const FPaintArgs& Args,const FGeometry& Ge
 
 namespace MCHubPresentation
 {
+    const UMCFishingRodComponent* ActiveFishingMeter(const APlayerController* PC,const AMCHubGameState* Hub)
+    {
+        if(!PC || PC->bShowMouseCursor || !Hub || Hub->Phase!=EMCHubPhase::Gathering) return nullptr;
+        const auto* Hero=Cast<AMCToothCharacter>(PC->GetPawn());
+        const auto* Rod=Hero?Hero->FishingRod.Get():nullptr;
+        return Rod && (Rod->IsChargingCast() || Rod->IsCatchChallengeActive())?Rod:nullptr;
+    }
+
     // The selector can be an always-loaded sublevel of Hub. Its saved actors,
     // rather than the persistent map name, are the presentation contract.
     bool HasSavedStage(const UWorld* World)
@@ -828,28 +837,34 @@ void UMCHubWidget::RefreshFromState()
     MCHubPresentation::SetText(InviteHint,Localized(bCanInvite?TEXT("hub.invite.steam"):TEXT("hub.invite.local"),
         bCanInvite?LOCTEXT("InviteSteam","ESC — меню и приглашения · Shift+Tab — друзья Steam"):
             LOCTEXT("InviteLocal","Локальный хаб · друзья могут подключиться по IP")));
+    const auto* Rod=Hero?Hero->FishingRod.Get():nullptr;
+    const bool ShowFishing=Hub && Hub->Phase==EMCHubPhase::Gathering && Rod && Rod->IsPresented();
     const bool ShowBall=AMCHubBasketball::LocalHintBall(Hero)!=nullptr;
-    const bool ShowFishing=Hub && Hub->Phase==EMCHubPhase::Gathering && Hero && Hero->FishingRod && Hero->FishingRod->IsPresented();
     if(BasketballHint) BasketballHint->SetVisibility(ShowBall || ShowFishing?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     if(BasketballReticle) BasketballReticle->SetVisibility(ShowBall && HeldBall && HeldBall->IsAiming()?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     const bool Gamepad=PC && PC->IsUsingGamepad();
-    if(BasketballHint) BasketballHint->SetText(BallHeld
+    if(BasketballHint && ShowBall) MCHubPresentation::SetText(BasketballHint,BallHeld
         ? Localized(Gamepad?TEXT("hub.basketball.controls.gamepad"):TEXT("hub.basketball.controls"),Gamepad
             ?LOCTEXT("BasketballAimThrowGamepad","LB — прицел · RT / Y — бросить · X — отпустить")
             :LOCTEXT("BasketballAimThrow","ЛКМ — прицел · ПКМ — бросить · E — отпустить"))
         : Localized(Gamepad?TEXT("hub.basketball.pickup.gamepad"):TEXT("hub.basketball.pickup"),Gamepad
             ?LOCTEXT("BasketballPickupGamepad","X — подобрать мяч"):LOCTEXT("BasketballPickup","E — подобрать мяч")));
-    if(BasketballHint && ShowFishing && !ShowBall) BasketballHint->SetText(Hero->FishingRod->bLineOut || Hero->FishingRod->CanCastLine()
-        ? Localized(Gamepad?TEXT("hub.fishing.controls.gamepad"):TEXT("hub.fishing.controls"),Gamepad
-            ?LOCTEXT("FishingPondControlsGamepad","Удерживай LB — поза · RT — заброс · удерживай X — подмотка\nХодьба — прервать заброс · D-pad — инструменты")
-            :LOCTEXT("FishingPondControls","Удерживай ПКМ — поза · ЛКМ — заброс · удерживай E — подмотка\nХодьба — прервать заброс · 5 — убрать удочку · колесо — инструменты"))
-        : Localized(Gamepad?TEXT("hub.fishing.water_required.gamepad"):TEXT("hub.fishing.water_required"),Gamepad
+    if(BasketballHint && ShowFishing && !ShowBall)
+    {
+        using MCHubFishingPresentation::EHint;
+        auto FishingCopy=[&](EHint Hint) {return MCHubFishingPresentation::ResolveHint(GetResolvedTranslationTable(),Hint);};
+        FText Copy;
+        if(Rod->IsCatchChallengeActive()) Copy=FishingCopy(Gamepad?EHint::HookGamepad:EHint::Hook);
+        else if(Rod->bFishHooked)
+            Copy=Localized(TEXT("hub.fishing.hooked"),LOCTEXT("FishingHooked","Рыба на крючке! Вытягиваем…"));
+        else if(Rod->bReeling) Copy=FishingCopy(EHint::Reel);
+        else if(Rod->bLineOut) Copy=FishingCopy(EHint::Wait);
+        else if(Rod->IsChargingCast() || Rod->CanCastLine()) Copy=FishingCopy(Gamepad?EHint::CastGamepad:EHint::Cast);
+        else Copy=Localized(Gamepad?TEXT("hub.fishing.water_required.gamepad"):TEXT("hub.fishing.water_required"),Gamepad
             ?LOCTEXT("FishingPondRequiredGamepad","Остановись на пирсе и повернись к воде\nD-pad — инструменты")
-            :LOCTEXT("FishingPondRequired","Остановись на пирсе и повернись к воде\n5 — убрать удочку · колесо — инструменты")));
-    if(BasketballHint && ShowFishing && !ShowBall && Hero->FishingRod->bLineOut && !Hero->FishingRod->bReeling)
-        BasketballHint->SetText(Localized(TEXT("hub.fishing.waiting"),LOCTEXT("FishingWaiting","Ждём поклёвку…\nПосле поклёвки рыба вытянется автоматически · ходьба — прервать заброс")));
-    if(BasketballHint && ShowFishing && !ShowBall && Hero->FishingRod->bFishHooked)
-        BasketballHint->SetText(Localized(TEXT("hub.fishing.hooked"),LOCTEXT("FishingHooked","Рыба на крючке! Вытягиваем…\nУлов автоматически пополнит запас рыбы")));
+            :LOCTEXT("FishingPondRequired","Остановись на пирсе и повернись к воде\n5 — убрать удочку · колесо — инструменты"));
+        MCHubPresentation::SetText(BasketballHint,Copy);
+    }
     FString Signature=FString::Printf(TEXT("%p:%d:%d:%d:%d:%d:%d:%d:%d:%s"),Hub,Hub?int32(Hub->Phase):-1,
         Hub?Hub->SceneGeneration:0,Hub?Hub->SelectedDay:0,PresentedDay,IsLocalHost(),IsSceneReady(),bPresentationFailed,bCanInvite,Hub?*Hub->Notice.ToString():TEXT(""));
     if(Hub) for(const auto& Player:Hub->Players)
@@ -1062,9 +1077,10 @@ void UMCHubWidget::PrimeControlsGlyphs()
     UDataTable* Table=GetResolvedTranslationTable();
     if(!Renderer || !NewTheme || !Table) {bControlsGlyphsPrepared=false;return;}
     const FName Keys[]={TEXT("hub.basketball.controls"),TEXT("hub.basketball.controls.gamepad"),TEXT("hub.basketball.pickup"),TEXT("hub.basketball.pickup.gamepad"),
-        TEXT("hub.fishing.controls"),TEXT("hub.fishing.controls.gamepad"),TEXT("hub.fishing.water_required"),TEXT("hub.fishing.water_required.gamepad"),TEXT("hub.fishing.waiting"),TEXT("hub.fishing.hooked")};
+        TEXT("hub.fishing.water_required"),TEXT("hub.fishing.water_required.gamepad"),TEXT("hub.fishing.hooked")};
     TArray<FText> Warm;bool Complete=true;
     for(FName Key:Keys) {const FText Copy=UMCUIDataLibrary::ResolveText(Table,Key,FText::GetEmpty());Complete&=!Copy.IsEmpty();Warm.Add(Copy);}
+    MCHubFishingPresentation::AppendHints(Warm,Table);
     const FText Corpus=FText::Join(FText::AsCultureInvariant(TEXT(" ")),Warm);
     const FString Culture=FInternationalization::Get().GetCurrentLanguage()->GetName();
     const FSlateFontInfo SourceFont=GetControlsReticleFont(),NewFont=NewTheme->MakeFont(20,true);
@@ -1209,7 +1225,10 @@ bool UMCHubWidget::UsesUnifiedControlsView() const
 int32 UMCHubWidget::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
 {
-    const int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
+    int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
+    const auto* PC=GetOwningPlayer<AMCPlayerController>();
+    if(const auto* Rod=MCHubPresentation::ActiveFishingMeter(PC,State()))
+        Top=MCHubFishingPresentation::DrawMeter(*Rod,PC->IsUsingGamepad(),Geometry,Elements,Top,Style.GetColorAndOpacityTint());
     if(UsesUnifiedControlsView()) return Top;
     NativeControlsPaintedFrame=GFrameCounter;
     for(int32 Index=0;Index<ControlsSnapshot.NativeTrajectoryStrokeCount;++Index) {
@@ -1389,6 +1408,9 @@ void UMCHubWidget::NativeDestruct()
 void UMCHubWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
     Super::NativeTick(Geometry,DeltaSeconds);PrimeControlsGlyphs();
+    const bool bFishingMeter=MCHubPresentation::ActiveFishingMeter(GetOwningPlayer(),State())!=nullptr;
+    if(bFishingMeter || bHadFishingMeter) Invalidate(EInvalidateWidgetReason::Paint);
+    bHadFishingMeter=bFishingMeter;
     // The controller advances the authored 3D stage before its mesh components.
     // NativeTick only refreshes readiness/name labels, never advances it twice.
     RefreshElapsed+=DeltaSeconds;

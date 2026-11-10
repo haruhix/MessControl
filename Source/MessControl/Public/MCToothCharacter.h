@@ -387,7 +387,7 @@ private:
     bool bSprintInputHeld=false;
     void UpdateLocomotion(float Dt);
     void StartBrush(); void StopBrush(); void StartHandle(); void StopHandle();
-    void StartPrimary(); void StopPrimary();
+    void StartPrimary(); void ReleasePrimary(); void StopPrimary();
     void StartBrace(); void StopBrace();
     void StartRowing(); void StopRowing();
     void UpdateRowing(float Dt);
@@ -479,6 +479,7 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> SwingAction;
     UPROPERTY() TObjectPtr<UInputAction> BraceAction;
     bool bPrimaryMouseGesture=false;
+    bool bFishingPrimaryInputHeld=false;
     bool bBraceMouseGesture=false;
     UPROPERTY() TObjectPtr<UInputAction> RowingAction;
     UPROPERTY() TObjectPtr<UInputAction> OrbitXAction;

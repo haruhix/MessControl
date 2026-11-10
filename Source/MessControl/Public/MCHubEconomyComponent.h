@@ -67,6 +67,8 @@ public:
     const FMCHubCatalogRow* FindCatalogItem(FName ItemID) const;
     FMCHubEconomyRulesRow GetRules() const;
     TArray<FName> GetGrillSymbols() const;
+    /** Display candidates only. The station's accepted receipt always determines the winner. */
+    UFUNCTION(BlueprintPure, Category="Economy") TArray<FMCGrillReward> GetGrillPreviewPool() const;
     bool CanPurchase(FName ItemID, FText& Error) const;
     /** Authority only; the controller must also validate the actual nearby shop. */
     bool TryPurchase(FName ItemID, FText& Error);
@@ -103,6 +105,13 @@ private:
     bool ResolvePerk(FName PerkID,FMCPerkDefinition& Definition) const;
     TArray<FMCHubPendingPurchase> BuildPendingPlan(TArray<TArray<int32>>* LegacyIndices=nullptr) const;
     void RefreshMigrationNotice();
+    struct FGrillCandidate
+    {
+        FMCGrillReward Reward;
+        const FMCGrillRewardRow* Row=nullptr;
+    };
+    TArray<FGrillCandidate> BuildGrillPool() const;
+    bool BuildGrillCatalogGrant(const FMCGrillRewardRow& Row,FMCGrillReward& Reward) const;
     bool SelectGrillReward(FMCGrillReward& Reward, FText& Error) const;
     void NotifyChanged();
     void AddCoinsClamped(int32 Amount);

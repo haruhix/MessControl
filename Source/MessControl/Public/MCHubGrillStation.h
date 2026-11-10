@@ -45,7 +45,7 @@ public:
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Grill") double StageStartedAt=0;
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Grill") double StageEndsAt=0;
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Grill") TObjectPtr<AMCPlayerState> ActivePlayer;
-    /** One tuple drives both physical reels and any later presentation copy. */
+    /** The accepted server result drives the hologram and is replaced by its settled receipt at reveal. */
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Grill") FMCGrillReward CurrentReward;
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Grill") TArray<float> RollStartAngles;
     UPROPERTY(BlueprintAssignable, Category="Grill") FMCHubGrillChanged OnGrillStateChanged;
@@ -63,11 +63,10 @@ private:
     void AdvanceAuthority();
     void UpdateAssembly();
     double ServerNow() const;
-    bool IsAssemblyConfigured(const UMCHubEconomyComponent* Economy,FText& Error) const;
+    bool IsAssemblyConfigured(FText& Error) const;
     UFUNCTION() void OnRep_State();
     TWeakObjectPtr<UMCHubEconomyComponent> ActiveEconomy;
     FTransform ClosedLidTransform=FTransform::Identity;
-    TArray<FQuat> InitialReelRotations;
     FMCHubEconomyRulesRow ActiveRules;
     bool bAcceptingRequest=false;
     bool bAssemblyCaptured=false;

@@ -2,6 +2,7 @@
 
 #include "MCHubEconomyComponent.h"
 #include "MCHubGameState.h"
+#include "MCPlayerController.h"
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
 #include "MCGameplayUIFactory.h"
@@ -45,15 +46,14 @@ void AMCHubGrillStation::BeginPlay()
     if (GetNetMode()!=NM_DedicatedServer && InteractionPrompt->GetWidgetClass()==UMCHubInteractionPromptWidget::StaticClass())
         InteractionPrompt->SetWidgetClass(UMCGameplayUIFactory::ResolveClass(TEXT("HubInteractionPrompt"),UMCHubInteractionPromptWidget::StaticClass()));
     if (IsValid(LidActor)) ClosedLidTransform=LidActor->GetActorTransform();
-    InitialReelRotations.Reset();bAssemblyCaptured=IsValid(LidActor);
+    bAssemblyCaptured=IsValid(LidActor);
     for (AActor* Reel:ReelActors)
     {
-        // The windows belong to the moving lid/head. Keep its complete closed
-        // assembly, then spin each reel in that parent's local frame.
+        // Keep the original windows attached to the moving lid. The hologram
+        // is the outcome display for the accepted roll.
         const bool Attached=IsValid(Reel) && IsValid(LidActor)
             && Reel->AttachToActor(LidActor,FAttachmentTransformRules::KeepWorldTransform);
         bAssemblyCaptured&=Attached;
-        InitialReelRotations.Add(Attached?Reel->GetRootComponent()->GetRelativeRotation().Quaternion():FQuat::Identity);
     }
     UpdateAssembly();
     SetActorTickEnabled(Stage!=EMCHubGrillStage::Idle);
@@ -76,11 +76,10 @@ bool AMCHubGrillStation::ContainsPawn(const APawn* Pawn) const
     const FVector Extent=InteractionVolume->GetUnscaledBoxExtent();
     return !Local.ContainsNaN() && FMath::Abs(Local.X)<=Extent.X && FMath::Abs(Local.Y)<=Extent.Y && FMath::Abs(Local.Z)<=Extent.Z;
 }
-bool AMCHubGrillStation::IsAssemblyConfigured(const UMCHubEconomyComponent* Economy,FText& Error) const
+bool AMCHubGrillStation::IsAssemblyConfigured(FText& Error) const
 {
-    if (!bAssemblyCaptured || !IsValid(LidActor) || ReelActors.Num()!=3 || InitialReelRotations.Num()!=3
-        || LidHingeAxisLocal.ContainsNaN() || LidHingeAxisLocal.IsNearlyZero()
-        || ReelSpinAxisLocal.ContainsNaN() || ReelSpinAxisLocal.IsNearlyZero() || !FMath::IsFinite(LidOpenDegrees))
+    if (!bAssemblyCaptured || !IsValid(LidActor) || ReelActors.Num()!=3
+        || LidHingeAxisLocal.ContainsNaN() || LidHingeAxisLocal.IsNearlyZero() || !FMath::IsFinite(LidOpenDegrees))
     { Error=LOCTEXT("AssemblyMissing","Механизм гриля ещё не настроен."); return false; }
     TSet<const AActor*> Unique;
     if (!LidActor->GetRootComponent() || LidActor->GetRootComponent()->Mobility!=EComponentMobility::Movable)
@@ -90,13 +89,6 @@ bool AMCHubGrillStation::IsAssemblyConfigured(const UMCHubEconomyComponent* Econ
         if (!IsValid(Reel) || Reel==LidActor || Unique.Contains(Reel) || !Reel->GetRootComponent()
             || Reel->GetRootComponent()->Mobility!=EComponentMobility::Movable) { Error=LOCTEXT("ReelsMissing","Требуются три отдельных барабана с подвижностью Movable."); return false; }
         Unique.Add(Reel);
-    }
-    const TArray<FName> Symbols=Economy?Economy->GetGrillSymbols():TArray<FName>();
-    if (Symbols.IsEmpty()) { Error=LOCTEXT("PoolMissing","Таблица результатов гриля ещё не подготовлена."); return false; }
-    for (FName Symbol:Symbols)
-    {
-        const float* Angle=SymbolStopAngles.Find(Symbol);
-        if (!Angle || !FMath::IsFinite(*Angle)) { Error=LOCTEXT("SymbolsMissing","Позиции символов рулетки ещё не настроены."); return false; }
     }
     return true;
 }
@@ -108,11 +100,10 @@ bool AMCHubGrillStation::TryStartRoll(AMCToothCharacter* Hero,FText& Error)
     if (IsBusy()) { Error=LOCTEXT("Busy","Дождись завершения текущей попытки."); return false; }
     auto* Player=Hero->GetPlayerState<AMCPlayerState>();
     auto* Economy=Player?Player->FindComponentByClass<UMCHubEconomyComponent>():nullptr;
-    if (!Economy || !IsAssemblyConfigured(Economy,Error)) return false;
+    if (!Economy || !IsAssemblyConfigured(Error)) return false;
     TGuardValue<bool> Guard(bAcceptingRequest,true);
     FGuid Receipt; FMCGrillReward Reward;
     if (!Economy->BeginGrillRoll(Receipt,Reward,Error)) return false;
-    RollStartAngles=GetReelDisplayAngles();
     ActiveRules=Economy->GetRules(); ActiveEconomy=Economy; ActivePlayer=Player; CurrentReward=MoveTemp(Reward);
     Hero->CancelGameplayInput(); SetStage(EMCHubGrillStage::Closing,ActiveRules.LidCloseSeconds);
     return true;
@@ -130,13 +121,18 @@ void AMCHubGrillStation::AdvanceAuthority()
     {
     case EMCHubGrillStage::Closing: SetStage(EMCHubGrillStage::Rolling,ActiveRules.RollSeconds); break;
     case EMCHubGrillStage::Rolling:
-        if (auto* Economy=ActiveEconomy.Get())
+        if (auto* Economy=ActiveEconomy.Get(); Economy &&
+            (Economy->CompleteGrillRoll(CurrentReward.RollID) || Economy->LastGrillReward.RollID==CurrentReward.RollID))
         {
-            if (Economy->CompleteGrillRoll(CurrentReward.RollID) || Economy->LastGrillReward.RollID==CurrentReward.RollID)
-                CurrentReward=Economy->LastGrillReward;
-            else Economy->CancelGrillRoll(CurrentReward.RollID);
+            CurrentReward=Economy->LastGrillReward;
+            SetStage(EMCHubGrillStage::Revealing,ActiveRules.RevealSeconds);
+            break;
         }
-        SetStage(EMCHubGrillStage::Revealing,ActiveRules.RevealSeconds); break;
+        if (auto* Economy=ActiveEconomy.Get(); Economy && Economy->CancelGrillRoll(CurrentReward.RollID))
+            if (auto* PC=ActivePlayer?Cast<AMCPlayerController>(ActivePlayer->GetOwner()):nullptr)
+                PC->ClientHubTransactionFeedback(LOCTEXT("RollRefunded","Не удалось выдать приз. Рыбная монета возвращена."));
+        CurrentReward={};
+        SetStage(EMCHubGrillStage::Opening,ActiveRules.LidOpenSeconds); break;
     case EMCHubGrillStage::Revealing: SetStage(EMCHubGrillStage::Opening,ActiveRules.LidOpenSeconds); break;
     case EMCHubGrillStage::Opening:
         ActivePlayer=nullptr; ActiveEconomy.Reset(); SetStage(EMCHubGrillStage::Idle,.05f); break;
@@ -182,10 +178,6 @@ void AMCHubGrillStation::UpdateAssembly()
         const FVector Position=Pivot+Rotation.RotateVector(ClosedLidTransform.GetLocation()-Pivot);
         LidActor->SetActorLocationAndRotation(Position,Rotation*ClosedLidTransform.GetRotation(),false,nullptr,ETeleportType::TeleportPhysics);
     }
-    const auto Angles=GetReelDisplayAngles();
-    for (int32 I=0;I<ReelActors.Num() && I<3 && InitialReelRotations.IsValidIndex(I);++I)
-        if (IsValid(ReelActors[I])) ReelActors[I]->SetActorRelativeRotation(InitialReelRotations[I]
-            *FQuat(ReelSpinAxisLocal.GetSafeNormal(),FMath::DegreesToRadians(Angles[I])),false,nullptr,ETeleportType::TeleportPhysics);
 }
 void AMCHubGrillStation::Tick(float DeltaSeconds) { Super::Tick(DeltaSeconds); AdvanceAuthority(); UpdateAssembly(); }
 void AMCHubGrillStation::OnRep_State() { SetActorTickEnabled(Stage!=EMCHubGrillStage::Idle); UpdateAssembly(); OnGrillStateChanged.Broadcast(); }

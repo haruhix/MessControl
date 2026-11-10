@@ -14,7 +14,7 @@ UENUM(BlueprintType)
 enum class EMCHubItemRarity : uint8 { Common, Rare, Epic, Legendary };
 
 UENUM(BlueprintType)
-enum class EMCGrillRewardKind : uint8 { Coins, CatalogItem };
+enum class EMCGrillRewardKind : uint8 { Coins, CatalogItem, Trash };
 
 /** Row name is the stable purchase/reward ID. Perk and cosmetic execution stays in their existing systems. */
 USTRUCT(BlueprintType)
@@ -58,7 +58,7 @@ struct MESSCONTROL_API FMCGrillRewardRow : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0")) int32 MaximumCoins=10;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FName CatalogItem;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="1",ClampMax="32")) int32 Quantity=1;
-    /** Exactly three IDs, shared by physical reels and the presentation copy. */
+    /** Legacy three-reel coin combination. Item and trash rows can leave this empty. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<FName> ReelSymbols;
 };
 
@@ -86,6 +86,19 @@ struct MESSCONTROL_API FMCHubEconomyRulesRow : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0.05")) float LidOpenSeconds=.4f;
 };
 
+/** A paid or won next-run plan. Identity guards replacement confirmations against stale screens. */
+USTRUCT(BlueprintType)
+struct MESSCONTROL_API FMCHubPendingPurchase
+{
+    GENERATED_BODY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) FGuid InstanceID;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) FName CatalogID;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) FName PerkID;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 DestinationSlot=INDEX_NONE;
+    /** Explicit remaining charges for consumables; INDEX_NONE uses the canonical definition. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Charges=INDEX_NONE;
+};
+
 /** Server-authored receipt. RollID makes repeated completion callbacks harmless. */
 USTRUCT(BlueprintType)
 struct MESSCONTROL_API FMCGrillReward
@@ -99,6 +112,10 @@ struct MESSCONTROL_API FMCGrillReward
     UPROPERTY(BlueprintReadOnly) int32 Quantity=0;
     UPROPERTY(BlueprintReadOnly) bool bConvertedDuplicate=false;
     UPROPERTY(BlueprintReadOnly) TArray<FName> ReelSymbols;
+    /** Older saved catalog receipts default to the legacy compensation policy. */
+    UPROPERTY() bool bCatalogGrant=false;
+    UPROPERTY() FName GrantedCosmeticID;
+    UPROPERTY() FMCHubPendingPurchase GrantedPurchase;
 };
 
 USTRUCT(BlueprintType)
@@ -113,17 +130,4 @@ struct MESSCONTROL_API FMCHubEconomyCatalogEntry
     UPROPERTY(BlueprintReadOnly) int32 DiscountPercent=0;
     UPROPERTY(BlueprintReadOnly) float ShopAppearanceChance=1.f;
     UPROPERTY(BlueprintReadOnly) EMCPerkKind PerkKind=EMCPerkKind::Automatic;
-};
-
-/** A paid next-run plan. Identity guards replacement confirmations against stale screens. */
-USTRUCT(BlueprintType)
-struct MESSCONTROL_API FMCHubPendingPurchase
-{
-    GENERATED_BODY()
-    UPROPERTY(EditAnywhere, BlueprintReadWrite) FGuid InstanceID;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite) FName CatalogID;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite) FName PerkID;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 DestinationSlot=INDEX_NONE;
-    /** Explicit remaining charges for consumables; INDEX_NONE uses the canonical definition. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Charges=INDEX_NONE;
 };

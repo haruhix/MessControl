@@ -23,6 +23,18 @@ struct MESSCONTROL_API FMCFishingCatchReward
     UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="1",ClampMax="1000")) int32 FishCoins=1;
 };
 
+/** Owner-only HUD snapshot. All vertical coordinates run from the bottom (0) to the top (1). */
+USTRUCT()
+struct FMCFishingChallengeState
+{
+    GENERATED_BODY()
+    UPROPERTY() bool bActive=false;
+    UPROPERTY() float HookHeight=0;
+    UPROPERTY() float ZoneBottom=0;
+    UPROPERTY() float ZoneTop=0;
+    UPROPERTY() float Progress=0;
+};
+
 /** Hub rod: the artist's three meshes, two hand grips and a light Verlet line. */
 UCLASS(ClassGroup=(Hub),meta=(BlueprintSpawnableComponent))
 class MESSCONTROL_API UMCFishingRodComponent : public UActorComponent
@@ -45,7 +57,7 @@ public:
     /** Relative weights and fish-wallet value; no booster or shop-coin rewards belong to fishing. */
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Fishing|Rewards") TArray<FMCFishingCatchReward> CatchRewards;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Fishing|Catch") bool bFishHooked=false;
-    /** Frozen at the bite, so stowing or leaving the pier cannot reroll the result. */
+    /** Committed after completing the challenge, then consumed once when retrieved or stowed. */
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Fishing|Catch") FMCFishingCatchReward HookedCatch;
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Transient,Category="Fishing|Catch") float LastBiteDelay=0;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Fishing|Pose") FTransform CarryPose;
@@ -73,6 +85,14 @@ public:
     /** Recheck the real pier footprint on the server; clients cannot grant themselves access. */
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Fishing") void RefreshFishingZone();
     UFUNCTION(BlueprintPure,Category="Fishing") bool CanCastLine() const;
+    UFUNCTION(BlueprintPure,Category="Fishing") bool IsChargingCast() const { return CastChargeStartedAt>=0; }
+    UFUNCTION(BlueprintPure,Category="Fishing") float GetCastCharge() const;
+    UFUNCTION(BlueprintPure,Category="Fishing|Catch") bool IsCatchChallengeActive() const { return CatchChallenge.bActive; }
+    UFUNCTION(BlueprintPure,Category="Fishing|Catch") float GetHookHeight() const { return CatchChallenge.HookHeight; }
+    UFUNCTION(BlueprintPure,Category="Fishing|Catch") float GetCatchZoneBottom() const { return CatchChallenge.ZoneBottom; }
+    UFUNCTION(BlueprintPure,Category="Fishing|Catch") float GetCatchZoneTop() const { return CatchChallenge.ZoneTop; }
+    UFUNCTION(BlueprintPure,Category="Fishing|Catch") float GetCatchProgress() const { return CatchChallenge.Progress; }
+    UFUNCTION(BlueprintPure,Category="Fishing|Catch") bool IsHookInCatchZone() const;
     /** E equips in the real pier area; facing and trajectory are checked when casting. */
     UFUNCTION(BlueprintPure,Category="Fishing") bool CanBeginFishing() const;
     UFUNCTION(BlueprintPure,Category="Fishing") FVector GetInteractionPoint() const;
@@ -84,23 +104,32 @@ public:
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Fishing") void ServerSetEquipped(bool Equipped);
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Fishing") void ServerSetFishingPose(bool Raised);
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Fishing") void ServerSetReeling(bool Reeling);
+    UFUNCTION(Server,Reliable,BlueprintCallable,Category="Fishing") void ServerFishingPrimaryPressed();
+    /** Release an accepted charge. Legacy callers cannot bypass the press or catch challenge. */
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Fishing") void CastLine();
+    void PrimaryPressed();
+    void PrimaryReleased();
+    void CancelPrimaryInput();
     /** Native rules helper; the server supplies the random fraction, never a client reward amount. */
     bool SelectCatchReward(float UnitRoll,FMCFishingCatchReward& Reward) const;
     void BuildHandPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt);
 
 private:
+    UFUNCTION(Server,Reliable) void ServerCancelFishingPrimary();
     bool IsHub() const;
+    bool CanUseFishingPrimary() const;
     void CreateVisuals();
     void ResetLine(FVector Tip);
     void SimulateLine(float Dt,FVector Tip);
     void DrawLine();
     FVector BentPoint(FVector Point) const;
     bool PondSurfaceAt(const APhysicsVolume* Pond,FVector Point,FVector& Surface) const;
-    bool FindPondCast(FVector& Origin,FVector& Target,FVector& Velocity,float& Duration,APhysicsVolume*& Pond) const;
+    bool FindPondCast(float Charge,FVector& Origin,FVector& Target,FVector& Velocity,float& Duration,APhysicsVolume*& Pond) const;
     void CancelFishing(bool bRecoverHookedCatch=false);
     void CompleteHookedCatch();
-    void UpdateFishingCatch();
+    void UpdateFishingCatch(float Dt);
+    void UpdateCatchChallenge(float Dt);
+    void FinishCatchChallenge(bool bCaught);
     bool IsWithinFishingZone() const;
     void SetEquippedState(bool Equipped);
     UPROPERTY() TObjectPtr<AMCToothCharacter> Hero;
@@ -111,6 +140,9 @@ private:
     UPROPERTY(Replicated) FVector CastTarget=FVector::ZeroVector;
     UPROPERTY(Replicated) float CastFlightDuration=1;
     UPROPERTY(Replicated) TObjectPtr<APhysicsVolume> CastPond;
+    UPROPERTY(Replicated) double CastChargeStartedAt=-1;
+    UPROPERTY(Replicated) FMCFishingChallengeState CatchChallenge;
+    FMCFishingCatchReward PendingCatch;
     TArray<FVector> RestVertices,RestNormals,Vertices,Normals,LineVertices,LineNormals;
     TArray<FVector2D> UVs,LineUVs;
     TArray<int32> Triangles,LineTriangles;
@@ -120,8 +152,11 @@ private:
     float PoseAlpha=0,HandsAlpha=0,Accumulator=0,ReelAngle=0;
     int32 LastCastSerial=0;
     bool bWasVisible=false,bWasLineOut=false,bCastFlight=false,bLureInWater=false;
+    bool bAutomaticRetrieve=false;
     float CastAge=0;
+    float CatchAge=0,HookVelocity=0;
     FVector WaterAnchor=FVector::ZeroVector;
     double BiteAt=-1;
+    double NextHookClickAt=0;
     double NextFishingZoneCheckAt=0;
 };

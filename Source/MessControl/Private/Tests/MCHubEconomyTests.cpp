@@ -381,7 +381,7 @@ bool FMCHubLegacyMigrationTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubCoinOnlyGrillTest,"MessControl.Hub.Economy.GrillOnlyPaysCoinsIncludingKnownLegacyReceipts",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubCoinOnlyGrillTest,"MessControl.Hub.Economy.GrillLegacyReceiptsStillConvert",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCHubCoinOnlyGrillTest::RunTest(const FString&)
 {
@@ -390,7 +390,7 @@ bool FMCHubCoinOnlyGrillTest::RunTest(const FString&)
     Item.Kind=EMCGrillRewardKind::CatalogItem;Item.CatalogItem=TEXT("CalciumSelfGrenade");Item.ReelSymbols={TEXT("A"),TEXT("A"),TEXT("A")};
     Fixture.Rewards->AddRow(TEXT("OldItemOnly"),Item);
     auto* Player=Fixture.Player();Player->FishCaught=3;auto* Economy=Player->Economy.Get();FText Error;FGuid Receipt;FMCGrillReward Preview;
-    TestFalse(TEXT("Even known enabled old item rows cannot enter new grill rolls"),Economy->BeginGrillRoll(Receipt,Preview,Error));
+    TestFalse(TEXT("Suspended Calcium cannot enter new grill rolls"),Economy->BeginGrillRoll(Receipt,Preview,Error));
     TestEqual(TEXT("An item-only table cannot consume fish"),Player->FishCaught,3);
     TestTrue(TEXT("Old item tuples are also absent from available reel symbols"),Economy->GetGrillSymbols().IsEmpty());
     FMCHubEconomySaveData Legacy;Legacy.Version=1;Legacy.Coins=20;
@@ -400,6 +400,75 @@ bool FMCHubCoinOnlyGrillTest::RunTest(const FString&)
     TestEqual(TEXT("The legacy policy converts two units at five coins each"),Economy->Coins,30);
     TestTrue(TEXT("The converted prize never creates a skill or calcium purchase"),Economy->PendingBoosters.IsEmpty() && Economy->PendingPurchases.IsEmpty());
     TestFalse(TEXT("The converted receipt cannot settle twice"),Economy->CompleteGrillRoll(Legacy.PendingGrillReward.RollID));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubGrillCatalogPrizeTest,"MessControl.Hub.Economy.GrillCatalogPrizeAndDuplicateAreExactlyOnce",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCHubGrillCatalogPrizeTest::RunTest(const FString&)
+{
+    MCHubEconomyTestFixtures::FWorld Fixture;
+    Fixture.AddSkill(TEXT("ChargePack"),EMCPerkKind::Consumable,3);
+    Fixture.AddSkill(TEXT("PassivePrize"),EMCPerkKind::Passive);
+    FMCHubCatalogRow Alias;Alias.PerkID=TEXT("ChargePack");Alias.Price=47;
+    Fixture.Catalog->AddRow(TEXT("ChargePackAlias"),Alias);
+    Fixture.Rewards->EmptyTable();
+    FMCGrillRewardRow Item;Item.Kind=EMCGrillRewardKind::CatalogItem;Item.CatalogItem=TEXT("ChargePack");
+    Item.Quantity=2;Fixture.Rewards->AddRow(TEXT("FixedItem"),Item);
+    auto* Player=Fixture.Player();auto* Economy=Player->Economy.Get();Player->FishCaught=6;
+    FGuid Receipt;FMCGrillReward Preview;FText Error;
+    if(!TestTrue(TEXT("A catalog reward is eligible without legacy symbols"),Economy->BeginGrillRoll(Receipt,Preview,Error))) return false;
+    TestTrue(TEXT("The new receipt snapshots an item grant"),Preview.bCatalogGrant && !Preview.bConvertedDuplicate);
+    TestTrue(TEXT("Inventory stays untouched before settlement"),Economy->PendingPurchases.IsEmpty());
+    FMCHubEconomySaveData PendingSave;PendingSave.PendingGrillReward=Preview;
+    auto* Restored=Fixture.Player();
+    TestTrue(TEXT("An interrupted catalog receipt can settle on restore"),Restored->Economy->ImportSave(PendingSave,Error));
+    TestFalse(TEXT("A restored receipt cannot grant twice"),Restored->Economy->CompleteGrillRoll(Receipt));
+    TestTrue(TEXT("A fresh prize is granted"),Economy->CompleteGrillRoll(Receipt));
+    TestFalse(TEXT("The same receipt cannot grant twice"),Economy->CompleteGrillRoll(Receipt));
+    const auto Slots=Economy->GetPendingActiveSlots();
+    TestTrue(TEXT("The pack uses the first free slot with six charges"),Slots[0].PerkID==TEXT("ChargePack") && Slots[0].Charges==6);
+
+    Item.CatalogItem=TEXT("ChargePackAlias");Item.Quantity=1;Fixture.Rewards->AddRow(TEXT("FixedItem"),Item);
+    if(!TestTrue(TEXT("An alias of the prepared perk remains an eligible duplicate"),Economy->BeginGrillRoll(Receipt,Preview,Error))) return false;
+    TestTrue(TEXT("The duplicate keeps its actual item identity"),Preview.bConvertedDuplicate && Preview.CatalogItem==TEXT("ChargePackAlias"));
+    TestEqual(TEXT("Ten percent of a 47-coin item rounds down to four"),Preview.Coins,4);
+    TestEqual(TEXT("Compensation waits for settlement"),Economy->Coins,0);
+    TestTrue(TEXT("The duplicate settles"),Economy->CompleteGrillRoll(Receipt));
+    TestFalse(TEXT("A duplicate receipt cannot pay twice"),Economy->CompleteGrillRoll(Receipt));
+    TestEqual(TEXT("Only four personal coins were awarded"),Economy->Coins,4);
+    TestEqual(TEXT("A duplicate leaves the prepared inventory untouched"),Economy->PendingPurchases.Num(),1);
+
+    Item.CatalogItem=TEXT("PassivePrize");Fixture.Rewards->AddRow(TEXT("FixedItem"),Item);
+    if(!TestTrue(TEXT("A passive perk is eligible as a prize"),Economy->BeginGrillRoll(Receipt,Preview,Error))) return false;
+    TestTrue(TEXT("The passive settles"),Economy->CompleteGrillRoll(Receipt));
+    const auto* Passive=Economy->PendingPurchases.FindByPredicate([](const FMCHubPendingPurchase& Purchase){
+        return Purchase.PerkID==TEXT("PassivePrize");
+    });
+    TestTrue(TEXT("The passive is prepared without an active slot"),Passive && Passive->DestinationSlot==INDEX_NONE);
+
+    const FName WorkCap(TEXT("Hat_WorkCap"));
+    FMCHubEconomyCatalogEntry Clothing;
+    if(!TestTrue(TEXT("The saved work cap has a priced canonical clothing offer"),
+        Economy->FindCatalogEntry(WorkCap,Clothing) && Clothing.bCanonicalClothing && Clothing.BasePrice>=10)) return false;
+    Item.CatalogItem=WorkCap;Fixture.Rewards->AddRow(TEXT("FixedItem"),Item);
+    if(!TestTrue(TEXT("A canonical wardrobe item can be won"),Economy->BeginGrillRoll(Receipt,Preview,Error))) return false;
+    TestFalse(TEXT("The fresh cap is not owned during the roll"),Economy->OwnsCosmetic(Clothing.Definition.CosmeticID));
+    TestTrue(TEXT("The clothing prize settles"),Economy->CompleteGrillRoll(Receipt));
+    TestTrue(TEXT("The wardrobe owns the settled cap"),Economy->OwnsCosmetic(Clothing.Definition.CosmeticID));
+    if(!TestTrue(TEXT("The same cap can roll again"),Economy->BeginGrillRoll(Receipt,Preview,Error))) return false;
+    const int32 ClothingCompensation=Clothing.BasePrice/10;
+    TestTrue(TEXT("The repeated cap pays ten percent of canonical base price"),
+        Preview.bConvertedDuplicate && Preview.CatalogItem==WorkCap && Preview.Coins==ClothingCompensation);
+    TestTrue(TEXT("The clothing duplicate settles"),Economy->CompleteGrillRoll(Receipt));
+    TestEqual(TEXT("The wardrobe still contains only one cap"),Economy->OwnedCosmetics.Num(),1);
+
+    Item.Kind=EMCGrillRewardKind::Trash;Item.CatalogItem=NAME_None;Fixture.Rewards->AddRow(TEXT("FixedItem"),Item);
+    if(!TestTrue(TEXT("An explicit trash row is eligible"),Economy->BeginGrillRoll(Receipt,Preview,Error))) return false;
+    TestTrue(TEXT("The loss receipt is identified as trash"),Preview.Kind==EMCGrillRewardKind::Trash);
+    TestTrue(TEXT("Trash settles normally"),Economy->CompleteGrillRoll(Receipt));
+    TestTrue(TEXT("Trash spends the fish and grants no inventory or coins"),Player->FishCaught==0
+        && Economy->Coins==4+ClothingCompensation && Economy->PendingPurchases.Num()==2 && Economy->OwnedCosmetics.Num()==1);
     return true;
 }
 

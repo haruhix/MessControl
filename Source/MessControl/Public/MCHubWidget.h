@@ -120,6 +120,7 @@ private:
     bool IsLocalHost() const;
     void ApplyUnifiedViewSuppression();
     bool bUnifiedViewActive=false;
+    bool bHadFishingMeter=false;
     FMCHubControlsPresentation ControlsSnapshot;
     FGeometry ControlsPaintGeometry;
     FMCHubControlsUpdated ControlsUpdated;

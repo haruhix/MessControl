@@ -6,11 +6,9 @@ packed occlusion/roughness/metallic textures are connected to `M_FishingRod`.
 The source FBX is preserved. The line is generated at runtime.
 
 `UMCFishingRodComponent` belongs to the player character and presents the rod
-only in the Hub. Players spawn without the rod. Entering an enabled
-`AMCHubFishingZone` on the pier equips it automatically; leaving all pier boxes
-stows it and cancels the cast, pending bite and retrieval. Key **5** toggles it
-only while inside a pier zone; selecting an ordinary tool with **1–4** stows it
-until it is manually re-equipped there or the player enters the pier again.
+only in the Hub. Players spawn with the rod stowed. Enter an enabled
+`AMCHubFishingZone` on the pier and press **E** to equip it. Leaving the zone,
+pressing **5**, or selecting an ordinary tool stows it and ends the attempt.
 The rod temporarily disappears while
 swimming, climbing, carrying another object, using a chest, emoting or ragdolling.
 The existing basketball interaction has priority over reeling near the ball.
@@ -22,13 +20,16 @@ current integration also uses the specific `FishingSimulationStep` constant
 name so unity builds do not collide with other source files' local `Step`
 variables. The fixed simulation interval remains `1.f/120.f`.
 
-The resting/walking pose holds the handle with the right hand and the upper reel
-with the left, matching the supplied references. Near the pond and facing its
-water, **right mouse** blends into the lower fishing pose and **left mouse**
-casts into the pond. Holding **E** reels in the line and rotates the independent
-reel mesh in the corrected direction. Starting to walk cancels fishing and
-restores the carry pose and short hanging line. Finishing reeling also clears
-the fishing pose.
+The carry pose holds the handle with the right hand and the upper reel with the
+left. Face the pond, hold **left mouse** to charge the cast, and release it to
+throw. The vertical gauge fills as the desired range grows. **Right mouse**
+can preview the lower fishing pose. Hold **E** to abandon a bite or reel in an
+empty line. Walking ends the attempt and restores the carry pose and short
+hanging line.
+
+The charge reaches its cap after 1.25 seconds, with a requested range of 300
+to 1,000 cm. If that point is blocked or dry, the cast uses the closest clear
+water found along the same aim line.
 
 The pier access box and pond water serve separate purposes. Move/rotate/scale
 `AMCHubFishingZone` in the editor to match the walkable pier. The server checks
@@ -41,9 +42,7 @@ switching is safe. Clients receive the authoritative access/equipment state.
 `Tools/Unreal/Hub/author_hub_fishing_zone.py` prepares the box from an explicitly
 selected pier actor. Its default plan is read-only; apply backs up the Hub on
 E:, preserves existing designer placement, and saves only the Hub map.
-This new entry/exit behavior needs the zone authoring and a fresh runtime
-check after changing its placement; the older standalone reports below describe
-the previous manual flow.
+The reports below describe earlier versions of the pier and fishing controls.
 
 The existing `Hub_SwimmingWater` PhysicsVolume is tagged `FishingPond`. Casts
 require this tagged water, actual open water below the destination, and a clear
@@ -61,17 +60,22 @@ artist's rod geometry is copied to a procedural component so its tip can bend
 under a damped spring driven by movement and line direction. The base stays
 rigid. The original static mesh, UVs and material are preserved.
 
-After the lure settles in the pond, the server chooses a fresh delay of **4–9
-seconds**. A bite hooks a blue cube placeholder and automatically reels it in.
-Near the rod, the cube moves toward the character and is picked up. Only then
-does the personal **Рыба: N** HUD counter increase by one. Each cast awards at
-most one fish; another cast is needed for the next catch.
+After the lure settles, the server chooses a fresh delay of **4–9 seconds**.
+The bite starts a challenge in the vertical gauge. Each click raises the hook,
+which falls under gravity between clicks. The target band moves and narrows.
+It turns green while the hook is inside it, where catch progress builds.
+Progress drains outside the band. Rarer catches use narrower, faster bands
+and require more time inside. The fish escapes if the player fails to fill
+the progress meter within 10 seconds.
 
-Walking away, stowing the rod or losing the valid fishing state cancels the
-pending catch. Reeling before a bite returns an empty lure without a reward.
-`AMCPlayerState::FishCaught` is replicated, survives pawn recovery and is copied
-with the PlayerState during travel. It lasts for the current session; no disk
-save, fish species, economy or full fish mesh is included.
+A successful challenge commits the catch and starts automatic retrieval. The
+existing catch card and fish wallet update when the catch is collected. An
+escaped or abandoned bite awards nothing. An interruption can collect an
+already committed catch once. The existing Hub profile preserves the fish
+wallet (`AMCPlayerState::FishCaught`) across pawn recovery and sessions.
+
+The Hub readiness barrier prepares the rod, line and catch material shader
+maps before their first visible use in Editor. The meter uses Slate geometry.
 
 The component exposes carry/fishing transforms, both grip points, hanging length,
 maximum line length, bite delay bounds, fish mesh and fish material for tuning.

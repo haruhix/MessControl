@@ -34,15 +34,17 @@
 |---|---|
 | `AMCHubFishingZone`, `UMCFishingRodComponent` | Вход в допустимую зону показывает взаимодействие; рыбалка начинается по E. Выход завершает casting/retrieval и не должен отнимать уже принятый catch |
 | `AMCHubShopStation`, `UMCHubShopWidget` | Открытие персонального магазина, карточки, покупка и очередь бустеров следующего arena run |
-| `AMCHubGrillStation`, presentation component | Расход рыбы, серверная квитанция результата, стадии Closing/Rolling/Reveal/Opening, физические барабаны и согласованное отображение символов |
+| `AMCHubGrillStation`, `UMCHubGrillPresentationComponent` | Расход одной рыбы, серверная квитанция, стадии Closing/Rolling/Revealing/Opening и горизонтальная лента призов |
 | `AMCHubWardrobeStation`, wardrobe widget | Примерка, отдельная покупка и применение owned cosmetics, палитра сумки/пояса |
 | `AMCHubBasketball` | Отдельная мини-игра и confetti visuals; ресурсы подготавливаются до Hub readiness |
 
-Экономику обслуживает `UMCHubEconomyComponent` на PlayerState. Default soft paths: `/Game/Gameplay/Hub/Economy/DT_HubCatalog`, `DT_GrillRewards`, `DT_HubEconomyRules`. В них находятся ассортимент, ограничения, стоимость, веса/символы наград и тайминги. Эти значения нельзя восстанавливать по старым ценам на скриншотах: текущие saved rows требуют проверки в Unreal.
+Экономику обслуживает `UMCHubEconomyComponent` на PlayerState. Ассортимент и цены находятся в `/Game/Gameplay/Hub/Economy/DT_HubCatalog` и каталоге одежды. `DT_GrillRewards` содержит доступные призы и их относительные веса. `DT_HubEconomyRules` задаёт ограничения и тайминги.
 
 Покупка и выдача проверяются сервером. PendingBoosters — персональная очередь, применение привязано к реальному arena run и RunID; Tutorial и сам Hub не должны расходовать её как боевой забег. `bCalciumEnabled=false` — нативный default, последний checkpoint также фиксирует приостановку Calcium. Существующие сохранённые заряды/очередь сохраняются; выключенный элемент не должен блокировать обработку других бустеров. Buffer/perforator исключён из доступных upgrades в текущем perk/economy коде.
 
-## Экономика: ограниченный live-срез
+Во время своей попытки игрок видит ленту в центре экрана. Она замедляется и останавливается на карточке принятого сервером результата. Одежда попадает в гардероб, перки и бустеры готовятся к следующему забегу. Для новой активной способности или расходуемого бустера нужен свободный слот. Повтор уже полученной одежды или подготовленного усиления показывает «Дубликат» и начисляет 10% базовой цены с округлением вниз. Стартовый пул включает десять предметов, два прямых монетных приза и пустой исход «Мусор». Веса в `DT_GrillRewards` предназначены для дальнейшей настройки.
+
+## Исторический срез экономики от 2026-10-23
 
 Read-only snapshot **2026-10-23 13:29:49 UTC** получен через `DataTableTools.list_rows/get_rows`; `AssetTools.is_dirty` вернул **false** для `DT_HubEconomyRules`, `DT_HubCatalog` и `DT_GrillRewards` в `/Game/Gameplay/Hub/Economy`. Это чтение загруженных clean таблиц в Editor, не полный disk export, gameplay-проверка покупки или свежая сборка. Общие границы — [ProjectAudit](ProjectAudit.md).
 

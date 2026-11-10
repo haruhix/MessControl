@@ -15,12 +15,24 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "GameFramework/GameStateBase.h"
 #include "GameFramework/PhysicsVolume.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "UObject/ConstructorHelpers.h"
 
-namespace { constexpr int32 LineSegments=24; constexpr float FishingSimulationStep=1.f/120.f; }
+namespace
+{
+constexpr int32 LineSegments=24;
+constexpr float FishingSimulationStep=1.f/120.f;
+constexpr float CastChargeSeconds=1.25f;
+constexpr float MinCastDistance=300.f;
+constexpr float MaxCastDistance=1000.f;
+constexpr float CatchChallengeSeconds=10.f;
+constexpr float HookGravity=3.f;
+constexpr float HookKick=0.9f;
+constexpr float HookClickInterval=0.09f;
+}
 
 UMCFishingRodComponent::UMCFishingRodComponent()
 {
@@ -162,7 +174,7 @@ bool UMCFishingRodComponent::PondSurfaceAt(const APhysicsVolume* Pond,FVector Po
         || Floor.ImpactPoint.Z<Bounds.Max.Z-12;
 }
 
-bool UMCFishingRodComponent::FindPondCast(FVector& Origin,FVector& Target,FVector& Velocity,float& Duration,APhysicsVolume*& Pond) const
+bool UMCFishingRodComponent::FindPondCast(float Charge,FVector& Origin,FVector& Target,FVector& Velocity,float& Duration,APhysicsVolume*& Pond) const
 {
     if(!Hero || !IsHub()) return false;
     const FTransform Frame=RodFrame && bEquipped?Hero->GetPresentationFrame().ToCanonicalWorld(RodFrame->GetComponentTransform()):CarryPose*Hero->GetActorTransform();
@@ -170,10 +182,21 @@ bool UMCFishingRodComponent::FindPondCast(FVector& Origin,FVector& Target,FVecto
     const FVector Forward=Hero->GetActorForwardVector().GetSafeNormal2D();
     const FVector Gravity(0,0,-980);
     FCollisionQueryParams Query(SCENE_QUERY_STAT(MCFishingCast),false,Hero);
-    for(TActorIterator<APhysicsVolume> It(GetWorld());It;++It) {
-        if(!It->bWaterVolume || !It->ActorHasTag(TEXT("FishingPond"))) continue;
-        for(float Distance=1000;Distance>=300;Distance-=100) {
-            if(!PondSurfaceAt(*It,Hero->GetActorLocation()+Forward*Distance,Target)
+    // Use the charged range directly. If it lands on the pier or bank, use the
+    // nearest clear water along the same aim line instead.
+    const float RequestedDistance=FMath::Lerp(MinCastDistance,MaxCastDistance,Charge);
+    TArray<float,TInlineAllocator<16>> Distances;
+    Distances.Add(RequestedDistance);
+    for(float Distance=MinCastDistance;Distance<=MaxCastDistance;Distance+=50.f) Distances.AddUnique(Distance);
+    Distances.Sort([RequestedDistance](float A,float B) {
+        return FMath::Abs(A-RequestedDistance)<FMath::Abs(B-RequestedDistance);
+    });
+    TArray<APhysicsVolume*,TInlineAllocator<4>> Ponds;
+    for(TActorIterator<APhysicsVolume> It(GetWorld());It;++It)
+        if(It->bWaterVolume && It->ActorHasTag(TEXT("FishingPond"))) Ponds.Add(*It);
+    for(float Distance:Distances) {
+        for(APhysicsVolume* Candidate:Ponds) {
+            if(!PondSurfaceAt(Candidate,Hero->GetActorLocation()+Forward*Distance,Target)
                 || FVector::DistSquared(Origin,Target)>FMath::Square(MaxLineLength-60)) continue;
             Duration=FMath::Max(.9f,float(FVector::Dist2D(Origin,Target))/1050.f)+.45f;
             Velocity=(Target-Origin-Gravity*(.5f*Duration*Duration))/Duration;
@@ -185,7 +208,7 @@ bool UMCFishingRodComponent::FindPondCast(FVector& Origin,FVector& Target,FVecto
                 if(GetWorld()->SweepSingleByChannel(Hit,Previous,Next,FQuat::Identity,ECC_Visibility,FCollisionShape::MakeSphere(4),Query)) {Clear=false;break;}
                 Previous=Next;
             }
-            if(Clear) {Pond=*It;return true;}
+            if(Clear) {Pond=Candidate;return true;}
         }
     }
     return false;
@@ -193,9 +216,30 @@ bool UMCFishingRodComponent::FindPondCast(FVector& Origin,FVector& Target,FVecto
 
 bool UMCFishingRodComponent::CanCastLine() const
 {
-    if(!IsPresented() || bLineOut || Hero->GetVelocity().SizeSquared2D()>FMath::Square(20.f)) return false;
+    if(!CanUseFishingPrimary() || bLineOut) return false;
     FVector Origin,Target,Velocity;float Duration;APhysicsVolume* Pond=nullptr;
-    return FindPondCast(Origin,Target,Velocity,Duration,Pond);
+    return FindPondCast(1.f,Origin,Target,Velocity,Duration,Pond);
+}
+
+bool UMCFishingRodComponent::CanUseFishingPrimary() const
+{
+    if(!RodFrame || !IsPresented() || Hero->GetVelocity().SizeSquared2D()>FMath::Square(20.f)) return false;
+    const auto* Controller=Cast<APlayerController>(Hero->GetController());
+    return Controller && !Controller->IsMoveInputIgnored();
+}
+
+float UMCFishingRodComponent::GetCastCharge() const
+{
+    if(!IsChargingCast() || !GetWorld()) return 0.f;
+    const auto* GameState=GetWorld()->GetGameState();
+    const double Now=GameState?GameState->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    return FMath::Clamp(float((Now-CastChargeStartedAt)/CastChargeSeconds),0.f,1.f);
+}
+
+bool UMCFishingRodComponent::IsHookInCatchZone() const
+{
+    return IsCatchChallengeActive() && CatchChallenge.HookHeight>=CatchChallenge.ZoneBottom
+        && CatchChallenge.HookHeight<=CatchChallenge.ZoneTop;
 }
 
 bool UMCFishingRodComponent::SelectCatchReward(float UnitRoll,FMCFishingCatchReward& Reward) const
@@ -225,8 +269,7 @@ bool UMCFishingRodComponent::SelectCatchReward(float UnitRoll,FMCFishingCatchRew
 void UMCFishingRodComponent::CompleteHookedCatch()
 {
     if(!Hero || !Hero->HasAuthority() || !bFishHooked) return;
-    // Clear before awarding so later exit, input-release and retrieval paths
-    // cannot count the same already-hooked fish twice. A pending bite is not a catch.
+    // Clear before awarding so exit and retrieval cannot both credit this catch.
     const FMCFishingCatchReward Reward=HookedCatch;
     bFishHooked=false;HookedCatch=FMCFishingCatchReward();
     if(uint8(Reward.Rarity)>uint8(EMCHubItemRarity::Legendary) || Reward.FishCoins<=0 || Reward.FishCoins>1000) return;
@@ -242,16 +285,24 @@ void UMCFishingRodComponent::CancelFishing(bool bRecoverHookedCatch)
 {
     if(bRecoverHookedCatch) CompleteHookedCatch();
     bFishingPose=bReeling=bLineOut=false;CastPond=nullptr;
-    bFishHooked=false;HookedCatch=FMCFishingCatchReward();BiteAt=-1;
+    bFishHooked=bAutomaticRetrieve=false;HookedCatch={};BiteAt=-1;
+    CastChargeStartedAt=-1;
+    CatchChallenge={};PendingCatch={};
+    CatchAge=HookVelocity=0;NextHookClickAt=0;
     bCastFlight=bLureInWater=false;CastAge=0;WaterAnchor=FVector::ZeroVector;
     FreeLineLength=HangingLength;Accumulator=0;
     if(Hero) Hero->ForceNetUpdate();
 }
 
-void UMCFishingRodComponent::UpdateFishingCatch()
+void UMCFishingRodComponent::UpdateFishingCatch(float Dt)
 {
     if(!Hero || !Hero->HasAuthority()) return;
-    if(!bLineOut || !CastPond || bReeling || bFishHooked || !bLureInWater || !Hero->GetPlayerState<AMCPlayerState>()) {BiteAt=-1;return;}
+    if(!bLineOut || bReeling || !bLureInWater || !Hero->GetPlayerState<AMCPlayerState>()) {BiteAt=-1;return;}
+    if(!IsValid(CastPond)) {CancelFishing();return;}
+    if(IsCatchChallengeActive()) {
+        UpdateCatchChallenge(FMath::Min(Dt,.1f));
+        return;
+    }
     const double Now=GetWorld()->GetTimeSeconds();
     if(BiteAt<0) {
         const float Minimum=FMath::IsFinite(MinBiteDelay)?FMath::Clamp(MinBiteDelay,.1f,60.f):4.f;
@@ -261,8 +312,47 @@ void UMCFishingRodComponent::UpdateFishingCatch()
     if(Now<BiteAt) return;
     FVector Surface;
     if(!PondSurfaceAt(CastPond,LurePoint,Surface)) {CancelFishing();return;}
-    if(!SelectCatchReward(FMath::FRand(),HookedCatch)) {CancelFishing();return;}
-    bFishHooked=true;bReeling=true;BiteAt=-1;Hero->ForceNetUpdate();
+    if(!SelectCatchReward(FMath::FRand(),PendingCatch)) {CancelFishing();return;}
+    CatchChallenge={};
+    CatchChallenge.bActive=true;
+    CatchChallenge.HookHeight=.5f;
+    CatchAge=HookVelocity=0;
+    NextHookClickAt=Now;
+    BiteAt=-1;
+    UpdateCatchChallenge(0.f);
+    Hero->ForceNetUpdate();
+}
+
+void UMCFishingRodComponent::UpdateCatchChallenge(float Dt)
+{
+    CatchAge+=Dt;
+    const float Difficulty=int32(PendingCatch.Rarity)/3.f;
+    const float TimeAlpha=FMath::Clamp(CatchAge/CatchChallengeSeconds,0.f,1.f);
+    const float StartHalfHeight=FMath::Lerp(.23f,.15f,Difficulty);
+    const float EndHalfHeight=FMath::Lerp(.18f,.08f,Difficulty);
+    const float HalfHeight=FMath::Lerp(StartHalfHeight,EndHalfHeight,TimeAlpha);
+    const float Center=.5f+FMath::Lerp(.11f,.26f,Difficulty)*FMath::Sin(CatchAge*FMath::Lerp(.78f,1.56f,Difficulty));
+    CatchChallenge.ZoneBottom=Center-HalfHeight;
+    CatchChallenge.ZoneTop=Center+HalfHeight;
+
+    CatchChallenge.HookHeight=FMath::Clamp(CatchChallenge.HookHeight+(HookVelocity-.5f*HookGravity*Dt)*Dt,0.f,1.f);
+    HookVelocity-=HookGravity*Dt;
+    if(CatchChallenge.HookHeight<=0.f || CatchChallenge.HookHeight>=1.f) HookVelocity=0.f;
+    const float ProgressRate=IsHookInCatchZone()?1.f/FMath::Lerp(2.6f,3.5f,Difficulty):-.24f;
+    CatchChallenge.Progress=FMath::Clamp(CatchChallenge.Progress+ProgressRate*Dt,0.f,1.f);
+    if(CatchChallenge.Progress>=1.f) FinishCatchChallenge(true);
+    else if(CatchAge>=CatchChallengeSeconds) FinishCatchChallenge(false);
+}
+
+void UMCFishingRodComponent::FinishCatchChallenge(bool bCaught)
+{
+    if(bCaught) {
+        HookedCatch=PendingCatch;
+        bFishHooked=true;
+    }
+    CatchChallenge={};PendingCatch={};
+    bReeling=bAutomaticRetrieve=true;
+    Hero->ForceNetUpdate();
 }
 
 void UMCFishingRodComponent::ServerSetEquipped_Implementation(bool Equipped)
@@ -280,25 +370,81 @@ void UMCFishingRodComponent::ServerSetFishingPose_Implementation(bool Raised)
     if(!Hero) Hero=Cast<AMCToothCharacter>(GetOwner());
     if(!Hero) return;
     RefreshFishingZone();
-    if(!Raised || (IsPresented() && Hero->GetVelocity().SizeSquared2D()<=FMath::Square(20.f) && (bLineOut || CanCastLine()))) {bFishingPose=Raised;Hero->ForceNetUpdate();}
+    if(!Raised && IsChargingCast()) return;
+    if(!Raised || (CanUseFishingPrimary() && (bLineOut || CanCastLine()))) {bFishingPose=Raised;Hero->ForceNetUpdate();}
 }
 void UMCFishingRodComponent::ServerSetReeling_Implementation(bool Reeling)
 {
     if(!Hero) Hero=Cast<AMCToothCharacter>(GetOwner());
     if(!Hero) return;
     RefreshFishingZone();
-    if(!Reeling && bFishHooked) return; // A hooked catch is retrieved automatically.
+    if(!Reeling && bAutomaticRetrieve) return;
+    if(Reeling && IsPresented() && IsCatchChallengeActive()) {
+        FinishCatchChallenge(false);
+        return;
+    }
     if(!Reeling || (IsPresented() && bLineOut)) {bReeling=Reeling;Hero->ForceNetUpdate();}
 }
-void UMCFishingRodComponent::CastLine_Implementation()
+
+void UMCFishingRodComponent::PrimaryPressed()
+{
+    ServerFishingPrimaryPressed();
+}
+
+void UMCFishingRodComponent::PrimaryReleased()
+{
+    CastLine();
+}
+
+void UMCFishingRodComponent::CancelPrimaryInput()
+{
+    if(Hero && bEquipped && (Hero->HasAuthority() || Hero->IsLocallyControlled())) ServerCancelFishingPrimary();
+}
+
+void UMCFishingRodComponent::ServerFishingPrimaryPressed_Implementation()
 {
     RefreshFishingZone();
-    if(!IsPresented() || !RodFrame || bLineOut || Hero->GetVelocity().SizeSquared2D()>FMath::Square(20.f)) return;
+    if(!CanUseFishingPrimary()) return;
+    const double Now=GetWorld()->GetTimeSeconds();
+    if(IsCatchChallengeActive()) {
+        if(Now>=NextHookClickAt) {
+            HookVelocity=HookKick;
+            NextHookClickAt=Now+HookClickInterval;
+        }
+        return;
+    }
+    if(IsChargingCast() || !CanCastLine()) return;
+    CastChargeStartedAt=Now;
+    bFishingPose=true;
+    Hero->ForceNetUpdate();
+}
+
+void UMCFishingRodComponent::ServerCancelFishingPrimary_Implementation()
+{
+    if(IsChargingCast() || bLineOut) CancelFishing(true);
+}
+
+void UMCFishingRodComponent::CastLine_Implementation()
+{
+    if(!IsChargingCast()) return;
+    RefreshFishingZone();
+    if(!IsChargingCast()) return;
+    const float Charge=GetCastCharge();
+    CastChargeStartedAt=-1;
+    FVector Origin,Target,Velocity;
+    float Duration;
     APhysicsVolume* Pond=nullptr;
-    if(!FindPondCast(CastOrigin,CastTarget,CastVelocity,CastFlightDuration,Pond)) return;
+    if(!CanUseFishingPrimary() || bLineOut || !FindPondCast(Charge,Origin,Target,Velocity,Duration,Pond)) {
+        bFishingPose=false;
+        Hero->ForceNetUpdate();
+        return;
+    }
+    CastOrigin=Origin;
+    CastTarget=Target;
+    CastVelocity=Velocity;
+    CastFlightDuration=Duration;
     CastPond=Pond;
     bLineOut=true;bFishingPose=true;
-    bFishHooked=false;HookedCatch=FMCFishingCatchReward();BiteAt=-1;
     ++CastSerial;Hero->ForceNetUpdate();
 }
 
@@ -491,7 +637,7 @@ void UMCFishingRodComponent::TickComponent(float Dt,ELevelTick Tick,FActorCompon
     }
     RodVisual->UpdateMeshSection_LinearColor(0,Vertices,Normals,UVs,TArray<FLinearColor>(),Tangents);
     Tip=RodFrame->GetComponentTransform().TransformPosition(BentPoint(FVector(294.5,0,-9.5)));
-    SimulateLine(Dt,Tip);UpdateFishingCatch();DrawLine();
+    SimulateLine(Dt,Tip);UpdateFishingCatch(Dt);DrawLine();
     if(FishVisual) {
         FishVisual->SetVisibility(bFishHooked);
         if(bFishHooked) {
@@ -549,4 +695,6 @@ void UMCFishingRodComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
     DOREPLIFETIME(UMCFishingRodComponent,CastTarget);DOREPLIFETIME(UMCFishingRodComponent,CastFlightDuration);DOREPLIFETIME(UMCFishingRodComponent,CastPond);
     DOREPLIFETIME(UMCFishingRodComponent,bFishHooked);
     DOREPLIFETIME(UMCFishingRodComponent,HookedCatch);
+    DOREPLIFETIME_CONDITION(UMCFishingRodComponent,CastChargeStartedAt,COND_OwnerOnly);
+    DOREPLIFETIME_CONDITION(UMCFishingRodComponent,CatchChallenge,COND_OwnerOnly);
 }

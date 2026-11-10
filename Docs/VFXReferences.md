@@ -2177,3 +2177,15 @@ during that loading step. Composer still reports inherited culling warnings
 for two reused Hook systems and missing companion hurt presentation in the
 isolated world. The chain action receipts passed. The captured GIF and
 companion evidence are under the task validation directory.
+
+## Slot machine card reel · 2026-11-10
+
+The supplied CS2 reference defines the single row, fixed marker, rarity accents
+and stop on the winning card. The Hub reel uses a single clipped Slate region
+and eases its position from the station's server clock. Existing catalog icons
+and the Hub theme supply the artwork. During a local roll the screen widget is
+centered in the initiating player's viewport. At idle it returns to the station.
+The current sources are registered under `Hub.Grill` with `Intake`, `Spin` and
+`Result`.
+[Epic's Slate clipping guidance](https://dev.epicgames.com/documentation/unreal-engine/clipping-for-umg-widgets-in-unreal-engine)
+and [Slate easing reference](https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/SlateCore/ECurveEaseFunction).

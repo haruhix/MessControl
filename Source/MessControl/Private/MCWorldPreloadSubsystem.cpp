@@ -772,7 +772,8 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
             const FString Path = Material->GetPathName();
             // Materials contains only this location's discovered/retained
             // dependencies. Prefix matching here is not an AssetRegistry scan.
-            bool bTargeted = Path.StartsWith(TEXT("/Game/Gameplay/ActiveSkills/")) || NiagaraRendererMaterials.Contains(Material);
+            const bool bHubFishingMaterial = Map == TEXT("Hub") && Path.StartsWith(TEXT("/Game/Hub/Fishing/Materials/"));
+            bool bTargeted = bHubFishingMaterial || Path.StartsWith(TEXT("/Game/Gameplay/ActiveSkills/")) || NiagaraRendererMaterials.Contains(Material);
             if (bPrepareLegacyArenaMaterials)
                 for (const FString& FirstUsePath : FirstUsePaths) bTargeted |= Path == FirstUsePath;
             if (!bTargeted) continue;

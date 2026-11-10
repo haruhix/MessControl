@@ -10,6 +10,7 @@
 #include "Widgets/SWidget.h"
 
 #include "MCGameplayUIFactory.h"
+#include "MCHubFishingPresentation.h"
 #include "MCHubGameState.h"
 #include "MCUIDataLibrary.h"
 #include "MCUniversalUIWidget.h"
@@ -290,9 +291,10 @@ void UMCUnifiedHubWidget::PrepareControlsPresentation()
     const FString Culture=IsDesignTime()?PreviewCulture:FInternationalization::Get().GetCurrentLanguage()->GetName();
     UDataTable* Table=Backend.IsValid()?Backend->GetResolvedTranslationTable():GetResolvedTranslationTable();
     TArray<FText> Warm;const FName Keys[]={TEXT("hub.basketball.controls"),TEXT("hub.basketball.controls.gamepad"),TEXT("hub.basketball.pickup"),TEXT("hub.basketball.pickup.gamepad"),
-        TEXT("hub.fishing.controls"),TEXT("hub.fishing.controls.gamepad"),TEXT("hub.fishing.water_required"),TEXT("hub.fishing.water_required.gamepad"),TEXT("hub.fishing.waiting"),TEXT("hub.fishing.hooked")};
+        TEXT("hub.fishing.water_required"),TEXT("hub.fishing.water_required.gamepad"),TEXT("hub.fishing.hooked")};
     bool Complete=true;
     for(FName Key:Keys) {const FText Copy=UMCUIDataLibrary::ResolveText(Table,Key,FText::GetEmpty(),IsDesignTime()?PreviewCulture:FString());Complete&=!Copy.IsEmpty();Warm.Add(Copy);}
+    MCHubFishingPresentation::AppendHints(Warm,Table,IsDesignTime()?PreviewCulture:FString());
     if(auto* Source=Backend.Get()) Warm.Add(Source->GetUnifiedControlsSnapshot().Hint);
     const FText Corpus=FText::Join(FText::AsCultureInvariant(TEXT(" ")),Warm);
     const float Scale=FMath::Max(.001f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
@@ -350,15 +352,17 @@ void UMCUnifiedHubWidget::PresentControlsPreview()
     if(!IsDesignTime() || !WidgetTree) return;PrepareControlsPresentation();
     auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("HubV2ControlsBounds"));auto* Hint=WidgetTree->FindWidget<UTextBlock>(TEXT("HubV2ControlsText"));
     if(!Bounds || !Hint) return;
-    FName Key;
-    if(PreviewState==TEXT("FishingControls")) Key=TEXT("hub.fishing.controls");
-    else if(PreviewState==TEXT("FishingWaiting")) Key=TEXT("hub.fishing.waiting");
-    else if(PreviewState==TEXT("FishingHooked")) Key=TEXT("hub.fishing.hooked");
-    else if(PreviewState==TEXT("BasketballControls")) Key=TEXT("hub.basketball.controls");
-    else if(PreviewState==TEXT("BasketballPickup")) Key=TEXT("hub.basketball.pickup");
-    else if(PreviewState==TEXT("ControlsLongText")) Key=TEXT("hub.fishing.controls");
-    if(Key.IsNone()) {Bounds->SetVisibility(ESlateVisibility::Collapsed);return;}
-    FText Copy=Localized(Key,FText::GetEmpty());if(PreviewState==TEXT("ControlsLongText")) Copy=FText::Format(FText::AsCultureInvariant(TEXT("{0}\n{0}\n{0}")),Copy);
+    using MCHubFishingPresentation::EHint;
+    FText Copy;
+    if(PreviewState==TEXT("FishingControls") || PreviewState==TEXT("ControlsLongText"))
+        Copy=MCHubFishingPresentation::ResolveHint(GetResolvedTranslationTable(),EHint::Cast,PreviewCulture);
+    else if(PreviewState==TEXT("FishingWaiting"))
+        Copy=MCHubFishingPresentation::ResolveHint(GetResolvedTranslationTable(),EHint::Wait,PreviewCulture);
+    else if(PreviewState==TEXT("FishingHooked")) Copy=Localized(TEXT("hub.fishing.hooked"),FText::GetEmpty());
+    else if(PreviewState==TEXT("BasketballControls")) Copy=Localized(TEXT("hub.basketball.controls"),FText::GetEmpty());
+    else if(PreviewState==TEXT("BasketballPickup")) Copy=Localized(TEXT("hub.basketball.pickup"),FText::GetEmpty());
+    else {Bounds->SetVisibility(ESlateVisibility::Collapsed);return;}
+    if(PreviewState==TEXT("ControlsLongText")) Copy=FText::Format(FText::AsCultureInvariant(TEXT("{0}\n{0}\n{0}")),Copy);
     Hint->SetText(Copy);FVector2D Area=GetPaintSpaceGeometry().GetLocalSize();if(Area.X<1 || Area.Y<1) Area=FVector2D(1280,720);
     const float Width=FMath::Max(240.f,FMath::Min(1100.f,float(Area.X)-48));Bounds->SetWidthOverride(Width);Bounds->SetMaxDesiredHeight(FMath::Max(120.f,float(Area.Y)*.45f));
     Hint->SetWrapTextAt(FMath::Max(100.f,Width-44));Bounds->SetVisibility(ESlateVisibility::SelfHitTestInvisible);

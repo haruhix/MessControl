@@ -35,6 +35,25 @@ bool ValidCoinReward(const FMCGrillRewardRow& Row)
         && Row.MinimumCoins>=0 && Row.MaximumCoins>=Row.MinimumCoins && Row.MaximumCoins<=1000000
         && (Row.MinimumCoins!=0 || Row.MaximumCoins==0);
 }
+bool ValidGrillReceipt(const FMCGrillReward& Reward)
+{
+    if(!Reward.RollID.IsValid() || Reward.Coins<0) return false;
+    if(Reward.bCatalogGrant) {
+        if(Reward.Kind!=EMCGrillRewardKind::CatalogItem || Reward.CatalogItem.IsNone() || Reward.Quantity<1 || Reward.Quantity>32) return false;
+        const auto& Purchase=Reward.GrantedPurchase;
+        if(Reward.bConvertedDuplicate) return Reward.GrantedCosmeticID.IsNone() && Purchase.PerkID.IsNone();
+        if(Reward.Coins!=0) return false;
+        if(!Reward.GrantedCosmeticID.IsNone()) return Reward.Quantity==1 && Purchase.PerkID.IsNone();
+        const bool bActiveSlot=Purchase.DestinationSlot>=0 && Purchase.DestinationSlot<4;
+        return !Purchase.PerkID.IsNone() && Purchase.CatalogID==Reward.CatalogItem && Purchase.InstanceID==Reward.RollID
+            && (Purchase.DestinationSlot==INDEX_NONE || bActiveSlot)
+            && (Purchase.Charges==INDEX_NONE || (bActiveSlot && Purchase.Charges>0 && Purchase.Charges<=10000));
+    }
+    if(Reward.Kind==EMCGrillRewardKind::Trash) return Reward.Coins==0;
+    if(Reward.ReelSymbols.Num()!=3 || Reward.ReelSymbols.Contains(NAME_None)) return false;
+    if(Reward.Kind==EMCGrillRewardKind::CatalogItem) return Reward.Quantity>=1 && Reward.Quantity<=32;
+    return Reward.Kind==EMCGrillRewardKind::Coins && Reward.Coins<=1000000;
+}
 FGuid LegacyPurchaseIdentity(FName PerkID)
 {
     // Unlike a FName index/hash, the textual ID has a stable identity after save/reconnect.
@@ -381,6 +400,9 @@ bool UMCHubEconomyComponent::CanPurchase(FName ItemID,FText& Error) const
 {
     Error=FText::GetEmpty();
     if(!IsGatheringHub()) {Error=LOCTEXT("HubOnly","Покупки доступны в хабе.");return false;}
+    if(PendingRoll.bCatalogGrant && !PendingRoll.bConvertedDuplicate) {
+        Error=LOCTEXT("WaitForSlotReward","Дождись выдачи приза из автомата.");return false;
+    }
     const auto* Item=FindCatalogItem(ItemID);
     if(!Item || !Item->bInShop || !IsCatalogUsable(*Item) || ((Item->Kind!=EMCHubCatalogKind::Cosmetic || UsesCanonicalClothingStock(*Item)) && !IsInShopStock(ItemID))) {
         Error=LOCTEXT("Unavailable","Предмет отсутствует в текущем ассортименте.");return false;
@@ -449,20 +471,103 @@ bool UMCHubEconomyComponent::TryEquipLoadout(const FMCCharacterCosmeticLoadout& 
     for (const auto& Slot:Loadout.Slots) if (!OwnsCosmetic(Slot.ItemId)) {Error=LOCTEXT("NotOwned","Этот аксессуар ещё не получен.");return false;}
     TGuardValue<bool> Guard(bMutating,true);EquippedLoadout=Loadout;NotifyChanged();return true;
 }
+bool UMCHubEconomyComponent::BuildGrillCatalogGrant(const FMCGrillRewardRow& Row,FMCGrillReward& Reward) const
+{
+    FMCHubEconomyCatalogEntry Entry;
+    if(Row.Quantity<1 || Row.Quantity>32 || !FindCatalogEntry(Row.CatalogItem,Entry)) return false;
+    const auto& Item=Entry.Definition;
+    const bool bCosmetic=Item.Kind==EMCHubCatalogKind::Cosmetic;
+    if(!bCosmetic && Item.PerkID.IsNone()) return false; // Retired consumables use the legacy receipt path only.
+    if(Row.Quantity!=1 && Entry.PerkKind!=EMCPerkKind::Consumable) return false;
+
+    Reward.bCatalogGrant=true;
+    Reward.CatalogItem=Row.CatalogItem;
+    Reward.Rarity=Item.Rarity;
+    Reward.Quantity=Row.Quantity;
+    Reward.bConvertedDuplicate=bCosmetic?OwnsCosmetic(Item.CosmeticID):QueuedStacks(Row.CatalogItem)>0;
+    if(Reward.bConvertedDuplicate) {
+        const int32 UnitPrice=Entry.bCanonicalClothing?Entry.BasePrice:Item.Price;
+        Reward.Coins=int32(FMath::Min<int64>(int64(UnitPrice)*Row.Quantity/10,MAX_int32));
+        return true;
+    }
+    if(!CanQueueItem(Row.CatalogItem,Item)) return false;
+    if(bCosmetic) {
+        Reward.GrantedCosmeticID=Item.CosmeticID;
+        return true;
+    }
+
+    auto& Purchase=Reward.GrantedPurchase;
+    Purchase.CatalogID=Row.CatalogItem;
+    Purchase.PerkID=Item.PerkID;
+    if(UsesActiveSlot(Entry.PerkKind)) {
+        // An unattended roll cannot replace an already prepared item.
+        Purchase.DestinationSlot=GetPendingActiveSlots().IndexOfByPredicate([](const FMCActiveSkillSlot& Slot){return Slot.PerkID.IsNone();});
+        if(Purchase.DestinationSlot==INDEX_NONE) return false;
+    }
+    if(Entry.PerkKind==EMCPerkKind::Consumable) {
+        FMCPerkDefinition Perk;
+        if(!ResolvePerk(Item.PerkID,Perk)) return false;
+        const int64 Charges=int64(Perk.InitialCharges)*Item.Quantity*Row.Quantity;
+        if(Charges<1 || Charges>10000) return false;
+        Purchase.Charges=int32(Charges);
+    }
+    return true;
+}
+TArray<UMCHubEconomyComponent::FGrillCandidate> UMCHubEconomyComponent::BuildGrillPool() const
+{
+    TArray<FGrillCandidate> Choices;
+    if(!LoadTables()) return Choices;
+    auto Names=LoadedRewards->GetRowNames();Names.Sort(FNameLexicalLess());
+    for(FName Name:Names) {
+        const auto* Row=LoadedRewards->FindRow<FMCGrillRewardRow>(Name,TEXT("Grill reward"),false);
+        if(!Row || !Row->bEnabled || !FMath::IsFinite(Row->Weight) || Row->Weight<=0 || Row->Weight>1000000) continue;
+        FMCGrillReward Reward;
+        Reward.Kind=Row->Kind;
+        Reward.Rarity=Row->Rarity;
+        Reward.ReelSymbols=Row->ReelSymbols;
+        switch(Row->Kind) {
+        case EMCGrillRewardKind::Coins:
+            if(!ValidCoinReward(*Row)) continue;
+            Reward.Coins=Row->MinimumCoins;
+            break;
+        case EMCGrillRewardKind::CatalogItem:
+            if(!BuildGrillCatalogGrant(*Row,Reward)) continue;
+            break;
+        case EMCGrillRewardKind::Trash:
+            break;
+        default:
+            continue;
+        }
+        Choices.Add(FGrillCandidate{MoveTemp(Reward),Row});
+    }
+    return Choices;
+}
+TArray<FMCGrillReward> UMCHubEconomyComponent::GetGrillPreviewPool() const
+{
+    TArray<FMCGrillReward> Pool;
+    for(auto& Choice:BuildGrillPool()) Pool.Add(MoveTemp(Choice.Reward));
+    return Pool;
+}
 bool UMCHubEconomyComponent::SelectGrillReward(FMCGrillReward& Reward,FText& Error) const
 {
     if(!LoadTables()) {Error=LOCTEXT("MissingData","Таблицы экономики ещё не подготовлены.");return false;}
-    TArray<const FMCGrillRewardRow*> Choices;double TotalWeight=0;
-    auto Names=LoadedRewards->GetRowNames();Names.Sort(FNameLexicalLess());
-    for(FName Name:Names) if(const auto* Row=LoadedRewards->FindRow<FMCGrillRewardRow>(Name,TEXT("Grill reward"),false);Row && ValidCoinReward(*Row)) {
-        Choices.Add(Row);TotalWeight+=Row->Weight;
+    const auto Choices=BuildGrillPool();
+    if(Choices.IsEmpty()) {Error=LOCTEXT("EmptyRollPool","В таблице нет доступных призов.");return false;}
+    double TotalWeight=0;
+    for(const auto& Choice:Choices) TotalWeight+=Choice.Row->Weight;
+    const FGuid Receipt=FGuid::NewGuid();
+    FRandomStream Random(int32(GetTypeHash(Receipt)));
+    double Pick=Random.FRand()*TotalWeight;
+    const FGrillCandidate* Selected=&Choices.Last();
+    for(const auto& Choice:Choices) {
+        Pick-=Choice.Row->Weight;
+        if(Pick<0) {Selected=&Choice;break;}
     }
-    if(Choices.IsEmpty() || !FMath::IsFinite(TotalWeight) || TotalWeight<=0) {Error=LOCTEXT("EmptyRollPool","В таблице нет допустимых денежных наград.");return false;}
-    Reward=FMCGrillReward();Reward.RollID=FGuid::NewGuid();FRandomStream Random(int32(GetTypeHash(Reward.RollID)));
-    double Pick=Random.FRand()*TotalWeight;const auto* Selected=Choices.Last();
-    for(const auto* Row:Choices) {Pick-=Row->Weight;if(Pick<0){Selected=Row;break;}}
-    Reward.Kind=EMCGrillRewardKind::Coins;Reward.Rarity=Selected->Rarity;Reward.ReelSymbols=Selected->ReelSymbols;
-    Reward.Coins=Random.RandRange(Selected->MinimumCoins,Selected->MaximumCoins);return true;
+    Reward=Selected->Reward;
+    Reward.RollID=Receipt;
+    if(Reward.Kind==EMCGrillRewardKind::Coins) Reward.Coins=Random.RandRange(Selected->Row->MinimumCoins,Selected->Row->MaximumCoins);
+    if(!Reward.GrantedPurchase.PerkID.IsNone()) Reward.GrantedPurchase.InstanceID=Receipt;
+    return true;
 }
 bool UMCHubEconomyComponent::BeginGrillRoll(FGuid& Receipt,FMCGrillReward& Preview,FText& Error)
 {
@@ -486,17 +591,27 @@ int32 UMCHubEconomyComponent::CreditObjectiveCoins(int32 Amount)
 }
 bool UMCHubEconomyComponent::CompleteGrillRoll(const FGuid& Receipt)
 {
-    if(!IsAuthority() || bMutating || !Receipt.IsValid() || PendingRoll.RollID!=Receipt) return false;
+    if(!IsAuthority() || bMutating || PendingRoll.RollID!=Receipt || !ValidGrillReceipt(PendingRoll)) return false;
     TGuardValue<bool> Guard(bMutating,true);FMCGrillReward Reward=PendingRoll;
-    if(Reward.Kind==EMCGrillRewardKind::CatalogItem) {
+    if(Reward.bCatalogGrant) {
+        if(Reward.bConvertedDuplicate) {
+            const int32 Before=Coins;
+            AddCoinsClamped(Reward.Coins);
+            Reward.Coins=FMath::Max(0,Coins-Before);
+        } else if(!Reward.GrantedCosmeticID.IsNone()) {
+            OwnedCosmetics.AddUnique(Reward.GrantedCosmeticID);
+        } else {
+            PendingPurchases.Add(Reward.GrantedPurchase);
+        }
+    } else if(Reward.Kind==EMCGrillRewardKind::CatalogItem) {
         const auto* Item=FindCatalogItem(Reward.CatalogItem);
         // Old accepted receipts remain valuable. Unknown IDs are quarantined without inventing a price.
         if(!Item || Item->DuplicateCoins<0 || Reward.Quantity<1 || Reward.Quantity>32) {RefreshMigrationNotice();NotifyChanged();return false;}
         Reward.bConvertedDuplicate=true;Reward.Kind=EMCGrillRewardKind::Coins;
         Reward.Coins=int32(FMath::Clamp<int64>(int64(Item->DuplicateCoins)*Reward.Quantity,0,MAX_int32));
     }
-    if(Reward.Kind!=EMCGrillRewardKind::Coins || Reward.Coins<0) return false;
-    AddCoinsClamped(Reward.Coins);PendingRoll=FMCGrillReward();LastGrillReward=MoveTemp(Reward);
+    if(Reward.Kind==EMCGrillRewardKind::Coins) AddCoinsClamped(Reward.Coins);
+    PendingRoll=FMCGrillReward();LastGrillReward=MoveTemp(Reward);
     RefreshMigrationNotice();NotifyChanged();return true;
 }
 bool UMCHubEconomyComponent::CancelGrillRoll(const FGuid& Receipt)
@@ -513,7 +628,8 @@ void UMCHubEconomyComponent::RefreshMigrationNotice()
         UnappliedLegacy-=Purchase.Charges>0?Purchase.Charges:1;
     int32 InvalidNew=0;for(const auto& Purchase:PendingPurchases)
         if(!Plan.ContainsByPredicate([&](const auto& P){return P.InstanceID==Purchase.InstanceID;})) ++InvalidNew;
-    const bool UnknownReceipt=PendingRoll.RollID.IsValid() && PendingRoll.Kind==EMCGrillRewardKind::CatalogItem && !FindCatalogItem(PendingRoll.CatalogItem);
+    const bool UnknownReceipt=PendingRoll.RollID.IsValid() && PendingRoll.Kind==EMCGrillRewardKind::CatalogItem
+        && !PendingRoll.bCatalogGrant && !FindCatalogItem(PendingRoll.CatalogItem);
     if(UnknownReceipt) MigrationNotice=LOCTEXT("LegacyReceiptQuarantined","Старая награда сохранена, но её ID отсутствует в каталоге. Нужна проверка таблицы; монеты и покупки сохранены.");
     else if(UnappliedLegacy>0 || InvalidNew>0) MigrationNotice=LOCTEXT("LegacyPurchasesRetained","Часть прежних покупок пока не применена. Они сохранены до проверки совместимости или свободного слота.");
     else MigrationNotice=FText::GetEmpty();
@@ -541,12 +657,7 @@ bool UMCHubEconomyComponent::ImportSave(const FMCHubEconomySaveData& Data,FText&
         if(!Row || !Row->bDefaultUnlocked) {Error=LOCTEXT("InvalidOwnedLoadout","В сохранении нет выбранного аксессуара.");return false;}
     }
     // Unknown legacy IDs do not invalidate an otherwise readable wallet/profile.
-    if(Data.PendingGrillReward.RollID.IsValid()) {
-        const auto& Pending=Data.PendingGrillReward;
-        if(Pending.ReelSymbols.Num()!=3 || Pending.ReelSymbols.Contains(NAME_None)) return false;
-        if(Pending.Kind==EMCGrillRewardKind::CatalogItem) {if(Pending.Quantity<1 || Pending.Quantity>32) return false;}
-        else if(Pending.Kind!=EMCGrillRewardKind::Coins || Pending.Coins<0 || Pending.Coins>1000000) return false;
-    }
+    if(Data.PendingGrillReward.RollID.IsValid() && !ValidGrillReceipt(Data.PendingGrillReward)) return false;
     {
         TGuardValue<bool> Guard(bMutating,true);
         Coins=FMath::Clamp(Data.Coins,0,FMath::Clamp(Rules.MaximumCoins,1,MAX_int32));OwnedCosmetics=MoveTemp(ValidOwned);

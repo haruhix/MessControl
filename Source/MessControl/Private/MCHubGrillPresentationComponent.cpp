@@ -8,11 +8,12 @@
 #include "MCToothCharacter.h"
 #include "MCFishingRodComponent.h"
 #include "Blueprint/WidgetTree.h"
+#include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
-#include "Components/Image.h"
 #include "Components/SizeBox.h"
+#include "Components/Spacer.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
@@ -21,49 +22,77 @@
 #include "Components/WidgetSwitcherSlot.h"
 #include "Fonts/FontMeasure.h"
 #include "Framework/Application/SlateApplication.h"
+#include "Internationalization/Culture.h"
+#include "Internationalization/Internationalization.h"
+#include "Layout/Clipping.h"
+#include "Rendering/DrawElements.h"
 #include "Rendering/SlateRenderer.h"
+#include "Styling/CoreStyle.h"
 #include "Widgets/SWidget.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/DataTable.h"
 #include "Engine/World.h"
 #include "GameFramework/GameStateBase.h"
-#include "Materials/MaterialInstanceDynamic.h"
-#include "Materials/MaterialInterface.h"
+#include "Engine/Texture2D.h"
 #include "Kismet/GameplayStatics.h"
 
 #define LOCTEXT_NAMESPACE "MCHubGrillHologram"
 
-namespace
+namespace MCGrillStrip
 {
-float ReelFrontV(float PhysicalAngle)
+constexpr float Width=680.f;
+constexpr float Height=133.f;
+constexpr float ShellWidth=Width+30.f;
+constexpr float CurrentHeight=226.f;
+constexpr float CardWidth=116.f;
+constexpr float CardGap=9.f;
+constexpr int32 FirstCard=3;
+constexpr int32 WinningCard=27;
+constexpr int32 CardCount=WinningCard+4;
+
+const FSlateRoundedBoxBrush Rail{FLinearColor::White,10.f};
+const FSlateRoundedBoxBrush CardFace{FLinearColor::White,8.f};
+const FSlateRoundedBoxBrush Marker{FLinearColor::White,1.f};
+const FLinearColor Background{FColor::FromHex(TEXT("151F40"))};
+const FLinearColor Paper{FColor::FromHex(TEXT("FFFDFD"))};
+const FLinearColor Gold{FColor::FromHex(TEXT("FFDA49"))};
+
+USizeBox* InstallSlot(UWidgetTree* Tree,UHorizontalBox* Row,FName Name)
 {
-    // SM_Roulette_1 has 22 flat facets and a padded atlas seam, not a full
-    // 0..1 cylindrical UV. Intersect the visible +Y ray with the actual facet.
-    constexpr float V[]={.00560379028f,.05053710938f,.09552001953f,.14038085938f,
-        .18542480469f,.23034667969f,.275390625f,.3203125f,.365234375f,.41015625f,
-        .455078125f,.5f,.544921875f,.58984375f,.634765625f,.6796875f,.724609375f,
-        .76953125f,.814453125f,.859375f,.904296875f,.94970703125f,.99462890625f};
-    const float Wrapped=FMath::Fmod(FMath::Fmod(PhysicalAngle,360.f)+360.f,360.f);
-    const float Facet=(1.f-Wrapped/360.f)*22.f;
-    const int32 I=FMath::Clamp(FMath::FloorToInt(Facet),0,21);
-    const float F=Facet-I,Step=UE_TWO_PI/22.f;
-    const float A=FMath::Sin(F*Step),B=FMath::Sin((1.f-F)*Step);
-    return FMath::Lerp(V[I],V[I+1],A/FMath::Max(A+B,UE_SMALL_NUMBER));
+    if(!Row) return nullptr;
+    if(auto* Existing=Cast<USizeBox>(Tree->FindWidget(Name));Existing && Existing->GetParent()==Row) return Existing;
+    Row->ClearChildren();
+    auto* Slot=Tree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),Name);
+    Slot->SetWidthOverride(Width);Slot->SetHeightOverride(Height);
+    Slot->SetContent(Tree->ConstructWidget<USpacer>());
+    Slot->SetVisibility(ESlateVisibility::HitTestInvisible);
+    Row->AddChildToHorizontalBox(Slot);
+    return Slot;
+}
+
+FLinearColor RarityColor(EMCHubItemRarity Rarity,bool bTrash)
+{
+    if(bTrash) return FLinearColor(FColor::FromHex(TEXT("8E98AE")));
+    switch(Rarity) {
+    case EMCHubItemRarity::Rare: return FLinearColor(FColor::FromHex(TEXT("5586FF")));
+    case EMCHubItemRarity::Epic: return FLinearColor(FColor::FromHex(TEXT("B763FD")));
+    case EMCHubItemRarity::Legendary: return FLinearColor(FColor::FromHex(TEXT("FFC14F")));
+    default: return FLinearColor(FColor::FromHex(TEXT("7EC3E4")));
+    }
 }
 }
 
 UMCHubGrillHologramWidget::UMCHubGrillHologramWidget(const FObjectInitializer& Initializer):Super(Initializer)
 {
     bUseVersionedWorldPresentation=true;
-    ReelMaterial=TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/Gameplay/Hub/Economy/M_GrillHologramReel.M_GrillHologramReel")));
 }
 void UMCHubGrillHologramWidget::BuildPresentationTree()
 {
     if(!WidgetTree) return;
     if(WidgetTree->RootWidget) {ResolveControls();BuildWorldPresentationTree();return;}
     auto* Size=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("HologramDesignSize"));
-    Size->SetWidthOverride(390);Size->SetHeightOverride(190);WidgetTree->RootWidget=Size;
+    Size->SetWidthOverride(MCGrillStrip::ShellWidth);Size->SetHeightOverride(MCGrillStrip::CurrentHeight);WidgetTree->RootWidget=Size;
     HologramPanel=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("HologramPanel"));
     HologramPanel->SetPadding(FMargin(13,8));Size->SetContent(HologramPanel);
     auto* Column=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("HologramContent"));HologramPanel->SetContent(Column);
@@ -72,12 +101,6 @@ void UMCHubGrillHologramWidget::BuildPresentationTree()
     Column->AddChildToVerticalBox(HologramTitle)->SetPadding(FMargin(0,0,0,5));
     auto* Row=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("HologramReels"));
     Column->AddChildToVerticalBox(Row)->SetHorizontalAlignment(HAlign_Center);
-    for(int32 I=0;I<3;++I) {
-        auto* Frame=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),FName(*FString::Printf(TEXT("HologramReelFrame%d"),I)));
-        Frame->SetPadding(FMargin(3));auto* ReelSlot=Row->AddChildToHorizontalBox(Frame);ReelSlot->SetPadding(FMargin(4,0));
-        auto* Box=WidgetTree->ConstructWidget<USizeBox>();Box->SetWidthOverride(102);Box->SetHeightOverride(102);Frame->SetContent(Box);
-        auto* Reel=WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(),FName(*FString::Printf(TEXT("HologramReel%d"),I)));Box->SetContent(Reel);
-    }
     HologramReward=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("HologramReward"));
     HologramReward->SetJustification(ETextJustify::Center);HologramReward->SetAutoWrapText(true);
     Column->AddChildToVerticalBox(HologramReward)->SetPadding(FMargin(0,5,0,0));
@@ -89,28 +112,19 @@ void UMCHubGrillHologramWidget::ResolveControls()
     HologramPanel=Cast<UBorder>(WidgetTree->FindWidget(TEXT("HologramPanel")));
     HologramTitle=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HologramTitle")));
     HologramReward=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HologramReward")));
-    Reels.Reset();for(int32 I=0;I<3;++I) Reels.Add(Cast<UImage>(WidgetTree->FindWidget(FName(*FString::Printf(TEXT("HologramReel%d"),I)))));
-}
-void UMCHubGrillHologramWidget::PrepareMaterials()
-{
-    ResolveControls();if(ReelMaterials.Num()==3) {BindWorldReelBrushes();return;}
-    auto* Material=ReelMaterial.LoadSynchronous();if(!Material) return;
-    ReelMaterials.Reset();for(UImage* Reel:Reels) {
-        auto* MID=UMaterialInstanceDynamic::Create(Material,this);ReelMaterials.Add(MID);
-        MID->SetScalarParameterValue(TEXT("ScanlineStrength"),ScanlineStrength);
-        MID->SetScalarParameterValue(TEXT("ColorSeparation"),ColorSeparation);
-        if(Reel) Reel->SetBrushFromMaterial(MID);
+    if(!HologramReelSlot) {
+        if(auto* Size=WidgetTree->FindWidget<USizeBox>(TEXT("HologramDesignSize"))) {
+            Size->SetWidthOverride(MCGrillStrip::ShellWidth);Size->SetHeightOverride(MCGrillStrip::CurrentHeight);
+        }
+        HologramReelSlot=MCGrillStrip::InstallSlot(WidgetTree,WidgetTree->FindWidget<UHorizontalBox>(TEXT("HologramReels")),TEXT("HologramReelSlot"));
     }
-    BindWorldReelBrushes();
 }
 void UMCHubGrillHologramWidget::SetStation(AMCHubGrillStation* Station)
-{Source=Station;bPreview=false;BuildPresentationTree();ApplyTheme();PrepareMaterials();TickPresentation(0);}
+{Source=Station;BuildPresentationTree();ApplyTheme();TickPresentation(0);}
 void UMCHubGrillHologramWidget::ApplyTheme()
 {
     BuildPresentationTree();ResolveControls();Super::ApplyTheme();const auto* ResolvedTheme=GetResolvedTheme();if(!ResolvedTheme || !WidgetTree) return;
     const auto& P=ResolvedTheme->Palette;MCUIVisualStyle::Panel(HologramPanel,ResolvedTheme,P.Backdrop.CopyWithNewOpacity(.77f));
-    for(int32 I=0;I<3;++I) if(auto* Frame=Cast<UBorder>(WidgetTree->FindWidget(FName(*FString::Printf(TEXT("HologramReelFrame%d"),I)))))
-        MCUIVisualStyle::Panel(Frame,ResolvedTheme,P.Marine.CopyWithNewOpacity(.85f));
     for(auto* Label:{HologramTitle.Get(),HologramReward.Get()}) if(Label) {
         Label->SetFont(ResolvedTheme->MakeGameplayFont(18,true));Label->SetColorAndOpacity(P.Cream);
     }
@@ -119,54 +133,69 @@ void UMCHubGrillHologramWidget::ApplyTheme()
     MCWorldUIShapes::TextStyle(NewHologramReward,NewTheme,18,EMCUIColorToken::Marine);
     if(NewHologramTitle) NewHologramTitle->SetColorAndOpacity(FLinearColor(FColor::FromHex(TEXT("AE4C6C"))));
     if(NewHologramReward) NewHologramReward->SetColorAndOpacity(FLinearColor(FColor::FromHex(TEXT("16226B"))));
-    bHasNewCaptionMetrics=false;bWorldFontsPrepared=false;bCatalogNamesPrepared=false;PrimeWorldPresentationFonts();RefreshWorldPresentation();
+    CardFont=ResolvedTheme->MakeGameplayFont(14,true);
+    PreparedEconomy.Reset();bHasNewCaptionMetrics=false;bWorldFontsPrepared=false;PrimeWorldPresentationFonts();RefreshWorldPresentation();
 }
 void UMCHubGrillHologramWidget::TickPresentation(float DeltaSeconds)
 {
-    RefreshWorldPresentationSelection();PrimeWorldPresentationFonts();PrepareMaterials();const auto* Grill=Source.Get();if(!Grill) {RefreshWorldPresentation();return;}
-    const auto Angles=Grill->GetReelDisplayAngles();
-    for(int32 I=0;I<3 && I<ReelMaterials.Num();++I) if(ReelMaterials[I]) {
-        // The physical head's aperture is angled above +Y. Its measured
-        // per-reel alignment is included in the physical stop; remove that
-        // alignment to sample the same fixed window centre in the atlas.
-        const float Alignment=Grill->ReelAngleOffsets.IsValidIndex(I)?Grill->ReelAngleOffsets[I]:0.f;
-        const float V=ReelFrontV((Angles.IsValidIndex(I)?Angles[I]:0.f)-Alignment);
-        ReelMaterials[I]->SetScalarParameterValue(TEXT("VCenter"),V);
-    }
+    RefreshWorldPresentationSelection();PrimeWorldPresentationFonts();
+    const auto* Grill=Source.Get();if(!Grill) {RefreshWorldPresentation();return;}
+    const auto* PS=GetOwningPlayer()?GetOwningPlayer()->GetPlayerState<AMCPlayerState>():nullptr;
+    const auto* Economy=PS?PS->Economy.Get():nullptr;
+    RefreshReel(*Grill,Economy);
     if(HologramTitle) HologramTitle->SetText(Grill->Stage==EMCHubGrillStage::Rolling?Localized(TEXT("UI.Grill.Rolling"),LOCTEXT("Rolling","КРУТИМ…")):
         Grill->Stage==EMCHubGrillStage::Closing?Localized(TEXT("UI.Grill.Accepted"),LOCTEXT("Cooking","РЫБА ПРИНЯТА")):
-        Grill->CurrentReward.RollID.IsValid()?Localized(TEXT("UI.Grill.Combination"),LOCTEXT("Combination","ВАША КОМБИНАЦИЯ")):
+        bResultCentered?GrillText(TEXT("UI.Grill.Result"),TEXT("ВАШ РЕЗУЛЬТАТ"),TEXT("YOUR RESULT")):
             Localized(TEXT("UI.Grill.Idle"),LOCTEXT("Idle","1 РЫБА · 1 ПОПЫТКА")));
     if(HologramReward) {
-        const bool Finished=Grill->CurrentReward.RollID.IsValid() && Grill->Stage!=EMCHubGrillStage::Closing && Grill->Stage!=EMCHubGrillStage::Rolling;
-        if(!Finished) HologramReward->SetText(FText::GetEmpty());
-        else if(Grill->CurrentReward.Kind==EMCGrillRewardKind::Coins)
-            HologramReward->SetText(Grill->CurrentReward.Coins>0?
-                FText::Format(Localized(TEXT("UI.Grill.Coins"),LOCTEXT("Coins","+{0} монет")),FText::AsNumber(Grill->CurrentReward.Coins)):
-                Localized(TEXT("UI.Grill.NoPrize"),LOCTEXT("NoPrize","Без выигрыша · попробуй ещё")));
-        else {
-            FText Name=FText::FromName(Grill->CurrentReward.CatalogItem);
-            const auto* PS=GetOwningPlayer()?GetOwningPlayer()->GetPlayerState<AMCPlayerState>():nullptr;
-            if(PS && PS->Economy) if(const auto* Item=PS->Economy->FindCatalogItem(Grill->CurrentReward.CatalogItem)) Name=Localized(Item->DisplayNameKey,Item->DisplayName);
-            HologramReward->SetText(FText::Format(Localized(TEXT("UI.Grill.Item"),LOCTEXT("Item","{0} ×{1}")),Name,FText::AsNumber(Grill->CurrentReward.Quantity)));
+        const FMCGrillReward& Reward=Grill->CurrentReward;
+        const bool bTrash=Reward.Kind==EMCGrillRewardKind::Trash || (Reward.Kind==EMCGrillRewardKind::Coins && Reward.Coins<=0 && !Reward.bConvertedDuplicate);
+        FText Result;
+        if(bResultCentered) {
+            const FText Name=ReelCards.IsValidIndex(MCGrillStrip::WinningCard)?ReelCards[MCGrillStrip::WinningCard].Caption:FText::FromName(Reward.CatalogItem);
+            if(Reward.bConvertedDuplicate) Result=FText::Format(GrillText(TEXT("UI.Grill.Duplicate"),TEXT("ДУБЛИКАТ · {0} · +{1} монет"),TEXT("DUPLICATE · {0} · +{1} coins")),
+                Name,FText::AsNumber(Reward.Coins));
+            else if(bTrash) Result=GrillText(TEXT("UI.Grill.Trash"),TEXT("МУСОР · БЕЗ НАГРАДЫ"),TEXT("TRASH · NO REWARD"));
+            else if(Reward.Kind==EMCGrillRewardKind::Coins)
+                Result=FText::Format(Localized(TEXT("UI.Grill.Coins"),LOCTEXT("Coins","+{0} монет")),FText::AsNumber(Reward.Coins));
+            else Result=FText::Format(Localized(TEXT("UI.Grill.Item"),LOCTEXT("Item","{0} ×{1}")),Name,FText::AsNumber(Reward.Quantity));
         }
-        if(const auto* ResolvedTheme=GetResolvedTheme()) HologramReward->SetColorAndOpacity(!Finished?ResolvedTheme->Palette.Cream:
-            Grill->CurrentReward.Kind==EMCGrillRewardKind::Coins && Grill->CurrentReward.Coins==0?ResolvedTheme->Palette.Warning:ResolvedTheme->Palette.Mint);
+        if(!HologramReward->GetText().EqualTo(Result)) HologramReward->SetText(Result);
+        if(const auto* ResolvedTheme=GetResolvedTheme()) HologramReward->SetColorAndOpacity(bTrash?ResolvedTheme->Palette.Warning:ResolvedTheme->Palette.Mint);
     }
     RefreshWorldPresentation();
 }
 void UMCHubGrillHologramWidget::ApplyEditorPreview(float Time)
 {
     if(!IsDesignTime()) {BuildPresentationTree();ApplyTheme();TickPresentation(0);return;}
-    bPreview=true;BuildPresentationTree();Super::ApplyEditorPreview(Time);PrepareMaterials();
-    for(int32 I=0;I<ReelMaterials.Num();++I) if(ReelMaterials[I]) ReelMaterials[I]->SetScalarParameterValue(TEXT("VCenter"),FMath::Frac(.06f+Time*.7f+I*.11f));
+    BuildPresentationTree();Super::ApplyEditorPreview(Time);
+    FReelCard PreviewCards[]={
+        {GrillText(TEXT("UI.Grill.Card.Coins"),TEXT("МОНЕТЫ"),TEXT("COINS")),{},ECardIcon::Coin,EMCHubItemRarity::Rare},
+        {GrillText(TEXT("UI.Grill.Card.Clothing"),TEXT("ОДЕЖДА"),TEXT("CLOTHING")),{},ECardIcon::Clothing,EMCHubItemRarity::Epic},
+        {GrillText(TEXT("UI.Grill.Card.Perk"),TEXT("ПЕРК"),TEXT("PERK")),{},ECardIcon::Perk,EMCHubItemRarity::Rare},
+        {GrillText(TEXT("UI.Grill.Card.Booster"),TEXT("БУСТЕР"),TEXT("BOOSTER")),{},ECardIcon::Booster,EMCHubItemRarity::Legendary},
+        {GrillText(TEXT("UI.Grill.Card.Trash"),TEXT("МУСОР"),TEXT("TRASH")),{},ECardIcon::Trash}
+    };
+    for(auto& Card:PreviewCards) PrepareCardText(Card);
+    ReelCards.Reset(MCGrillStrip::CardCount);
+    for(int32 Index=0;Index<MCGrillStrip::CardCount;++Index) ReelCards.Add(PreviewCards[Index%UE_ARRAY_COUNT(PreviewCards)]);
+    bResultCentered=PreviewState==TEXT("NoPrize") || PreviewState==TEXT("Duplicate");
+    ReelCursor=bResultCentered?float(MCGrillStrip::WinningCard):
+        FMath::Lerp(float(MCGrillStrip::FirstCard),float(MCGrillStrip::WinningCard),1.f-FMath::Pow(1.f-FMath::Clamp(Time/2.f,0.f,1.f),3.f));
     if(HologramTitle) HologramTitle->SetText(Localized(TEXT("UI.Grill.Rolling"),LOCTEXT("Rolling","КРУТИМ…")));
-    if(HologramReward) HologramReward->SetText(FText::Format(Localized(TEXT("UI.Grill.Coins"),LOCTEXT("Coins","+{0} монет")),FText::AsNumber(25)));
+    if(HologramReward) HologramReward->SetText(FText::GetEmpty());
     if(PreviewState==TEXT("Idle")) {
+        ReelCursor=MCGrillStrip::FirstCard;
         if(HologramTitle) HologramTitle->SetText(Localized(TEXT("UI.Grill.Idle"),LOCTEXT("Idle","1 РЫБА · 1 ПОПЫТКА")));
-        if(HologramReward) HologramReward->SetText(FText::GetEmpty());
-    } else if(PreviewState==TEXT("NoPrize") && HologramReward)
-        HologramReward->SetText(Localized(TEXT("UI.Grill.NoPrize"),LOCTEXT("NoPrize","Без выигрыша · попробуй ещё")));
+    } else if(bResultCentered) {
+        const bool bTrash=PreviewState==TEXT("NoPrize");
+        ReelCards[MCGrillStrip::WinningCard]=PreviewCards[bTrash?4:1];
+        if(HologramTitle) HologramTitle->SetText(GrillText(TEXT("UI.Grill.Result"),TEXT("ВАШ РЕЗУЛЬТАТ"),TEXT("YOUR RESULT")));
+        if(HologramReward) HologramReward->SetText(bTrash?GrillText(TEXT("UI.Grill.Trash"),TEXT("МУСОР · БЕЗ НАГРАДЫ"),TEXT("TRASH · NO REWARD")):
+            FText::Format(GrillText(TEXT("UI.Grill.Duplicate"),TEXT("ДУБЛИКАТ · {0} · +{1} монет"),TEXT("DUPLICATE · {0} · +{1} coins")),
+                PreviewCards[1].Caption,FText::AsNumber(4)));
+    }
+    Invalidate(EInvalidateWidgetReason::Paint);
     RefreshWorldPresentation();
 }
 
@@ -183,8 +212,8 @@ void UMCHubGrillHologramWidget::BuildWorldPresentationTree()
             NewPanel->CustomOutline=OutlineColor;NewPanel->CustomShadow=OutlineColor;NewPanel->ShadowOffset=ShadowOffset;NewPanel->ApplyTheme();return NewPanel;
         };
         const FLinearColor Blue(FColor::FromHex(TEXT("4C76AE"))),Navy(FColor::FromHex(TEXT("16226B")));
-        const FLinearColor Paper(FColor::FromHex(TEXT("FFFDFD"))),Dark(FColor::FromHex(TEXT("404243")));
-        NewRoot=MCWorldUIShapes::Bounds(WidgetTree,TEXT("WorldGrillV2Root"),390,190);
+        const FLinearColor Paper(FColor::FromHex(TEXT("FFFDFD")));
+        NewRoot=MCWorldUIShapes::Bounds(WidgetTree,TEXT("WorldGrillV2Root"),MCGrillStrip::ShellWidth,190);
         auto* Shell=Shape(TEXT("WorldGrillV2Panel"),Blue,FMargin(14,10,14,14),Navy,FVector2D(4,5));NewRoot->SetContent(Shell);
         auto* Body=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("WorldGrillV2Body"));Shell->SetContentForSlot(TEXT("Content"),Body);
         auto* HeadingPlate=Shape(TEXT("WorldGrillV2TitlePlate"),Paper,FMargin(10,6),Navy,FVector2D::ZeroVector);
@@ -192,27 +221,18 @@ void UMCHubGrillHologramWidget::BuildWorldPresentationTree()
         auto* Heading=MCWorldUIShapes::Text(WidgetTree,TEXT("WorldGrillV2Title"),342);Heading->SetAutoWrapText(false);HeadingPlate->SetContentForSlot(TEXT("Content"),Heading);
         auto* ReelRow=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("WorldGrillV2Reels"));
         Body->AddChildToVerticalBox(ReelRow)->SetHorizontalAlignment(HAlign_Center);
-        for(int32 ReelIndex=0;ReelIndex<3;++ReelIndex) {
-            auto* ReelFrame=Shape(FName(*FString::Printf(TEXT("WorldGrillV2ReelFrame%d"),ReelIndex)),Dark,FMargin(3),Paper,FVector2D(0,3));
-            auto* ReelCell=ReelRow->AddChildToHorizontalBox(ReelFrame);ReelCell->SetPadding(FMargin(4,0));
-            auto* ReelBounds=MCWorldUIShapes::Bounds(WidgetTree,FName(*FString::Printf(TEXT("WorldGrillV2ReelBounds%d"),ReelIndex)),102,102);ReelBounds->SetHeightOverride(102);
-            ReelFrame->SetContentForSlot(TEXT("Content"),ReelBounds);
-            auto* ReelImage=WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(),FName(*FString::Printf(TEXT("WorldGrillV2Reel%d"),ReelIndex)));ReelBounds->SetContent(ReelImage);
-        }
         auto* RewardPlate=Shape(TEXT("WorldGrillV2RewardPlate"),Paper,FMargin(10,7),Navy,FVector2D::ZeroVector);
         Body->AddChildToVerticalBox(RewardPlate)->SetPadding(FMargin(0,10,0,0));
         auto* RewardLabel=MCWorldUIShapes::Text(WidgetTree,TEXT("WorldGrillV2Reward"),342);RewardLabel->SetAutoWrapText(false);RewardPlate->SetContentForSlot(TEXT("Content"),RewardLabel);
     }
     ResolveWorldControls(NewRoot);
-    bool Complete=NewHologramRoot && NewHologramTitle && NewHologramReward && NewHologramRewardCard && NewHologramReels.Num()==3;
-    for(const auto& ReelImage:NewHologramReels) Complete&=ReelImage!=nullptr;
+    const bool Complete=NewHologramRoot && NewHologramTitle && NewHologramReward && NewHologramRewardCard && NewHologramReelSlot;
     if(!Complete) return; // Preserve a malformed authored source tree; never switch to an incomplete replacement.
     InstallWorldPresentation(NewRoot);
     if(auto* Versions=WidgetTree->FindWidget<UWidgetSwitcher>(TEXT("WorldPresentationVersions")))
         if(auto* CurrentRoot=Versions->GetWidgetAtIndex(0)) if(auto* CurrentCell=Cast<UWidgetSwitcherSlot>(CurrentRoot->Slot)) {
             CurrentCell->SetHorizontalAlignment(HAlign_Fill);CurrentCell->SetVerticalAlignment(VAlign_Fill);
         }
-    BindWorldReelBrushes();
 }
 void UMCHubGrillHologramWidget::ResolveWorldControls(UWidget* SearchRoot)
 {
@@ -231,18 +251,8 @@ void UMCHubGrillHologramWidget::ResolveWorldControls(UWidget* SearchRoot)
     NewHologramTitle=Cast<UTextBlock>(Find(TEXT("WorldGrillV2Title")));
     NewHologramReward=Cast<UTextBlock>(Find(TEXT("WorldGrillV2Reward")));
     NewHologramRewardCard=Cast<UMCUniversalUIWidget>(Find(TEXT("WorldGrillV2RewardPlate")));
-    NewHologramReels.Reset();
-    for(int32 ReelIndex=0;ReelIndex<3;++ReelIndex) NewHologramReels.Add(Cast<UImage>(Find(FName(*FString::Printf(TEXT("WorldGrillV2Reel%d"),ReelIndex)))));
-}
-void UMCHubGrillHologramWidget::BindWorldReelBrushes()
-{
-    // The original presenter owns and retains exactly three MIDs. New images read
-    // those same brushes, including any authored resource/tint, with no variants.
-    for(int32 ReelIndex=0;ReelIndex<NewHologramReels.Num() && ReelIndex<Reels.Num();++ReelIndex)
-        if(NewHologramReels[ReelIndex] && Reels[ReelIndex]) {
-            const FSlateBrush& SourceBrush=Reels[ReelIndex]->GetBrush();
-            if(!(NewHologramReels[ReelIndex]->GetBrush()==SourceBrush)) NewHologramReels[ReelIndex]->SetBrush(SourceBrush);
-        }
+    NewHologramReelSlot=Cast<USizeBox>(Find(TEXT("WorldGrillV2ReelSlot")));
+    if(!NewHologramReelSlot) NewHologramReelSlot=MCGrillStrip::InstallSlot(WidgetTree,Cast<UHorizontalBox>(Find(TEXT("WorldGrillV2Reels"))),TEXT("WorldGrillV2ReelSlot"));
 }
 void UMCHubGrillHologramWidget::RefreshWorldPresentation()
 {
@@ -253,9 +263,8 @@ void UMCHubGrillHologramWidget::RefreshWorldPresentation()
     if(!NewHologramTitle->GetText().EqualTo(TitleCopy)) NewHologramTitle->SetText(TitleCopy);
     if(!NewHologramReward->GetText().EqualTo(RewardCopy)) NewHologramReward->SetText(RewardCopy);
     if(NewHologramRewardCard) NewHologramRewardCard->SetVisibility(RewardCopy.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
-    BindWorldReelBrushes();RefreshWorldCaptionLayout();
-    // Keep Current presentation until the resident reel/font resources are ready.
-    // The same source widget and station remain alive; no second result/roll exists.
+    RefreshWorldCaptionLayout();
+    // Keep Current until the New tree and its fonts are prepared.
     if(!IsDesignTime() && GetWorldPresentationVersion()==EMCUIVersion::New && !HasPreparedNewPresentation())
         if(auto* Versions=WidgetTree->FindWidget<UWidgetSwitcher>(TEXT("WorldPresentationVersions"))) Versions->SetActiveWidgetIndex(0);
 }
@@ -268,7 +277,7 @@ void UMCHubGrillHologramWidget::RefreshWorldCaptionLayout()
     const FMargin OuterPadding=OuterPlate?OuterPlate->ContentPadding:FMargin(14,10,14,14);
     const FMargin HeadingPadding=HeadingPlate?HeadingPlate->ContentPadding:FMargin(10,6);
     const FMargin RewardPadding=NewHologramRewardCard?NewHologramRewardCard->ContentPadding:FMargin(10,7);
-    const float Maximum=FMath::Max(390.f,MaximumNewCaptionWidth);
+    const float Maximum=FMath::Max(MCGrillStrip::ShellWidth,MaximumNewCaptionWidth);
     const float PaintScale=GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale();
     const float FontScale=FMath::IsFinite(PaintScale) && PaintScale>UE_SMALL_NUMBER?PaintScale:1.f;
     const FText TitleCopy=NewHologramTitle->GetText(),RewardCopy=NewHologramReward->GetText();
@@ -282,7 +291,7 @@ void UMCHubGrillHologramWidget::RefreshWorldCaptionLayout()
     const float CaptionAdvance=FMath::Max(Measure->Measure(TitleCopy,TitleFont,FontScale).X/FontScale+HeadingInset,
         Measure->Measure(RewardCopy,RewardFont,FontScale).X/FontScale+RewardInset);
     const float OuterInset=OuterPadding.Left+OuterPadding.Right;
-    const float DesiredWidth=FMath::Clamp(FMath::CeilToFloat(CaptionAdvance+OuterInset+2.f),390.f,Maximum);
+    const float DesiredWidth=FMath::Clamp(FMath::CeilToFloat(CaptionAdvance+OuterInset+2.f),MCGrillStrip::ShellWidth,Maximum);
     NewHologramRoot->SetWidthOverride(DesiredWidth);
     NewHologramTitle->SetAutoWrapText(false);NewHologramTitle->SetWrapTextAt(FMath::Max(32.f,DesiredWidth-OuterInset-HeadingInset));
     NewHologramReward->SetAutoWrapText(false);NewHologramReward->SetWrapTextAt(FMath::Max(32.f,DesiredWidth-OuterInset-RewardInset));
@@ -295,45 +304,214 @@ void UMCHubGrillHologramWidget::RefreshWorldCaptionLayout()
 }
 void UMCHubGrillHologramWidget::PrimeWorldPresentationFonts()
 {
-    if(!NewHologramTitle || !NewHologramReward || !FSlateApplication::IsInitialized()) return;
+    if(bWorldFontsPrepared || !NewHologramTitle || !NewHologramReward || !FSlateApplication::IsInitialized()) return;
     const auto Renderer=FSlateApplication::Get().GetRenderer();if(!Renderer) return;
     const auto Measure=Renderer->GetFontMeasureService();
-    if(!bWorldFontsPrepared) {
-        const FName Keys[]={TEXT("UI.Grill.Rolling"),TEXT("UI.Grill.Accepted"),TEXT("UI.Grill.Combination"),TEXT("UI.Grill.Idle"),TEXT("UI.Grill.Coins"),TEXT("UI.Grill.NoPrize"),TEXT("UI.Grill.Item")};
-        const FText Fallbacks[]={LOCTEXT("Rolling","КРУТИМ…"),LOCTEXT("Cooking","РЫБА ПРИНЯТА"),LOCTEXT("Combination","ВАША КОМБИНАЦИЯ"),
-            LOCTEXT("Idle","1 РЫБА · 1 ПОПЫТКА"),LOCTEXT("Coins","+{0} монет"),LOCTEXT("NoPrize","Без выигрыша · попробуй ещё"),LOCTEXT("Item","{0} ×{1}")};
-        for(int32 KeyIndex=0;KeyIndex<UE_ARRAY_COUNT(Keys);++KeyIndex) {
-            const FText Copy=Localized(Keys[KeyIndex],Fallbacks[KeyIndex]);
-            Measure->Measure(Copy,NewHologramTitle->GetFont(),1.f);Measure->Measure(Copy,NewHologramReward->GetFont(),1.f);
-        }
-        const FText Digits=FText::AsCultureInvariant(TEXT("0123456789 +×%"));
-        Measure->Measure(Digits,NewHologramTitle->GetFont(),1.f);Measure->Measure(Digits,NewHologramReward->GetFont(),1.f);
-        bWorldFontsPrepared=true;
+    const FText Corpus[]={
+        Localized(TEXT("UI.Grill.Rolling"),LOCTEXT("Rolling","КРУТИМ…")),
+        Localized(TEXT("UI.Grill.Accepted"),LOCTEXT("Cooking","РЫБА ПРИНЯТА")),
+        Localized(TEXT("UI.Grill.Idle"),LOCTEXT("Idle","1 РЫБА · 1 ПОПЫТКА")),
+        GrillText(TEXT("UI.Grill.Result"),TEXT("ВАШ РЕЗУЛЬТАТ"),TEXT("YOUR RESULT")),
+        GrillText(TEXT("UI.Grill.Duplicate"),TEXT("ДУБЛИКАТ · {0} · +{1} монет"),TEXT("DUPLICATE · {0} · +{1} coins")),
+        GrillText(TEXT("UI.Grill.Trash"),TEXT("МУСОР · БЕЗ НАГРАДЫ"),TEXT("TRASH · NO REWARD")),
+        FText::AsCultureInvariant(TEXT("0123456789 +×%…"))
+    };
+    for(const FText& Copy:Corpus) {
+        Measure->Measure(Copy,NewHologramTitle->GetFont(),1.f);Measure->Measure(Copy,NewHologramReward->GetFont(),1.f);
     }
-    const auto* Identity=GetOwningPlayer()?GetOwningPlayer()->GetPlayerState<AMCPlayerState>():nullptr;
-    const auto* Economy=Identity && Identity->Economy?Identity->Economy.Get():GetDefault<UMCHubEconomyComponent>();
-    // Get only: the Hub manifest/economy owns catalog loading. No interaction-time
-    // load or replacement catalog is introduced by this presentation.
-    UDataTable* ResidentCatalog=Economy?Economy->CatalogTable.Get():nullptr;
-    // A configured live catalog must become resident itself; never substitute
-    // default names and incorrectly acknowledge its readiness.
-    if(PreparedGrillCatalog.Get()!=ResidentCatalog) {PreparedGrillCatalog=ResidentCatalog;bCatalogNamesPrepared=false;}
-    if(bCatalogNamesPrepared || !ResidentCatalog || ResidentCatalog->GetRowStruct()!=FMCHubCatalogRow::StaticStruct()) return;
-    for(const auto& Entry:ResidentCatalog->GetRowMap()) {
-        const auto* Item=reinterpret_cast<const FMCHubCatalogRow*>(Entry.Value);if(!Item) continue;
-        const FText ItemName=Localized(Item->DisplayNameKey,Item->DisplayName);
-        Measure->Measure(ItemName,NewHologramReward->GetFont(),1.f);
-    }
-    bCatalogNamesPrepared=true;
+    bWorldFontsPrepared=true;
 }
 bool UMCHubGrillHologramWidget::HasPreparedNewPresentation() const
 {
-    if(!NewHologramRoot || !NewHologramTitle || !NewHologramReward || !NewHologramRewardCard || !bWorldFontsPrepared || !bCatalogNamesPrepared
-        || NewHologramReels.Num()!=3 || Reels.Num()!=3 || ReelMaterials.Num()!=3) return false;
-    for(int32 ReelIndex=0;ReelIndex<3;++ReelIndex)
-        if(!NewHologramReels[ReelIndex] || !Reels[ReelIndex] || !ReelMaterials[ReelIndex]
-            || NewHologramReels[ReelIndex]->GetBrush().GetResourceObject()!=Reels[ReelIndex]->GetBrush().GetResourceObject()) return false;
-    return true;
+    return NewHologramRoot && NewHologramTitle && NewHologramReward && NewHologramRewardCard && NewHologramReelSlot && bWorldFontsPrepared;
+}
+
+FText UMCHubGrillHologramWidget::GrillText(FName Key,const TCHAR* Russian,const TCHAR* English) const
+{
+    const bool bRussian=IsDesignTime() && !PreviewCulture.IsEmpty()?PreviewCulture.StartsWith(TEXT("ru")):
+        FInternationalization::Get().GetCurrentLanguage()->GetTwoLetterISOLanguageName()==TEXT("ru");
+    return Localized(Key,FText::AsCultureInvariant(bRussian?Russian:English));
+}
+
+UMCHubGrillHologramWidget::FReelCard UMCHubGrillHologramWidget::MakeCard(const FMCGrillReward& Reward,const UMCHubEconomyComponent* Economy) const
+{
+    FReelCard Card;
+    Card.Rarity=Reward.Rarity;
+    if(Reward.Kind==EMCGrillRewardKind::CatalogItem || (Reward.bConvertedDuplicate && !Reward.CatalogItem.IsNone())) {
+        FMCHubEconomyCatalogEntry Entry;
+        if(Economy && Economy->FindCatalogEntry(Reward.CatalogItem,Entry)) {
+            const auto& Definition=Entry.Definition;
+            Card.Caption=Localized(Definition.DisplayNameKey,Definition.DisplayName);
+            // The Hub already retains catalog and perk icons before readiness.
+            // No interaction-time load is needed, including for prize thumbnails.
+            Card.Icon=Definition.Icon;
+            Card.Shape=Definition.Kind==EMCHubCatalogKind::Cosmetic?ECardIcon::Clothing:
+                Entry.PerkKind==EMCPerkKind::Passive?ECardIcon::Perk:ECardIcon::Booster;
+        }
+        if(Card.Caption.IsEmpty()) Card.Caption=FText::FromName(Reward.CatalogItem);
+    } else if(Reward.Kind==EMCGrillRewardKind::Trash || (!Reward.bConvertedDuplicate && Reward.Coins<=0)) {
+        Card.Caption=GrillText(TEXT("UI.Grill.Card.Trash"),TEXT("МУСОР"),TEXT("TRASH"));
+        Card.Shape=ECardIcon::Trash;
+    } else {
+        Card.Caption=GrillText(TEXT("UI.Grill.Card.Coins"),TEXT("МОНЕТЫ"),TEXT("COINS"));
+        Card.Shape=ECardIcon::Coin;
+    }
+    PrepareCardText(Card);
+    return Card;
+}
+
+void UMCHubGrillHologramWidget::PrepareCardText(FReelCard& Card) const
+{
+    Card.RailCaption=Card.Caption;
+    if(Card.Caption.IsEmpty() || !FSlateApplication::IsInitialized()) return;
+    const auto Renderer=FSlateApplication::Get().GetRenderer();if(!Renderer) return;
+    const auto Measure=Renderer->GetFontMeasureService();
+    const FSlateFontInfo Font=CardFont.HasValidFont()?CardFont:FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),14);
+    const float Available=MCGrillStrip::CardWidth-12.f;
+    Card.RailCaptionWidth=Measure->Measure(Card.RailCaption,Font).X;
+    if(Card.RailCaptionWidth>Available) {
+        const FString Ellipsis(TEXT("…"));
+        const int32 OffsetLimit=FMath::FloorToInt(Available-Measure->Measure(Ellipsis,Font).X);
+        const int32 Last=Measure->FindLastWholeCharacterIndexBeforeOffset(Card.RailCaption,Font,OffsetLimit);
+        Card.RailCaption=FText::FromString(Card.RailCaption.ToString().Left(FMath::Max(0,Last+1))+Ellipsis);
+        Card.RailCaptionWidth=Measure->Measure(Card.RailCaption,Font).X;
+    }
+    for(const auto* RewardLabel:{HologramReward.Get(),NewHologramReward.Get()})
+        if(RewardLabel) Measure->Measure(Card.Caption,RewardLabel->GetFont(),1.f);
+}
+
+void UMCHubGrillHologramWidget::RefreshReel(const AMCHubGrillStation& Grill,const UMCHubEconomyComponent* Economy)
+{
+    using namespace MCGrillStrip;
+    const FMCGrillReward& Reward=Grill.CurrentReward;
+    const bool bNewPool=Economy && PreparedEconomy.Get()!=Economy && Economy->CatalogTable.Get()
+        && Economy->GrillRewardsTable.Get() && Economy->RulesTable.Get();
+    if(bNewPool) {
+        FillerCards.Reset();
+        for(const auto& Candidate:Economy->GetGrillPreviewPool()) FillerCards.Add(MakeCard(Candidate,Economy));
+        PreparedEconomy=Economy;
+    }
+    const bool bNewRoll=DisplayedRoll!=Reward.RollID;
+    if(bNewPool || bNewRoll || ReelCards.IsEmpty()) {
+        ReelCards.Reset(CardCount);
+        FRandomStream CosmeticRandom(int32(GetTypeHash(Reward.RollID)));
+        for(int32 Index=0;Index<CardCount;++Index)
+            ReelCards.Add(FillerCards.IsEmpty()?FReelCard():FillerCards[CosmeticRandom.RandRange(0,FillerCards.Num()-1)]);
+        DisplayedRoll=Reward.RollID;
+        if(DisplayedRoll.IsValid()) ReelCards[WinningCard]=MakeCard(Reward,Economy);
+    }
+    const bool bWasCentered=bResultCentered;
+    bResultCentered=Reward.RollID.IsValid() && (Grill.Stage==EMCHubGrillStage::Revealing || Grill.Stage==EMCHubGrillStage::Opening);
+    if(bResultCentered && !bWasCentered && !bNewRoll) ReelCards[WinningCard]=MakeCard(Reward,Economy);
+    float NextReelPosition=float(bResultCentered?WinningCard:FirstCard);
+    if(Reward.RollID.IsValid() && Grill.Stage==EMCHubGrillStage::Rolling) {
+        const auto* GS=GetWorld()?GetWorld()->GetGameState():nullptr;
+        const double Now=GS?GS->GetServerWorldTimeSeconds():(GetWorld()?GetWorld()->GetTimeSeconds():Grill.StageStartedAt);
+        const float Alpha=float(FMath::Clamp((Now-Grill.StageStartedAt)/FMath::Max(.1,Grill.StageEndsAt-Grill.StageStartedAt),0.,1.));
+        NextReelPosition=FMath::Lerp(float(FirstCard),float(WinningCard),1.f-FMath::Pow(1.f-Alpha,3.f));
+    }
+    if(bNewPool || bNewRoll || bWasCentered!=bResultCentered || ReelCursor!=NextReelPosition) Invalidate(EInvalidateWidgetReason::Paint);
+    ReelCursor=NextReelPosition;
+}
+
+void UMCHubGrillHologramWidget::OnLocalizationChanged()
+{
+    Super::OnLocalizationChanged();
+    PreparedEconomy.Reset();bWorldFontsPrepared=false;
+}
+
+void UMCHubGrillHologramWidget::DrawCardIcon(FSlateWindowElementList& Elements,int32 Layer,const FGeometry& IconGeometry,
+    const FReelCard& Card,const FLinearColor& Tint) const
+{
+    if(auto* Texture=Card.Icon.Get()) {
+        FSlateBrush Brush;
+        Brush.SetResourceObject(Texture);Brush.DrawAs=ESlateBrushDrawType::Image;Brush.ImageType=ESlateBrushImageType::FullColor;
+        const FVector2D SourceSize(FMath::Max(1,Texture->GetSizeX()),FMath::Max(1,Texture->GetSizeY()));
+        const FVector2D Bounds=IconGeometry.GetLocalSize();
+        const FVector2D Size=SourceSize*FMath::Min(Bounds.X/SourceSize.X,Bounds.Y/SourceSize.Y);
+        FSlateDrawElement::MakeBox(Elements,Layer,IconGeometry.ToPaintGeometry(Size,FSlateLayoutTransform((Bounds-Size)*.5)),
+            &Brush,ESlateDrawEffect::None,Tint);
+        return;
+    }
+    const FGeometry Shape=IconGeometry.MakeChild(FVector2D(64,64),
+        FSlateLayoutTransform((IconGeometry.GetLocalSize()-FVector2D(64,64))*.5));
+    const float LineWidth=3.f*Shape.GetAccumulatedLayoutTransform().GetScale();
+    auto Line=[&](const TArray<FVector2D>& Points) {
+        FSlateDrawElement::MakeLines(Elements,Layer,Shape.ToPaintGeometry(),Points,ESlateDrawEffect::None,Tint,true,LineWidth);
+    };
+    switch(Card.Shape) {
+    case ECardIcon::Clothing:
+        Line({{21,12},{13,15},{4,27},{16,34},{22,27},{22,53},{42,53},{42,27},{48,34},{60,27},{51,15},{43,12},{37,18},{27,18},{21,12}});
+        break;
+    case ECardIcon::Booster:
+        Line({{36,6},{14,35},{29,35},{24,59},{51,26},{35,26},{36,6}});
+        break;
+    case ECardIcon::Coin:
+        FSlateDrawElement::MakeBox(Elements,Layer,Shape.ToPaintGeometry(FVector2D(41,41),FSlateLayoutTransform(FVector2D(12,12))),
+            &MCGrillStrip::Rail,ESlateDrawEffect::None,MCGrillStrip::Gold.CopyWithNewOpacity(Tint.A));
+        Line({{35,21},{27,25},{27,40},{35,44}});
+        break;
+    case ECardIcon::Trash:
+        Line({{14,19},{51,19}});Line({{24,18},{24,11},{41,11},{41,18}});
+        Line({{18,22},{22,52},{43,52},{48,22}});Line({{29,27},{29,45}});Line({{37,27},{37,45}});
+        break;
+    default:
+        Line({{32,7},{39,25},{57,32},{39,39},{32,57},{25,39},{7,32},{25,25},{32,7}});
+        break;
+    }
+}
+
+int32 UMCHubGrillHologramWidget::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
+    FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
+{
+    using namespace MCGrillStrip;
+    const int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
+    const auto* ActiveReelSlot=IsNewWorldPresentation()?NewHologramReelSlot.Get():HologramReelSlot.Get();
+    if(!ActiveReelSlot || ReelCards.IsEmpty()) return Top;
+    const FGeometry& ReelGeometry=ActiveReelSlot->GetPaintSpaceGeometry();
+    const FVector2D Bounds=ReelGeometry.GetLocalSize();
+    if(Bounds.X<=0 || Bounds.Y<=0) return Top;
+    const double Center=Bounds.X*.5;
+    const double Step=CardWidth+CardGap;
+    const FLinearColor StyleTint=Style.GetColorAndOpacityTint();
+    auto Box=[&](int32 Depth,const FSlateBrush& Brush,FVector2D Position,FVector2D Size,FLinearColor Color) {
+        FSlateDrawElement::MakeBox(Elements,Top+Depth,ReelGeometry.ToPaintGeometry(Size,FSlateLayoutTransform(Position)),
+            &Brush,ESlateDrawEffect::None,Color*StyleTint);
+    };
+    Box(1,Rail,FVector2D::ZeroVector,Bounds,Background);
+    Elements.PushClip(FSlateClippingZone(ReelGeometry));
+    const FSlateFontInfo Font=CardFont.HasValidFont()?CardFont:FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),14);
+    const int32 Start=FMath::Max(0,FMath::FloorToInt(ReelCursor-(Center+CardWidth)/Step));
+    const int32 End=FMath::Min(ReelCards.Num()-1,FMath::CeilToInt(ReelCursor+(Center+CardWidth)/Step));
+    for(int32 Index=Start;Index<=End;++Index) {
+        const FReelCard& Card=ReelCards[Index];
+        const double Offset=(Index-ReelCursor)*Step;
+        const double Left=Center+Offset-CardWidth*.5;
+        const double TileHeight=Bounds.Y-20.;
+        if(Left>=Bounds.X || Left+CardWidth<=0) continue;
+        const float Fade=1.f-.57f*FMath::SmoothStep(.25f,1.f,FMath::Clamp(float(FMath::Abs(Offset)/Center),0.f,1.f));
+        const FLinearColor Accent=RarityColor(Card.Rarity,Card.Shape==ECardIcon::Trash);
+        if(bResultCentered && Index==WinningCard) Box(2,CardFace,{Left-2.,8},{CardWidth+4.,TileHeight+4.},Gold);
+        const FPaintGeometry Tile=ReelGeometry.ToPaintGeometry(FVector2D(CardWidth,TileHeight),FSlateLayoutTransform(FVector2D(Left,10)));
+        const FLinearColor Light=FMath::Lerp(Background,Accent,.23f),Dark=FMath::Lerp(Background,Accent,.43f);
+        FSlateDrawElement::MakeGradient(Elements,Top+3,Tile,
+            {FSlateGradientStop(FVector2D(0,0),Light.CopyWithNewOpacity(Fade)*StyleTint),
+             FSlateGradientStop(FVector2D(0,TileHeight),Dark.CopyWithNewOpacity(Fade)*StyleTint)},
+            Orient_Vertical,ESlateDrawEffect::None,FVector4f(8.f));
+        Box(4,Marker,{Left+5.,Bounds.Y-17.},{CardWidth-10.,4.},Accent.CopyWithNewOpacity(Fade));
+        const FGeometry IconGeometry=ReelGeometry.MakeChild(FVector2D(78,77),FSlateLayoutTransform(FVector2D(Left+(CardWidth-78.)*.5,14.)));
+        DrawCardIcon(Elements,Top+5,IconGeometry,Card,Paper.CopyWithNewOpacity(Fade)*StyleTint);
+        if(!Card.RailCaption.IsEmpty()) {
+            const double X=Left+FMath::Max(0.,(CardWidth-Card.RailCaptionWidth)*.5);
+            const auto LabelGeometry=ReelGeometry.ToPaintGeometry(FVector2D(CardWidth,18),FSlateLayoutTransform(FVector2D(X,Bounds.Y-39.)));
+            FSlateDrawElement::MakeText(Elements,Top+6,LabelGeometry,Card.RailCaption,Font,ESlateDrawEffect::None,Paper.CopyWithNewOpacity(Fade)*StyleTint);
+        }
+    }
+    Box(7,Marker,{Center-2.,2},{4.,Bounds.Y-4.},Gold);
+    Box(7,Marker,{Center-6.,2},{12.,4.},Gold);
+    Box(7,Marker,{Center-6.,Bounds.Y-6.},{12.,4.},Gold);
+    Elements.PopClip();
+    return Top+7;
 }
 
 UMCHubGrillPresentationComponent::UMCHubGrillPresentationComponent()
@@ -347,12 +525,12 @@ void UMCHubGrillPresentationComponent::BeginPlay()
     if(!Station.IsValid() || GetNetMode()==NM_DedicatedServer) {SetComponentTickEnabled(false);return;}
     Display=NewObject<UWidgetComponent>(GetOwner(),TEXT("GrillHologramDisplay"));
     Display->SetupAttachment(GetOwner()->GetRootComponent());Display->SetRelativeLocation(HologramLocalOffset);
-    Display->SetWidgetSpace(EWidgetSpace::Screen);Display->SetDrawSize(FVector2D(390,190));Display->SetPivot(FVector2D(.5,1));
+    Display->SetWidgetSpace(EWidgetSpace::Screen);Display->SetDrawSize(FVector2D(MCGrillStrip::ShellWidth,MCGrillStrip::CurrentHeight));Display->SetPivot(FVector2D(.5,1));
+    Display->SetInitialSharedLayerName(TEXT("GrillRollPresentation"));Display->SetInitialLayerZOrder(5);
     Display->SetWidgetClass(UMCGameplayUIFactory::ResolveClass(TEXT("GrillHologram"),WidgetClass?WidgetClass.Get():UMCHubGrillHologramWidget::StaticClass()));
     Display->SetCollisionEnabled(ECollisionEnabled::NoCollision);Display->SetGenerateOverlapEvents(false);Display->SetCanEverAffectNavigation(false);
     Display->SetCastShadow(false);Display->RegisterComponent();Display->InitWidget();
     if(auto* W=Cast<UMCHubGrillHologramWidget>(Display->GetUserWidgetObject())) W->SetStation(Station.Get());
-    // Create all material variants now, before the initial Hub readiness snapshot.
     Display->SetVisibility(false);Display->SetHiddenInGame(true);
     const auto* Fishing=GetDefault<UMCFishingRodComponent>();
     IntakeFish=NewObject<UStaticMeshComponent>(GetOwner(),TEXT("GrillIntakeFish"));
@@ -388,27 +566,49 @@ void UMCHubGrillPresentationComponent::TickComponent(float Dt,ELevelTick Type,FA
         }
     }
     auto* PC=UGameplayStatics::GetPlayerController(this,0);APawn* Pawn=PC?PC->GetPawn().Get():nullptr;
-    const bool HasOwner=IsValid(PC) && PC->IsLocalController() && PC->GetLocalPlayer() && IsValid(Pawn);
+    const auto* LocalPlayerState=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;
+    const bool bLocalRoll=LocalPlayerState && Grill->ActivePlayer==LocalPlayerState && Grill->Stage!=EMCHubGrillStage::Idle;
+    const bool HasOwner=IsValid(PC) && PC->IsLocalController() && PC->GetLocalPlayer() && (bLocalRoll || IsValid(Pawn));
     // A visible hologram can still be fading when its player loses/replaces a
     // Pawn. Do not carry that visibility into the distance/owner updates below.
     if(!HasOwner) {
         RestoreDisplaySizing();VisibilityAlpha=0.f;
+        Display->SetRelativeLocation(HologramLocalOffset);Display->SetPivot(FVector2D(.5,1));
         Display->SetVisibility(false);Display->SetHiddenInGame(true);Display->SetComponentTickEnabled(false);
         Grill->SetLocalPromptVisible(PC,false);
         return;
     }
-    const bool Show=FVector::DistSquared(Pawn->GetActorLocation(),Grill->GetActorLocation())<FMath::Square(FMath::Clamp(VisibleDistance,300.f,5000.f));
-    VisibilityAlpha=FMath::FInterpTo(VisibilityAlpha,Show?1.f:0.f,Dt,12.f);
+    int32 ViewWidth=0,ViewHeight=0;PC->GetViewportSize(ViewWidth,ViewHeight);
+    FVector ViewOrigin,ViewDirection;
+    // Keep one screen widget and one result. Only the local player's active roll
+    // follows the viewport so a nearby HUD or nameplate cannot cover the stop.
+    const bool bCentered=bLocalRoll && ViewWidth>0 && ViewHeight>0
+        && PC->DeprojectScreenPositionToWorld(ViewWidth*.5f,ViewHeight*.51f,ViewOrigin,ViewDirection);
+    if(bCentered) {
+        Display->SetWorldLocation(ViewOrigin+ViewDirection*150.);
+        Display->SetPivot(FVector2D(.5,.5));
+    } else {
+        Display->SetRelativeLocation(HologramLocalOffset);
+        FVector2D Projected;
+        const bool bNearTop=ViewHeight>0 && PC->ProjectWorldLocationToScreen(Display->GetComponentLocation(),Projected)
+            && Projected.Y<ViewHeight*.24;
+        Display->SetPivot(FVector2D(.5,bNearTop?.35:1.));
+    }
+    const double PawnDistance=IsValid(Pawn)?FVector::Dist(Pawn->GetActorLocation(),Grill->GetActorLocation()):0.;
+    const bool Show=bLocalRoll || PawnDistance<FMath::Clamp(VisibleDistance,300.f,5000.f);
+    VisibilityAlpha=bLocalRoll?1.f:FMath::FInterpTo(VisibilityAlpha,Show?1.f:0.f,Dt,12.f);
     const bool Visible=VisibilityAlpha>.01f;
     Display->SetVisibility(Visible);Display->SetHiddenInGame(!Visible);Display->SetComponentTickEnabled(Visible);
-    if(!Visible) {RestoreDisplaySizing();return;}
     Display->SetOwnerPlayer(PC->GetLocalPlayer());
     if(auto* W=Cast<UMCHubGrillHologramWidget>(Display->GetUserWidgetObject())) {
-        W->SetOwningPlayer(PC);W->SetRenderOpacity(VisibilityAlpha*.95f);
-        const float Distance=FVector::Distance(Pawn->GetActorLocation(),Grill->GetActorLocation());
-        const float Scale=FMath::Clamp(800.f/FMath::Max(Distance,1.f),.55f,1.f);
-        W->SetRenderScale(FVector2D(Scale*(.96f+.04f*VisibilityAlpha)));W->TickPresentation(Dt);
+        W->SetOwningPlayer(PC);
+        if(Visible) {
+            W->SetRenderOpacity(bCentered?1.f:VisibilityAlpha*.95f);
+            const double Scale=bCentered?1.25:FMath::Clamp(800./FMath::Max(PawnDistance,1.),.55,1.)*(.96+.04*VisibilityAlpha);
+            W->SetRenderScale(FVector2D(Scale));W->TickPresentation(Dt);
+        } else if(!W->HasPreparedReelCatalog()) W->TickPresentation(0);
     }
+    if(!Visible) {RestoreDisplaySizing();return;}
     RefreshDisplaySizing();
     Grill->SetLocalPromptVisible(PC,!PC->IsMoveInputIgnored());
 }

@@ -94,7 +94,9 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         Add(TEXT("Reward.TaskComplete"),TEXT("Задача · завершение"),TEXT("Rewards"),TEXT("AMCTaskActor"),World,{TEXT("Complete")});
         Add(TEXT("Hub.Fishing.Cast"),TEXT("Рыбалка · заброс и улов"),TEXT("Hub"),TEXT("UMCFishingRodComponent"),Hub,{TEXT("Cast"),TEXT("Line"),TEXT("Ripple"),TEXT("Catch")});
         Add(TEXT("EditorOnly.FishingCatch"),TEXT("Награда · улов рыбы"),TEXT("Hub"),TEXT("UMCFishingRewardWidget / MCPlayerFishingFeedback"),Hub,{TEXT("Catch")});
-        Add(TEXT("Hub.Grill"),TEXT("Гриль · рыба и результат"),TEXT("Hub"),TEXT("UMCHubGrillPresentationComponent / AMCHubGrillStation"),Hub,{TEXT("Intake"),TEXT("Spin"),TEXT("Result")});
+        auto& Grill=Add(TEXT("Hub.Grill"),TEXT("Слот-машина · рыба, прокрутка и приз"),TEXT("Hub"),
+            TEXT("AMCHubGrillStation / UMCHubGrillPresentationComponent / UMCHubGrillHologramWidget"),Hub,{TEXT("Intake"),TEXT("Spin"),TEXT("Result")});
+        Grill.Description=TEXT("Intake принимает рыбу у автомата. Spin и Result используют экранную голограмму WBP_GrillHologram у крышки и подтверждённый результат из DT_GrillRewards. Лента карточек рисуется в Slate. Контекстный просмотр недоступен, пока в Composer нет изолированного сценария реального автомата с временным кошельком.");
         Add(TEXT("Hub.ReadyZone"),TEXT("Хаб · зона готовности"),TEXT("Hub"),TEXT("AMCHubReadyZone"),Hub,{TEXT("Active"),TEXT("Ready")});
         Add(TEXT("Hub.DeliveryZone"),TEXT("Хаб · зона доставки"),TEXT("Hub"),TEXT("UMCDeliveryZoneVisualComponent"),Hub,{TEXT("Active"),TEXT("Complete")});
         Add(TEXT("Hub.Basketball"),TEXT("Хаб · баскетбол"),TEXT("Hub"),TEXT("AMCHubBasketball"),Hub,{TEXT("Contact"),TEXT("Score")});
