@@ -5,6 +5,7 @@
 #include "Engine/OverlapResult.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
+#include "ProceduralMeshComponent.h"
 
 AMCRewardDropZone::AMCRewardDropZone()
 {
@@ -22,9 +23,15 @@ bool AMCRewardDropZone::AcceptsFloor(const FHitResult& Hit) const
     AActor* Floor=Hit.GetActor();
     const UPrimitiveComponent* Component=Hit.GetComponent();
     if(!Hit.bBlockingHit || !IsValid(Floor) || Floor->IsHidden() || Floor->IsActorBeingDestroyed()
-        || !Component || !Component->IsVisible() || !Component->IsRegistered()
+        || !Component || !Component->IsRegistered()
         || Hit.ImpactNormal.Z<.85f) return false;
-    return AllowedLandingSurface ? Floor==AllowedLandingSurface : Floor->IsA<AMCTongue>();
+    const auto* Tongue=Cast<AMCTongue>(Floor);
+    // The tongue renders its deformed art separately from the query surface
+    // that carries the chest. Only accept that specific registered proxy.
+    const bool bRenderedTongue=Tongue && Component==Tongue->Surface && IsValid(Tongue->VisualSurface)
+        && Tongue->VisualSurface->IsRegistered() && Tongue->VisualSurface->IsVisible();
+    return (Component->IsVisible() || bRenderedTongue)
+        && (AllowedLandingSurface ? Floor==AllowedLandingSurface : Tongue!=nullptr);
 }
 
 bool AMCRewardDropZone::ContainsFootprint(FVector Point,FVector HalfExtent) const

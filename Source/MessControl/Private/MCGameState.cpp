@@ -24,6 +24,9 @@ AMCGameState::AMCGameState()
     FoodCutIntakePresentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("FoodCutIntakePresentation"));
     FoodCutIntakePresentation->SourceID=TEXT("Food.AutoMouth");
     FoodCutIntakePresentation->Events={TEXT("Consume"),TEXT("Discard")};
+    NutThrowPresentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("NutThrowPresentation"));
+    NutThrowPresentation->SourceID=TEXT("Food.NutThrow");
+    NutThrowPresentation->Events={TEXT("BossImpact")};
     PrimaryActorTick.bCanEverTick=true;
     PrimaryActorTick.bStartWithTickEnabled=true;
 }

@@ -15,6 +15,7 @@ class UTextRenderComponent;
 class AMCRewardDropZone;
 class AMCPerkPickup;
 class AMCToothCharacter;
+class AMCThroat;
 class AMCPlayerState;
 class UMCPerkComponent;
 class UMaterialInstanceDynamic;
@@ -43,6 +44,8 @@ public:
     /** One stage chest, with an independent stored catalog reward for each participant. */
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Rewards")
     void InitializeTeamStageReward(FVector Landing,FVector Start,int32 Seed,UDataTable* Table,AMCRewardDropZone* Zone);
+    /** Use the visible throat as the launch source when a cosmetic flight corridor is clear. */
+    bool ConfigureThroatLaunch(AMCThroat* Throat);
     UPROPERTY(ReplicatedUsing=RefreshPresentation,BlueprintReadOnly,Category="Rewards") bool bTeamStageBooster=false;
     FVector GetPlacementHalfExtent() const;
     /** X points out of the keyhole; author a Lockpick socket on replacement meshes. */
@@ -154,6 +157,9 @@ private:
     void CacheRewardEffectsVisibility();
     void UpdateRewardEffectsVisibility(bool Suppressed);
     void UpdateArrivalPresentation(float Age);
+    void UpdateFlightPresentation(float Age);
+    FVector ThroatFlightPosition(FVector Start,float Alpha) const;
+    float ArrivalDuration() const;
     void UpdateClaimPresentation(float Age);
     void UpdateSparkPresentation(float Progress,float Opacity,float Width,bool bTouchdown);
     bool UpdateSparkComposer(float Progress,float Opacity,float Width,bool bTouchdown,FQuat LocalFacing);
@@ -193,6 +199,7 @@ private:
     UPROPERTY() TObjectPtr<UDataTable> RewardTable;
     UPROPERTY() TObjectPtr<AMCRewardDropZone> DropZone;
     UPROPERTY(ReplicatedUsing=RefreshPresentation) bool bRewardInitialized=false;
+    UPROPERTY(ReplicatedUsing=RefreshPresentation) TObjectPtr<AMCThroat> RewardLaunchThroat;
     FTimerHandle ApproachTimer;
     int32 RollSeed=0;
     bool bClaimInProgress=false;
@@ -210,6 +217,7 @@ private:
     FVector BodyRestLocation=FVector::ZeroVector,LidRestLocation=FVector::ZeroVector;
     FVector BodyRestScale=FVector::OneVector;
     double LandingPresentationStartedAt=-1.;
+    double LastThroatSpitAt=-1.;
     EMCRewardChestStage LastPresentationStage=EMCRewardChestStage::Telegraph;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> ClaimRingMaterial;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> ClaimSparkMaterial;

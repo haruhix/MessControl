@@ -1,5 +1,6 @@
 #include "MCVFXPresentationComponent.h"
 
+#include "MCNutVFXCatalog.h"
 #include "MCVFXPresentationLibrary.h"
 #include "MCVFXSourceContracts.h"
 #include "MCWorldPreloadSubsystem.h"
@@ -315,6 +316,7 @@ bool UMCVFXPresentationComponent::BindSourceEpisodeTickSource(FName ID,FGuid Epi
 bool UMCVFXPresentationComponent::Prepare(FString& Error,bool bAllowLoad)
 {
     Error.Reset();
+    if(SourceID==MCNutVFX::ChainSource())return MCNutVFX::Prepare(this,SourceID,Error,bAllowLoad);
     if(ScopedOverrides.Contains(SourceID) && IsSourcePrepared(SourceID))return true;
     if(SourceID.IsNone()){Error=TEXT("Presentation source ID is empty.");LastError=Error;return false;}
     auto* Source=MCEventPresentation::Resolve(Library,bAllowLoad);

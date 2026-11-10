@@ -15,6 +15,7 @@ struct MESSCONTROL_API FMCEventSFXSamplePlan
     GENERATED_BODY()
     UPROPERTY() TObjectPtr<USoundBase> Source;
     UPROPERTY() TArray<TObjectPtr<USoundWave>> SampleWaves;
+    UPROPERTY() TArray<TObjectPtr<UObject>> ReferencedGraphs;
     /** Required for graph/procedural sources; true means the source provider actually audited all runtime-selected inputs. */
     UPROPERTY() bool bDependencyAuditComplete=false;
     /** Provider has prepared source-specific graph resources and dependency closure. No DSP/operator warmup claim. */

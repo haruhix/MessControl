@@ -801,6 +801,16 @@ FVector AMCThroat::VacuumInlet() const
     }
     return GetActorTransform().TransformPosition(GateCenter+FVector(0,0,230));
 }
+void AMCThroat::PresentRewardSpit(double StartedAt)
+{
+    RewardSpitStartedAt=FMath::Max(RewardSpitStartedAt,StartedAt);
+}
+
+void AMCThroat::StopRewardSpit(double StartedAt)
+{
+    if(RewardSpitStartedAt==StartedAt) RewardSpitStartedAt=-100.;
+}
+
 bool AMCThroat::IsAmbientSuctionActive() const { return SuctionState.IsActive(ServerNow()); }
 float AMCThroat::GetAmbientSuctionStrengthAt(FVector Location) const { return SuctionState.StrengthAt(Location,ServerNow()); }
 FVector AMCThroat::GetAmbientSuctionVelocityAt(FVector Location) const { return SuctionState.VelocityAt(Location,ServerNow()); }
@@ -1010,12 +1020,18 @@ void AMCThroat::UpdatePresentation(float Dt)
     if(bManualIntake) Label->SetVisibility(false);
     if(AuthoredMouth->GetSkeletalMeshAsset()) {
         const float Breath=.015f+.012f*FMath::Sin(Time*1.35f);
-        const float Aperture=bManualIntake?FMath::Clamp(ManualAuthoredExpansion,.05f,1.f)*Open:FMath::Clamp(Open+Breath,0.f,1.f);
+        const float RewardAge=float(ServerNow()-RewardSpitStartedAt);
+        const float Tuck=FMath::SmoothStep(0.f,.17f,RewardAge)*(1.f-FMath::SmoothStep(.17f,.28f,RewardAge));
+        const float Kick=FMath::SmoothStep(.18f,.29f,RewardAge)*(1.f-FMath::SmoothStep(.32f,.69f,RewardAge));
+        const float RestAperture=bManualIntake?FMath::Clamp(ManualAuthoredExpansion,.05f,1.f)*Open:FMath::Clamp(Open+Breath,0.f,1.f);
+        // The saved manual opening seats against a separate tongue/backing
+        // mesh. Keep its maximum aperture and use the gag shape for recoil.
+        const float Aperture=FMath::Clamp(RestAperture*(1.f-.20f*Tuck)+(bManualIntake?0.f:.13f*Kick),0.f,1.f);
         AuthoredMouth->SetMorphTarget(TEXT("Open"),bReverseAuthoredOpen?1-Aperture:Aperture);
         const float Age=FMath::Max(0.f,float(Time-PhaseStartedAt));
         const float Gag=ThroatPhase==EMCThroatPhase::Spasm?FMath::SmoothStep(0.f,.25f,Age)*(.65f+.35f*FMath::Square(FMath::Sin(Age*12))):0;
         const float Expel=ThroatPhase==EMCThroatPhase::Vomiting?(1-FMath::SmoothStep(VomitSeconds-.4f,VomitSeconds,Age))*(.82f+.18f*FMath::Square(FMath::Sin(Age*14))):0;
-        AuthoredMouth->SetMorphTarget(TEXT("vomit"),FMath::Max(Gag,Expel));
+        AuthoredMouth->SetMorphTarget(TEXT("vomit"),FMath::Max3(Gag,Expel,.21f*Tuck+.46f*Kick));
         SculptedTissue->SetVisibility(false); Tissue->SetVisibility(false);
     }
     const float Target=Weight>0?1.f:0.f;

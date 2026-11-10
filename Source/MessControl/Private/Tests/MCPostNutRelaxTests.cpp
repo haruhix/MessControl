@@ -12,6 +12,7 @@
 #include "MCInventoryComponent.h"
 #include "MCMouthSurface.h"
 #include "MCNutRainEvent.h"
+#include "MCRewardChest.h"
 #include "MCSingleDayDirector.h"
 #include "MCSmallMintCandy.h"
 #include "MCTongue.h"
@@ -150,6 +151,23 @@ struct FFixture
             }
         }
     }
+    void ResolveStageReward()
+    {
+        if(!Loop->bStageRewardPending) return;
+        // Exercise the sequence handoff with the same completion receipt used
+        // by a real chest after every eligible worker resolves their offer.
+        auto* Chest=Loop->StageRewardChest.Get();
+        if(!IsValid(Chest)) {
+            Chest=World->SpawnActor<AMCRewardChest>();
+            Chest->SetOwner(Loop);
+            Chest->InitializeTeamStageReward(FVector::ZeroVector,FVector(0,0,450),31,nullptr,nullptr);
+            Loop->StageRewardChest=Chest;
+        }
+        Chest->ClaimedMask=7;
+        Loop->NotifyStageRewardFinished(Chest,false);
+        Loop->Tick(.1f);
+        Chest->Destroy();
+    }
     AMCHazardWave* LastWave(AMCSmallMintCandy* Mint) const
     {
         AMCHazardWave* Last=nullptr;
@@ -206,8 +224,9 @@ bool FMCSequentialCoffeeCleanupTest::RunTest(const FString&)
     F.ClearFloor();
     F.ClearTeeth();
     F.Loop->Tick(.1f);
-    if(!TestEqual(TEXT("First meal completion starts the actual coffee wave"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave)) return false;
-    TestFalse(TEXT("The first meal does not open a reward"),F.Loop->bStageRewardPending);
+    TestTrue(TEXT("First meal completion opens its reward"),F.Loop->bStageRewardPending);
+    F.ResolveStageReward();
+    if(!TestEqual(TEXT("Resolving the first meal reward starts the actual coffee wave"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave)) return false;
     TestNull(TEXT("No adaptive director runs during the fixed sequence"),F.Mode->GameDirector.Get());
 
     AMCCoffeeFlood* Coffee=nullptr;
@@ -233,11 +252,13 @@ bool FMCSequentialCoffeeCleanupTest::RunTest(const FString&)
     F.Clock(F.World->GetTimeSeconds()+60);
     F.Loop->Tick(.1f);
     TestEqual(TEXT("Coffee dirt still blocks the second meal after a minute"),F.Loop->Stage,EMCSingleDayStage::BetweenMealsPause);
-    TestFalse(TEXT("Coffee completion does not open a reward"),F.Loop->bStageRewardPending);
+    TestFalse(TEXT("Outstanding coffee dirt keeps the reward locked"),F.Loop->bStageRewardPending);
     F.ClearFloor();
     F.ClearTeeth();
     F.Loop->Tick(.1f);
-    if(!TestEqual(TEXT("Actual coffee cleanup starts the second meal"),F.Loop->Stage,EMCSingleDayStage::FirstMeal)) return false;
+    TestTrue(TEXT("Actual coffee cleanup opens its reward"),F.Loop->bStageRewardPending);
+    F.ResolveStageReward();
+    if(!TestEqual(TEXT("Resolving the coffee reward starts the second meal"),F.Loop->Stage,EMCSingleDayStage::FirstMeal)) return false;
     TestEqual(TEXT("The second meal is the second serving of the sequence"),F.Loop->MealPortionNumber,2);
     TestEqual(TEXT("The second meal targets ten whole items"),F.Loop->MealPortionTarget,10);
 
@@ -268,8 +289,9 @@ bool FMCSequentialCoffeeCleanupTest::RunTest(const FString&)
     TestEqual(TEXT("The second meal's remaining dirt still blocks the key event"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
     MealDirt->ClearLiquidForBooster();
     F.Loop->Tick(.1f);
-    TestEqual(TEXT("All cleared work starts the first key event"),F.Loop->Stage,EMCSingleDayStage::Nuts);
-    TestFalse(TEXT("The second meal does not open a reward"),F.Loop->bStageRewardPending);
+    TestTrue(TEXT("All cleared work opens the second meal reward"),F.Loop->bStageRewardPending);
+    F.ResolveStageReward();
+    TestEqual(TEXT("Resolving the second meal reward starts the first key event"),F.Loop->Stage,EMCSingleDayStage::Nuts);
     return true;
 }
 

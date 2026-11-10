@@ -38,7 +38,7 @@ FName NextRogueEvent(const UWorld* World)
     const auto* Sequence=GS?GS->SingleDayDirector.Get():nullptr;
     const auto* Profile=Sequence?Sequence->GetRunProfile():nullptr;
     if(!Profile || Sequence->Stage==EMCSingleDayStage::Complete) return NAME_None;
-    if(Sequence->bStageRewardPending)
+    if(Sequence->IsKeyEventRewardPending())
         return Profile->KeyEvents.IsValidIndex(Sequence->KeyEventIndex+1)?FName(TEXT("CoffeeWave")):NAME_None;
     if(HasRemainingPatternCoffee(Sequence)) return TEXT("CoffeeWave");
     if(!Profile->KeyEvents.IsValidIndex(Sequence->KeyEventIndex)) return NAME_None;
@@ -71,7 +71,7 @@ bool UMCPerkComponent::HasRunEvent(FName Event) const
     const auto* Sequence=GS->SingleDayDirector.Get();
     const auto* Profile=Sequence?Sequence->GetRunProfile():nullptr;
     if(Profile && Sequence->Stage!=EMCSingleDayStage::Complete) {
-        const int32 FirstSlot=Sequence->KeyEventIndex+(Sequence->bStageRewardPending?1:0);
+        const int32 FirstSlot=Sequence->KeyEventIndex+(Sequence->IsKeyEventRewardPending()?1:0);
         for(int32 I=FMath::Max(0,FirstSlot);I<Profile->KeyEvents.Num();++I) {
             const auto Kind=Profile->KeyEvents[I].Kind;
             if(Kind==EMCSingleDayKeyEventKind::NutEncounter && (Event==TEXT("NutEncounter") || Event==TEXT("NutBossKnight") || Event==TEXT("NutBossMage"))) return true;

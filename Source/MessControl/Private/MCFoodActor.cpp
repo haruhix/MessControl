@@ -467,8 +467,10 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
     // Resolve query-only enemies before a later solid contact ends this flight.
     if(HasAuthority()) UpdateNutFragmentThrowImpact();
     if(HasAuthority() && Hit.bBlockingHit) EndManualThrowFlight();
-    // Fragments remain physical against scenery and food, but never attack a player.
-    if(bFragment && Cast<AMCToothCharacter>(Other)) return;
+    // Keep physical debris contacts with scenery and food. Loose walnut
+    // fragments never damage a worker or a reserve tooth.
+    if(bFragment && (Cast<AMCToothCharacter>(Other) || (Cast<AMCArenaTooth>(Other)
+        && (ActorHasTag(TEXT("MCNutRain")) || IsNutEncounterFragment())))) return;
     if(StackCarrier) {
         if(HasAuthority()) StackCarrier->FoodCollection->HandleStackCollision(this,Other,OtherComponent,Impulse,Hit);
         return;

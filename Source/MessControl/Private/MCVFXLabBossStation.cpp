@@ -87,7 +87,7 @@ void AMCVFXLabBossStation::BeginPlay()
 }
 
 bool AMCVFXLabBossStation::IsNutKind() const
-{ return uint8(Kind)<=uint8(EMCVFXLabBossKind::MageEntrance) || Kind==EMCVFXLabBossKind::TankCounterShove || Kind==EMCVFXLabBossKind::TankHeadSplit; }
+{ return uint8(Kind)<=uint8(EMCVFXLabBossKind::MageEntrance) || Kind==EMCVFXLabBossKind::TankCounterShove || Kind==EMCVFXLabBossKind::TankHeadSplit || Kind==EMCVFXLabBossKind::TankChain; }
 bool AMCVFXLabBossStation::IsMageKind() const
 { return uint8(Kind)>=uint8(EMCVFXLabBossKind::MageMelee) && uint8(Kind)<=uint8(EMCVFXLabBossKind::MageEntrance); }
 bool AMCVFXLabBossStation::IsKamikazeKind() const
@@ -103,7 +103,7 @@ bool AMCVFXLabBossStation::IsCombatKind() const
         || Kind==EMCVFXLabBossKind::MageMelee || Kind==EMCVFXLabBossKind::MageFireball
         || Kind==EMCVFXLabBossKind::MageSummon || Kind==EMCVFXLabBossKind::MageNutRain
         || Kind==EMCVFXLabBossKind::MageTeleport || Kind==EMCVFXLabBossKind::ZombiePunchLeft
-        || Kind==EMCVFXLabBossKind::TankCounterShove
+        || Kind==EMCVFXLabBossKind::TankCounterShove || Kind==EMCVFXLabBossKind::TankChain
         || Kind==EMCVFXLabBossKind::ZombiePunchRight || Kind==EMCVFXLabBossKind::ZombieKick
         || Kind==EMCVFXLabBossKind::Phase3PunchRight || Kind==EMCVFXLabBossKind::Phase3AreaAttack;
 }
@@ -167,7 +167,7 @@ bool AMCVFXLabBossStation::BeginCycle(AMCToothCharacter* BorrowedSubject)
     const bool Ranged=Kind==EMCVFXLabBossKind::TankCharge || Kind==EMCVFXLabBossKind::TankJump
         || Kind==EMCVFXLabBossKind::TankRoll || Kind==EMCVFXLabBossKind::MageFireball
         || Kind==EMCVFXLabBossKind::MageSummon || Kind==EMCVFXLabBossKind::MageNutRain
-        || Kind==EMCVFXLabBossKind::MageTeleport || Kind==EMCVFXLabBossKind::Phase3AreaAttack;
+        || Kind==EMCVFXLabBossKind::MageTeleport || Kind==EMCVFXLabBossKind::Phase3AreaAttack || Kind==EMCVFXLabBossKind::TankChain;
     FHitResult SubjectGround;
     const FVector SubjectPoint=BorrowedSubject?BorrowedSubject->GetActorLocation():Ground.ImpactPoint+Forward*(Ranged?650.f:260.f);
     if(!Floor->InteriorSurfacePoint(SubjectPoint,45,SubjectGround)) {
@@ -264,6 +264,7 @@ bool AMCVFXLabBossStation::BeginCycle(AMCToothCharacter* BorrowedSubject)
         NutBoss->ConfigureEncounter(Floor,NutOwner,BossRole,Settings,1,bComparisonMode?ComparisonSeed:GetUniqueID()+Cycles*137);
         FTransform AirbornePose=Pose; AirbornePose.SetLocation(NutBoss->GetActorLocation());
         NutBoss->FinishSpawning(AirbornePose);
+        if(Kind==EMCVFXLabBossKind::TankChain && !NutBoss->PrepareChainPresentation(Status,true))return false;
         if(Kind==EMCVFXLabBossKind::TankHeadSplit) {
             // Retain the actual future phase on the actual component before
             // readiness. Normal native RevealMagePhase still owns the switch.
@@ -314,6 +315,7 @@ AActor* AMCVFXLabBossStation::GetComparisonEnemy() const
 
 UMCVFXPresentationComponent* AMCVFXLabBossStation::GetComparisonPresentation() const
 {
+    if(Kind==EMCVFXLabBossKind::TankChain && IsValid(NutBoss))return NutBoss->ChainPresentation.Get();
     if(IsValid(NutBoss))return NutBoss->VFXContext.Get();
     if(IsValid(Kamikaze))return Kind==EMCVFXLabBossKind::KamikazeFuse?Kamikaze->FusePresentation.Get():Kamikaze->VFXContext.Get();
     return Kind==EMCVFXLabBossKind::RainEntry?EntryPresentation.Get():nullptr;
@@ -542,6 +544,7 @@ bool AMCVFXLabBossStation::LaunchAction()
             case EMCVFXLabBossKind::TankCharge: Attack=EMCNutBossAttack::Charge;break;
             case EMCVFXLabBossKind::TankJump: Attack=EMCNutBossAttack::Jump;break;
             case EMCVFXLabBossKind::TankRoll: Attack=EMCNutBossAttack::Roll;break;
+            case EMCVFXLabBossKind::TankChain: Attack=EMCNutBossAttack::Chain;break;
             case EMCVFXLabBossKind::MageFireball: Attack=EMCNutBossAttack::Fireball;break;
             case EMCVFXLabBossKind::MageSummon: Attack=EMCNutBossAttack::Summon;break;
             case EMCVFXLabBossKind::MageNutRain: Attack=EMCNutBossAttack::NutRain;break;
@@ -700,6 +703,8 @@ void AMCVFXLabBossStation::Tick(float DeltaSeconds)
         else if(Kind==EMCVFXLabBossKind::MageNutRain) Evidence&=NutBoss->RainDropsResolved>=NutBoss->BossSettings.RainDrops;
         else if(Kind==EMCVFXLabBossKind::TankJump) Evidence&=SeenCues.Contains(uint8(EMCNutCombatCue::SlamImpact));
         else if(Kind==EMCVFXLabBossKind::TankCounterShove) Evidence&=bSawCounter && SeenCues.Contains(uint8(EMCNutCombatCue::SlamImpact));
+        else if(Kind==EMCVFXLabBossKind::TankChain) Evidence&=Subject && Subject->Status->State.Health<SubjectHealthBefore
+            && CycleTelegraphs>=2 && CycleExecutions>=2 && SeenCues.Contains(uint8(EMCNutCombatCue::MeleeSlash));
         else if(Kind==EMCVFXLabBossKind::TankRoll || Kind==EMCVFXLabBossKind::TankCharge) Evidence&=MaximumTravel>60;
         else if(Kind==EMCVFXLabBossKind::MageTeleport) Evidence&=MaximumTravel>200 && SeenCues.Contains(uint8(EMCNutCombatCue::TeleportBurst));
         else Evidence&=SeenCues.Contains(uint8(EMCNutCombatCue::MeleeSlash));

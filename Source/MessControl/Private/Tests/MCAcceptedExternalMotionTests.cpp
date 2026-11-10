@@ -23,6 +23,7 @@ bool FMCAcceptedMotionWire::RunTest(const FString&)
     for(auto Kind:{EMCAcceptedMotionPolicy::ConstantVelocity,EMCAcceptedMotionPolicy::SteeredVelocity,EMCAcceptedMotionPolicy::BoundedGoal})
     for(bool Active:{true,false}) {
         auto Sent=MCAcceptedMotionTests::Snapshot(Kind);Sent.bActive=Active;
+        if(Kind==EMCAcceptedMotionPolicy::BoundedGoal) {Sent.Speed=2200;Sent.CurveDuration=.75f;}
         FBitWriter Writer(4096,true);TestTrue(TEXT("The accepted provider snapshot serializes into packed network bits"),Sent.Serialize(Writer));
         uint32 Sentinel=0x91ab28c7;Writer<<Sentinel;
         FBitReader Reader(Writer.GetData(),Writer.GetNumBits());FMCAcceptedMotionSnapshot Read;
@@ -30,9 +31,14 @@ bool FMCAcceptedMotionWire::RunTest(const FString&)
         uint32 NextField=0;Reader<<NextField;
         TestTrue(TEXT("Optional provider payload never shifts the next response field"),!Reader.IsError() && NextField==Sentinel && Reader.GetPosBits()==Writer.GetNumBits());
         TestTrue(TEXT("Load, operation and monotonic revision survive the same codec"),Read.OperationID==Sent.OperationID && Read.Epoch==Sent.Epoch && Read.Revision==Sent.Revision && Read.bActive==Active);
-        if(!Active) {TestTrue(TEXT("Terminal retains identity without an obsolete motion source/goal/time"),Read.Goal.IsZero() && Read.Velocity.IsZero() && Read.SourceTime==0);continue;}
+        if(!Active) {TestTrue(TEXT("Terminal retains identity without an obsolete motion source/goal/time"),Read.Goal.IsZero() && Read.Velocity.IsZero() && Read.SourceTime==0 && Read.CurveDuration==0);continue;}
         TestTrue(TEXT("Native source identity and ACK-relative clock survive"),Read.Policy==Kind && Read.ServerSourceID==17 && Read.SourceTime==Sent.SourceTime && Read.StartMoveTime==Sent.StartMoveTime);
         TestTrue(TEXT("Only the selected solver parameters are transported"),Kind==EMCAcceptedMotionPolicy::BoundedGoal?Read.Goal.Equals(Sent.Goal):Read.Velocity.Equals(Sent.Velocity));
+        if(Kind==EMCAcceptedMotionPolicy::BoundedGoal) {
+            TestEqual(TEXT("Hook pull mean speed survives the accepted motion snapshot"),Read.Speed,Sent.Speed);
+            TestEqual(TEXT("Hook pull curve timing survives the accepted motion snapshot"),Read.CurveDuration,Sent.CurveDuration);
+            TestEqual(TEXT("Hook prediction receives the curve duration from the accepted motion snapshot"),Read.AsHookReceipt().CurveDuration,Sent.CurveDuration);
+        }
         if(Kind==EMCAcceptedMotionPolicy::SteeredVelocity) TestTrue(TEXT("Steering state includes its simulation-time bounce lock"),Read.TurnRate==Sent.TurnRate && Read.SteeringLockedUntil==Sent.SteeringLockedUntil);
     }
     auto Invalid=MCAcceptedMotionTests::Snapshot(EMCAcceptedMotionPolicy::SteeredVelocity);

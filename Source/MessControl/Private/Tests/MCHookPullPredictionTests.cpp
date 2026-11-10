@@ -36,7 +36,7 @@ bool FMCHookPullReceiptSerialization::RunTest(const FString&)
     using namespace MCHookPullPredictionTests;
     for(bool Active:{true,false})
     {
-        auto Sent=Receipt();Sent.bActive=Active;Sent.bFreeFlight=Active;
+        auto Sent=Receipt();Sent.bActive=Active;Sent.bFreeFlight=Active;Sent.Speed=2200;Sent.CurveDuration=.75f;
         TArray<uint8> Bytes;FMemoryWriter Writer(Bytes);
         TestTrue(TEXT("A complete accepted or stopped receipt serializes"),Sent.Serialize(Writer));
         FMCHookPullReceipt Read;FMemoryReader Reader(Bytes);
@@ -44,12 +44,14 @@ bool FMCHookPullReceiptSerialization::RunTest(const FString&)
         TestTrue(TEXT("Action, epoch and revision survive the wire"),Read.ActionID==Sent.ActionID && Read.Epoch==Sent.Epoch && Read.Revision==Sent.Revision);
         TestEqual(TEXT("Active or stopped state survives the wire"),Read.bActive,Sent.bActive);
         if(!Active) {
-            TestTrue(TEXT("Stopped receipts retain only the cleanup identity"),Read.Goal.IsZero() && Read.SourceTime==0 && !Read.bFreeFlight);
+            TestTrue(TEXT("Stopped receipts retain only the cleanup identity"),
+                Read.Goal.IsZero() && Read.SourceTime==0 && Read.CurveDuration==0 && !Read.bFreeFlight);
             continue;
         }
         TestTrue(TEXT("Movement ownership flags and previous mode survive the wire"),Read.bFreeFlight==Sent.bFreeFlight
             && Read.PreviousMode==Sent.PreviousMode && Read.PreviousCustomMode==Sent.PreviousCustomMode);
         TestTrue(TEXT("Accepted geometry and speed survive the wire"),Read.Goal.Equals(Sent.Goal) && Read.Speed==Sent.Speed && Read.StopDistance==Sent.StopDistance);
+        TestEqual(TEXT("The accepted pull curve timing survives the wire"),Read.CurveDuration,Sent.CurveDuration);
         TestTrue(TEXT("Acknowledged source time is distinct from its start timestamp"),Read.SourceTime==Sent.SourceTime && Read.StartMoveTime==Sent.StartMoveTime
             && Read.Duration==Sent.Duration && Read.ServerSourceID==Sent.ServerSourceID);
     }
@@ -68,6 +70,8 @@ bool FMCHookPullReceiptSerialization::RunTest(const FString&)
     TArray<uint8> InvalidBytes;FMemoryWriter InvalidWriter(InvalidBytes);Invalid.Serialize(InvalidWriter);
     FMCHookPullReceipt InvalidRead;FMemoryReader InvalidReader(InvalidBytes);
     TestFalse(TEXT("Invalid wire data is rejected while loading too"),InvalidRead.Serialize(InvalidReader));
+    Invalid=Receipt();Invalid.CurveDuration=std::numeric_limits<float>::infinity();
+    TestFalse(TEXT("Nonfinite curve timing is rejected"),Invalid.IsWellFormed());
     Invalid=Receipt();Invalid.Goal.X=std::numeric_limits<double>::quiet_NaN();
     TestFalse(TEXT("A nonfinite goal is rejected"),Invalid.IsWellFormed());
     Invalid=Receipt();Invalid.SourceTime=Invalid.Duration+.251f;
@@ -85,7 +89,7 @@ bool FMCHookPullSourceSerialization::RunTest(const FString&)
     auto R=MCHookPullPredictionTests::Receipt();
     auto Local=MCHookPullPrediction::MakeSource(R);
     auto Changed=MCHookPullPrediction::MakeSource(R);
-    ++Changed->Revision;Changed->Goal+=FVector(30,10,0);Changed->Speed=900;Changed->SetTime(.5f);
+    ++Changed->Revision;Changed->Goal+=FVector(30,10,0);Changed->Speed=2200;Changed->CurveDuration=.75f;Changed->SetTime(.5f);
     TestTrue(TEXT("An updated accepted goal retains the native matching identity"),Local->Matches(Changed.Get()));
     TestFalse(TEXT("A changed accepted goal/time still requires reconciliation"),Local->MatchesAndHasSameState(Changed.Get()));
     auto OtherEpoch=MCHookPullPrediction::MakeSource(R);OtherEpoch->Epoch=FGuid(9,10,11,12);
@@ -96,6 +100,7 @@ bool FMCHookPullSourceSerialization::RunTest(const FString&)
     TestTrue(TEXT("A matching correction imports accepted state"),Local->UpdateStateFrom(Changed.Get()));
     TestTrue(TEXT("Import preserves the registered local ID and updates goal and time"),Local->LocalID==23 && Local->Goal.Equals(Changed->Goal)
         && Local->Revision==Changed->Revision && Local->GetTime()==Changed->GetTime());
+    TestEqual(TEXT("Import preserves the accepted curve duration across reconciliation"),Local->CurveDuration,Changed->CurveDuration);
     Local->Status.SetFlag(ERootMotionSourceStatusFlags::MarkedForRemoval);
     Local->UpdateStateFrom(Changed.Get());
     TestTrue(TEXT("Native state import never revives a locally removed pull"),Local->Status.HasFlag(ERootMotionSourceStatusFlags::MarkedForRemoval));
@@ -107,6 +112,7 @@ bool FMCHookPullSourceSerialization::RunTest(const FString&)
     FMCHookPullRootMotionSource Read;bool ReadSuccess=false;
     TestTrue(TEXT("The derived source decodes"),Read.NetSerialize(Reader,nullptr,ReadSuccess) && ReadSuccess);
     TestTrue(TEXT("The decoded source matches the accepted action and state"),Read.MatchesAndHasSameState(Local.Get()));
+    TestEqual(TEXT("The root-motion wire carries the accepted curve duration"),Read.CurveDuration,Changed->CurveDuration);
     TestTrue(TEXT("Planar ownership settings survive source replication"),Read.Settings.HasFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate));
     TUniquePtr<FRootMotionSource> Cloned(Read.Clone());
     TestTrue(TEXT("Saved-move cloning retains the derived source and accepted context"),Cloned->GetScriptStruct()==FMCHookPullRootMotionSource::StaticStruct()
@@ -150,6 +156,26 @@ bool FMCHookPullCatchupClamp::RunTest(const FString&)
     R.Goal=Character->GetActorLocation()+FVector(80,0,0);auto Inside=MCHookPullPrediction::MakeSource(R);
     Inside->PrepareRootMotion(SimulationTime,MovementTickTime,*Character,*Move);
     TestTrue(TEXT("Already inside the accepted radius produces no pull or reverse force"),Inside->RootMotionParams.GetRootMotionTransform().GetTranslation().IsNearlyZero());
+
+    R.Goal=Character->GetActorLocation()+FVector(1220,0,0);R.Speed=2200;R.CurveDuration=.5f;
+    auto Curved=MCHookPullPrediction::MakeSource(R);
+    constexpr float Slice=.125f;
+    float Advances[4];
+    float TotalAdvance=0;
+    for(float& Advance:Advances) {
+        Curved->PrepareRootMotion(Slice,MovementTickTime,*Character,*Move);
+        Advance=float(Curved->RootMotionParams.GetRootMotionTransform().GetTranslation().X*MovementTickTime);
+        TotalAdvance+=Advance;
+    }
+    TestEqual(TEXT("The first quarter advances with the same ease-in as outbound"),Advances[0],228.59375f,.05f);
+    TestEqual(TEXT("The middle quarter accelerates past the average pace"),Advances[1],321.40625f,.05f);
+    TestEqual(TEXT("The closing quarter brakes to the same pace as the opening quarter"),Advances[3],Advances[0],.05f);
+    TestEqual(TEXT("The full curve integrates to 2200 cm/s on average"),TotalAdvance/R.CurveDuration,R.Speed,.1f);
+    R.Goal=Character->GetActorLocation()+FVector(200,0,0);
+    auto CurvedCatchup=MCHookPullPrediction::MakeSource(R);
+    CurvedCatchup->PrepareRootMotion(Slice,MovementTickTime,*Character,*Move);
+    const FVector CurvedCatchupAdvance=CurvedCatchup->RootMotionParams.GetRootMotionTransform().GetTranslation()*MovementTickTime;
+    TestTrue(TEXT("Curved replay still clamps at the live stop radius"),CurvedCatchupAdvance.Equals(FVector(80,0,0),.01));
     return true;
 }
 

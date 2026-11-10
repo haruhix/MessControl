@@ -22,6 +22,7 @@ public class MessControl : ModuleRules
         PrivateDependencyModuleNames.Add("Json");
         PrivateDependencyModuleNames.Add("ApplicationCore");
         PrivateDependencyModuleNames.Add("AudioExtensions");
+        PrivateDependencyModuleNames.AddRange(new[] { "MetasoundEngine", "MetasoundFrontend", "MetasoundGraphCore" });
         PrivateDependencyModuleNames.AddRange(new[] { "Voice", "SignalProcessing" });
         if(Target.Platform==UnrealTargetPlatform.Win64) PublicSystemLibraries.AddRange(new[] { "ole32.lib", "uuid.lib" });
         PrivateDependencyModuleNames.Add("MoviePlayer");

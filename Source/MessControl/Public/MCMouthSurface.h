@@ -104,7 +104,7 @@ public:
     bool BrushLiquid(class AMCToothCharacter* Worker,float Seconds);
     /** Spatial cleaning after the authoritative spray/residue reach and occlusion checks. */
     bool CleanLiquidAt(class AMCToothCharacter* Worker,FVector Point,float Radius,float Seconds,float Rate,
-        EMCStainCleanReason Reason=EMCStainCleanReason::Spray);
+        EMCStainCleanReason Reason=EMCStainCleanReason::Spray,bool bSpongeContact=false);
     bool CleanLiquidFromPassive(class AMCToothCharacter* Worker);
     bool FindDirtyContact(class AMCToothCharacter* Worker,FVector& Point,FVector& Normal) const;
     float RemainingLiquid() const;
@@ -114,8 +114,8 @@ public:
 private:
     FMCCareWidgetPresentation CareWidgetPresentation;
     bool ApplyLiquidCleaning(class AMCToothCharacter* Worker,FVector2D From,FVector2D To,FVector Point,
-        float RadiusUV,float Seconds,float Rate,EMCStainCleanReason Reason);
-    void SyncLiquidCleaningLayers(class AMCToothCharacter* Worker,EMCStainCleanReason Reason);
+        float RadiusUV,float Seconds,float Rate,EMCStainCleanReason Reason,bool bSpongeContact=false);
+    void SyncLiquidCleaningLayers(class AMCToothCharacter* Worker,EMCStainCleanReason Reason,bool bHoldForCoverage=false);
     UFUNCTION() void OnRep_Wipe();
     UFUNCTION() void OnRep_LiquidSize();
     UFUNCTION() void OnRep_LiquidMaterial();
@@ -159,6 +159,7 @@ private:
     struct FBrushCenter { FVector Point=FVector::ZeroVector; double At=-100; };
     TMap<TWeakObjectPtr<AActor>,FBrushCenter> BrushCenters;
     TArray<float> WipeFractional;
+    TBitArray<> SpongeSweptCells;
     TWeakObjectPtr<AMCTongue> BoundTongue;
     TWeakObjectPtr<class UStaticMesh> BoundTongueSource;
     int32 BoundTongueVertexCount=0,BoundTongueIndexCount=0;

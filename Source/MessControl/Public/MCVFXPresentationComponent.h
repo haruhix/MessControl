@@ -172,7 +172,7 @@ public:
      * Audio may belong to a separate accepted receipt; disabling this lane stops only its state-owned audio. */
     bool UpdateLocalSourceState(FName ID,FName Event,bool bActive,const FTransform& Frame,
         const FMCPerkVFXGameplayValues& Values,UActorComponent* TickPrerequisite,FString& Error,bool bDispatchAudio=true);
-    void StopLocalSourceStates(FName ID=NAME_None);
+    void StopLocalSourceStates(FName ID=NAME_None,FName Event=NAME_None);
     int32 GetLocalSourceStateCount() const {return LocalSourceStates.Num();}
     void StopSource(FName ID,bool bImmediate=true);
     void StopSourceEpisode(FName ID,FGuid EpisodeID,bool bImmediate=true);

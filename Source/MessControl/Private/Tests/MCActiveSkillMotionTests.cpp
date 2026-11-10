@@ -1,5 +1,6 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
+#include "MCActiveSkillAimPreview.h"
 #include "MCActiveSkillMotion.h"
 #include "MCSpongeSkillAction.h"
 #include "MCDriverSkillAction.h"
@@ -588,6 +589,29 @@ bool FMCSpongeContactCleaning::RunTest(const FString&)
     TestEqual(TEXT("The contacted central pixel is fully clean after one pass"),Patch->WipeMask[Center],uint8(0));
     TestEqual(TEXT("Uncontacted dirt beside the strip remains intact"),Patch->WipeMask[Beside],uint8(255));
     TestTrue(TEXT("An elevated detached stain is not cleaned from below"),Detached->WipeMask==DetachedBefore);
+
+    auto* ThresholdPatch=PatchAt(FVector(400,0,10000),200);
+    TArray<uint8> Deposited;
+    Deposited.Init(0,FMCCoffeeWipe::Count);
+    constexpr int32 Y=32;
+    for(const int32 X:{22,28,34,40}) Deposited[Y*FMCCoffeeWipe::Size+X]=255;
+    ThresholdPatch->SetLiquidDepositMask(Deposited);
+    const auto PassCell=[&](int32 X) {
+        const FVector Offset((X+.5)/FMCCoffeeWipe::Size-.5,(Y+.5)/FMCCoffeeWipe::Size-.5,0);
+        const FVector Point=ThresholdPatch->GetActorLocation()+Offset*(2*ThresholdPatch->LiquidHalfSize);
+        return MCActiveSkillMotion::CleanSweep(T.Hero,nullptr,Point,Point,1.f/60,5.f,1.4f,620.f,true);
+    };
+    TestTrue(TEXT("The first contacted wet cell is wiped immediately"),PassCell(22));
+    TestTrue(TEXT("A second distinct cell is wiped"),PassCell(28));
+    TestFalse(TEXT("Exactly half the stain is still incomplete"),ThresholdPatch->IsClean());
+    TestFalse(TEXT("Revisiting the same cells adds no progress"),PassCell(22));
+    TestEqual(TEXT("No completion cue fires at half coverage"),ThresholdPatch->GetAcceptedStainCleaningState().CompletionSerial,uint32(0));
+    TestTrue(TEXT("A third distinct cell crosses the threshold"),PassCell(34));
+    TestTrue(TEXT("The same native stain completes and clears its remaining cells"),ThresholdPatch->IsClean()
+        && ThresholdPatch->WipeMask[Y*FMCCoffeeWipe::Size+40]==0);
+    TestFalse(TEXT("A completed stain cannot be credited on a later contact"),PassCell(40));
+    TestEqual(TEXT("One completion cue fires above half coverage"),ThresholdPatch->GetAcceptedStainCleaningState().CompletionSerial,uint32(1));
+
     const auto BeforeReject=Patch->WipeMask;
     TestFalse(TEXT("A high sample cannot clean a floor merely inside trace range"),
         MCActiveSkillMotion::CleanSweep(T.Hero,nullptr,FVector(0,0,10040),FVector(8,0,10040),1.f/60,45.f,1.4f,620.f,true));
@@ -726,40 +750,63 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHookAllyCollision,"MessControl.ActiveSkills.
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCHookAllyCollision::RunTest(const FString&)
 {
-    MCActiveSkillMotionTests::FWorld T;auto* Ally=T.Ally(600);T.Step(.1f);T.AimForward();
+    MCActiveSkillMotionTests::FWorld T;auto* Ally=T.Ally(2200);T.Step(.1f);T.AimForward();
+    FVector View,Look;
+    if(!TestTrue(TEXT("Read the real caster view"),AMCHookSkillAction::ReadAim(*T.Hero,View,Look))) return false;
+    const FVector AllyStart=Ally->GetActorLocation();
+    Ally->SetActorLocation(FVector(AllyStart.X,View.Y+110.,AllyStart.Z));
+    FHitResult RawAim;
+    TestFalse(TEXT("The unassisted camera ray misses the off-axis player's capsule"),
+        Ally->GetCapsuleComponent()->LineTraceComponent(RawAim,View,View+Look*4200.,FCollisionQueryParams::DefaultQueryParam));
     auto* Wall=T.Box(FVector(300,0,10100),FVector(10,200,200));
     auto* Blocked=Cast<AMCHookSkillAction>(T.Prepare<UMCHookSkillEffect>());
     if(!TestNotNull(TEXT("A blocked aim still permits a visible cast and miss reaction"),Blocked)) return false;
     const FVector BlockedAllyStart=Ally->GetActorLocation();
-    Blocked->StartCommitted();T.Step(.45f);
+    Blocked->StartCommitted();
+    for(int32 Frame=0;Frame<60 && (Blocked->GetCastPhase()==EMCHookCastPhase::Windup
+        || Blocked->GetCastPhase()==EMCHookCastPhase::Outbound);++Frame) T.Step(1.f/60);
+    TestEqual(TEXT("A world-blocked head starts to return"),Blocked->GetCastPhase(),EMCHookCastPhase::Returning);
     TestFalse(TEXT("The world wall prevents all ally contact"),Blocked->DidContactTarget());
     TestNull(TEXT("A world-blocked head cannot acquire the ally's motion lease"),Blocked->PulledPawn.Get());
     TestTrue(TEXT("The ally remains behind the wall and is never moved by a rejected hook"),Ally->GetActorLocation().Equals(BlockedAllyStart,.1));
     TestTrue(TEXT("The head never emerges on the far side of the wall"),Blocked->GetHookHeadLocation().X<300);
     T.Step(.8f);TestTrue(TEXT("A blocked cast finishes its visible return and recovery"),Blocked->IsFinished());
     Wall->Destroy();
-    auto* Hook=Cast<AMCHookSkillAction>(T.Prepare<UMCHookSkillEffect>({{TEXT("PullSpeed"),500.f}}));
+    FMCActiveSkillAimPreview Preview;
+    TestTrue(TEXT("The reticle previews a reachable off-axis player beyond the old range"),
+        GetDefault<AMCHookSkillAction>()->BuildAimPreview(*T.Hero,{},Preview) && Preview.State==EMCActiveSkillAimState::Ally);
+    auto* Hook=Cast<AMCHookSkillAction>(T.Prepare<UMCHookSkillEffect>());
     if(!TestNotNull(TEXT("An unobstructed ally is selected despite Visibility-ignoring player meshes"),Hook)) return false;
-    const FVector OwnerStart=T.Hero->GetActorLocation();const float Before=FVector::Dist2D(OwnerStart,Ally->GetActorLocation());
+    const FVector OwnerStart=T.Hero->GetActorLocation();
     Hook->StartCommitted();
     TestEqual(TEXT("Contact is preceded by a real anticipation phase"),Hook->GetCastPhase(),EMCHookCastPhase::Windup);
     TestNull(TEXT("No ally is pulled at button press"),Hook->PulledPawn.Get());
-    T.Step(.2f);
+    for(int32 Frame=0;Frame<30 && Hook->GetCastPhase()==EMCHookCastPhase::Windup;++Frame) T.Step(1.f/60);
+    T.Step(.04f);
     TestEqual(TEXT("After anticipation the head is in flight"),Hook->GetCastPhase(),EMCHookCastPhase::Outbound);
     TestNull(TEXT("The ally remains unclaimed while the hook travels"),Hook->PulledPawn.Get());
     TestTrue(TEXT("The flying head separates from a stable caster glove"),FVector::Distance(Hook->GetTetherStart(),Hook->GetHookHeadLocation())>30);
     TestTrue(TEXT("The visible glove remains exactly the cable's caster endpoint"),Hook->GetCasterHandFrame().GetLocation().Equals(Hook->GetTetherStart(),.001));
+    for(int32 Frame=0;Frame<60 && Hook->GetCastPhase()==EMCHookCastPhase::Outbound;++Frame) T.Step(1.f/60);
+    if(!TestEqual(TEXT("An ally hit pulls that ally, not the caster"),Hook->PulledPawn.Get(),Ally)) return false;
+    T.Step(1.f/60);
+    const double DistanceBefore=FVector::Dist2D(OwnerStart,Ally->GetActorLocation());
+    T.Step(.1f);
+    const double DistanceAfter=FVector::Dist2D(OwnerStart,Ally->GetActorLocation());
+    const double InitialAdvance=DistanceBefore-DistanceAfter;
+    TestTrue(TEXT("The ally starts below the 2200 cm/s pull mean"),InitialAdvance>110. && InitialAdvance<200.);
     T.Step(.3f);
-    TestEqual(TEXT("An ally hit pulls that ally, not the caster"),Hook->PulledPawn.Get(),Ally);
-    T.Step(.2f);
-    TestTrue(TEXT("Native collision movement brings the ally closer"),FVector::Dist2D(T.Hero->GetActorLocation(),Ally->GetActorLocation())<Before-40.f);
+    const double MiddleStart=FVector::Dist2D(OwnerStart,Ally->GetActorLocation());
+    T.Step(.1f);
+    const double MiddleAdvance=MiddleStart-FVector::Dist2D(OwnerStart,Ally->GetActorLocation());
+    TestTrue(TEXT("The ally accelerates above the pull mean during the middle of the pull"),MiddleAdvance>235. && MiddleAdvance<280.);
     TestTrue(TEXT("The caster is not teleported by the ally branch"),FVector::Dist2D(T.Hero->GetActorLocation(),OwnerStart)<3.f);
     Wall=T.Box((Hook->GetTetherStart()+Hook->GetTetherEnd())*.5f,FVector(10,200,200));
     T.Step(.05f);TestEqual(TEXT("A new wall crossing releases the pull and visibly reels the head"),Hook->GetCastPhase(),EMCHookCastPhase::Returning);
     TestTrue(TEXT("The physical wall releases the movement lease immediately"),MCActiveSkillMotion::CanAcquire(Ally));
     TestTrue(TEXT("Wall stop reason is native telemetry"),Hook->GetPullStopReason()==TEXT("TetherBlocked") || Hook->GetPullStopReason()==TEXT("PullStepBlocked"));
     TestTrue(TEXT("Cancellation releases the ally's temporary flight"),Ally->GetCharacterMovement()->MovementMode!=MOVE_Flying);
-    T.Step(.8f);TestTrue(TEXT("The blocked cast finishes only after return/recovery"),Hook->IsFinished());
+    T.Step(1.1f);TestTrue(TEXT("The blocked cast finishes only after return/recovery"),Hook->IsFinished());
     return true;
 }
 
@@ -769,7 +816,7 @@ bool FMCHookBossFamilies::RunTest(const FString&)
 {
     for(bool Nut:{false,true}) {
         MCActiveSkillMotionTests::FWorld T;AActor* Target=nullptr;
-        const FVector At(600,0,10112);
+        const FVector At(1000,0,10112);
         if(Nut) {
             // Default Falling BeginPlay moves a boss to its entrance LockedStart.
             // Seed this stationary Idle fixture before BeginPlay, as the native
@@ -783,13 +830,16 @@ bool FMCHookBossFamilies::RunTest(const FString&)
             Boss->Runtime.State=EMCBossState::Searching;Boss->Runtime.Health=100;Boss->GetCharacterMovement()->DisableMovement();Target=Boss;
         }
         Target->SetActorTickEnabled(false);T.AimForward();
-        auto* Hook=Cast<AMCHookSkillAction>(T.Prepare<UMCHookSkillEffect>({{TEXT("PullSpeed"),500.f}}));
+        auto* Hook=Cast<AMCHookSkillAction>(T.Prepare<UMCHookSkillEffect>());
         if(!TestNotNull(Nut?TEXT("Nut boss actual body is hookable"):TEXT("Generic boss actual torso is hookable"),Hook)) return false;
         const FVector BossStart=Target->GetActorLocation(),OwnerStart=T.Hero->GetActorLocation();
         Hook->StartCommitted();
         TestNull(TEXT("Boss aim does not create an instantaneous pull"),Hook->PulledPawn.Get());
-        T.Step(.65f);
-        TestEqual(TEXT("Actual boss contact moves the caster"),Hook->PulledPawn.Get(),T.Hero);
+        for(int32 Frame=0;Frame<60 && (Hook->GetCastPhase()==EMCHookCastPhase::Windup
+            || Hook->GetCastPhase()==EMCHookCastPhase::Outbound);++Frame) T.Step(1.f/60);
+        if(!TestEqual(TEXT("Actual boss contact moves the caster"),Hook->PulledPawn.Get(),T.Hero)) return false;
+        T.Step(.05f);
+        TestEqual(TEXT("The boss is removed during the pull"),Hook->GetCastPhase(),EMCHookCastPhase::Pulling);
         TestTrue(TEXT("The caster advances through CMC toward the boss"),T.Hero->GetActorLocation().X>OwnerStart.X+40);
         TestTrue(TEXT("Hook never moves the boss transform"),Target->GetActorLocation().Equals(BossStart,.1));
         Target->Destroy();T.Step(.05f);TestEqual(TEXT("A missing target releases movement and reels back"),Hook->GetCastPhase(),EMCHookCastPhase::Returning);
@@ -881,26 +931,78 @@ bool FMCHookMissAndCancel::RunTest(const FString&)
     MCActiveSkillMotionTests::FWorld T;T.AimForward();
     auto* Canceled=Cast<AMCHookSkillAction>(T.Prepare<UMCHookSkillEffect>());
     if(!TestNotNull(TEXT("An empty aim is a valid cast"),Canceled)) return false;
-    Canceled->StartCommitted();T.Step(.08f);
+    Canceled->StartCommitted();T.Step(.12f);
     TestEqual(TEXT("The first half of anticipation is still winding up"),Canceled->GetCastPhase(),EMCHookCastPhase::Windup);
     TestTrue(TEXT("Anticipation never acquires the caster movement mode"),MCActiveSkillMotion::CanAcquire(T.Hero));
     Canceled->Cancel(EMCActiveSkillEndReason::InputCanceled);
     TestTrue(TEXT("Cancel during anticipation releases the presentation immediately"),Canceled->IsFinished() && !T.Hero->GetActiveSkillPresentation());
     auto* Miss=Cast<AMCHookSkillAction>(T.Prepare<UMCHookSkillEffect>({{TEXT("HookRange"),800.f}}));
     if(!TestNotNull(TEXT("A new miss gets an independent action"),Miss)) return false;
-    const FVector OwnerStart=T.Hero->GetActorLocation();Miss->StartCommitted();T.Step(.32f);
+    const FVector OwnerStart=T.Hero->GetActorLocation();Miss->StartCommitted();
+    for(int32 Frame=0;Frame<30 && Miss->GetCastPhase()==EMCHookCastPhase::Windup;++Frame) T.Step(1.f/60);
+    if(!TestEqual(TEXT("The empty cast visibly travels before reeling"),Miss->GetCastPhase(),EMCHookCastPhase::Outbound)) return false;
+    const double ReleasedAt=Miss->GetPhaseStartedAt();
+    const FVector Release=Miss->GetHookHeadLocation();
+    T.Step(.1f);
+    const float EarlyTravel=FVector::Distance(Release,Miss->GetHookHeadLocation());
+    T.Step(.12f);
+    const FVector MidStart=Miss->GetHookHeadLocation();T.Step(.1f);
+    TestTrue(TEXT("The visible head covers more distance in an equal mid-flight interval"),
+        FVector::Distance(MidStart,Miss->GetHookHeadLocation())>1.3f*EarlyTravel);
     TestEqual(TEXT("The empty cast visibly travels before reeling"),Miss->GetCastPhase(),EMCHookCastPhase::Outbound);
     TestTrue(TEXT("Flying prop advances while the mitten stays near the body"),Miss->GetHookHeadLocation().X>Miss->GetTetherStart().X+150
         && FVector::Distance(Miss->GetTetherStart(),OwnerStart)<140);
     const FRotator Facing=Miss->GetCastFacing();T.Controller->SetControlRotation(FRotator(0,150,0));T.Step(.04f);
     TestTrue(TEXT("Later camera orbit cannot redirect the accepted cast"),Miss->GetCastFacing().Equals(Facing,.001));
-    T.Step(.22f);
+    for(int32 Frame=0;Frame<60 && Miss->GetCastPhase()==EMCHookCastPhase::Outbound;++Frame) T.Step(1.f/60);
     TestEqual(TEXT("A range miss enters a finite return phase"),Miss->GetCastPhase(),EMCHookCastPhase::Returning);
+    TestTrue(TEXT("The missed hook reaches triple its authored range before returning"),
+        FMath::IsNearlyEqual(FVector::Distance(Release,Miss->GetHookHeadLocation()),2400.,.1));
+    TestTrue(TEXT("The outbound mean speed is double the prior value"),
+        FMath::IsNearlyEqual(Miss->GetPhaseStartedAt()-ReleasedAt,2400./4400.,1./60.));
     TestFalse(TEXT("No target contact was fabricated at maximum range"),Miss->DidContactTarget());
     TestNull(TEXT("A miss never starts pawn movement"),Miss->PulledPawn.Get());
-    T.Step(.65f);
+    T.Step(1.f);
     TestTrue(TEXT("Return and recovery finish without leaking the presentation"),Miss->IsFinished() && !T.Hero->GetActiveSkillPresentation());
     TestTrue(TEXT("A miss preserves the caster's grounded mode and position"),T.Move->IsMovingOnGround() && T.Hero->GetActorLocation().Equals(OwnerStart,.1));
+
+    T.AimForward();
+    const FName HookID=TEXT("Active_Hook");
+    auto* Perks=T.Player->Perks.Get();
+    auto* Table=Perks->GetPerkTable();
+    if(!TestTrue(TEXT("The fixture owns its transient skill catalog"),Table && Table->GetOuter()==T.World)) return false;
+    FMCPerkDefinition Row;Row.Kind=EMCPerkKind::Active;Row.EffectClass=UMCHookSkillEffect::StaticClass();
+    Row.Parameters.Add(TEXT("HookRange"),800.f);Table->AddRow(HookID,Row);
+    if(!TestTrue(TEXT("The actual Hook slot can be equipped"),Perks->TryAcquirePerk(HookID,0))) return false;
+    const auto Run=[&](FVector Direction,int32 Frames) {
+        for(int32 Frame=0;Frame<Frames;++Frame) {T.Hero->AddMovementInput(Direction,1.f);T.Step(1.f/60);}
+    };
+    T.Hero->SetSprintInputHeld(true);
+    Run(FVector::RightVector,25);
+    if(!TestTrue(TEXT("The caster is sprinting sideways before aiming"),T.Hero->GetVelocity().Y>250.)) return false;
+    T.Controller->BeginSkillInput(0);
+    if(!TestTrue(TEXT("The real Hook input route can aim during sprint"),T.Controller->RouteSkillAimInput(true) && T.Controller->IsSkillAimHeld())) return false;
+    const FVector AimStart=T.Hero->GetActorLocation();
+    Run(FVector::RightVector,8);
+    TestTrue(TEXT("Holding aim retains sideways movement"),T.Hero->GetActorLocation().Y>AimStart.Y+35. && T.Move->WantsToSprint());
+    FVector AimOrigin,AimDirection;
+    if(!TestTrue(TEXT("Read the live shoulder view before firing"),AMCHookSkillAction::ReadAim(*T.Hero,AimOrigin,AimDirection))) return false;
+    if(!TestTrue(TEXT("The real fire gesture is accepted while sprinting"),T.Controller->RouteSkillFireInput(true))) return false;
+    auto* Running=Cast<AMCHookSkillAction>(T.Hero->GetActiveSkillPresentation());
+    if(!TestNotNull(TEXT("The moving fire gesture commits the Hook"),Running)) return false;
+    const FVector WindupStart=T.Hero->GetActorLocation();
+    for(int32 Frame=0;Frame<36 && Running->GetCastPhase()==EMCHookCastPhase::Windup;++Frame) Run(FVector::RightVector,1);
+    if(!TestEqual(TEXT("The moving caster releases the Hook"),Running->GetCastPhase(),EMCHookCastPhase::Outbound)) return false;
+    const FVector MovingRelease=T.Hero->GetActorLocation(),MovingHead=Running->GetHookHeadLocation();
+    TestTrue(TEXT("The caster advances through the windup and releases from the moving hand"),
+        MovingRelease.Y>WindupStart.Y+35. && FVector::Dist(MovingHead,MovingRelease)<160.);
+    Run(-FVector::ForwardVector,13);
+    TestTrue(TEXT("The caster can change direction and sprint backward during flight"),
+        T.Hero->GetActorLocation().X<MovingRelease.X-25. && T.Move->IsMovingOnGround() && T.Move->WantsToSprint());
+    TestTrue(TEXT("The launch follows the accepted aim while the caster moves away"),
+        FVector::DotProduct((Running->GetHookHeadLocation()-MovingHead).GetSafeNormal(),AimDirection)>.9);
+    T.Controller->RouteSkillFireInput(false);T.Controller->RouteSkillAimInput(false);T.Hero->SetSprintInputHeld(false);
+    Running->Cancel(EMCActiveSkillEndReason::InputCanceled);
     return true;
 }
 

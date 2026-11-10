@@ -174,7 +174,8 @@ struct FSequenceWorld
     void FinishPortion()
     {
         const int32 Target=Loop->MealPortionTarget;
-        for(int32 Attempt=0;Attempt<Target*2 && Loop->Stage==EMCSingleDayStage::FirstMeal;++Attempt) {
+        for(int32 Attempt=0;Attempt<Target*2 && Loop->Stage==EMCSingleDayStage::FirstMeal
+            && !Loop->bStageRewardPending;++Attempt) {
             Loop->Tick(.1f);
             for(auto* Food:PatternFood()) Food->Destroy();
             ClearMealDirt();
@@ -184,14 +185,14 @@ struct FSequenceWorld
     void FinishPattern()
     {
         RestoreTongueCollision();
-        FinishPortion();
+        FinishPortion();ResolveStageReward();
         if(auto* Wave=PatternWave()) {
             AdvanceClockTo(float(World->GetTimeSeconds())+Wave->Seconds+2.f);
             Wave->Tick(.1f);
             Loop->Tick(.1f);
         }
-        ClearMealDirt();Loop->Tick(.1f);
-        FinishPortion();
+        ClearMealDirt();Loop->Tick(.1f);ResolveStageReward();
+        FinishPortion();ResolveStageReward();
     }
     void AddFogTarget()
     {
@@ -271,8 +272,10 @@ bool FMCSingleDayOpeningMealGateTest::RunTest(const FString&)
     if(!TestNotNull(TEXT("The fixture has a real player status"),Hero)) return false;
     Hero->Status->ApplyCoffee(1.f);
     F.Loop->Tick(.1f);
-    TestFalse(TEXT("Resolving a portion cannot request a key-event chest"),F.Loop->bStageRewardPending);
-    TestEqual(TEXT("Resolving the batch advances despite unrelated global player dirt"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
+    TestTrue(TEXT("Resolving a portion requests its own shared chest"),F.Loop->bStageRewardPending);
+    TestFalse(TEXT("The portion chest is separate from the key event reward"),F.Loop->IsKeyEventRewardPending());
+    F.ResolveStageReward();
+    TestEqual(TEXT("Choosing the reward advances despite unrelated global player dirt"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
     TestTrue(TEXT("The unrelated player stain is preserved"),Hero->Status->State.CoffeeLeft>0);
     return true;
 }
@@ -324,8 +327,9 @@ bool FMCSingleDayOpeningMealArenaTeethTest::RunTest(const FString&)
         if(!TestTrue(TEXT("The normal care API cleans a real tooth layer"),Available->Status->CareContact(true,nullptr))) return false;
     TestFalse(TEXT("The remaining tooth now needs no brushing"),Available->Status->NeedsCare(true));
     F.Loop->Tick(.1f);
-    TestFalse(TEXT("Cleaning the available tooth does not request a chest"),F.Loop->bStageRewardPending);
-    TestEqual(TEXT("Cleaning that actual available tooth releases the meal-to-coffee barrier"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
+    TestTrue(TEXT("Cleaning the available tooth releases the portion reward"),F.Loop->bStageRewardPending);
+    F.ResolveStageReward();
+    TestEqual(TEXT("Choosing that reward releases the meal-to-coffee barrier"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
     TestTrue(TEXT("The successful handoff preserves dirt on the unavailable consumed tooth"),Consumed->Status->State.CoffeeLeft>0);
     return true;
 }
@@ -351,8 +355,13 @@ bool FMCSingleDayOpeningRelaxTest::RunTest(const FString&)
     const int32 Batch=FirstFoods[0]->Batch;
     FirstFoods[0]->Destroy();
     F.ClearMealDirt();F.Loop->Tick(.1f);
-    TestFalse(TEXT("The first cleanup cannot start a chest"),F.Loop->bStageRewardPending);
-    if(!TestEqual(TEXT("The first cleanup starts the coffee wave"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave)) return false;
+    TestTrue(TEXT("The first portion starts its shared chest"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("The first portion has a unique identity within this slot"),F.Loop->StageRewardCompletionId,FName(TEXT("FoodPortion_0_1")));
+    F.Loop->Tick(.1f);
+    TestNull(TEXT("The coffee wave waits until the first portion chest resolves"),F.PatternWave());
+    TestEqual(TEXT("The reward previews the upcoming coffee wave"),F.State->DirectorState.NextTitle,FString(TEXT("КОФЕЙНАЯ ВОЛНА")));
+    F.ResolveStageReward();
+    if(!TestEqual(TEXT("The first chest starts the coffee wave"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave)) return false;
     auto* Wave=F.PatternWave();
     if(!TestNotNull(TEXT("The sequence starts an actual owned coffee actor"),Wave)) return false;
     TestTrue(TEXT("The owned drink is an ordinary river wave"),Wave->bRiverFlood && !Wave->IsCataclysmStorm());
@@ -378,9 +387,14 @@ bool FMCSingleDayOpeningRelaxTest::RunTest(const FString&)
     F.AdvanceClockTo(float(F.World->GetTimeSeconds())+60.f);F.Loop->Tick(.1f);
     TestEqual(TEXT("Coffee residue still blocks progression after time passes"),F.Loop->Stage,EMCSingleDayStage::BetweenMealsPause);
     TestTrue(TEXT("The dirty arena has received no second portion"),F.PatternFood().IsEmpty());
-    TestFalse(TEXT("Coffee cleanup cannot request a chest"),F.Loop->bStageRewardPending);
+    TestFalse(TEXT("Unfinished coffee cleanup cannot request a chest"),F.Loop->bStageRewardPending);
     F.ClearMealDirt();F.Loop->Tick(.1f);
-    if(!TestEqual(TEXT("Clearing coffee residue starts the second meal"),F.Loop->Stage,EMCSingleDayStage::FirstMeal)) return false;
+    TestTrue(TEXT("Completing coffee cleanup starts its shared chest"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("Coffee has a separate reward identity"),F.Loop->StageRewardCompletionId,FName(TEXT("CoffeeCleanup_0")));
+    F.Loop->Tick(.1f);
+    TestTrue(TEXT("The second portion waits for coffee's shared chest"),F.PatternFood().IsEmpty());
+    F.ResolveStageReward();
+    if(!TestEqual(TEXT("Choosing the coffee reward starts the second meal"),F.Loop->Stage,EMCSingleDayStage::FirstMeal)) return false;
     TestEqual(TEXT("The second portion has the correct one-based number"),F.Loop->MealPortionNumber,2);
     if(!TestEqual(TEXT("The second portion serves the native ten-item target"),F.Loop->MealPortionTarget,10)) return false;
 
@@ -394,7 +408,7 @@ bool FMCSingleDayOpeningRelaxTest::RunTest(const FString&)
     TestEqual(TEXT("Actual food residue blocks the key-event handoff"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
     TestNull(TEXT("The key event does not overlap the second meal"),F.Loop->NutEvent.Get());
     TestNull(TEXT("The second portion does not start another coffee wave"),F.PatternWave());
-    TestFalse(TEXT("The second portion does not request a chest"),F.Loop->bStageRewardPending);
+    TestFalse(TEXT("The second portion cannot request a chest while residue remains"),F.Loop->bStageRewardPending);
 
     F.ClearMealDirt();
     auto* OutsideBatch=F.World->SpawnActor<AMCMouthSurface>();
@@ -402,7 +416,12 @@ bool FMCSingleDayOpeningRelaxTest::RunTest(const FString&)
     F.Loop->Tick(.1f);
     TestEqual(TEXT("The final gate includes real floor dirt outside the current batch"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
     OutsideBatch->ClearLiquidForBooster();F.Loop->Tick(.1f);
-    TestEqual(TEXT("A clean second meal starts the current key event immediately"),F.Loop->Stage,EMCSingleDayStage::Nuts);
+    TestTrue(TEXT("A clean second meal starts its shared chest"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("The second portion has its own reward identity"),F.Loop->StageRewardCompletionId,FName(TEXT("FoodPortion_0_2")));
+    TestEqual(TEXT("The current key event remains upcoming"),F.Loop->KeyEventIndex,0);
+    TestNull(TEXT("The current key event waits for the second portion chest"),F.Loop->NutEvent.Get());
+    F.ResolveStageReward();
+    TestEqual(TEXT("Choosing the second meal reward starts the current key event"),F.Loop->Stage,EMCSingleDayStage::Nuts);
     TestNotNull(TEXT("The sequence dispatched the real nut event"),F.Loop->NutEvent.Get());
     TestFalse(TEXT("There is no chest before the key event completes"),F.Loop->bStageRewardPending);
     return true;
@@ -442,9 +461,9 @@ bool FMCSingleDayOpeningFiveTest::RunTest(const FString&)
     TestNull(TEXT("No wave overlaps live food"),F.PatternWave());
     for(auto* Food:Served) Food->Destroy();
     F.Loop->Tick(.1f);
-    TestEqual(TEXT("Disposal can finish a portion that spawned no floor dirt"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
-    TestFalse(TEXT("The clean first portion creates no reward"),F.Loop->bStageRewardPending);
-    TestEqual(TEXT("Completing the five-item portion starts coffee"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
+    TestTrue(TEXT("Disposal can finish a clean portion and request its reward"),F.Loop->bStageRewardPending);
+    F.ResolveStageReward();
+    TestEqual(TEXT("Resolving the five-item portion reward starts coffee"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
     auto* Wave=F.PatternWave();
     if(!TestNotNull(TEXT("The first cleanup started an owned wave"),Wave)) return false;
     auto* OwnedFood=F.World->SpawnActor<AMCFoodActor>();OwnedFood->Batch=Batch;

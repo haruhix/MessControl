@@ -9,6 +9,8 @@
 #include "MCNativeWorldActionPreviewAdapters.h"
 #include "MCFoodRewardPreviewAdapters.h"
 #include "MCFoodAutoMouthPreviewAdapter.h"
+#include "MCNutThrowPreviewAdapter.h"
+#include "MCStageBoosterPreviewAdapter.h"
 #include "MCCoffeeRiverPreviewAdapter.h"
 #include "MCFrostActionPreviewAdapters.h"
 #include "MCIceActionPreviewAdapters.h"
@@ -31,6 +33,7 @@
 #include "MCWorldPreloadSubsystem.h"
 #include "MCArenaTooth.h"
 #include "MCFoodActor.h"
+#include "MCThroat.h"
 #include "MCDayPlan.h"
 #include "Engine/DataTable.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -85,9 +88,14 @@ public:
             const auto* Food=ContactFood.Get();
             if(!IsValid(Food)||Food->IsDisposed()||Food->Health<InitialHealth) {bHit=true;if(C.RecordEvent)C.RecordEvent(TEXT("Hit"));}
         }
-        if(bContactScenario&&!bCut&&C.Hero->ConfirmedFoodCutCount>FoodCutsBefore)
-        {bCut=true;if(C.RecordEvent)C.RecordEvent(TEXT("FoodCut"));}
-        if(!bReleased&&Age>.08f){C.Hero->SetPrimaryInputHeld(false);bReleased=true;}
+        if(bContactScenario&&!bCut&&C.Hero->ConfirmedFoodCutCount>FoodCutsBefore) {
+            bCut=true;
+            // The accepted native knife contact may be followed by a queued split.
+            if(!bHit) {bHit=true;if(C.RecordEvent)C.RecordEvent(TEXT("Hit"));}
+            if(C.RecordEvent)C.RecordEvent(TEXT("FoodCut"));
+        }
+        const bool bKnifeTarget=bContactScenario&&Slot==EMCToolSlot::Knife;
+        if(!bReleased&&(bKnifeTarget?(bCut||Age>.2f):Age>.08f)) Release(C);
         if(bAccepted&&Age>C.Hero->Inventory->SwingDuration()+.2f) {
             if(!bContactScenario||bHit)bDone=true;
             else if(Age>2.f){bDone=true;if(C.RecordEvent)C.RecordEvent(TEXT("NativeToolContactNotAccepted"));}
@@ -107,7 +115,8 @@ public:
                 if(!FoodBefore.Contains(TWeakObjectPtr<AMCFoodActor>(*It)))Spawned.Add(*It);
             for(auto* Food:Spawned)if(IsValid(Food))Food->Destroy();
         }
-        FoodBefore.Reset();ContactFood.Reset();Presentation.Reset();
+        if(auto* Throat=ContactThroat.Get())Throat->Destroy();
+        FoodBefore.Reset();ContactFood.Reset();ContactThroat.Reset();Presentation.Reset();
     }
     bool IsComplete(const FMCPerkPreviewContext&) const override{return bDone;}
     FString GetPhaseName(const FMCPerkPreviewContext&) const override
@@ -119,21 +128,47 @@ private:
         const auto* Table=GetDefault<UMCDayPlan>()->Menu.LoadSynchronous();
         if(!Table||Table->GetRowStruct()!=FMCFoodRow::StaticStruct()){Error=TEXT("Нет настоящего игрового меню для пищевой цели.");return false;}
         TArray<FName> Names=Table->GetRowNames();Names.Sort([](FName A,FName B){return A.LexicalLess(B);});
+        const bool bKnife=Slot==EMCToolSlot::Knife;
         const FMCFoodRow* Chosen=nullptr;FName RowName;
+        TSoftObjectPtr<UStaticMesh> KnifeFragment;
+        FQuat Rotation=C.Hero->GetActorQuat();
         for(FName Name:Names)if(const auto* Row=Table->FindRow<FMCFoodRow>(Name,TEXT("ComposerToolContact"),false)) {
-            if(Row->Kind!=EMCFoodKind::Food||Row->WholeMeshes.IsEmpty())continue;
+            if(Row->Kind!=EMCFoodKind::Food)continue;
             bool Hard=Row->Resistance==EMCFoodResistance::Hard;
             if(Row->Resistance==EMCFoodResistance::Automatic)
                 Hard=Name==TEXT("Carrot")||Name==TEXT("Nut")||Name==TEXT("Crust")||Name==TEXT("Tartar");
             if(Hard!=(Slot==EMCToolSlot::Pickaxe))continue;
+            if(bKnife) {
+                // As in the intake preview, use a real CPU-readable menu portion
+                // and orient its longest axis across the knife's cut plane.
+                for(const auto& Ref:Row->FragmentMeshes) {
+                    const auto* Mesh=Ref.LoadSynchronous();
+                    if(!Mesh||!Mesh->bAllowCPUAccess)continue;
+                    const FVector Size=Mesh->GetBoundingBox().GetSize()*Row->FragmentScale.GetAbs();
+                    if(Size.ContainsNaN()||Size.GetMin()<=0)continue;
+                    const int32 CutAxis=Size.X>=Size.Y&&Size.X>=Size.Z?0:Size.Y>=Size.Z?1:2;
+                    Rotation=Rotation*(CutAxis==0?FRotator(0,90,0):CutAxis==2?FRotator(0,0,90):FRotator::ZeroRotator).Quaternion();
+                    KnifeFragment=Ref;
+                    break;
+                }
+                if(KnifeFragment.IsNull())continue;
+            } else if(Row->WholeMeshes.IsEmpty())continue;
             Chosen=Row;RowName=Name;break;
         }
         if(!Chosen){Error=TEXT("Нет подходящей сохранённой еды для одного настоящего удара.");return false;}
-        const FTransform Pose(C.Hero->GetActorQuat(),C.Hero->GetActorLocation()+C.Hero->GetActorForwardVector()*110.f-FVector(0,0,60));
+        const FVector SpawnOffset=C.Hero->GetActorForwardVector()*110.f-FVector(0,0,bKnife?0.f:60.f);
+        const FTransform Pose(Rotation,C.Hero->GetActorLocation()+SpawnOffset);
         auto* Food=C.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if(!Food){Error=TEXT("Не удалось создать настоящую пищевую цель.");return false;}
         ContactFood=Food;C.Targets.Add(Food);FRandomStream FixtureChoice(743);
-        Food->Initialize(false,C.Hero->GetActorForwardVector());Food->ConfigureItem(RowName,*Chosen,FixtureChoice);Food->FinishSpawning(Pose);
+        Food->Initialize(false,C.Hero->GetActorForwardVector());
+        if(bKnife) {
+            if(const auto* Profile=Food->Profile.LoadSynchronous())Food->Settings=Profile->Settings;
+            FMCFoodRow Choice=*Chosen;
+            Choice.FragmentMeshes={KnifeFragment};
+            Food->ConfigureItem(RowName,Choice,FixtureChoice,true);
+        } else Food->ConfigureItem(RowName,*Chosen,FixtureChoice);
+        Food->FinishSpawning(Pose);
         // Keep the authentic saved mesh and scale, but place its near surface in reach.
         // Freeze only this sandbox fixture so initial overlap cannot launch it away.
         const FBox Bounds=Food->Visual->Bounds.GetBox();
@@ -144,12 +179,26 @@ private:
         Food->Body->SetSimulatePhysics(false);
         Food->SetActorLocation(Food->GetActorLocation()+DesiredCenter-Bounds.GetCenter(),false,nullptr,ETeleportType::TeleportPhysics);
         const auto ActualMesh=Food->Visual->GetStaticMesh();
-        const bool FromSavedRow=Chosen->WholeMeshes.ContainsByPredicate([ActualMesh](const TSoftObjectPtr<UStaticMesh>& Ref){return Ref.Get()==ActualMesh.Get();});
+        const auto& SavedMeshes=bKnife?Chosen->FragmentMeshes:Chosen->WholeMeshes;
+        const bool FromSavedRow=SavedMeshes.ContainsByPredicate([ActualMesh](const TSoftObjectPtr<UStaticMesh>& Ref){return Ref.Get()==ActualMesh.Get();});
         if(!ActualMesh||!FromSavedRow||!C.Hero->Inventory->CanBreak(Food))
         {Error=TEXT("Штатный инструмент не подтвердил настоящую сохранённую пищевую цель.");return false;}
+        FHitResult Contact;
+        if(bKnife&&!Food->FindToolContact(C.Hero,C.Hero->Inventory->MeleeReach(),Contact))
+        {Error=TEXT("Сохранённый кусок не находится на линии контакта настоящего ножа.");return false;}
+        if(bKnife&&Food->UsesAutomaticCutIntake()) {
+            // Accepted automatic portions still need the same real destination
+            // as in the intake scenario. Keep the contact camera focused on food.
+            const FTransform ThroatPose(C.Hero->GetActorQuat(),C.Hero->GetActorLocation()+Forward*700.f+FVector(0,0,80.f));
+            auto* Throat=C.World->SpawnActor<AMCThroat>(AMCThroat::StaticClass(),ThroatPose);
+            if(!Throat){Error=TEXT("Не удалось подготовить глотку для принятого разреза.");return false;}
+            ContactThroat=Throat;
+            Throat->SetActorTickEnabled(false);
+        }
         InitialHealth=Food->Health;if(C.RequestFramingUpdate)C.RequestFramingUpdate();return true;
     }
     TWeakObjectPtr<AMCFoodActor> ContactFood;
+    TWeakObjectPtr<AMCThroat> ContactThroat;
     TArray<TWeakObjectPtr<AMCFoodActor>> FoodBefore;
     float InitialHealth=0;
     int32 HitsBefore=0,FoodCutsBefore=0;
@@ -469,6 +518,8 @@ void MCWorldActionPreviewAdapters::Register()
     MCYawnWaterPreview::Register();
     MCThroatSuctionPreview::Register();
     MCFoodAutoMouthPreview::Register();
+    MCNutThrowPreview::Register();
+    MCStageBoosterPreview::Register();
     MCHurtActionPreviewAdapters::Register();
     MCPianoActionPreviewAdapter::Register();
     MCSprayActionPreviewAdapter::Register();
@@ -476,7 +527,7 @@ void MCWorldActionPreviewAdapters::Register()
     MCStainSurfacePreviewAdapter::Register();
     // Exact runtime hooks are editable even while their full contextual
     // gameplay/UI scenario is unavailable. No synthetic scenario factory.
-    for(const FName ID:{FName(TEXT("Reward.Chest")),FName(TEXT("Reward.StageBooster")),FName(TEXT("Reward.PerkPickup")),FName(TEXT("Reward.TaskComplete")),FName(TEXT("UI.ShiftFeedback"))}) {
+    for(const FName ID:{FName(TEXT("Reward.Chest")),FName(TEXT("Reward.PerkPickup")),FName(TEXT("Reward.TaskComplete")),FName(TEXT("UI.ShiftFeedback"))}) {
         if(MCPerkPreviewAdapters::Find(ID))continue;
         const auto* C=MCVFXSourceContracts::Find(ID);if(!C)continue;
         FMCPerkPreviewAdapterEntry E;E.PerkID=ID;E.Kind=EMCPerkPreviewAdapterKind::Context;E.Label=C->Label;E.Stages=C->Events;E.bSupportsProfileOverride=true;MCPerkPreviewAdapters::Register(MoveTemp(E));

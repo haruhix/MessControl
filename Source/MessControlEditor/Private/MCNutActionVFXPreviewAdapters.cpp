@@ -7,6 +7,7 @@
 #include "MCVFXLabBossStation.h"
 #include "MCNutVFXCatalog.h"
 #include "MCFoodActor.h"
+#include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "MCNutBoss.h"
 #include "MCNutKamikaze.h"
@@ -16,6 +17,7 @@
 #include "MCNutLandingShadow.h"
 #include "Materials/MaterialInterface.h"
 #include "MCToothCharacter.h"
+#include "MCToothStatusComponent.h"
 #include "MCTongue.h"
 #include "Components/StaticMeshComponent.h"
 #include "ProceduralMeshComponent.h"
@@ -24,12 +26,15 @@
 #include "Engine/StaticMeshActor.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "NiagaraSystem.h"
 #include "UObject/Package.h"
 #include "UObject/StrongObjectPtr.h"
 
 namespace MCNutActionPreview
 {
+const FName KnightMelee(TEXT("Boss.NutKnight.Melee"));
+
 bool LabKind(const FMCNutVFXAction& Action,EMCVFXLabBossKind& Out)
 {
     const auto* Enum=StaticEnum<EMCVFXLabBossKind>();
@@ -80,8 +85,10 @@ public:
         Surface->Surface->SetCollisionEnabled(bPhysicalEntry?ECollisionEnabled::QueryAndPhysics:ECollisionEnabled::QueryOnly);
         const bool Ranged=Kind==EMCVFXLabBossKind::TankCharge || Kind==EMCVFXLabBossKind::TankJump
             || Kind==EMCVFXLabBossKind::TankRoll || Kind==EMCVFXLabBossKind::MageSummon
-            || Kind==EMCVFXLabBossKind::MageNutRain || Kind==EMCVFXLabBossKind::MageTeleport;
-        FVector Point=C.Hero->GetActorLocation()+FVector(Ranged?650.f:270.f,0,0);Point.Z=0;
+            || Kind==EMCVFXLabBossKind::MageNutRain || Kind==EMCVFXLabBossKind::MageTeleport || Kind==EMCVFXLabBossKind::TankChain;
+        const float Spacing=Kind==EMCVFXLabBossKind::TankChain
+            ?(C.Scenario==EMCPerkPreviewScenario::Timeout?1300.f:950.f):Ranged?650.f:270.f;
+        FVector Point=C.Hero->GetActorLocation()+FVector(Spacing,0,0);Point.Z=0;
         const FTransform Pose(FRotator(0,180,0),Point);
         auto* Lab=C.World->SpawnActorDeferred<AMCVFXLabBossStation>(AMCVFXLabBossStation::StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if(!Lab){Error=TEXT("Не удалось создать владельца настоящего сценария.");return false;}
@@ -99,12 +106,34 @@ public:
         bMeleeSequence=Kind==EMCVFXLabBossKind::TankMelee;MeleeStarts=0;
         bHeadSplit=Kind==EMCVFXLabBossKind::TankHeadSplit;
         bSummon=Source==TEXT("Boss.NutMage.Summon");bRain=Source==TEXT("Boss.NutMage.NutRain");
-        if(bSummon || bRain) {
+        bChain=Kind==EMCVFXLabBossKind::TankChain;
+        bChainBait=bChain && C.Scenario==EMCPerkPreviewScenario::Acquire;
+        bChainDodge=bChain && C.Scenario==EMCPerkPreviewScenario::Timeout;
+        bChainDodgeLaunched=false;
+        if(bSummon || bRain || bChainBait) {
             auto* Profile=LoadObject<UMCNutRainProfile>(nullptr,TEXT("/Game/Gameplay/CoreLoop/DA_NutRain.DA_NutRain"));
             if(!NativeBoss->EncounterOwner || !NativeBoss->EncounterOwner->PrepareIsolatedSpellContext(Surface,Profile))
-            {Error=TEXT("Не удалось подготовить настоящий владелец орехов для призыва/дождя.");return false;}
+            {Error=TEXT("Не удалось подготовить настоящего владельца орехов.");return false;}
             if(bSummon && !NativeBoss->EncounterOwner->SpawnSpellNut(NativeBoss->GetActorLocation()+FVector(-180,220,0),137))
             {Error=TEXT("Настоящий орех для призыва не создан.");return false;}
+            if(bChainBait) {
+                const FVector Candidate=FMath::Lerp(NativeBoss->GetChainOrigin(),C.Hero->GetActorLocation(),.72);
+                if(!NativeBoss->EncounterOwner->SpawnIsolatedEntryNut(Candidate,137))
+                {Error=TEXT("Не удалось подготовить целый орех на пути цепи.");return false;}
+                auto* Nut=NativeBoss->EncounterOwner->Nuts[0].Get();
+                C.Targets.Add(Nut);
+                int32 FragmentIndex=0;
+                for(const auto& Ref:Nut->FoodData.FragmentMeshes) if(!Ref.IsNull()) {
+                    auto* Mesh=Ref.LoadSynchronous();
+                    auto* Anchor=C.AddBox?C.AddBox(FName(*FString::Printf(TEXT("KnightChainNutFragment_%d"),FragmentIndex)),
+                        FVector(0,0,-11200-FragmentIndex*10),FVector(.001f)):nullptr;
+                    if(!Mesh || !Anchor){Error=TEXT("Не удалось подготовить меши осколков целого ореха.");return false;}
+                    Anchor->SetActorHiddenInGame(true);Anchor->SetActorEnableCollision(false);
+                    Anchor->GetStaticMeshComponent()->SetStaticMesh(Mesh);C.Targets.Add(Anchor);
+                    ++FragmentIndex;
+                }
+                if(FragmentIndex==0){Error=TEXT("В сохранённом орехе отсутствуют меши осколков.");return false;}
+            }
         }C.PreviewFront=(C.Hero->GetActorLocation()-Point).GetSafeNormal2D();
         bEntrance=Kind==EMCVFXLabBossKind::TankEntrance || Kind==EMCVFXLabBossKind::MageEntrance;
         bDeath=Kind==EMCVFXLabBossKind::TankDeath || Kind==EMCVFXLabBossKind::MageDeath;
@@ -134,8 +163,11 @@ public:
         P->SourceID=Source;P->Events=Contract->Events;
         auto* Subject=Lab->GetComparisonVisualSubject();
         if(!P->BindSourceAudioSocket(Source,Subject,Error))return false;
-        const bool Ready=C.PresentationOverride?P->PrepareProfileOverride(C.PresentationOverride,Error):MCNutVFX::Prepare(P,Source,Error,true);
+        const bool Ready=C.PresentationOverride?(bChain?MCNutVFX::PrepareChainOverride(P,C.PresentationOverride,Error)
+            :P->PrepareProfileOverride(C.PresentationOverride,Error)):MCNutVFX::Prepare(P,Source,Error,true);
         if(!Ready)return false;
+        // The successful chain continues into the regular melee presentation.
+        if(bChain && !bChainBait && !bChainDodge && !MCNutVFX::Prepare(P,KnightMelee,Error,true))return false;
         if(auto* K=Cast<AMCNutKamikaze>(NativeOwner.Get())) {
             // This is one real fuse-to-blast action. Its other source must be
             // ready too, even when the user edits only one half of it.
@@ -166,6 +198,25 @@ public:
     void OnCommitted(FMCPerkPreviewContext& C)override
     {
         bCommitted=true;Age=0;auto* Lab=Station.Get();auto* P=Lab?Lab->GetComparisonPresentation():nullptr;
+        if(bChain && P) {
+            // The generic sandbox holds the pawn still for visual readiness.
+            // The player pull and dodge need CMC. In the bait scenario the
+            // borrowed pawn waits in place while the real nut lands and settles.
+            if(!bChainBait)C.Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+            ChainSubjectHealth=C.Hero->Status->State.Health;
+            ChainEvents=P->OnSourceEventAccepted.AddLambda([this,Record=C.RecordEvent](FName ID,FName Event,EMCVFXPresentationResult Result) {
+                if(ID!=Source)return;
+                if(Result==EMCVFXPresentationResult::Rejected) {bFailed=true;return;}
+                if(!Seen.Contains(Event)) {Seen.Add(Event);if(Record)Record(Event);}
+            });
+            if(bChainBait) {
+                const auto* B=Boss.Get();
+                if(!B || !B->EncounterOwner || !B->EncounterOwner->LaunchIsolatedEntryNut()) {
+                    bFailed=true;
+                    if(C.ReportStatus)C.ReportStatus(TEXT("Не удалось запустить настоящее падение ореха для перехвата цепи."));
+                }
+            }
+        }
         for(const auto& Weak:StartupCues)if(auto* Cue=Weak.Get()) {
             FString Error;
             if(!P || !P->CopyPreparedSourceTo(Source,Cue->Presentation,Error)) {
@@ -190,11 +241,46 @@ public:
         auto* Lab=Station.Get();auto* B=Boss.Get();
         if(!Lab || (!IsValid(NativeOwner.Get()) && !bDeath && !bTerminalObserved)){bFailed=true;return;}
         bool FoodReady=true;
-        if(bSummon && B && B->EncounterOwner) {TArray<AMCFoodActor*> Food;B->EncounterOwner->GetAvailableRainNuts(Food);FoodReady=!Food.IsEmpty();}
+        AMCFoodActor* BaitNut=nullptr;
+        if((bSummon || bChainBait) && !bLaunched && B && B->EncounterOwner) {
+            TArray<AMCFoodActor*> Food;
+            B->EncounterOwner->GetAvailableRainNuts(Food);
+            FoodReady=!Food.IsEmpty();
+            if(bChainBait && FoodReady) {
+                BaitNut=Food[0];
+                FoodReady=BaitNut->Phase==EMCFoodPhase::Free && BaitNut->GetVelocity().SizeSquared()<=FMath::Square(40.);
+            }
+        }
+        const bool ChainReady=!bChain || (B && B->State==EMCNutBossState::Idle);
         const bool MeleeReady=!bMeleeSequence || (B && B->State==EMCNutBossState::Idle
             && B->GetAttackCooldownRemaining(EMCNutBossAttack::Melee)<=0.f);
         const bool NextMelee=bMeleeSequence && bLaunched && MeleeStarts<3 && MeleeReady;
-        if(!bFailed && FoodReady && MeleeReady && ((!bLaunched && (bEntrance || Lab->IsComparisonReady())) || NextMelee)) {
+        if(!bFailed && FoodReady && ChainReady && MeleeReady && ((!bLaunched && (bEntrance || Lab->IsComparisonReady())) || NextMelee)) {
+            if(BaitNut) {
+                // Align the private target with the nut's actual resting spot.
+                // The live encounter still chooses its own aim and sweep result.
+                FVector NutCenter,NutExtent;
+                BaitNut->GetActorBounds(true,NutCenter,NutExtent);
+                const FVector BossCenter=B->GetActorLocation();
+                const FVector LaunchOffset=B->GetActorQuat().UnrotateVector(B->GetChainOrigin()-BossCenter);
+                FVector BehindNut=C.Hero->GetActorLocation();
+                const double HeroHeight=BehindNut.Z;
+                // The launch tip rotates with the new target direction. Fit the
+                // private pawn behind the real nut using that future origin.
+                for(int32 Iteration=0;Iteration<6;++Iteration) {
+                    const FVector Facing=(BehindNut-BossCenter).GetSafeNormal2D(SMALL_NUMBER,B->GetActorForwardVector());
+                    const FVector Origin=BossCenter+Facing.Rotation().RotateVector(LaunchOffset);
+                    const double Distance=FVector::Dist2D(Origin,NutCenter);
+                    const double Alpha=Distance/FMath::Max(1.,Distance+175.);
+                    const double LineHeight=FMath::Lerp(Origin.Z,HeroHeight,Alpha);
+                    FVector Intercept=NutCenter;
+                    Intercept.Z=FMath::Clamp(LineHeight,NutCenter.Z-NutExtent.Z*.7,NutCenter.Z+NutExtent.Z*.7);
+                    const double Extend=(Origin.Z-HeroHeight)/FMath::Max(1.,Origin.Z-Intercept.Z);
+                    BehindNut=Origin+(Intercept-Origin)*FMath::Clamp(Extend,1.1,2.);
+                    BehindNut.Z=HeroHeight;
+                }
+                C.Hero->SetActorLocation(BehindNut,false,nullptr,ETeleportType::TeleportPhysics);
+            }
             const bool Accepted=bEntrance || Lab->RunComparisonAction();
             if(!Accepted){bFailed=true;if(C.RecordEvent)C.RecordEvent(TEXT("NutNativeActionRejected"));return;}
             bLaunched=true;
@@ -218,17 +304,40 @@ public:
             }
             bTerminalObserved|=K->bExploded;
         }
-        for(TActorIterator<AMCNutCombatEffect> It(C.World);It;++It)if(It->Cue.PresentationSource==Source)
-        {
+        for(TActorIterator<AMCNutCombatEffect> It(C.World);It;++It) {
+            if(bChain && It->SourceActor==B && It->Cue.PresentationSource==KnightMelee) {
+                if(It->Cue.PresentationEvent==TEXT("Tell"))Mark(TEXT("StrikeTell"));
+                if(It->Cue.PresentationEvent==TEXT("Slash"))Mark(TEXT("Strike"));
+                continue;
+            }
+            if(It->Cue.PresentationSource!=Source)continue;
             const float CueAge=float(C.World->GetTimeSeconds()-It->Cue.StartedAt);
             const FName Event=It->Cue.AfterWindupEvent.IsNone() || CueAge<It->Cue.WindupSeconds?It->Cue.PresentationEvent:It->Cue.AfterWindupEvent;
             if(!Event.IsNone() && !Seen.Contains(Event)){Seen.Add(Event);if(C.RecordEvent)C.RecordEvent(Event);}
             TArray<FName> Bursts;It->GetAcceptedBurstEvents(Bursts);
             for(FName Burst:Bursts)if(!Seen.Contains(Burst)){Seen.Add(Burst);if(C.RecordEvent)C.RecordEvent(Burst);}
         }
+        if(bChain && Seen.Contains(TEXT("Strike")) && C.Hero->Status->State.Health<ChainSubjectHealth)Mark(TEXT("StrikeHit"));
+        if(bChainBait && B && Seen.Contains(TEXT("Fracture")) && !Seen.Contains(TEXT("PhysicalFragments")))
+            for(TActorIterator<AMCFoodActor> It(C.World);It;++It)
+                if(It->GetOwner()==B->EncounterOwner && It->bFragment && !It->IsDisposed()
+                    && It->Body->IsSimulatingPhysics() && !It->GetVelocity().IsNearlyZero()) {
+                    Mark(TEXT("PhysicalFragments"));
+                    break;
+                }
         if(bRain || bEntry)for(TActorIterator<AMCNutLandingShadow> It(C.World);It;++It)if(It->PresentationSource==Source) {
             if(It->IsWarningActive()){Mark(TEXT("Approach"));if(bRain && IsValid(It->TrackedFood.Get()))Mark(TEXT("DropTrail"));}
             if(It->bImpacted){Mark(TEXT("Impact"));bTerminalObserved|=bEntry;}
+        }
+        if(bChainDodge && bLaunched && !bChainDodgeLaunched && B) {
+            const auto& Settings=B->BossSettings;
+            const float LockAlpha=1.f-Settings.TankChainAimLockLeadSeconds/Settings.TankChainWindup;
+            const bool AimLocked=B->State==EMCNutBossState::Telegraph && B->GetChainPhaseAlpha()>=LockAlpha+.02f;
+            if(AimLocked || B->GetChainPhase()==EMCNutBossChainPhase::Flight) {
+                const FVector Side=FVector::CrossProduct(FVector::UpVector,B->AttackForward).GetSafeNormal();
+                C.Hero->LaunchCharacter(Side*850.f+FVector(0,0,180),true,true);
+                bChainDodgeLaunched=true;
+            }
         }
         if(Age>(bMeleeSequence?45.f:20.f)){bFailed=true;if(C.RecordEvent)C.RecordEvent(TEXT("NutNativeActionTimeout"));}
     }
@@ -237,6 +346,14 @@ public:
         if(!bCommitted || !bLaunched)return bFailed;
         if(bFailed)return true;
         const auto* B=Boss.Get();
+        if(bChain) {
+            if(!B || B->State!=EMCNutBossState::Idle || !Seen.Contains(TEXT("End")))return false;
+            if(bChainBait)return Seen.Contains(TEXT("CatchNut")) && Seen.Contains(TEXT("Impact")) && Seen.Contains(TEXT("Fracture"))
+                && Seen.Contains(TEXT("PhysicalFragments")) && !Seen.Contains(TEXT("Strike"));
+            if(bChainDodge)return Seen.Contains(TEXT("Reel")) && !Seen.Contains(TEXT("CatchNut")) && !Seen.Contains(TEXT("CatchPlayer")) && !Seen.Contains(TEXT("Strike"));
+            return Seen.Contains(TEXT("CatchPlayer")) && Seen.Contains(TEXT("Reel")) && Seen.Contains(TEXT("StrikeTell"))
+                && Seen.Contains(TEXT("Strike")) && Seen.Contains(TEXT("StrikeHit"));
+        }
         if(bMeleeSequence)return MeleeStarts==3 && B && B->State==EMCNutBossState::Idle
             && Seen.Contains(TEXT("Tell")) && Seen.Contains(TEXT("Slash")) && Seen.Contains(TEXT("Slam"));
         if(bKamikaze)return bTerminalObserved && !Seen.IsEmpty()
@@ -253,7 +370,13 @@ public:
     FString GetPhaseName(const FMCPerkPreviewContext&)const override
     {return bFailed?TEXT("Сценарий не подтверждён · проверьте диагностику"):!bCommitted?TEXT("Подготовка настоящего владельца действия"):!bLaunched?TEXT("Подготовка реального контакта/приземления"):bCounter?TEXT("Настоящие контакты → накопление давления → контрудар"):bKamikaze?TEXT("Настоящий фитиль, преследование и взрыв"):bEntry?TEXT("Настоящий падающий орех и столкновение"):TEXT("Реальное действие босса · исходные события и анимация");}
     float GetTailSeconds()const override{return 2.f;}
-    void Cancel(FMCPerkPreviewContext&)override {if(auto* Lab=Station.Get())Lab->Destroy();}
+    void Cancel(FMCPerkPreviewContext&)override {
+        if(auto* Lab=Station.Get()) {
+            if(auto* P=Lab->GetComparisonPresentation())P->OnSourceEventAccepted.Remove(ChainEvents);
+            Lab->Destroy();
+        }
+        ChainEvents.Reset();
+    }
     void Reset(FMCPerkPreviewContext& C)override {Cancel(C);Station.Reset();Boss.Reset();NativeOwner.Reset();LegacySystems.Reset();StartupCues.Reset();StartupShadows.Reset();Seen.Reset();Age=0;bCommitted=bLaunched=false;}
 private:
     FName Source;TWeakObjectPtr<AMCVFXLabBossStation> Station;TWeakObjectPtr<AMCNutBoss> Boss;
@@ -261,6 +384,9 @@ private:
     TArray<TStrongObjectPtr<UNiagaraSystem>> LegacySystems;TArray<TWeakObjectPtr<AMCNutCombatEffect>> StartupCues;TSet<FName> Seen;
     TArray<TWeakObjectPtr<AMCNutLandingShadow>> StartupShadows;
     int32 MeleeStarts=0;bool bMeleeSequence=false;
+    FDelegateHandle ChainEvents;
+    bool bChain=false,bChainBait=false,bChainDodge=false,bChainDodgeLaunched=false;
+    float ChainSubjectHealth=0;
     float Age=0;bool bCommitted=false,bLaunched=false,bFailed=false,bEntrance=false,bDeath=false,bSummon=false,bRain=false;
     bool bKamikaze=false,bEntry=false,bCounter=false,bHeadSplit=false,bTerminalObserved=false;
 };
@@ -270,14 +396,19 @@ const bool Registered=[]
     for(const auto& Contract:MCNutVFX::Actions())
     {
         if(Contract.ID==TEXT("Boss.NutKnight.Shield") || Contract.ID==TEXT("Boss.NutMage.Fireball"))continue;
-        MCVFXProfileBindings::RegisterLibrarySource(Contract.ID,UMCVFXPresentationLibrary::MouthLibraryPath(),Contract.ID,Contract.Events);
+        const bool bChainAction=Contract.ID==MCNutVFX::ChainSource();
         EMCVFXLabBossKind Kind;const bool HasLab=LabKind(Contract,Kind);
-        FMCVFXActionCatalogueEntry Row;Row.ID=Contract.ID;Row.Label=Contract.Label;Row.Stages=Contract.Events;
-        Row.Category=Contract.ID.ToString().StartsWith(TEXT("Boss."))?TEXT("Boss"):TEXT("World");
-        Row.SourceOwner=TEXT("MCNutVFXCatalog / actual AMCNutBoss, AMCNutKamikaze or AMCNutLandingShadow owner");
-        Row.Description=FText::FromString(TEXT("Настоящие игровые события. Контакт, хитбоксы и опасная область принадлежат механике; VFX и SFX редактируются отдельно. Миграция исходного арта проверяется отдельно от наличия привязки."));
-        if(!HasLab)Row.UnsupportedReason=TEXT("В каталоге не указан зарегистрированный настоящий сценарий полигона.");
-        MCVFXActionCatalog::RegisterSource(MoveTemp(Row));
+        // Chain source, original audio and canonical profile are registered by
+        // the shared source catalogue. This is its contextual provider only.
+        if(!bChainAction) {
+            MCVFXProfileBindings::RegisterLibrarySource(Contract.ID,UMCVFXPresentationLibrary::MouthLibraryPath(),Contract.ID,Contract.Events);
+            FMCVFXActionCatalogueEntry Row;Row.ID=Contract.ID;Row.Label=Contract.Label;Row.Stages=Contract.Events;
+            Row.Category=Contract.ID.ToString().StartsWith(TEXT("Boss."))?TEXT("Boss"):TEXT("World");
+            Row.SourceOwner=TEXT("MCNutVFXCatalog / actual AMCNutBoss, AMCNutKamikaze or AMCNutLandingShadow owner");
+            Row.Description=FText::FromString(TEXT("Настоящие игровые события. Контакт, хитбоксы и опасная область принадлежат механике; VFX и SFX редактируются отдельно. Миграция исходного арта проверяется отдельно от наличия привязки."));
+            if(!HasLab)Row.UnsupportedReason=TEXT("В каталоге не указан зарегистрированный настоящий сценарий полигона.");
+            MCVFXActionCatalog::RegisterSource(MoveTemp(Row));
+        }
         FMCPerkPreviewAdapterEntry Entry;Entry.PerkID=Contract.ID;Entry.SourceRowID=NAME_None;Entry.Label=Contract.Label;
         Entry.Kind=EMCPerkPreviewAdapterKind::Context;Entry.Stages=Contract.Events;Entry.bSupportsProfileOverride=true;
         // Read only actual native CDO soft references. Static registration does
@@ -293,14 +424,32 @@ const bool Registered=[]
             Default(TEXT("ReleaseBurst"),Defaults->ArcaneBurstSystem,TEXT("Выпуск частиц ритуала"));
         else if(Contract.ID==TEXT("Boss.NutMage.Teleport"))Default(TEXT("ArrivalBurst"),Defaults->ArcaneBurstSystem,TEXT("Всплеск в точке прибытия"));
         else if(Contract.ID==TEXT("Boss.NutKnight.Transform"))Default(TEXT("HeadDust"),Defaults->DustImpactSystem,TEXT("Пыль раскола оболочки"));
+        if(bChainAction) {
+            Default(TEXT("Tell"),MCNutVFX::ChainDefaultSystem(TEXT("Tell")),TEXT("Замах · оголовок дубины"));
+            Default(TEXT("Spin"),MCNutVFX::ChainDefaultSystem(TEXT("Spin")),TEXT("Оборот крюка · от оголовка дубины"));
+            Default(TEXT("Release"),MCNutVFX::ChainDefaultSystem(TEXT("Release")),TEXT("Выпуск · начало полёта крюка"));
+            Default(TEXT("Flight"),MCNutVFX::ChainDefaultSystem(TEXT("Flight")),TEXT("Цепь · от дубины до крюка или груза"));
+            Default(TEXT("CatchPlayer"),MCNutVFX::ChainDefaultSystem(TEXT("CatchPlayer")),TEXT("Захват зубика · точка контакта"));
+            Default(TEXT("CatchNut"),MCNutVFX::ChainDefaultSystem(TEXT("CatchNut")),TEXT("Захват ореха · точка контакта"));
+            Default(TEXT("Reel"),MCNutVFX::ChainDefaultSystem(TEXT("Reel")),TEXT("Сматывание · от крюка к дубине"));
+            Default(TEXT("Impact"),MCNutVFX::ChainDefaultSystem(TEXT("Impact")),TEXT("Орех попал в рыцаря"));
+            Default(TEXT("End"),MCNutVFX::ChainDefaultSystem(TEXT("End")),TEXT("Окончание атаки · оголовок дубины"));
+            Default(TEXT("Fracture"),MCNutVFX::ChainDefaultSystem(TEXT("Fracture")),TEXT("Осколки целого ореха · точка удара"));
+        }
         if(HasLab) {
             Entry.Scenarios={EMCPerkPreviewScenario::Target};
             const TCHAR* ScenarioLabel=Kind==EMCVFXLabBossKind::TankMelee?TEXT("Три родных атаки: два взмаха → комбо с ударом в землю"):
+                bChainAction?TEXT("Крюк подтягивает зубика → удар дубиной"):
                 Kind==EMCVFXLabBossKind::TankCounterShove?TEXT("Контакты игрока → настоящий контрудар"):
                 Kind==EMCVFXLabBossKind::TankHeadSplit?TEXT("Поражение рыцаря → раскол → настоящий маг"):
                 Kind==EMCVFXLabBossKind::KamikazeFuse || Kind==EMCVFXLabBossKind::KamikazeBlast?TEXT("Настоящий фитиль → преследование → взрыв"):
                 Kind==EMCVFXLabBossKind::RainEntry?TEXT("Настоящее падение ореха → столкновение"):TEXT("Настоящее действие босса");
             Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Target,FText::FromString(ScenarioLabel));
+            if(bChainAction) {
+                Entry.Scenarios.Append({EMCPerkPreviewScenario::Acquire,EMCPerkPreviewScenario::Timeout});
+                Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Acquire,FText::FromString(TEXT("Целый орех перехватывает цепь и оглушает рыцаря")));
+                Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Timeout,FText::FromString(TEXT("Зубик уходит в сторону после замаха")));
+            }
             const FName ID=Contract.ID;Entry.Create=[ID]()->TUniquePtr<IMCPerkPreviewAdapter>{return MakeUnique<FAdapter>(ID);};
         }
         // No factory means honestly metadata-only; the shared registry must not

@@ -208,6 +208,7 @@ bool FMCNutFragmentBossShield::RunTest(const FString&)
     TestEqual(TEXT("A nut shot cannot bypass an intact boss shield"),Boss->Health,Health);
     TestTrue(TEXT("The ordinary boss damage resolver removes shield durability"),Boss->ShieldHealth<Shield);
     TestTrue(TEXT("Boss shield feedback accepts the projectile as one blocked hit"),Boss->bLastToolHitBlocked && Food->ConfirmedImpacts==1);
+    TestTrue(TEXT("A confirmed boss impact spends the shot even when shielded"),Food->IsDisposed());
     return true;
 }
 #endif

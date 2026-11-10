@@ -2,9 +2,47 @@
 #include "MCVFXPresentationComponent.h"
 #include "MCVFXPresentationLibrary.h"
 #include "MCPerkVFXProfile.h"
+#include "NiagaraSystem.h"
+#include "Sound/SoundBase.h"
 
 namespace MCNutVFX
 {
+FName ChainSource()
+{
+    static const FName ID(TEXT("Boss.NutKnight.Chain"));
+    return ID;
+}
+
+TSoftObjectPtr<UNiagaraSystem> ChainDefaultSystem(FName Event)
+{
+    if(Event==TEXT("Spin") || Event==TEXT("Flight") || Event==TEXT("Reel"))
+        return TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutCombat/NS_NutKnightChainTether.NS_NutKnightChainTether")));
+    if(Event==TEXT("Tell"))
+        return TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/VFX/NS_Hook_Start.NS_Hook_Start")));
+    if(Event==TEXT("Release") || Event==TEXT("CatchPlayer"))
+        return TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/VFX/NS_Hook_Impact.NS_Hook_Impact")));
+    if(Event==TEXT("CatchNut"))
+        return TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NutCombat/NS_NutShieldHit.NS_NutShieldHit")));
+    if(Event==TEXT("Impact"))
+        return TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NutCombat/NS_NutDustImpact.NS_NutDustImpact")));
+    if(Event==TEXT("Fracture"))
+        return TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NutCombat/NS_NutThrow_BossImpact.NS_NutThrow_BossImpact")));
+    if(Event==TEXT("End"))
+        return TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/VFX/NS_Hook_End.NS_Hook_End")));
+    return {};
+}
+
+TSoftObjectPtr<USoundBase> ChainDefaultSound(FName Event)
+{
+    if(Event==TEXT("Release"))
+        return TSoftObjectPtr<USoundBase>(FSoftObjectPath(TEXT("/Game/Audio/S_Whoosh.S_Whoosh")));
+    if(Event==TEXT("CatchPlayer"))
+        return TSoftObjectPtr<USoundBase>(FSoftObjectPath(TEXT("/Game/Audio/S_Hit.S_Hit")));
+    if(Event==TEXT("CatchNut") || Event==TEXT("Impact"))
+        return TSoftObjectPtr<USoundBase>(FSoftObjectPath(TEXT("/Game/_LevelUpSpawn/_GenericSource/SFX/Sfx_RockBorn_Cue.Sfx_RockBorn_Cue")));
+    return {};
+}
+
 TConstArrayView<FMCNutVFXAction> Actions()
 {
     static const TArray<FMCNutVFXAction> Rows=[]
@@ -21,6 +59,7 @@ TConstArrayView<FMCNutVFXAction> Actions()
         Add(TEXT("Boss.NutKnight.Roll"),TEXT("Ореховый рыцарь · перекат"),{TEXT("Transform"),TEXT("TransformBurst"),TEXT("Tell"),TEXT("Move")},TEXT("TankRoll"));
         Add(TEXT("Boss.NutKnight.Jump"),TEXT("Ореховый рыцарь · прыжок"),{TEXT("Tell"),TEXT("Impact")},TEXT("TankJump"));
         Add(TEXT("Boss.NutKnight.CounterShove"),TEXT("Ореховый рыцарь · контрудар"),{TEXT("Tell"),TEXT("Impact")},TEXT("TankCounterShove"));
+        Add(TEXT("Boss.NutKnight.Chain"),TEXT("Ореховый рыцарь · цепь"),{TEXT("Tell"),TEXT("Spin"),TEXT("Release"),TEXT("Flight"),TEXT("CatchPlayer"),TEXT("CatchNut"),TEXT("Reel"),TEXT("Impact"),TEXT("End"),TEXT("Fracture")},TEXT("TankChain"));
         Add(TEXT("Boss.NutKnight.Entrance"),TEXT("Ореховый рыцарь · появление"),{TEXT("Tell"),TEXT("Impact")},TEXT("TankEntrance"));
         Add(TEXT("Boss.NutKnight.Death"),TEXT("Ореховый рыцарь · смерть"),{TEXT("Burst"),TEXT("BodyBurst")},TEXT("TankDeath"));
         Add(TEXT("Boss.NutKnight.Transform"),TEXT("Ореховый рыцарь → маг"),{TEXT("HeadSplit"),TEXT("HeadDust")},TEXT("TankHeadSplit"));
@@ -45,6 +84,54 @@ const FMCNutVFXAction* Find(FName Source)
     return nullptr;
 }
 
+namespace
+{
+UMCPerkVFXProfile* WithChainDefaults(UMCPerkVFXProfile* Profile,const TArray<FName>& Events)
+{
+    auto* Effective=NewObject<UMCPerkVFXProfile>(GetTransientPackage());
+    if(Profile) {
+        Effective->Slots=Profile->Slots;
+        Effective->SFXSlots=Profile->SFXSlots;
+        Effective->EventGroups=Profile->EventGroups;
+        Effective->NativePresentation=Profile->NativePresentation;
+    }
+    for(FName Event:Events) {
+        const auto System=ChainDefaultSystem(Event);
+        if(!System.IsNull()) {
+            auto& Slot=Effective->Slots.FindOrAdd(Event);
+            if(Slot.Mode==EMCPerkVFXSlotMode::UseDefault) {
+                Slot=FMCPerkVFXSlot{};
+                Slot.Mode=EMCPerkVFXSlotMode::Replace;
+                Slot.System=System;
+                if(Event==TEXT("Impact"))Slot.Transform.SetScale3D(FVector(1.35));
+            }
+        }
+        const auto Sound=ChainDefaultSound(Event);
+        if(!Sound.IsNull()) {
+            auto& Slot=Effective->SFXSlots.FindOrAdd(Event);
+            if(Slot.UsesNativeAudio()) {
+                if(Slot.Mode==EMCEventSFXMode::UseDefault)Slot.Layers.Reset();
+                Slot.Mode=EMCEventSFXMode::Replace;
+                auto& Layer=Slot.Layers.Emplace_GetRef();
+                Layer.ID=FGuid(0x4E757443,0x6861696E,0,Events.IndexOfByKey(Event)+1);
+                Layer.Name=TEXT("Chain default");
+                Layer.Sound=Sound;
+                Layer.Volume=Event==TEXT("Impact")?.8f:.45f;
+                Layer.Pitch=Event==TEXT("CatchNut")?1.15f:1.f;
+            }
+        }
+    }
+    return Effective;
+}
+}
+
+bool PrepareChainOverride(UMCVFXPresentationComponent* Component,UMCPerkVFXProfile* Profile,FString& Error)
+{
+    const auto* Contract=Find(ChainSource());
+    if(!IsValid(Component) || !IsValid(Profile) || !Contract){Error=TEXT("Missing chain preview source or profile.");return false;}
+    return Component->PrepareScopedOverride(Contract->ID,Contract->Events,WithChainDefaults(Profile,Contract->Events),Error);
+}
+
 bool Prepare(UMCVFXPresentationComponent* Component,FName Source,FString& Error,bool bAllowLoad)
 {
     const auto* Contract=Find(Source);
@@ -56,6 +143,7 @@ bool Prepare(UMCVFXPresentationComponent* Component,FName Source,FString& Error,
     const auto* Reference=Library->Profiles.Find(Source);
     UMCPerkVFXProfile* Profile=Reference?(bAllowLoad?Reference->LoadSynchronous():Reference->Get()):nullptr;
     if(Reference&&!Reference->IsNull()&&!Profile){Error=TEXT("The nut presentation profile was not retained before readiness.");return false;}
+    if(Source==ChainSource()) Profile=WithChainDefaults(Profile,Contract->Events);
     return Component->PrepareSourceProfile(Source,Contract->Events,Profile,Error,bAllowLoad);
 }
 }

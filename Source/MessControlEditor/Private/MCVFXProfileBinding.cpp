@@ -168,6 +168,7 @@ bool MCVFXProfileBindings::ValidateSavedProfileResources(const UMCPerkVFXProfile
             bool bWaiting=false;
             if(!FMCPreloadManifest::PrepareEventAudioPlan(Layer.Sound.Get(),Plan,Error,bWaiting,true))return false;
             for(const USoundWave* Wave:Plan.SampleWaves)if(!SavedRuntime(Wave,TEXT("Сэмпл звукового источника"),Error))return false;
+            for(const auto& Graph:Plan.ReferencedGraphs)if(!SavedRuntime(Graph.Get(),TEXT("Граф MetaSound"),Error))return false;
         }
     }
     if(!Profile->NativePresentation.IsNull())

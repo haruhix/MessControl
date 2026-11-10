@@ -12,6 +12,7 @@ struct FMCHookPullReceipt
     uint8 PreviousMode=0,PreviousCustomMode=0;
     FVector Goal=FVector::ZeroVector;
     float Speed=850,StopDistance=120,Duration=2.5f,StartMoveTime=0,SourceTime=0;
+    float CurveDuration=0; // Planned travel time, independent of the lease deadline.
     uint16 ServerSourceID=0;
     bool Serialize(FArchive& Ar);
     bool IsWellFormed() const;
@@ -25,7 +26,7 @@ struct MESSCONTROL_API FMCHookPullRootMotionSource : public FRootMotionSource_Co
     FGuid ActionID,Epoch;
     uint32 Revision=0;
     FVector Goal=FVector::ZeroVector;
-    float Speed=850,StopDistance=120;
+    float Speed=850,StopDistance=120,CurveDuration=0;
     virtual FRootMotionSource* Clone() const override;
     virtual UScriptStruct* GetScriptStruct() const override;
     virtual bool Matches(const FRootMotionSource* Other) const override;
@@ -40,6 +41,12 @@ template<> struct TStructOpsTypeTraits<FMCHookPullRootMotionSource> : TStructOps
 
 namespace MCHookPullPrediction
 {
+    constexpr float MinSpeed=100.f;
+    constexpr float MaxSpeed=10000.f;
+    constexpr double LinearTravelWeight=.55;
+    constexpr float PeakSpeedScale=float(LinearTravelWeight+1.5*(1.-LinearTravelWeight));
+    MESSCONTROL_API double TravelProgress(double Alpha);
+    MESSCONTROL_API FVector RemainingTravel(FVector Delta,float StopDistance,bool bFreeFlight);
     MESSCONTROL_API FName SourceName(const FGuid& ActionID);
     MESSCONTROL_API TSharedPtr<FMCHookPullRootMotionSource> MakeSource(const FMCHookPullReceipt& Receipt);
     /** History clones reuse a component-issued local ID. Never allocate a different ID per saved move. */

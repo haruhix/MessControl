@@ -404,9 +404,8 @@ bool MCActiveSkillMotion::CleanSweep(AMCToothCharacter* Worker,const AActor* Act
     TArray<TWeakObjectPtr<AMCMouthSurface>> Surfaces;
     for(TActorIterator<AMCMouthSurface> It(Worker->GetWorld());It;++It) if(!It->bUlcer && !It->IsClean()) Surfaces.Add(*It);
     const int32 Count=FMath::Clamp(FMath::CeilToInt(FMath::Max(FVector::Dist(From,To)/(Radius*.5f),double(Seconds/.05f))),1,64);
-    // A Sponge contact is deliberately one strong pass. Still mutate only
-    // native contacted mask cells and let their real receipts grant rewards.
-    // Other cleaning rides retain elapsed-time brushing and authored rate.
+    // Sponge liquid contacts accumulate unique area. Tooth grime keeps its
+    // local contact dose; other cleaning rides retain elapsed-time brushing.
     const float Dose=bContactPass?.1f:Seconds/Count;
     const float ContactRate=bContactPass?16.f:Rate;
     bool Changed=false;
@@ -468,7 +467,7 @@ bool MCActiveSkillMotion::CleanSweep(AMCToothCharacter* Worker,const AActor* Act
             const FVector Local=Surface->GetActorTransform().InverseTransformPosition(Point);
             const bool OnPaintTongue=Surface->bPaintTile && Floor.GetActor()==Surface->GetTongue();
             if((!OnPaintTongue && FMath::Abs(Local.Z)>18.f) || FMath::Abs(Local.X)>Surface->LiquidHalfSize+ClearRadius || FMath::Abs(Local.Y)>Surface->LiquidHalfSize+ClearRadius) continue;
-            Changed|=Surface->CleanLiquidAt(Worker,Point,ClearRadius,Dose,ContactRate,EMCStainCleanReason::ActiveSkill);
+            Changed|=Surface->CleanLiquidAt(Worker,Point,ClearRadius,Dose,ContactRate,EMCStainCleanReason::ActiveSkill,bContactPass);
         }
         if(auto* Tooth=Cast<AMCArenaTooth>(Floor.GetActor()))
             Changed|=Tooth->CleanGrimeAt(Worker,Point,ClearRadius,Dose,ContactRate,EMCStainCleanReason::ActiveSkill);

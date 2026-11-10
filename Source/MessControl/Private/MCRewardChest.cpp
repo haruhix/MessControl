@@ -15,6 +15,7 @@
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCTongue.h"
+#include "MCThroat.h"
 #include "MCToothStatusComponent.h"
 #include "MCExpressionComponent.h"
 #include "Components/BoxComponent.h"
@@ -354,10 +355,93 @@ void AMCRewardChest::InitializeReward(FVector Landing,FVector Start,int32 Seed,U
     ReleaseCaptive(); ReleaseStageChoices(); ReleaseOpener(); LootIDs.Reset(); ClaimedMask=0; bReported=false; bClaimInProgress=false;
     StageRecipients.Reset();StageClaims.Reset();StageOffers.Reset();OpeningOfferID.Invalidate();bStageRecipientsCaptured=false;
     LandingPoint=Landing; FallStart=Start; RollSeed=Seed; RewardTable=Table; SelectionPolicy=Policy; DropZone=Zone;
+    RewardLaunchThroat=nullptr;LastThroatSpitAt=-1.;
     RollMimic();
     bRewardInitialized=true; Stage=EMCRewardChestStage::Telegraph; StageStartedAt=ServerNow();
     LandingPresentationStartedAt=-1.; LastPresentationStage=EMCRewardChestStage::Telegraph;
     ResetPresentationDeformation();
+}
+
+namespace
+{
+constexpr float ChestSpitRelease=.28f;
+}
+
+bool AMCRewardChest::ConfigureThroatLaunch(AMCThroat* Throat)
+{
+    if(!HasAuthority() || !bTeamStageBooster || Stage!=EMCRewardChestStage::Falling
+        || !IsValid(Throat) || Throat->GetWorld()!=GetWorld()) return false;
+    const FVector Inlet=Throat->VacuumInlet();
+    const FVector Direction=(LandingPoint-Inlet).GetSafeNormal2D();
+    if(Inlet.ContainsNaN() || FVector::DistSquared2D(Inlet,LandingPoint)<FMath::Square(360.) || Direction.IsNearlyZero()) return false;
+    const FVector Start=Inlet-Direction*28.-FVector(0,0,40);
+    // The drop zone still validates landing and its footprint. Sample the
+    // central portion of the airborne path for solid world obstructions.
+    FCollisionQueryParams Params(SCENE_QUERY_STAT(RewardChestThroatFlight),false,this);
+    Params.AddIgnoredActor(Throat);
+    FVector Previous=ThroatFlightPosition(Start,.12f)+FVector(0,0,55);
+    for(int32 Step=1;Step<=8;++Step) {
+        const FVector Next=ThroatFlightPosition(Start,.12f+.095f*Step)+FVector(0,0,55);
+        if(GetWorld()->SweepTestByObjectType(Previous,Next,FQuat::Identity,
+            FCollisionObjectQueryParams(ECC_WorldStatic),FCollisionShape::MakeSphere(34.f),Params)) return false;
+        Previous=Next;
+    }
+    RewardLaunchThroat=Throat;
+    FallStart=Start;
+    SetActorLocation(FallStart);
+    if(HasActorBegunPlay()) RefreshPresentation();
+    return true;
+}
+
+float AMCRewardChest::ArrivalDuration() const
+{
+    if(!RewardLaunchThroat) return FMath::Max(.1f,FallSeconds);
+    return ChestSpitRelease+FMath::Clamp(float(FVector::Dist2D(FallStart,LandingPoint))/2050.f,.78f,1.43f);
+}
+
+FVector AMCRewardChest::ThroatFlightPosition(FVector Start,float Alpha) const
+{
+    const float Lift=FMath::Clamp(float(FVector::Dist2D(Start,LandingPoint))*.115f,155.f,375.f);
+    return FMath::Lerp(Start,LandingPoint,Alpha)+FVector(0,0,4.f*Alpha*(1.f-Alpha)*Lift);
+}
+
+void AMCRewardChest::UpdateFlightPresentation(float Age)
+{
+    if(!RewardLaunchThroat) {
+        const float Alpha=FMath::Clamp(Age/ArrivalDuration(),0.f,1.f);
+        SetActorLocation(FMath::Lerp(FallStart,LandingPoint,Alpha*Alpha));
+        const float Z=1.f+.16f*Alpha*Alpha;
+        PresentationPivot->SetRelativeScale3D(FVector(1.f/FMath::Sqrt(Z),1.f/FMath::Sqrt(Z),Z));
+        return;
+    }
+    const FVector Direction=(LandingPoint-FallStart).GetSafeNormal2D();
+    const float Alpha=FMath::Clamp((Age-ChestSpitRelease)/(ArrivalDuration()-ChestSpitRelease),0.f,1.f);
+    if(Age<ChestSpitRelease) {
+        const float Push=FMath::SmoothStep(.12f,ChestSpitRelease,Age);
+        SetActorLocation(FallStart-Direction*(90.f*(1.f-Push)));
+        const float Width=FMath::Lerp(.54f,.79f,Push);
+        PresentationPivot->SetRelativeScale3D(FVector(Width,Width,.70f+.41f*Push));
+    } else {
+        SetActorLocation(ThroatFlightPosition(FallStart,Alpha));
+        const float Twist=FMath::Sin(PI*Alpha);
+        const float Unfold=FMath::SmoothStep(0.f,.23f,Alpha);
+        const float Z=FMath::Lerp(1.11f,1.f,Unfold)+.11f*Twist;
+        const float XY=FMath::Lerp(.79f,1.f,Unfold)/FMath::Sqrt(Z);
+        PresentationPivot->SetRelativeScale3D(FVector(XY,XY,Z));
+        PresentationPivot->SetRelativeRotation(FRotator(Twist*(25.f-52.f*Alpha),Twist*78.f,Twist*30.f));
+    }
+    if(Age<.69f) RewardLaunchThroat->PresentRewardSpit(StageStartedAt);
+    if(Age<ChestSpitRelease || Age>ChestSpitRelease+.62f || LastThroatSpitAt==StageStartedAt
+        || !ComposerPresentation || GetNetMode()==NM_DedicatedServer) return;
+    LastThroatSpitAt=StageStartedAt;
+    FMCPerkVFXGameplayValues V;
+    V.Direction=(Direction+FVector(0,0,.27f)).GetSafeNormal();
+    V.Duration=.64f;
+    V.LocalStateAgeSeconds=Age-ChestSpitRelease;
+    const FTransform Frame(V.Direction.Rotation(),FallStart+Direction*30.+FVector(0,0,52));
+    const FName ID(TEXT("Reward.StageBooster"));
+    if(auto* Source=ComposerPresentation->GetSource(ID))
+        Source->PlayLocalSourceEvent(ID,TEXT("Spit"),Frame,V);
 }
 
 void AMCRewardChest::BeginPlay()
@@ -453,10 +537,9 @@ void AMCRewardChest::RefreshPresentation()
     }
     if(bRewardInitialized && Stage==EMCRewardChestStage::Landed) SetActorLocation(LandingPoint);
     if(bRewardInitialized && Stage==EMCRewardChestStage::Falling) {
-        const float Alpha=FMath::Clamp(float((ServerNow()-StageStartedAt)/FMath::Max(.1f,FallSeconds)),0.f,1.f);
         // FinishSpawning applies its input transform after deferred initialization.
         // Restore the airborne pose before first presentation, without a floor blink.
-        SetActorLocation(FMath::Lerp(FallStart,LandingPoint,Alpha*Alpha));
+        UpdateFlightPresentation(FMath::Max(0.f,float(ServerNow()-StageStartedAt)));
     }
     if(bRewardInitialized && !Animated) {
         SetActorLocation(LandingPoint);
@@ -630,10 +713,7 @@ void AMCRewardChest::Tick(float Dt)
         SetActorLocation(FallStart);
         if(HasAuthority() && Age>=FMath::Max(.1f,TelegraphSeconds)) SetStage(EMCRewardChestStage::Falling);
     } else if(Stage==EMCRewardChestStage::Falling) {
-        const float Alpha=FMath::Clamp(float(Age/FMath::Max(.1f,FallSeconds)),0.f,1.f);
-        SetActorLocation(FMath::Lerp(FallStart,LandingPoint,Alpha*Alpha));
-        const float Z=1.f+.16f*Alpha*Alpha;
-        PresentationPivot->SetRelativeScale3D(FVector(1.f/FMath::Sqrt(Z),1.f/FMath::Sqrt(Z),Z));
+        UpdateFlightPresentation(float(Age));
     } else if(Stage==EMCRewardChestStage::Opening) {
         const float Alpha=FMath::Clamp(float(Age/FMath::Max(.1f,OpeningSeconds)),0.f,1.f);
         LidPivot->SetRelativeRotation(FRotator(105.f*(Alpha*Alpha*(3-2*Alpha)),0,0));
@@ -695,9 +775,10 @@ void AMCRewardChest::PollApproach()
         || Stage==EMCRewardChestStage::Open)) {PollTeamBoosterApproach();return;}
     if(Stage==EMCRewardChestStage::Falling) {
         const double Age=ServerNow()-StageStartedAt;
-        if(Age>=FMath::Max(.1f,FallSeconds)) {
+        const float Duration=ArrivalDuration();
+        if(Age>=Duration) {
             if(HasClearLanding()) SetStage(EMCRewardChestStage::Landed);
-            else if(Age>FMath::Max(.1f,FallSeconds)+6) FinishReward(true);
+            else if(Age>Duration+6) FinishReward(true);
         }
         return;
     }
@@ -871,6 +952,8 @@ void AMCRewardChest::ResetPlacedReward()
 
 void AMCRewardChest::EndPlay(const EEndPlayReason::Type Reason)
 {
+    if(IsValid(RewardLaunchThroat) && Stage==EMCRewardChestStage::Falling)
+        RewardLaunchThroat->StopRewardSpit(StageStartedAt);
     StopSparkComposer();
     GetWorldTimerManager().ClearAllTimersForObject(this);
     if(HasAuthority()) {
@@ -892,7 +975,7 @@ void AMCRewardChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     DOREPLIFETIME(AMCRewardChest,RogueKind);DOREPLIFETIME(AMCRewardChest,ContractRewards);DOREPLIFETIME(AMCRewardChest,ContractCurses);
     DOREPLIFETIME(AMCRewardChest,ContractCurse);DOREPLIFETIME(AMCRewardChest,ContractReward);DOREPLIFETIME(AMCRewardChest,ContractStep);
     DOREPLIFETIME(AMCRewardChest,OpeningPlayer);
-    DOREPLIFETIME(AMCRewardChest,bTeamStageBooster);
+    DOREPLIFETIME(AMCRewardChest,bTeamStageBooster);DOREPLIFETIME(AMCRewardChest,RewardLaunchThroat);
     DOREPLIFETIME(AMCRewardChest,bMimic); DOREPLIFETIME(AMCRewardChest,CaptivePlayer); DOREPLIFETIME(AMCRewardChest,RescuePlayer);
     DOREPLIFETIME(AMCRewardChest,RescueStartedAt); DOREPLIFETIME(AMCRewardChest,CapturedEntryLocation);
     DOREPLIFETIME(AMCRewardChest,MimicSwallowSeconds); DOREPLIFETIME(AMCRewardChest,RescueSeconds);

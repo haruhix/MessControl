@@ -600,6 +600,10 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
             }
         }
     }
+    if(auto* State=GetWorld()->GetGameState<AMCGameState>(); State && !State->NutThrowPresentation->Prepare(NativeError,false)) {
+        Fail(LoadingText(TEXT("Loading_PresentationSourceFailed"),TEXT("Не удалось подготовить эффекты локации"),
+            TEXT("Unable to prepare location effects")),NativeError);return;
+    }
     LogStage(TEXT("WorldSources"));
     if(!PrepareFreezeHeroSources(bIceRequired,NativeError)) {
         Fail(LoadingText(TEXT("Loading_FreezeSourceFailed"),TEXT("Не подготовлен источник ледяной смерти"),TEXT("Freeze source preparation failed")),NativeError);return;
@@ -1390,6 +1394,7 @@ bool UMCWorldPreloadSubsystem::PrepareEventAudioSources(const TArray<USoundBase*
         } else Plan.Source=AudioSource;
         ClosureHash=HashCombine(ClosureHash,GetTypeHash(AudioSource->GetUniqueID()));
         for(USoundWave* AudioWave:Plan.SampleWaves)ClosureHash=HashCombine(ClosureHash,GetTypeHash(AudioWave->GetUniqueID()));
+        for(const auto& Graph:Plan.ReferencedGraphs)ClosureHash=HashCombine(ClosureHash,GetTypeHash(Graph->GetUniqueID()));
         Plans.Add(MoveTemp(Plan));
     }
     bool bSameSources=Unique.Num()==EventAudioSources.Num();

@@ -7,6 +7,7 @@
 #include "MCGameState.h"
 #include "MCDayDirector.h"
 #include "MCTongue.h"
+#include "MCThroat.h"
 #include "MCToothCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Engine/DataTable.h"
@@ -17,11 +18,12 @@ bool AMCSingleDayDirector::BeginStageReward(FName CompletionId)
 {
     if(!HasAuthority() || bStopped || IsLegacyTimedFinale() || CompletionId.IsNone()
         || CompletedStageRewards.Contains(CompletionId)) return false;
-    if(bStageRewardPending) return true;
+    if(bStageRewardPending) return StageRewardCompletionId==CompletionId;
     bStageRewardPending=true; StageRewardCompletionId=CompletionId;
-    // The shared work is finished now. Placement/choice retries are cosmetics
-    // and perk flow, not extra coin objectives or a legacy chest queue signal.
-    if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardObjectiveCoinsOnce(CompletionId);
+    // Meal and coffee completions use the booster flow. Existing key-event
+    // coin objectives still settle once, independently of placement retries.
+    if(IsKeyEventRewardPending())
+        if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardObjectiveCoinsOnce(CompletionId);
     StageRewardPlacementAttempts=0; NextStageRewardAttemptAt=0;
     Record(FString::Printf(TEXT("Этап %s завершён: каждый игрок выбирает свой бустер; следующая подача ждёт выбора"),*CompletionId.ToString()));
     Publish(TEXT("ВЫБЕРИ СВОЙ БУСТЕР"),TEXT("Откройте сундук в центре языка. Каждый игрок выбирает один бустер для себя."));
@@ -100,10 +102,15 @@ void AMCSingleDayDirector::TrySpawnStageReward()
     auto* Chest=GetWorld()->SpawnActorDeferred<AMCRewardChest>(RewardClass,Pose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if(!Chest) return;
     Chest->InitializeTeamStageReward(Landing,Landing+FVector(0,0,FallHeight),Seed,Table,StageRewardZone);
+    bool bThroatLaunch=false;
+    for(TActorIterator<AMCThroat> It(GetWorld());It;++It) {
+        if(Chest->ConfigureThroatLaunch(*It)) {bThroatLaunch=true;break;}
+    }
     StageRewardChest=Chest;
     Chest->FinishSpawning(Pose);
     ForceNetUpdate();
-    UE_LOG(LogTemp,Display,TEXT("MC_STAGE_REWARD_DROP completion=%s chest=%s landing=%s"),*StageRewardCompletionId.ToString(),*Chest->GetName(),*Landing.ToString());
+    UE_LOG(LogTemp,Display,TEXT("MC_STAGE_REWARD_DROP completion=%s chest=%s landing=%s throatLaunch=%d"),
+        *StageRewardCompletionId.ToString(),*Chest->GetName(),*Landing.ToString(),bThroatLaunch);
 }
 
 void AMCSingleDayDirector::NotifyStageRewardFinished(AMCRewardChest* Chest,bool bRetry)
@@ -130,7 +137,17 @@ void AMCSingleDayDirector::TickStageReward()
     if(IsValid(StageRewardZone)) StageRewardZone->Destroy(); StageRewardZone=nullptr;
     Record(FString::Printf(TEXT("Личные бустеры %s выбраны: продолжается последовательность"),*StageRewardCompletionId.ToString()));
     ForceNetUpdate();
-    if(Settings->KeyEvents.IsValidIndex(KeyEventIndex+1)) {
+    if(Stage==EMCSingleDayStage::FirstMeal) {
+        if(MealPortionNumber==1) BeginMealCoffeeWave();
+        else {
+            if(IsValid(MealServices)) MealServices->Destroy();
+            MealServices=nullptr;
+            FirstMealBatch=0;
+            BeginKeyEvent();
+        }
+    } else if(Stage==EMCSingleDayStage::BetweenMealsPause) {
+        BeginMealPortion(1);
+    } else if(Settings->KeyEvents.IsValidIndex(KeyEventIndex+1)) {
         ++KeyEventIndex;
         BeginFirstMeal();
     } else {

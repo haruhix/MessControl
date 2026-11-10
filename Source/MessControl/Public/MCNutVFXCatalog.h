@@ -3,6 +3,9 @@
 #include "CoreMinimal.h"
 
 class UMCVFXPresentationComponent;
+class UMCPerkVFXProfile;
+class UNiagaraSystem;
+class USoundBase;
 
 /** Runtime-owned identities. Composer consumes this same contract, not a second private list. */
 struct MESSCONTROL_API FMCNutVFXAction
@@ -24,6 +27,10 @@ struct MESSCONTROL_API FMCNutCuePresentation
 
 namespace MCNutVFX
 {
+    MESSCONTROL_API FName ChainSource();
+    MESSCONTROL_API TSoftObjectPtr<UNiagaraSystem> ChainDefaultSystem(FName Event);
+    MESSCONTROL_API TSoftObjectPtr<USoundBase> ChainDefaultSound(FName Event);
+    MESSCONTROL_API bool PrepareChainOverride(UMCVFXPresentationComponent* Component,UMCPerkVFXProfile* Profile,FString& Error);
     MESSCONTROL_API TConstArrayView<FMCNutVFXAction> Actions();
     MESSCONTROL_API const FMCNutVFXAction* Find(FName Source);
     /** Explicit preparation only. Missing profiles retain native artwork; playback never loads. */

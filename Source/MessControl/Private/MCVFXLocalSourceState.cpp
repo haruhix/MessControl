@@ -29,10 +29,11 @@ bool FiniteState(const FTransform& Frame,const FMCPerkVFXGameplayValues& Values)
 }
 }
 
-void UMCVFXPresentationComponent::StopLocalSourceStates(FName ID)
+void UMCVFXPresentationComponent::StopLocalSourceStates(FName ID,FName Event)
 {
-    for(auto& State:LocalSourceStates)if(ID.IsNone()||State.SourceID==ID)StopState(State);
-    LocalSourceStates.RemoveAll([ID](const auto& State){return ID.IsNone()||State.SourceID==ID;});
+    const auto Matches=[ID,Event](const auto& State){return (ID.IsNone()||State.SourceID==ID)&&(Event.IsNone()||State.Event==Event);};
+    for(auto& State:LocalSourceStates)if(Matches(State))StopState(State);
+    LocalSourceStates.RemoveAll(Matches);
 }
 
 bool UMCVFXPresentationComponent::UpdateLocalSourceState(FName ID,FName Event,bool bActive,const FTransform& Frame,

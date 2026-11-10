@@ -1,5 +1,7 @@
 #include "MCVFXSourceContracts.h"
 #include "MCVFXPresentationLibrary.h"
+#include "MCNutVFXCatalog.h"
+#include "Sound/SoundBase.h"
 
 #include <initializer_list>
 
@@ -33,6 +35,21 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         Add(TEXT("Boss.Generic.Hurt"),TEXT("Босс · полученный удар"),TEXT("Bosses"),TEXT("UMCCombatFeedbackComponent / AMCBossCharacter"),World,{TEXT("Hit")});
         Add(TEXT("Enemy.Nut.Hurt"),TEXT("Орех · полученный удар"),TEXT("Enemies"),TEXT("UMCCombatFeedbackComponent / AMCNutEnemy"),World,{TEXT("Hit")});
         Add(TEXT("Boss.NutKnight.Hurt"),TEXT("Рыцарь · полученный удар"),TEXT("Bosses"),TEXT("UMCCombatFeedbackComponent / AMCNutBoss"),World,{TEXT("Hit")});
+        const auto* ChainAction=MCNutVFX::Find(MCNutVFX::ChainSource());
+        FMCVFXSourceContract Chain;
+        Chain.SourceID=ChainAction->ID;Chain.Label=ChainAction->Label;Chain.Events=ChainAction->Events;
+        Chain.Category=TEXT("Boss");Chain.SourceOwner=TEXT("AMCNutBoss / KnightChainPresentation");
+        Chain.Library=UMCVFXPresentationLibrary::MouthLibraryPath();
+        Chain.Description=TEXT("Замах, вылет цепи, захват зубика или целого ореха, возврат, удар по рыцарю и восстановление. Положение рук и цели берётся из настоящего действия.");
+        for(FName Event:Chain.Events) {
+            const auto Sound=MCNutVFX::ChainDefaultSound(Event);
+            if(Sound.IsNull())continue;
+            auto& Audio=Chain.OriginalAudio.Add(Event);
+            Audio.ID=FName(*(Event.ToString()+TEXT(".Original")));
+            Audio.Label=FText::FromString(TEXT("Исходный звук цепи"));
+            Audio.Resource=Sound.ToSoftObjectPath();Audio.bSuppressionWired=true;
+        }
+        Sources.Add(Chain.SourceID,MoveTemp(Chain));
         Add(TEXT("Boss.NutMage.Hurt"),TEXT("Маг · полученный удар"),TEXT("Bosses"),TEXT("UMCCombatFeedbackComponent / AMCNutBoss"),World,{TEXT("Hit")});
         Add(TEXT("EditorOnly.CleanStain"),TEXT("Уборка · очищенное пятно"),TEXT("Cleaning"),TEXT("AMCMouthSurface / FMCCoffeeWipe"),World,{TEXT("Contact"),TEXT("Complete"),TEXT("Surface")});
         Add(TEXT("EditorOnly.CleanArenaTooth"),TEXT("Уход · очистка большого зуба"),TEXT("ToothCare"),TEXT("UMCToothCareFeedbackComponent / AMCArenaTooth"),World,{TEXT("Contact"),TEXT("Complete")});
@@ -61,6 +78,8 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         Add(TEXT("Food.Break"),TEXT("Еда · настоящие осколки и пыль"),TEXT("Food"),TEXT("AMCFoodActor / AMCReactionVFX"),World,{TEXT("BreakArt"),TEXT("BreakDust")});
         auto& AutoMouth=Add(TEXT("Food.AutoMouth"),TEXT("Еда · крошки в глотку / наружу"),TEXT("Food"),TEXT("AMCFoodActor::TryConsumeCutPortion / AMCGameState::FoodCutIntakePresentation"),UMCVFXPresentationLibrary::MouthLibraryPath(),{TEXT("Consume"),TEXT("Discard")});
         AutoMouth.Description=TEXT("Настоящий принятый ножом маленький кусочек превращается в редактируемые Niagara-крошки. Consume подаёт свежую еду в глотку; Discard выводит испорченную через сохранённый передний выход. У событий отдельные слоты. Начало, конечную точку, цвет и размер задаёт механика; частицы не владеют зачётом или физикой. Старый перенос сохранён за переключателем еды.");
+        auto& NutThrow=Add(TEXT("Food.NutThrow"),TEXT("Орех · раскалывание при броске в босса"),TEXT("Food"),TEXT("AMCFoodActor::UpdateNutFragmentThrowImpact / AMCGameState::NutThrowPresentation"),UMCVFXPresentationLibrary::MouthLibraryPath(),{TEXT("BossImpact")});
+        NutThrow.Description=TEXT("Подтверждённый бросок ореха в босса. Точку удара, нормаль и размер задаёт физический контакт. Штатный резолвер применяет урон по щиту или здоровью, после чего орех расходуется, а Niagara и SFX воспроизводят раскалывание.");
         Add(TEXT("Food.Spoiled"),TEXT("Еда · запах испорченного продукта"),TEXT("Food"),TEXT("AMCFoodActor::UpdateSmell / AMCReactionVFX"),World,{TEXT("Loop")});
         Add(TEXT("Food.Spicy"),TEXT("Перец · принятый взрыв"),TEXT("Food"),TEXT("AMCFoodActor::Detonate / AMCReactionVFX"),World,{TEXT("DetonateArt")});
         Add(TEXT("World.Vomit"),TEXT("Выброс"),TEXT("World"),TEXT("AMCVomitBurst"),World,{TEXT("Burst")});
@@ -69,7 +88,7 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         Add(TEXT("World.Calculus"),TEXT("Зубной камень · сколы"),TEXT("World"),TEXT("UMCToothCalculusComponent"),World,{TEXT("Chip"),TEXT("Break")});
         Add(TEXT("World.DamageUlcer"),TEXT("Язва · волна"),TEXT("World"),TEXT("AMCDamageUlcer"),World,{TEXT("Wave")});
         Add(TEXT("Reward.Chest"),TEXT("Сундук · прибытие и получение"),TEXT("Rewards"),TEXT("AMCRewardChest"),World,{TEXT("Arrival"),TEXT("Open"),TEXT("Claim")});
-        Add(TEXT("Reward.StageBooster"),TEXT("Награда этапа"),TEXT("Rewards"),TEXT("AMCStageBoosterRewardChest"),World,{TEXT("Arrival"),TEXT("Claim")});
+        Add(TEXT("Reward.StageBooster"),TEXT("Награда этапа"),TEXT("Rewards"),TEXT("AMCRewardChest / AMCSingleDayDirector"),World,{TEXT("Spit"),TEXT("Arrival"),TEXT("Open"),TEXT("Claim")});
         Add(TEXT("Reward.PerkPickup"),TEXT("Подбор усиления"),TEXT("Rewards"),TEXT("AMCPerkPickup"),World,{TEXT("Arrival"),TEXT("Claim")});
         Add(TEXT("Reward.TaskCoins"),TEXT("Монеты за задачу"),TEXT("Rewards"),TEXT("UMCTaskCoinPresentationComponent"),World,{TEXT("Reward")});
         Add(TEXT("Reward.TaskComplete"),TEXT("Задача · завершение"),TEXT("Rewards"),TEXT("AMCTaskActor"),World,{TEXT("Complete")});
@@ -105,8 +124,8 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         Palette(TEXT("UI.ShiftFeedback"),TEXT("Win"),TEXT("Win"));
         Palette(TEXT("UI.ShiftFeedback"),TEXT("Lose"),TEXT("Lose"));
         Palette(TEXT("Reward.TaskComplete"),TEXT("Complete"),TEXT("Complete"));
-        for(const FName ID:{FName(TEXT("Reward.Chest")),FName(TEXT("Reward.StageBooster"))})
-            Sources.FindChecked(ID).Description+=TEXT(" Подключены исходные 12 искр Arrival/Claim и принятое Open. Редактируемые NS требуют сохранённых назначений из пакета ресурсов. Полный контекстуальный сценарий сундука в песочнице пока недоступен; физический сундук/крышка и дополнительные Blueprint-украшения остаются штатными.");
+        Sources.FindChecked(TEXT("Reward.Chest")).Description+=TEXT(" Подключены исходные 12 искр Arrival/Claim и принятое Open. Полный сценарий выбора награды в песочнице пока недоступен.");
+        Sources.FindChecked(TEXT("Reward.StageBooster")).Description+=TEXT(" Spit запускается при выбросе сундука из глотки. В песочнице воспроизводятся сам выброс, полёт и приземление на язык. Открытие и выбор бустера доступны в игре.");
         for(const FName ID:{FName(TEXT("Reward.PerkPickup")),FName(TEXT("Reward.TaskComplete")),FName(TEXT("UI.ShiftFeedback"))})
             Sources.FindChecked(ID).Description+=TEXT(" Слоты подключены к принятым штатным событиям. Контекстуальный сценарий сейчас недоступен: полный поток награды/виджета в песочнице ещё не воспроизводится. Исходные физические предметы, подписи и UI остаются штатными; отдельный исходный particle effect не заявляется.");
         Sources.FindChecked(TEXT("Character.Movement")).Description+=TEXT(" Land — фактическое приземление; Jump сохранён как совместимый псевдоним этого события и исходного ключа палитры. При настроенном Land он имеет приоритет, одновременно оба события не запускаются.");
@@ -159,6 +178,12 @@ bool MCVFXSourceContracts::CanSuppressOriginalSFX(FName SourceID,FName Event)
 bool MCVFXSourceContracts::IsOriginalSFXConfirmedSilent(FName SourceID,FName Event,FString* Evidence)
 {
     if(Evidence)Evidence->Reset();
+    if(SourceID==MCNutVFX::ChainSource()) {
+        const auto* Chain=MCNutVFX::Find(SourceID);
+        const bool bSilent=Chain && Chain->Events.Contains(Event) && MCNutVFX::ChainDefaultSound(Event).IsNull();
+        if(bSilent && Evidence)*Evidence=TEXT("У принятого события цепи нет исходного звукового слоя.");
+        return bSilent;
+    }
     // Exact native branches, not a source-wide declaration. Knight Slash/Slam,
     // Fireball and donor Niagara audio renderers are deliberately unaudited.
     const bool bConfirmed=(SourceID==TEXT("Boss.NutKnight.Melee")&&Event==TEXT("Tell"))

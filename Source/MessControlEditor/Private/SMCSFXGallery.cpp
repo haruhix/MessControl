@@ -81,10 +81,10 @@ FText SMCSFXGallery::GetAssetUnavailableReason(const FAssetData& Asset)
         Registry->Get().GetAncestorClassNames(Asset.AssetClassPath,Ancestors);
     const auto IsType=[&](const FTopLevelAssetPath& Type){return Asset.AssetClassPath==Type||Ancestors.Contains(Type);};
     const bool bMetaSound=IsType(FTopLevelAssetPath(TEXT("/Script/MetasoundEngine"),TEXT("MetaSoundSource")));
-    if(!bMetaSound&&!IsType(USoundWaveProcedural::StaticClass()->GetClassPathName())
-        &&!IsType(USoundSourceBus::StaticClass()->GetClassPathName()))return FText::GetEmpty();
-    return FText::Format(LOCTEXT("UnsupportedTypeReason","{0} пока не поддерживается в слоях Composer. Используйте SoundWave или SoundCue; источник можно открыть двойным кликом."),
-        bMetaSound?LOCTEXT("MetaSoundType","MetaSound"):FText::FromName(Asset.AssetClassPath.GetAssetName()));
+    if(bMetaSound || (!IsType(USoundWaveProcedural::StaticClass()->GetClassPathName())
+        && !IsType(USoundSourceBus::StaticClass()->GetClassPathName())))return FText::GetEmpty();
+    return FText::Format(LOCTEXT("UnsupportedTypeReason","{0} пока не поддерживается в слоях Composer. Доступны Sound Wave (WAV), Sound Cue и MetaSound Source."),
+        FText::FromName(Asset.AssetClassPath.GetAssetName()));
 }
 
 void SMCSFXGallery::Construct(const FArguments& Args)
@@ -111,6 +111,8 @@ void SMCSFXGallery::Construct(const FArguments& Args)
         +SVerticalBox::Slot().AutoHeight().Padding(5)[SNew(STextBlock).Text_Lambda([this]{return FText::Format(LOCTEXT("ForEvent","Звуки для события: {0}"),Context.EventLabel);}).AutoWrapText(true)]
         +SVerticalBox::Slot().AutoHeight().Padding(4)[SNew(SSearchBox).HintText(LOCTEXT("Search","Найти звук по имени, типу или пути…"))
             .OnTextChanged_Lambda([this](const FText& T){Query=T.ToString();Filter();})]
+        +SVerticalBox::Slot().AutoHeight().Padding(5)[SNew(STextBlock)
+            .Text(LOCTEXT("SoundTypes","Sound Wave (WAV), Sound Cue, MetaSound Source")).AutoWrapText(true)]
         +SVerticalBox::Slot().AutoHeight().Padding(5)[SNew(STextBlock).Text_Lambda([this]{return FText::Format(LOCTEXT("Count","Найдено {0} из {1}"),FText::AsNumber(Filtered.Num()),FText::AsNumber(All.Num()));})]
         +SVerticalBox::Slot().FillHeight(1)[SAssignNew(List,SListView<FItem>).ListItemsSource(&Filtered).SelectionMode(ESelectionMode::Single)
             .OnGenerateRow(this,&SMCSFXGallery::Row)

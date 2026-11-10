@@ -666,6 +666,8 @@ public:
         Rebuild();
         auto* Action=Tooth->GetActiveSkillPresentation();
         const auto* Hook=Cast<AMCHookSkillAction>(Action);
+        const int32 Hands[]={Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_l"))),Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r")))};
+        FVector HandScales[2]={FVector::OneVector,FVector::OneVector};
         const auto* Grenade=Cast<AMCGrenadeSkillAction>(Action);
         const auto* Sponge=Cast<AMCSpongeSkillAction>(Action);
         const auto* Driver=Cast<AMCDriverSkillAction>(Action);
@@ -679,7 +681,15 @@ public:
             PreviousActiveRideYaw=Yaw;bHasActiveRideYaw=true;
         } else bHasActiveRideYaw=false;
         SpongeBalance=FMath::FInterpTo(SpongeBalance,Sponge?RideTurn:0.f,Dt,8.f);
-        if(Hook) {BodyGoal=Hook->GetCastBodyOffset();Facing=Hook->GetCastFacing().Quaternion();}
+        if(Hook) {
+            BodyGoal=Hook->GetCastBodyOffset();
+            const FQuat AimTwist=Facing.Inverse()*Hook->GetCastPoseFacing();
+            BodyGoal.SetRotation((AimTwist*BodyGoal.GetRotation()).GetNormalized());
+            BodyGoal.SetLocation(AimTwist.RotateVector(BodyGoal.GetLocation()));
+            Facing=Tooth->GetPresentedActorTransform().GetRotation();
+            for(int32 Side=0;Side<2;++Side)
+                if(CS.IsValidIndex(Hands[Side])) HandScales[Side]=CS[Hands[Side]].GetScale3D();
+        }
         else if(Action) {
             // Gameplay-owned replicated ages drive anticipation/release. No
             // worker thread follows a projectile or reads an action UObject.
@@ -726,6 +736,25 @@ public:
             const FTransform& BodyDelta=ActiveBodyOffset;
             const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
             if(Body>=0) {
+                const FVector BodyScale=BodyDelta.GetScale3D();
+                const bool PreserveLegs=Hook || !BodyScale.Equals(FVector::OneVector,.001f);
+                int32 Legs[2]={INDEX_NONE,INDEX_NONE};
+                FTransform GaitLegs[2];
+                if(PreserveLegs) {
+                    Legs[0]=Ref.FindBoneIndex(Tooth->RigBone(TEXT("leg_l")));
+                    Legs[1]=Ref.FindBoneIndex(Tooth->RigBone(TEXT("leg_r")));
+                    for(int32 Side=0;Side<2;++Side)
+                        if(CS.IsValidIndex(Legs[Side])) GaitLegs[Side]=CS[Legs[Side]];
+                    // The artist's body bone has a different up axis from the
+                    // mesh. Stretch its vertical axis and keep the volume.
+                    const FQuat BodyWorld=World.GetRotation()*CS[Body].GetRotation();
+                    const FVector Up=BodyWorld.UnrotateVector(FVector::UpVector).GetAbs();
+                    int32 Vertical=0;
+                    for(int32 Axis=1;Axis<3;++Axis) if(Up[Axis]>Up[Vertical]) Vertical=Axis;
+                    FVector BoneScale(BodyScale.X);
+                    BoneScale[Vertical]=BodyScale.Z;
+                    Pose[Body].MultiplyScale3D(BoneScale);
+                }
                 const int32 Parent=Ref.GetParentIndex(Body);
                 const FQuat Basis=Parent>=0?CS[Parent].GetRotation():FQuat::Identity;
                 const FQuat MeshDelta=World.GetRotation().Inverse()*ActiveBodyFacing
@@ -734,6 +763,15 @@ public:
                 Pose[Body].AddToTranslation((Parent>=0?CS[Parent].GetRotation().Inverse():FQuat::Identity).RotateVector(
                     World.InverseTransformVector(ActiveBodyFacing.RotateVector(BodyDelta.GetLocation()))));
                 Rebuild();
+                if(PreserveLegs) {
+                    // The crown is the legs' parent on the compact rig. Keep
+                    // the already evaluated stride and floor contact in place.
+                    for(int32 Side=0;Side<2;++Side) if(CS.IsValidIndex(Legs[Side])) {
+                        const int32 LegParent=Ref.GetParentIndex(Legs[Side]);
+                        Pose[Legs[Side]]=LegParent<0?GaitLegs[Side]:GaitLegs[Side].GetRelativeTransform(CS[LegParent]);
+                    }
+                    Rebuild();
+                }
             }
         }
         FVector DesiredLift=FVector::ZeroVector;
@@ -807,7 +845,7 @@ public:
             Rebuild();
         }
         for(int32 Side=0;Side<2;++Side) {
-            const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r")));
+            const int32 Hand=Hands[Side];
             const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("forearm_l"):TEXT("forearm_r")));
             if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) continue;
             FTransform Target;
@@ -872,7 +910,7 @@ public:
                 :FMath::FInterpConstantTo(ActiveHandAlpha[Side],Has?1.f:0.f,Dt,Has?10.f:8.f);
             if(ActiveHandAlpha[Side]<.001f) continue;
             FTransform Contact=ActiveHandWorld[Side].GetRelativeTransform(World);
-            Contact.SetScale3D(CS[Hand].GetScale3D());
+            Contact.SetScale3D(Hook?HandScales[Side]:CS[Hand].GetScale3D());
             FTransform Goal;Goal.Blend(CS[Hand],Contact,ActiveHandAlpha[Side]);
             const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Goal;
             const int32 Parent=Ref.GetParentIndex(Lower);

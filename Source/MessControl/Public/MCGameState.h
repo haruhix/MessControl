@@ -47,6 +47,7 @@ public:
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Progression") TObjectPtr<UMCProgressionComponent> Progression;
     /** Stable accepted-event owner: cut fragments can be consumed before their actor channel opens. */
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Food|Presentation") TObjectPtr<UMCVFXPresentationComponent> FoodCutIntakePresentation;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Food|Presentation") TObjectPtr<UMCVFXPresentationComponent> NutThrowPresentation;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Sequence") bool bSingleDayLoop=false;
     UPROPERTY(Replicated) FMCIcePresentationRunScope IcePresentationScope;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Sequence") TObjectPtr<AMCSingleDayDirector> SingleDayDirector;

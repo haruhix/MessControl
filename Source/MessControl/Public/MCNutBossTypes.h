@@ -14,7 +14,10 @@ UENUM(BlueprintType)
 enum class EMCNutBossState : uint8 { Falling, Idle, Telegraph, Executing, Recovery, Defeated, Stunned, Retargeting, Transforming };
 
 UENUM(BlueprintType)
-enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain, Roll, Teleport, CounterShove };
+enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain, Roll, Teleport, CounterShove, Chain };
+
+UENUM(BlueprintType)
+enum class EMCNutBossChainPhase : uint8 { Inactive, Flight, PullPlayer, PullNut, Reeling, Impact };
 
 /** Encounter tuning shared by the knight and its subsequent wizard phase. */
 USTRUCT(BlueprintType)
@@ -135,6 +138,18 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Melee") float TankMeleePush=620;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement") float TankPushLift=210;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Melee") float MeleeWindup=.65f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Chain",meta=(ClampMin="450",Units="cm")) float TankChainMinRange=700.f;
+    /** Maximum target selection distance and length of the cast from the release point. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Chain",meta=(ClampMin="550",ClampMax="2400",Units="cm")) float TankChainRange=2200.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Chain",meta=(ClampMin="500",ClampMax="8000",Units="cm/s")) float TankChainFlightSpeed=3500.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Chain",meta=(ClampMin="0.5",Units="s")) float TankChainRetreatSeconds=2.25f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Chain",meta=(ClampMin="0.4",Units="s")) float TankChainWindup=.92f;
+    /** Final part of the windup with a fixed aim so players can sidestep or bait the cast. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Chain",meta=(ClampMin="0.1",ClampMax="0.4",Units="s")) float TankChainAimLockLeadSeconds=.25f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Chain") TSoftObjectPtr<UAnimSequence> TankChainCowboyAnimation;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Chain",meta=(ClampMin="1",Units="s")) float TankChainCooldown=11.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Chain",meta=(ClampMin="0.5",Units="s")) float TankChainStunSeconds=3.25f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Chain",meta=(ClampMin="0")) float TankChainNutDamage=90.f;
     /** Cooldowns count seconds from the end of the attack's recovery. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Melee", meta=(Units="s")) float MeleeCooldown=3.5f;
     /** Successful weapon contacts from the entire team; proc/area hits do not add a second contact. */

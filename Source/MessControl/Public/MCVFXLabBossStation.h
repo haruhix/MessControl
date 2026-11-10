@@ -27,7 +27,7 @@ enum class EMCVFXLabBossKind : uint8
     ZombiePunchLeft, ZombiePunchRight, ZombieKick, ZombieHurt, ZombieDeath, ZombieRoar,
     Phase3PunchRight, Phase3AreaAttack,
     // Append only: saved laboratory actors retain the original enum values.
-    TankCounterShove, TankHeadSplit, KamikazeFuse, KamikazeBlast, RainEntry
+    TankCounterShove, TankHeadSplit, KamikazeFuse, KamikazeBlast, RainEntry, TankChain
 };
 
 /** One isolated, repeatable real boss ability. Counters describe observed callbacks, not visual approval. */

@@ -45,6 +45,13 @@ public:
     bool PrepareIsolatedMagePhaseResources();
     int32 GetTankPressureHits() const { return TankPressureHits; }
     UFUNCTION(BlueprintPure,Category="Nut Combat") float GetAttackCooldownRemaining(EMCNutBossAttack Ability) const;
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Nut Combat|Preview") bool BeginChainPreview(AMCToothCharacter* Subject);
+    UFUNCTION(BlueprintPure,Category="Nut Combat|Chain") EMCNutBossChainPhase GetChainPhase() const { return ChainPhase; }
+    UFUNCTION(BlueprintPure,Category="Nut Combat|Chain") FVector GetChainOrigin() const;
+    UFUNCTION(BlueprintPure,Category="Nut Combat|Chain") FVector GetChainTip() const { return ChainTip; }
+    UFUNCTION(BlueprintPure,Category="Nut Combat|Chain") float GetChainPhaseAlpha() const;
+    FTransform GetChainGripTransform() const;
+    bool PrepareChainPresentation(FString& Error,bool bAllowLoad=false);
     FVector GetCastOrigin() const;
     /** Cosmetic focus follows the authored palms; projectile origin remains server-defined. */
     FVector GetSpellFocusOrigin() const;
@@ -56,12 +63,15 @@ public:
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Presentation") TObjectPtr<UMCVFXPresentationComponent> ShieldPresentation;
     /** Accepted charge/release; the real projectile owns flight/impact and a frozen prepared copy. */
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Presentation") TObjectPtr<UMCVFXPresentationComponent> FireballPresentation;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Presentation") TObjectPtr<UMCVFXPresentationComponent> ChainPresentation;
     UPROPERTY(BlueprintReadOnly,Category="Presentation") FGuid FireballEpisodeID;
     /** The real shot is configured, but has not called FinishSpawning or emitted Flight yet. */
     FMCNutFireballSpawned OnFireballSpawned;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Kernel;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> OpenShell;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> TankModel;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Presentation") TObjectPtr<UStaticMeshComponent> KnightClubHardware;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Presentation") TObjectPtr<UStaticMeshComponent> KnightClubStowedHook;
     /** Floor-level turning axis underneath the nut, independent of weapon/shield bounds. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USceneComponent> TankTurnPivot;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> MageModel;
@@ -101,6 +111,12 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextRainAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextTeleportAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextSpecialAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Nut Combat|Chain") double NextChainAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Nut Combat|Chain") EMCNutBossChainPhase ChainPhase=EMCNutBossChainPhase::Inactive;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Nut Combat|Chain") double ChainPhaseStartedAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Nut Combat|Chain") double ChainPhaseEndsAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Nut Combat|Chain") FVector ChainTip=FVector::ZeroVector;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Nut Combat|Chain") TObjectPtr<AActor> ChainCargo;
 protected:
     virtual void RefreshPresentation() override;
     virtual void ReportDamageFeedback(AMCToothCharacter* Source,float Applied) override;
@@ -127,7 +143,21 @@ private:
     void RecordTargetSwitch(const AMCToothCharacter* PreviousTarget);
     void TurnTowards(FVector Direction,float Dt);
     bool LockSurfacePoint(FVector Candidate,float Margin,FVector& Result) const;
-    void BeginAttack(EMCNutBossAttack Next);
+    void BeginAttack(EMCNutBossAttack Next,bool bChainFollowUp=false);
+    bool TryBeginChain(double Time);
+    bool HasCowboyChainAnchor() const;
+    static constexpr float CowboyUnpark=14.f/41.f;
+    bool BeginChain(AMCToothCharacter* Subject);
+    void ExecuteChain(float Dt);
+    void SetChainPhase(EMCNutBossChainPhase Next,float Seconds);
+    bool FindChainContact(FVector From,FVector To,FHitResult& OutHit) const;
+    void BeginChainReel();
+    void ReleaseChainCargo();
+    void CancelChain();
+    void InitializeChainPresentation();
+    void UpdateChainPresentation();
+    void PresentChainEvent(FName Stage,FVector Position,FVector End);
+    void StopChainPresentation();
     void RegisterTankPressureHit();
     void ResetTankPressure();
     bool TryBeginTankCounter();
@@ -160,7 +190,7 @@ private:
     void StartAttackCooldown(double RecoveryEndsAt);
     void DamageArea(FVector Center,float Radius,float Damage,float Push,TSet<TWeakObjectPtr<AMCToothCharacter>>* HitSet=nullptr);
     void PushNutsAlongSegment(FVector Start,FVector End,float Seconds);
-    void PushNutsInArea(FVector Center,float Radius,float Speed,bool bForwardOnly=false);
+    void ImpactNutsInArea(FVector Center,float Radius,float Speed,bool bForwardOnly=false);
     TMap<TWeakObjectPtr<AMCFoodActor>,double> NutContactAt;
     void DamageChargeSegment(FVector Start,FVector End);
     void SummonCreeps();
@@ -172,6 +202,15 @@ private:
     FRandomStream Random;
     FVector EntranceLanding=FVector::ZeroVector;
     double NextTargetAt=0,NextRollPainAt=0;
+    TWeakObjectPtr<AMCToothCharacter> ChainRetreatTarget;
+    TWeakObjectPtr<AMCToothCharacter> ChainBaitTarget;
+    TWeakObjectPtr<AMCToothCharacter> ChainStrikeTarget;
+    double ChainRetreatStartedAt=-1.;
+    FGuid ChainMotionID;
+    UPROPERTY(Replicated) FVector ChainFlightEnd=FVector::ZeroVector;
+    FVector ChainReelFrom=FVector::ZeroVector;
+    FVector PreviousChainNutCenter=FVector::ZeroVector;
+    FVector ChainCargoLocalContact=FVector::ZeroVector;
     double FocusWindowStartedAt=-100;
     int32 FocusHits=0;
     int32 TankPressureHits=0,TankCounterThreshold=0;
@@ -196,6 +235,8 @@ private:
     UPROPERTY(Transient) TArray<TObjectPtr<UAnimSequence>> BossAnimations;
     UPROPERTY(Transient) TObjectPtr<USkeletalMesh> FallbackTankMesh;
     UPROPERTY(Transient) TObjectPtr<USkeletalMesh> UnshieldedTankMesh;
+    UPROPERTY(EditDefaultsOnly, Category="Appearance") TSoftObjectPtr<UStaticMesh> KnightClubHardwareMesh;
+    UPROPERTY(EditDefaultsOnly, Category="Appearance") TSoftObjectPtr<UStaticMesh> KnightClubStowedHookMesh;
     FSoftObjectPath CachedUnshieldedTankMeshPath;
     bool bFallbackTankMeshLoaded=false;
     TArray<FSoftObjectPath> CachedBossAnimationPaths;

@@ -36,6 +36,7 @@ public:
     UFUNCTION(BlueprintPure,Category="Skill|Hook") float GetPhaseAlpha() const;
     /** Independent caster frame: never parent the glove to the travelling hook head. Game-thread only. */
     UFUNCTION(BlueprintPure,Category="Skill|Hook") FTransform GetCasterHandFrame(bool bLeft=false) const;
+    FQuat GetCastPoseFacing() const;
     /** Additive actor-facing body pose, sampled by the native anim proxy on the game thread. */
     UFUNCTION(BlueprintPure,Category="Skill|Hook") FTransform GetCastBodyOffset() const;
     UFUNCTION(BlueprintPure,Category="Skill|Hook") FVector GetHookHeadLocation() const;
@@ -65,10 +66,8 @@ private:
     UPROPERTY(Replicated) EMCHookCastPhase CastPhase=EMCHookCastPhase::Inactive;
     UPROPERTY(Replicated) double PhaseStartedAt=0;
     UPROPERTY(Replicated) float PhaseDuration=0;
-    UPROPERTY(Replicated) double ReleasedAt=0;
     UPROPERTY(Replicated) FVector FlightOrigin=FVector::ZeroVector;
     UPROPERTY(Replicated) FVector FlightDirection=FVector::ForwardVector;
-    UPROPERTY(Replicated) FVector AimPoint=FVector::ZeroVector;
     UPROPERTY(Replicated) FRotator CastFacing=FRotator::ZeroRotator;
     UPROPERTY(Replicated) FVector ImpactPoint=FVector::ZeroVector;
     UPROPERTY(Replicated) bool bContactedTarget=false;
@@ -79,6 +78,7 @@ private:
     UPROPERTY(Replicated) FTransform RestRightHand=FTransform::Identity;
     UPROPERTY(Replicated) FTransform RestLeftHand=FTransform::Identity;
     UPROPERTY(Replicated) FQuat PhaseVisualRotation=FQuat::Identity;
+    FVector CastView=FVector::ZeroVector;
     FVector CastLook=FVector::ForwardVector;
     FVector PreviousMovedPosition=FVector::ZeroVector;
     float PreviousPullSimulationTime=0;

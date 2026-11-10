@@ -13,6 +13,7 @@
 #include "MCCataclysmRaft.h"
 #include "MCRowingStroke.h"
 #include "MCPlayerController.h"
+#include "MCHookSkillAction.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
 #include "Engine/SkeletalMesh.h"
@@ -452,6 +453,13 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     const bool YawnStrain=Tooth->IsYawning() && CurrentEmotion==EMCEmotion::Effort && Pain<.01f;
     if(YawnStrain) {J=0;Sml=-.12f;B=.12f;Tilt=.9f;Squ=.18f;}
     J*=Strength; Sml*=Strength; B*=Strength; Tilt*=Strength; Squ*=Strength; Rnd*=Strength;
+    if(const auto* Hook=Cast<AMCHookSkillAction>(Tooth->GetActiveSkillPresentation());
+        Hook && !FaceLocked && Hook->GetCastPhase()==EMCHookCastPhase::Windup) {
+        const float Strain=FMath::Clamp(float((1.-Hook->GetCastBodyOffset().GetScale3D().Z)/.17),0.f,1.f);
+        J=FMath::Lerp(J,0.f,Strain);
+        Tilt=FMath::Lerp(Tilt,.8f,Strain);
+        Squ=FMath::Lerp(Squ,.34f,Strain);
+    }
     const float HookAlpha=FaceLocked?0.f:HookFaceAlpha();
     if(HookAlpha>.001f)
     {

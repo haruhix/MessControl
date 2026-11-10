@@ -47,8 +47,10 @@ void UMCToothMovementComponent::LogHookReplayDiagnostic(const TCHAR* Phase,const
 // to the same external-motion bridge used by velocity/steered action leases.
 bool UMCToothMovementComponent::BeginAcceptedHookPull(FGuid ID,FVector Goal,float Speed,float Stop,float Duration,bool FreeFlight)
 {
+    if(!CharacterOwner) return false;
     FMCAcceptedMotionSnapshot R;R.OperationID=ID;R.Policy=EMCAcceptedMotionPolicy::BoundedGoal;
-    R.Goal=Goal;R.Speed=FMath::Clamp(Speed,100.f,1800.f);R.StopDistance=FMath::Clamp(Stop,60.f,300.f);
+    R.Goal=Goal;R.Speed=FMath::Clamp(Speed,MCHookPullPrediction::MinSpeed,MCHookPullPrediction::MaxSpeed);R.StopDistance=FMath::Clamp(Stop,60.f,300.f);
+    R.CurveDuration=float(MCHookPullPrediction::RemainingTravel(Goal-CharacterOwner->GetActorLocation(),R.StopDistance,FreeFlight).Size()/R.Speed);
     R.Duration=FMath::Clamp(Duration,.1f,8.f);R.bFreeFlight=FreeFlight;return BeginAcceptedExternalMotion(R);
 }
 bool UMCToothMovementComponent::IsAcceptedHookPullOwned(FGuid ID) const

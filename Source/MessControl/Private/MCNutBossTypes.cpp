@@ -16,6 +16,7 @@ FMCNutBossSettings::FMCNutBossSettings()
     TankMeleeAnimation=TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutTank/Animations/A_NutTank_Melee.A_NutTank_Melee")));
     TankJumpAnimation=TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutTank/Animations/A_NutTank_Jump.A_NutTank_Jump")));
     TankTransformAnimation=TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutTank/Animations/A_NutTank_Transform.A_NutTank_Transform")));
+    TankChainCowboyAnimation=TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutTank/Animations/A_NutKnight_ChainCowboy.A_NutKnight_ChainCowboy")));
     const FString Knight=TEXT("/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_");
     auto NewClip=[&](const TCHAR* Name){return TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(Knight+Name+TEXT(".A_NutKnight_")+Name));};
     TankMelee2Animation=NewClip(TEXT("Attack2"));TankComboAnimation=NewClip(TEXT("Combo"));
@@ -119,6 +120,12 @@ void FMCNutBossSettings::Sanitize()
     Safe(MageTeleportCooldown,18,3,60); Safe(MageTeleportWindup,1.815f,.3f,2);
     Safe(MageTeleportMinDistance,1200,250,1600); Safe(MageTeleportMaxDistance,2000,MageTeleportMinDistance,2200);
     Safe(MageFocusRadius,420,150,1200);
+    Safe(TankChainMinRange,700,450,1400); Safe(TankChainRange,2200,TankChainMinRange+100,2400);
+    Safe(TankChainFlightSpeed,3500,500,8000);
+    Safe(TankChainRetreatSeconds,2.25f,.5f,8.f); Safe(TankChainWindup,.92f,.4f,2.f);
+    Safe(TankChainAimLockLeadSeconds,.25f,.1f,FMath::Min(.4f,TankChainWindup-.1f));
+    Safe(TankChainCooldown,11,1,40); Safe(TankChainStunSeconds,3.25f,.5f,8.f);
+    Safe(TankChainNutDamage,90,0,300);
 }
 
 float FMCNutBossSettings::BodyRadiusForRole(EMCNutBossRole Role) const

@@ -1,5 +1,12 @@
 # eeproducible VFX reference library
 
+## Thrown walnut shell burst — 2026-11-10
+
+- Epic's Niagara quick start shows how to separate a burst from the mesh that renders it. The walnut uses the existing half-shell mesh and its Niagara material on a short, editable CPU emitter. [Epic Niagara quick start](https://dev.epicgames.com/documentation/unreal-engine/quick-start-for-niagara-effects-in-unreal-engine)
+- Atif's impact breakdown shows how the initial burst and slower tail can read as separate layers. The walnut uses five outward-tumbling shells and nine fading dust motes. Its motion uses the real hit normal and bounds, with no simulated particle collisions. [Atif's impact breakdown](https://realtimevfx.com/t/stylized-frag-launcher-explosion-overwatch-inspiration-breakdown-posted/1894?page=2)
+
+Authored and compiled `NS_NutThrow_BossImpact` with `Tools/Unreal/author_nut_throw_niagara.py`. The mouth presentation library retains the profile, editable Niagara, and a short existing Sound Cue before gameplay. `Food.NutThrow / BossImpact` consumes the accepted shell shot and plays the cosmetic burst at its contact point.
+
 ## Juicy food-break preview — 2026-11-09
 
 - [Ashif Ali / CGHOW: Egg Burst](https://cghow.com/ue4-niagara-egg-explode/) is a creator-authored breakup reference: a short readable separation of food-like chunks. Reviewed the original page; no downloadable creator artwork copied.
@@ -2128,3 +2135,45 @@ food-interior shader, new crunch recording, or packaged GPU timing is claimed.
 2026-11-04 directional cut revision: added original generated opacity mask T_FoodCut_ArcMask and editable material M_FoodCut_Arc. The sprite renderer uses the new mask and keeps ParticleColor; two sheet sprites and mesh droplets now fan approximately in the cutting plane derived from the gameplay-supplied cut normal, rather than a radial burst. This is not sampled blade-velocity tracking. User.Size and the existing profile color/radius were retained. Niagara compiled UpToDate without warnings; the isolated Composer scenario recorded Hit and FoodCut, the live component received the profile overrides, and a paused viewport frame showed the liquid arc. Gameplay-camera motion approval and a retained video remain pending; E: was unavailable during this check.
 2026-11-04 droplet scatter: the user-supplied orange liquid splash reference informed the change. UpwardMeshBurst spawns 28 mesh droplets at default intensity, uses a wider distribution of directions and speeds, and randomizes sizes with 0.6–4.8 relative scale coefficients. Random initial particle scale also varies direction across bursts. Existing User.Color, User.Size, User.Radius, liquid sheet material and action bindings are preserved. Niagara compiled without errors or warnings; two isolated Tool.Knife/FoodCut contact scenarios recorded 28 droplets, varied particle sizes and directions, and different velocities between bursts. Gameplay camera review and retained motion recording remain pending.
 2026-11-04 splash speed control: exposed User.Speed (default 1.0) on NS_FoodCutSplash and the knife FoodCut composition. It scales the initial travel velocity for both splash emitters, clamped to 0.1–5.0, without changing particle lifetime. Existing authored values remain intact. Niagara compiled without errors or warnings; an isolated CPU simulation comparing Speed 0.5 and 2.0 measured a 3.68x difference in average droplet velocity across randomized bursts. Gameplay-camera validation remains pending.
+
+### Rounded food particles and knife-contact juice — 2026-11-10
+
+The revised `Food.AutoMouth` meshes use rounded shoulders and a contiguous rind strip. They retain the existing pulp material, accepted food tint, pivots and bounds. The two CPU emitters keep their six large pieces and eighteen crumbs. Each cue uses 1,032 mesh triangles. Variable proportions, a short growth phase and an earlier taper give the pieces a softer transition as they travel to the gameplay-supplied endpoint.
+
+The knife splash separates the immediate liquid silhouette from the longer-lived drops. Two short sheets use the existing arc mask and spread to opposite sides of the contact. Sixteen wet drops leave the contact with varied velocities and fall under gravity. This adapts the size hierarchy and independent liquid layer from Ashif Ali’s egg-burst breakdown. [CGHOW egg burst](https://cghow.com/ue4-niagara-egg-explode/)
+
+`Tool.Knife / FoodCut` plays `NS_FoodCutSplash_JuiceContact` from the accepted contact frame. The editable warm tint is shared across knife contacts. The old red splash and its profile are retained as source assets. The existing scoped Tool and Mouth libraries retain the two effects and their renderer dependencies before gameplay. Both Niagara systems compiled cleanly in UE 5.8.
+
+VFX Composer ran both native target scenarios with the saved profiles. Knife contact produced all sixteen drops and both sheets. The intake scenario reported accepted portions and Consume, with six pieces and eighteen crumbs per cue. Source opening, interruption and reset passed.
+
+One real knife input in the final `L_Mouth` solo PIE accepted one apple cut. The gameplay camera captured the two lifted arcs, the falling drops and the portion flying toward the throat. The renderer uses a small view-facing offset to keep the arcs legible against the apple. Both systems, the changed meshes and the arc material were ready during local Editor preload. The validation folder retains the recording and first-use receipts for this run.
+
+The follow-up emphasizes 18 mesh drops in a 3D spray, with a few larger drops and one or two short arc highlights. A cosmetic Niagara seed varies the width, height and side bias per accepted knife contact. The pulp cue now spends its first 0.20 s spreading near the cut before beginning the existing eased path to its accepted destination. Both systems compiled cleanly. Two accepted Composer contacts at the same origin gave different drop velocities at matched ages. In solo PIE the average pulp spread grew from 10 to 28 cm by the end of the scatter phase and the particles reached the throat. The `FoodJuiceDepth_20261110` validation folder retains the reports and capture.
+
+## Stage booster chest ejection — 2026-11-10
+
+`Reward.StageBooster / Spit` uses the visible throat aperture and the accepted landing direction. The throat briefly contracts, opens and recoils using its authored morphs. The chest unfolds and rolls on a timed arc to the supported landing, then uses the existing touchdown spring and reward interactions. The release runs `NS_StageChest_ThroatSpit`. Larger stretched mesh drops define the initial spray and smaller drops separate under gravity. Brief glossy accents support the liquid silhouette. The edit adapts the mesh-liquid approach in Ashif Ali’s stylized splash breakdown. [CGHOW mesh splash](https://cghow.com/simple-splash-in-ue5-3-niagara-tutorial/)
+
+The emitter has no gameplay collision, surface stains or persistent decal. The throat presentation uses the chest's arrival clock without changing the throat's gameplay phase. A blocked flight corridor or absent throat uses the validated vertical arrival. The scoped World presentation library retains the chest profile, Niagara system and renderer dependencies.
+
+Composer confirmed source opening, a live two-layer burst, interruption/reset and the complete supported arrival. One local `L_Mouth` solo used the real day director and verified four ordered chest launches and booster choices after the first meal, coffee cleanup, second meal and key event. The probe cleared the issued transient food and coffee residue and used the native terminal event signal for the key event. The chest effect and materials were ready during Editor preload, and ejection produced no game stains, hazards or change to the throat vomit counter. Recording and receipts are under `StageChestHook_20261110`.
+
+## Walnut Knight chain — 2026-11-10
+
+The endpoint pattern reuses the reviewed [Epic Niagara beam guide](https://dev.epicgames.com/documentation/en-us/unreal-engine/how-to-create-a-beam-effect-in-niagara-for-unreal-engine). Gameplay supplies the evaluated gauntlet and the accepted hook tip as typed world positions. The new editable `NS_NutKnightChainTether` uses opaque mesh links, alternating link orientation, a single hook mesh and bounded decorative sag between those points. Link spacing and slack are Niagara inputs. The runtime collision sweep remains authoritative.
+
+The system uses one bounded CPU burst with up to 64 links and one hook. It references original link and hook meshes and a shared tempered bronze material. Niagara compiled and the system was saved. Contextual motion and first use are reviewed separately in VFX Composer and solo PIE.
+
+The follow-up uses the existing Knight melee tell and slash after a completed player pull. Composer verified the player strike, physical bait fracture and empty reel. Solo PIE observed an 8.06 m player pull, a 0.65 s tell, one 12-point hit and three moving walnut pieces from the same club swing. The roll transferred impulse between two whole nuts while the second hull was outside the Knight's contact radius. A fresh solo bait fixture observed a 6.47 m nut pull, physical shell/kernel debris, shield damage and stun with zero player damage.
+
+Verified in the ordinary VFX Composer workspace. Player capture, whole-nut
+impact and dodge returned their accepted events and reset. The final solo
+`L_Mouth` recording shows 8.05 m of player pull and 6.32 m of nut travel after
+the player sidestepped. The shell contact removed 90 shield points and entered
+the 3.25 s stun. The PIE fixture requested the same native attack directly
+and scoped out AI target selection. The arena retained the tether and its metal
+material before readiness. The local Editor completed the material permutations
+during that loading step. Composer still reports inherited culling warnings
+for two reused Hook systems and missing companion hurt presentation in the
+isolated world. The chain action receipts passed. The captured GIF and
+companion evidence are under the task validation directory.

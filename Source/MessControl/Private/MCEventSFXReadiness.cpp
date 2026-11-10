@@ -137,8 +137,11 @@ bool UMCEventSFXReadiness::ArePlaybackResourcesCurrent() const
     }
     for(const auto& Previous:RetainedPlans) {
         FMCEventSFXSamplePlan Current;FString Error;
-        if(!FMCPreloadManifest::BuildEventAudioPlan(Previous.Source,Current,Error) || Current.SampleWaves.Num()!=Previous.SampleWaves.Num())return false;
+        if(!FMCPreloadManifest::BuildEventAudioPlan(Previous.Source,Current,Error)
+            || Current.SampleWaves.Num()!=Previous.SampleWaves.Num()
+            || Current.ReferencedGraphs.Num()!=Previous.ReferencedGraphs.Num())return false;
         for(USoundWave* Wave:Current.SampleWaves)if(!Previous.SampleWaves.Contains(Wave))return false;
+        for(const auto& Graph:Current.ReferencedGraphs)if(!Previous.ReferencedGraphs.Contains(Graph))return false;
     }
     return true;
 }

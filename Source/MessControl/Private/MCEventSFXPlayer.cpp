@@ -10,6 +10,7 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/WorldSettings.h"
+#include "MetasoundSource.h"
 #include "Sound/SoundBase.h"
 #include "Sound/SoundConcurrency.h"
 #include "Sound/SoundWave.h"
@@ -148,6 +149,13 @@ void AMCEventSFXPlayer::StartLayer(int32 Index)
     C->bAutoActivate=false;C->bAutoDestroy=false;C->bStopWhenOwnerDestroyed=true;
     C->bIsUISound=L.bIsUISound;C->SetSound(Sound);C->AttenuationSettings=Data.Attenuations[Index];
     if(EventContext.ParameterOwner.IsValid())UActorSoundParameterInterface::Fill(EventContext.ParameterOwner.Get(),C->DefaultParameters);
+    if(Sound->IsA<UMetaSoundSource>()) {
+        // The location prepared the graph's authored sample objects. Preserve
+        // its scalar inputs without replacing those objects from a live actor.
+        C->DefaultParameters.RemoveAll([](const FAudioParameter& Parameter) {
+            return Parameter.ParamType==EAudioParameterType::Object || Parameter.ParamType==EAudioParameterType::ObjectArray;
+        });
+    }
     if(Data.Concurrencies[Index])C->ConcurrencySet.Add(Data.Concurrencies[Index]);
     const FTransform Placement=L.Offset*EventFrame;
     if(L.Space==EMCEventSFXSpace::SourceSocket) {

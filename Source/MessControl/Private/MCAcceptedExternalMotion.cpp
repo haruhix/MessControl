@@ -10,7 +10,8 @@ bool FMCAcceptedMotionSnapshot::IsWellFormed() const
         || !FMath::IsFinite(SourceTime) || SourceTime<0 || !FMath::IsFinite(Duration)
         || (Duration!=-1 && (Duration<=0 || Duration>600)) || (Duration>=0 && SourceTime>Duration+.25f)) return false;
     if(Policy==EMCAcceptedMotionPolicy::BoundedGoal)
-        return !Goal.ContainsNaN() && FMath::IsFinite(Speed) && Speed>=100 && Speed<=1800
+        return !Goal.ContainsNaN() && FMath::IsFinite(Speed) && Speed>=MCHookPullPrediction::MinSpeed && Speed<=MCHookPullPrediction::MaxSpeed
+            && FMath::IsFinite(CurveDuration) && CurveDuration>=0
             && FMath::IsFinite(StopDistance) && StopDistance>=60 && StopDistance<=300 && Duration>=.1f && Duration<=8;
     if(Velocity.ContainsNaN() || Velocity.SizeSquared()>FMath::Square(2000.01f)) return false;
     return Policy!=EMCAcceptedMotionPolicy::SteeredVelocity || (FMath::IsFinite(Speed) && Speed>=100 && Speed<=2000
@@ -28,7 +29,7 @@ bool FMCAcceptedMotionSnapshot::Serialize(FArchive& Ar)
         uint8 Kind=uint8(Policy);Ar.SerializeBits(&Kind,2);if(Ar.IsLoading()) Policy=EMCAcceptedMotionPolicy(Kind);
         Ar.SerializeBits(&bFreeFlight,1);
         Ar<<PreviousMode<<PreviousCustomMode<<ServerSourceID<<Duration<<StartMoveTime<<SourceTime;
-        if(Policy==EMCAcceptedMotionPolicy::BoundedGoal) Ar<<Goal<<Speed<<StopDistance;
+        if(Policy==EMCAcceptedMotionPolicy::BoundedGoal) Ar<<Goal<<Speed<<StopDistance<<CurveDuration;
         else {
             Ar<<Velocity;
             if(Policy==EMCAcceptedMotionPolicy::SteeredVelocity) Ar<<Speed<<TurnRate<<SteeringLockedUntil;
@@ -40,7 +41,7 @@ FMCHookPullReceipt FMCAcceptedMotionSnapshot::AsHookReceipt() const
 {
     FMCHookPullReceipt R;R.ActionID=OperationID;R.Epoch=Epoch;R.Revision=Revision;R.bActive=bActive;R.bFreeFlight=bFreeFlight;
     R.PreviousMode=PreviousMode;R.PreviousCustomMode=PreviousCustomMode;R.Goal=Goal;R.Speed=Speed;R.StopDistance=StopDistance;
-    R.Duration=Duration;R.StartMoveTime=StartMoveTime;R.SourceTime=SourceTime;R.ServerSourceID=ServerSourceID;return R;
+    R.CurveDuration=CurveDuration;R.Duration=Duration;R.StartMoveTime=StartMoveTime;R.SourceTime=SourceTime;R.ServerSourceID=ServerSourceID;return R;
 }
 FName MCAcceptedExternalMotion::SourceName(const FMCAcceptedMotionSnapshot& R)
 {

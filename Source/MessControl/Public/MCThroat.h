@@ -111,6 +111,9 @@ public:
     UFUNCTION(BlueprintPure,Category="Throat|Intake") float IntakeAimStrength(FVector ViewOrigin,FVector ViewDirection) const;
     /** A point inside the visible artist aperture, above the tongue surface. */
     FVector VacuumInlet() const;
+    /** Local visual beat timed from the shared chest's replicated arrival clock. */
+    void PresentRewardSpit(double StartedAt);
+    void StopRewardSpit(double StartedAt);
     UFUNCTION(BlueprintPure,Category="Throat|Suction") bool IsAmbientSuctionActive() const;
     UFUNCTION(BlueprintPure,Category="Throat|Suction") FVector GetSuctionOrigin() const { return SuctionState.Origin; }
     UFUNCTION(BlueprintPure,Category="Throat|Suction") float GetAmbientSuctionStrengthAt(FVector Location) const;
@@ -158,6 +161,7 @@ private:
     FVector SwallowInlet=FVector::ZeroVector,SwallowAxis=FVector::ForwardVector;
     float PendingPileHeight=0;
     double NextIntakeAt=0;
+    double RewardSpitStartedAt=-100.;
     TWeakObjectPtr<class AMCThroatVortex> ActiveVortex;
     TMap<TWeakObjectPtr<AMCFoodActor>,FVector> PreviousThrownPositions;
     struct FPlayerIntakeSample { FVector Point; double At,Speed; };

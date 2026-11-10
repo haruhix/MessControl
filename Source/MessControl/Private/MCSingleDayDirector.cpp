@@ -76,6 +76,11 @@ const TCHAR* KeyEventTitle(EMCSingleDayKeyEventKind Kind)
     }
     return TEXT("");
 }
+bool IsKeyEventStage(EMCSingleDayStage Stage)
+{
+    return Stage==EMCSingleDayStage::Nuts || Stage==EMCSingleDayStage::Ice
+        || Stage==EMCSingleDayStage::FogBrawl || Stage==EMCSingleDayStage::Jellies;
+}
 }
 UMCSingleDayProfile::UMCSingleDayProfile()
 {
@@ -177,6 +182,10 @@ void AMCSingleDayDirector::BeginFirstPerk()
     Record(TEXT("Команда готова: старт без начального перка, награды только из сундуков"));
     if(IsLegacyTimedFinale()) BeginKeyEvent(); else BeginOpeningPause();
 }
+bool AMCSingleDayDirector::IsKeyEventRewardPending() const
+{
+    return bStageRewardPending && MCSingleDayDirectorPrivate::IsKeyEventStage(Stage);
+}
 void AMCSingleDayDirector::Publish(const FString& Title,const FString& Instruction,int32 Left,int32 Total)
 {
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
@@ -186,17 +195,20 @@ void AMCSingleDayDirector::Publish(const FString& Title,const FString& Instructi
     S.CurrentTitle=Title; S.Instruction=Instruction;
     const bool bFoodPattern=Stage==EMCSingleDayStage::FirstMeal || Stage==EMCSingleDayStage::MealCoffeeWave
         || Stage==EMCSingleDayStage::BetweenMealsPause;
-    const bool bKeyEvent=Stage==EMCSingleDayStage::Nuts || Stage==EMCSingleDayStage::Ice
-        || Stage==EMCSingleDayStage::FogBrawl || Stage==EMCSingleDayStage::Jellies;
-    if(bStageRewardPending)
+    const bool bKeyEvent=MCSingleDayDirectorPrivate::IsKeyEventStage(Stage);
+    if(IsKeyEventRewardPending())
         S.NextTitle=Settings->KeyEvents.IsValidIndex(KeyEventIndex+1)?TEXT("ПРИЁМ ПИЩИ"):TEXT("ИТОГИ");
-    else if(Stage==EMCSingleDayStage::OpeningPause || Stage==EMCSingleDayStage::BetweenMealsPause)
+    else if(bStageRewardPending && Stage==EMCSingleDayStage::FirstMeal) {
+        if(MealPortionNumber==1) S.NextTitle=TEXT("КОФЕЙНАЯ ВОЛНА");
+        else if(Settings->KeyEvents.IsValidIndex(KeyEventIndex))
+            S.NextTitle=MCSingleDayDirectorPrivate::KeyEventTitle(Settings->KeyEvents[KeyEventIndex].Kind);
+    }
+    else if(Stage==EMCSingleDayStage::OpeningPause || (bStageRewardPending && Stage==EMCSingleDayStage::BetweenMealsPause))
         S.NextTitle=TEXT("ПРИЁМ ПИЩИ");
     else if(Stage==EMCSingleDayStage::MealCoffeeWave)
         S.NextTitle=TEXT("УБОРКА ПОСЛЕ КОФЕ");
-    else if(Stage==EMCSingleDayStage::FirstMeal && Settings && Settings->KeyEvents.IsValidIndex(KeyEventIndex))
-        S.NextTitle=MealPortionNumber==1?TEXT("КОФЕЙНАЯ ВОЛНА"):
-            MCSingleDayDirectorPrivate::KeyEventTitle(Settings->KeyEvents[KeyEventIndex].Kind);
+    else if(Stage==EMCSingleDayStage::FirstMeal || Stage==EMCSingleDayStage::BetweenMealsPause)
+        S.NextTitle=TEXT("СУНДУК С БУСТЕРАМИ");
     else if(bKeyEvent)
         S.NextTitle=IsLegacyTimedFinale()?TEXT("ПЕРЕДЫШКА"):TEXT("СУНДУК С БУСТЕРАМИ");
     else if(Stage==EMCSingleDayStage::Director)
@@ -208,7 +220,12 @@ void AMCSingleDayDirector::Publish(const FString& Title,const FString& Instructi
     S.SpawnedFood=Total; S.FinishedFood=FMath::Max(0,Total-Left);
     S.CompletionProgress=Total>0?1-float(Left)/Total:0;
     if(Settings && !IsLegacyTimedFinale()) {
-        const float SlotProgress=bStageRewardPending?.9f:bKeyEvent?.65f:bFoodPattern?.1f*MealPortionNumber:0.f;
+        float SlotProgress=0.f;
+        if(bKeyEvent) SlotProgress=bStageRewardPending?.9f:.65f;
+        else if(Stage==EMCSingleDayStage::MealCoffeeWave) SlotProgress=.22f;
+        else if(Stage==EMCSingleDayStage::BetweenMealsPause) SlotProgress=bStageRewardPending?.34f:.28f;
+        else if(Stage==EMCSingleDayStage::FirstMeal)
+            SlotProgress=(MealPortionNumber==1?.1f:.45f)+(bStageRewardPending?.06f:0.f);
         S.DayProgress=(KeyEventIndex+SlotProgress)/FMath::Max(1,Settings->KeyEvents.Num());
     } else S.DayProgress=Stage==EMCSingleDayStage::Boss?.85f:.25f;
     GS->ForceNetUpdate();
@@ -300,13 +317,8 @@ void AMCSingleDayDirector::TickFirstMeal()
     const int32 DirtyTeeth=MCSingleDayDirectorPrivate::CountDirtyAvailableArenaTeeth(GetWorld());
     if(MealPortionSpawned>=Target && Food.OutstandingActors==0 && Food.UnresolvedHazards==0
         && DisposalDebt==0 && Dirt==0 && DirtyTeeth==0) {
-        if(MealPortionNumber==1) BeginMealCoffeeWave();
-        else {
-            if(IsValid(MealServices)) MealServices->Destroy();
-            MealServices=nullptr;
-            FirstMealBatch=0;
-            BeginKeyEvent();
-        }
+        const FName CompletionId(*FString::Printf(TEXT("FoodPortion_%d_%d"),KeyEventIndex,MealPortionNumber));
+        BeginStageReward(CompletionId);
         return;
     }
     const int32 Pending=FMath::Max(0,Target-MealPortionSpawned);
@@ -322,7 +334,7 @@ void AMCSingleDayDirector::TickFirstMeal()
 void AMCSingleDayDirector::BeginMealCoffeeWave()
 {
     Stage=EMCSingleDayStage::MealCoffeeWave; StageEndsAt=0;
-    Publish(TEXT("КОФЕЙНАЯ ВОЛНА"),TEXT("Держитесь за опору. После волны очистите язык и зубы перед второй порцией."));
+    Publish(TEXT("КОФЕЙНАЯ ВОЛНА"),TEXT("Держитесь за опору. После волны очистите язык и зубы, чтобы получить сундук."));
     OpeningCoffee=GetWorld()->SpawnActor<AMCCoffeeFlood>();
     if(!OpeningCoffee) {Fail(TEXT("Не удалось создать волну кофе между порциями."));return;}
     OpeningCoffee->SetOwner(this); OpeningCoffee->ResidueBatch=FirstMealBatch;
@@ -343,7 +355,7 @@ void AMCSingleDayDirector::TickMealCoffeeWave()
     if(OpeningCoffee->IsActive()) return;
     OpeningCoffee->Destroy(); OpeningCoffee=nullptr;
     Stage=EMCSingleDayStage::BetweenMealsPause; StageEndsAt=0;
-    Record(TEXT("Кофейная волна завершилась: вторая порция ждёт уборки"));
+    Record(TEXT("Кофейная волна завершилась: сундук ждёт уборки"));
     TickCoffeeCleanup();
     ForceNetUpdate();
 }
@@ -353,7 +365,8 @@ void AMCSingleDayDirector::TickCoffeeCleanup()
     const int32 Teeth=MCSingleDayDirectorPrivate::CountDirtyAvailableArenaTeeth(GetWorld());
     const int32 Left=Dirt+Teeth;
     if(Left==0) {
-        BeginMealPortion(1);
+        const FName CompletionId(*FString::Printf(TEXT("CoffeeCleanup_%d"),KeyEventIndex));
+        BeginStageReward(CompletionId);
         return;
     }
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();

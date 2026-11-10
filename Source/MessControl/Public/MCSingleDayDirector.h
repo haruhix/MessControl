@@ -75,7 +75,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Legacy") TSoftClassPtr<AMCBossCharacter> FinalBossClass;
 };
 
-/** A food pattern and a shared reward bracket each main event. */
+/** Each food portion, coffee cleanup and main event ends with a shared reward. */
 UCLASS()
 class MESSCONTROL_API AMCSingleDayDirector : public AActor
 {
@@ -92,6 +92,7 @@ public:
     void Stop();
     /** Called by this director's authoritative shared reward only. Destroyed unclaimed chests retry. */
     void NotifyStageRewardFinished(AMCRewardChest* Chest,bool bRetry);
+    bool IsKeyEventRewardPending() const;
     virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

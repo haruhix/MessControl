@@ -15,6 +15,7 @@ struct MESSCONTROL_API FMCAcceptedMotionSnapshot
     uint8 PreviousMode=0,PreviousCustomMode=0;
     FVector Velocity=FVector::ZeroVector,Goal=FVector::ZeroVector;
     float Speed=850,StopDistance=120,TurnRate=0,SteeringLockedUntil=0,Duration=-1,StartMoveTime=0,SourceTime=0;
+    float CurveDuration=0;
     uint16 ServerSourceID=0;
     bool IsWellFormed() const;
     bool Serialize(FArchive& Ar);

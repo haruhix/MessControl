@@ -162,6 +162,8 @@ public:
     bool IsNutKineticsActive() const;
     /** Server-only external impact; converts velocity change to an impulse using the real body mass. */
     bool ApplyNutImpulse(FVector VelocityChange,FVector WorldPoint);
+    /** Break an eligible whole encounter nut into the authored physical food fragments. */
+    bool FractureKnightNut(FVector Direction,float Speed,bool bPlayFoodBreak=true);
     UPROPERTY(ReplicatedUsing=OnRep_NutKinetics,BlueprintReadOnly,Category="Nut Physics") bool bNutKineticsEnabled=false;
     UPROPERTY(BlueprintReadOnly,Category="Nut Physics") int32 NutToothImpacts=0;
     UPROPERTY(BlueprintReadOnly,Category="Nut Physics") float LastNutImpactEnergy=0;

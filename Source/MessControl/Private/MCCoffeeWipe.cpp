@@ -98,6 +98,55 @@ bool FMCCoffeeWipe::Stroke(TArray<uint8>& Mask,FVector2D From,FVector2D To,float
     }
     return Changed;
 }
+
+bool FMCCoffeeWipe::WipeOnContact(TArray<uint8>& Mask,const TArray<uint8>& Deposited,TArray<float>& Fractional,
+    TBitArray<>& Swept,FVector2D Center,float Radius,int32 Seed,bool bTile,bool& bCompleted)
+{
+    bCompleted=false;
+    if(Mask.Num()!=Count || Center.ContainsNaN() || !FMath::IsFinite(Radius) || Radius<=0
+        || Center.X<-Radius || Center.X>1+Radius || Center.Y<-Radius || Center.Y>1+Radius) return false;
+
+    constexpr uint8 DryThreshold=63;
+    const auto IsWetCell=[&](int32 X,int32 Y) {
+        return Mask[Y*Size+X]>DryThreshold
+            && WetAt(Deposited,FVector2D((X+.5)/Size,(Y+.5)/Size),Seed,bTile,bTile?DryThreshold:100);
+    };
+    const int32 MinX=FMath::Clamp(FMath::FloorToInt((Center.X-Radius)*Size),0,Size-1);
+    const int32 MaxX=FMath::Clamp(FMath::FloorToInt((Center.X+Radius)*Size),0,Size-1);
+    const int32 MinY=FMath::Clamp(FMath::FloorToInt((Center.Y-Radius)*Size),0,Size-1);
+    const int32 MaxY=FMath::Clamp(FMath::FloorToInt((Center.Y+Radius)*Size),0,Size-1);
+    const double RadiusSquared=FMath::Square(double(Radius));
+    bool bChanged=false;
+    for(int32 Y=MinY;Y<=MaxY;++Y) for(int32 X=MinX;X<=MaxX;++X) {
+        const FVector2D UV((X+.5)/Size,(Y+.5)/Size);
+        if((UV-Center).SizeSquared()>RadiusSquared || !IsWetCell(X,Y)) continue;
+        if(Swept.Num()!=Count) Swept.Init(false,Count);
+        const int32 Index=Y*Size+X;
+        Swept[Index]=true;
+        Mask[Index]=0;
+        if(Fractional.IsValidIndex(Index)) Fractional[Index]=0;
+        bChanged=true;
+    }
+    if(!bChanged) return false;
+
+    // The stain's relevant area is the union of this Sponge's cleaned area
+    // and the remaining wet footprint. Earlier brushing and new deposits can
+    // change the wet footprint, but a cell never adds to swept area twice.
+    const int32 SweptCount=Swept.CountSetBits();
+    int32 UnsweptCount=0;
+    for(int32 Y=0;Y<Size && UnsweptCount<SweptCount;++Y) {
+        for(int32 X=0;X<Size && UnsweptCount<SweptCount;++X) {
+            if(!Swept[Y*Size+X] && IsWetCell(X,Y)) ++UnsweptCount;
+        }
+    }
+    bCompleted=SweptCount>UnsweptCount;
+    if(bCompleted) {
+        Mask.Init(0,Count);
+        Fractional.Reset();
+    }
+    return true;
+}
+
 float FMCCoffeeWipe::Remaining(const TArray<uint8>& Mask)
 {
     if (Mask.Num()!=Count) return 1;

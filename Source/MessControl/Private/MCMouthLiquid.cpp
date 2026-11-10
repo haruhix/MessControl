@@ -97,7 +97,7 @@ void AMCMouthSurface::ResetLiquid()
     else FMCCoffeeWipe::Reset(WipeMask);
     if(bPaintTile && EnsurePaintSupport()) for(int32 I=0;I<WipeMask.Num();++I)
         if(!PaintSupportMask[I]) WipeMask[I]=0;
-    WipeFractional.Reset(); PreviousBrush.Reset(); BrushCenters.Reset(); Finish=0; BrushAt=-100; BrushClock=0;
+    WipeFractional.Reset(); SpongeSweptCells.Reset(); PreviousBrush.Reset(); BrushCenters.Reset(); Finish=0; BrushAt=-100; BrushClock=0;
     StainCleaningState.ContactAt=-100.;StainCleaningState.ContactStartedAt=-100.;
     OnRep_Wipe(); ForceNetUpdate();
 }
@@ -205,6 +205,13 @@ void AMCMouthSurface::FlushPaintDeposit()
 {
     if(!HasAuthority() || !bPaintDepositPending || !bPaintTile) return;
     bPaintDepositPending=false;
+    // A new deposit can wet a previously swept cell. Count its new surface
+    // area only after the Sponge contacts it again.
+    if(SpongeSweptCells.Num()==WipeMask.Num()) {
+        for(int32 Index=0;Index<WipeMask.Num();++Index) {
+            if(WipeMask[Index]>63) SpongeSweptCells[Index]=false;
+        }
+    }
     // ApplyCoffee intentionally resets a whole puddle. Restore only care state here.
     FMCToothStatus Next=Status->State;
     Next.CoffeeLeft=FMCCoffeeWipe::HasWetCells(WipeMask)?FMath::Max(1,FMath::CeilToInt(RemainingLiquid()*Next.CoffeeTotal)):0;
@@ -237,7 +244,7 @@ void AMCMouthSurface::OnRep_Wipe() { bWipeDirty=true;bRemainingLiquidDirty=true;
 void AMCMouthSurface::ClearLiquidForBooster()
 {
     if(!HasAuthority() || bUlcer) return;
-    WipeMask.Init(0,FMCCoffeeWipe::Count);WipeFractional.Reset();
+    WipeMask.Init(0,FMCCoffeeWipe::Count);WipeFractional.Reset();SpongeSweptCells.Reset();
     Status->ClearCoffeeForBooster();
     OnRep_Wipe();ForceNetUpdate();
 }
@@ -350,11 +357,11 @@ bool AMCMouthSurface::BrushLiquid(AMCToothCharacter* Worker,float Seconds)
     return true;
 }
 
-void AMCMouthSurface::SyncLiquidCleaningLayers(AMCToothCharacter* Worker,EMCStainCleanReason Reason)
+void AMCMouthSurface::SyncLiquidCleaningLayers(AMCToothCharacter* Worker,EMCStainCleanReason Reason,bool bHoldForCoverage)
 {
     if(!IsValid(Status) || !Status->IsAlive()) return;
     const float Left=RemainingLiquid();
-    const bool Finished=bPaintTile?!FMCCoffeeWipe::HasWetCells(WipeMask):Left<.025f;
+    const bool Finished=!bHoldForCoverage && (bPaintTile?!FMCCoffeeWipe::HasWetCells(WipeMask):Left<.025f);
     const int32 RemainingLayers=Finished?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));
     while(Status->State.CoffeeLeft>RemainingLayers) {
         const int32 Before=Status->State.CoffeeLeft;
@@ -365,7 +372,7 @@ void AMCMouthSurface::SyncLiquidCleaningLayers(AMCToothCharacter* Worker,EMCStai
     }
 }
 bool AMCMouthSurface::ApplyLiquidCleaning(AMCToothCharacter* Worker,FVector2D From,FVector2D To,FVector Point,
-    float RadiusUV,float Seconds,float Rate,EMCStainCleanReason Reason)
+    float RadiusUV,float Seconds,float Rate,EMCStainCleanReason Reason,bool bSpongeContact)
 {
     if(IsActorBeingDestroyed() || !IsValid(Status) || !Status->IsAlive()) return false;
     const float Before=RemainingLiquid();
@@ -375,13 +382,16 @@ bool AMCMouthSurface::ApplyLiquidCleaning(AMCToothCharacter* Worker,FVector2D Fr
     if(Rate<=0) return false;
     auto* Results=UMCResultPassives::ForWorld(this);
     const auto Attempt=Results?Results->BeginCleaning(this):FMCStainCleaningAttempt();
-    const bool Changed=FMCCoffeeWipe::Stroke(WipeMask,From,To,RadiusUV,Seconds,&WipeFractional,Rate);
+    bool bSpongeCompleted=false;
+    const bool Changed=bSpongeContact
+        ?FMCCoffeeWipe::WipeOnContact(WipeMask,LiquidDepositMask,WipeFractional,SpongeSweptCells,To,RadiusUV,LiquidSeed,bPaintTile,bSpongeCompleted)
+        :FMCCoffeeWipe::Stroke(WipeMask,From,To,RadiusUV,Seconds,&WipeFractional,Rate);
     if(Changed) OnRep_Wipe();
     const bool Removed=Changed && RemainingLiquid()<Before;
     if(Removed) {
         if(Results)Results->NotifyCleaningContact(this,Worker,Point,RadiusUV*(2*LiquidHalfSize),Before,RemainingLiquid(),Rate>BaseRate,Reason);
         if(auto* Perks=UMCPerkComponent::ForActor(Worker)) Perks->NotifyCleaned(Point);
-        SyncLiquidCleaningLayers(Worker,Reason);
+        SyncLiquidCleaningLayers(Worker,Reason,bSpongeContact && !bSpongeCompleted);
         // This branch already proved native mask removal. Presentation records
         // that accepted boundary; it never repeats the cleaning/reward decision.
         const auto* Clock=GetWorld()->GetGameState();
@@ -392,21 +402,25 @@ bool AMCMouthSurface::ApplyLiquidCleaning(AMCToothCharacter* Worker,FVector2D Fr
         StainCleaningState.ContactAt=Now;StainCleaningState.Point=Point;
         StainCleaningState.Normal=IsValid(Worker)&&Worker->BrushContact&&Worker->BrushContact->Target==this
             ?Worker->BrushContact->ContactNormal():GetActorUpVector();
-        if(!WasClean&&IsClean()) {++StainCleaningState.CompletionSerial;StainCleaningState.CompletedAt=Now;}
+        if(!WasClean&&IsClean()) {
+            SpongeSweptCells.Reset();
+            ++StainCleaningState.CompletionSerial;StainCleaningState.CompletedAt=Now;
+        }
         OnRep_StainCleaningPresentation();
     }
     if(Results) Results->CompleteCleaning(Attempt,Worker,Reason,Removed);
     if(Changed) ForceNetUpdate();
     return Removed;
 }
-bool AMCMouthSurface::CleanLiquidAt(AMCToothCharacter* Worker,FVector Point,float Radius,float Seconds,float Rate,EMCStainCleanReason Reason)
+bool AMCMouthSurface::CleanLiquidAt(AMCToothCharacter* Worker,FVector Point,float Radius,float Seconds,float Rate,
+    EMCStainCleanReason Reason,bool bSpongeContact)
 {
     if(!HasAuthority() || IsActorBeingDestroyed() || !IsValid(Status) || !Status->IsAlive()
         || bUlcer || IsClean() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()
         || !Worker->Status || !Worker->Status->IsAlive() || Point.ContainsNaN() || !FMath::IsFinite(Radius)
         || Radius<=0 || !FMath::IsFinite(Seconds) || Seconds<=0 || !FMath::IsFinite(Rate) || Rate<=0) return false;
     const FVector2D UV=FVector2D(GetActorTransform().InverseTransformPosition(Point))/(2*LiquidHalfSize)+FVector2D(.5);
-    return ApplyLiquidCleaning(Worker,UV,UV,Point,Radius/(2*LiquidHalfSize),FMath::Min(Seconds,.1f),Rate,Reason);
+    return ApplyLiquidCleaning(Worker,UV,UV,Point,Radius/(2*LiquidHalfSize),FMath::Min(Seconds,.1f),Rate,Reason,bSpongeContact);
 }
 bool AMCMouthSurface::CleanLiquidFromPassive(AMCToothCharacter* Worker)
 {
@@ -415,7 +429,7 @@ bool AMCMouthSurface::CleanLiquidFromPassive(AMCToothCharacter* Worker)
         || !Worker->Status || !Worker->Status->IsAlive()) return false;
     auto* Results=UMCResultPassives::ForWorld(this);if(!Results) return false;
     const auto Attempt=Results->BeginCleaning(this);
-    WipeMask.Init(0,FMCCoffeeWipe::Count);WipeFractional.Reset();OnRep_Wipe();
+    WipeMask.Init(0,FMCCoffeeWipe::Count);WipeFractional.Reset();SpongeSweptCells.Reset();OnRep_Wipe();
     SyncLiquidCleaningLayers(Worker,EMCStainCleanReason::NeatFreak);ForceNetUpdate();
     return Results->CompleteCleaning(Attempt,Worker,EMCStainCleanReason::NeatFreak,true);
 }

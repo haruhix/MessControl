@@ -41,6 +41,10 @@
 
 namespace
 {
+// ChainCowboy contains Blender frames 1–57 at 24 fps. Frame 42 is release.
+constexpr float ChainCowboyReleaseSeconds=41.f/24.f;
+constexpr float ChainCowboyFollowThroughSeconds=15.f/24.f;
+
 FMCNutCuePresentation NutVFXContext(EMCNutBossRole Role,const TCHAR* Action,FName Event,FName AfterWindup=NAME_None)
 {
     const FName Source(*FString::Printf(TEXT("Boss.Nut%s.%s"),Role==EMCNutBossRole::Mage?TEXT("Mage"):TEXT("Knight"),Action));
@@ -82,6 +86,8 @@ AMCNutBoss::AMCNutBoss()
     FireballPresentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("MageFireballPresentation"));
     FireballPresentation->SourceID=TEXT("Boss.NutMage.Fireball");
     FireballPresentation->Events={TEXT("Charge"),TEXT("Release"),TEXT("Flight"),TEXT("Impact")};
+    ChainPresentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("KnightChainPresentation"));
+    InitializeChainPresentation();
     Kernel=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Kernel")); Kernel->SetupAttachment(PresentationRoot);
     OpenShell=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("OpenShell")); OpenShell->SetupAttachment(PresentationRoot);
     TankTurnPivot=CreateDefaultSubobject<USceneComponent>(TEXT("TankTurnPivot")); TankTurnPivot->SetupAttachment(PresentationRoot);
@@ -89,6 +95,16 @@ AMCNutBoss::AMCNutBoss()
     TankModel->SetCollisionEnabled(ECollisionEnabled::NoCollision); TankModel->SetCanEverAffectNavigation(false);
     TankModel->SetVisibility(false);
     TankModel->bEnableUpdateRateOptimizations=false;
+    KnightClubHardware=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("KnightClubHardware"));
+    KnightClubStowedHook=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("KnightClubStowedHook"));
+    KnightClubHardwareMesh=TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutCombat/SM_NutKnightClubFerrule.SM_NutKnightClubFerrule")));
+    KnightClubStowedHookMesh=TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutCombat/SM_NutKnightClubStowedHook.SM_NutKnightClubStowedHook")));
+    for(auto* Part:{KnightClubHardware.Get(),KnightClubStowedHook.Get()}) {
+        Part->SetupAttachment(TankModel);
+        Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Part->SetCanEverAffectNavigation(false);
+        Part->SetVisibility(false);
+    }
     MageModel=CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MageModel")); MageModel->SetupAttachment(PresentationRoot);
     MageModel->SetCollisionEnabled(ECollisionEnabled::NoCollision); MageModel->SetCanEverAffectNavigation(false);
     MageModel->SetVisibility(false); MageModel->bEnableUpdateRateOptimizations=false;
@@ -138,6 +154,7 @@ void AMCNutBoss::BeginPlay()
     ShieldPresentation->BindSourceAudioSocket(TEXT("Boss.NutKnight.Shield"),TankModel,SocketError);
     FireballPresentation->BindSourceAudioSocket(TEXT("Boss.NutMage.Fireball"),MageModel,SocketError);
     Super::BeginPlay(); BossSettings.Sanitize(); Settings.MaxHealth=Health;
+    if(BossRole==EMCNutBossRole::Tank) PrepareChainPresentation(SocketError);
     ResetClientPresentation(); LastClientMovementAt=-1; bTankRollRotationInitialized=false;
     TankModel->AddTickPrerequisiteActor(this);
     MageModel->AddTickPrerequisiteActor(this);
@@ -230,7 +247,11 @@ void AMCNutBoss::RefreshPresentation()
     USkeletalMesh* RenderTankMesh=TankMesh;
     if(TankMesh && ShieldHealth<=0 && UnshieldedTankMesh
         && UnshieldedTankMesh->GetSkeleton()==TankMesh->GetSkeleton()) RenderTankMesh=UnshieldedTankMesh;
-    if(TankModel->GetSkeletalMeshAsset()!=RenderTankMesh) TankModel->SetSkeletalMeshAsset(RenderTankMesh);
+    if(TankModel->GetSkeletalMeshAsset()!=RenderTankMesh) {
+        for(auto* Part:{KnightClubHardware.Get(),KnightClubStowedHook.Get()})
+            if(!Part->GetAttachSocketName().IsNone()) Part->AttachToComponent(TankModel,FAttachmentTransformRules::KeepRelativeTransform);
+        TankModel->SetSkeletalMeshAsset(RenderTankMesh);
+    }
     if(TankMesh) {
         // Keep the original anchor: removing the shield changes mesh bounds,
         // but the feet and body must not jump when the render asset changes.
@@ -253,6 +274,12 @@ void AMCNutBoss::RefreshPresentation()
         TankModelGroundAnchor.Z=Bounds.Origin.Z-Bounds.BoxExtent.Z;
     }
     const bool HasTankModel=BossRole==EMCNutBossRole::Tank && TankMesh;
+    const bool bUseClubHardware=HasTankModel && GetNetMode()!=NM_DedicatedServer && HasCowboyChainAnchor();
+    const FName ClubSocket=bUseClubHardware?FName(TEXT("hand_r")):NAME_None;
+    for(auto* Part:{KnightClubHardware.Get(),KnightClubStowedHook.Get()})
+        if(Part->GetAttachSocketName()!=ClubSocket) Part->AttachToComponent(TankModel,FAttachmentTransformRules::KeepRelativeTransform,ClubSocket);
+    KnightClubHardware->SetStaticMesh(bUseClubHardware?KnightClubHardwareMesh.LoadSynchronous():nullptr);
+    KnightClubStowedHook->SetStaticMesh(bUseClubHardware?KnightClubStowedHookMesh.LoadSynchronous():nullptr);
     auto* BallMesh=BossRole==EMCNutBossRole::Tank?BossSettings.TankBallMesh.LoadSynchronous():nullptr;
     if(TankBall->GetStaticMesh()!=BallMesh) TankBall->SetStaticMesh(BallMesh);
     if(BallMesh) {
@@ -368,6 +395,7 @@ void AMCNutBoss::CacheBossAnimations()
         Set(EMCNutBossClip::ChargeTell,BossSettings.TankChargeTellAnimation);
         Set(EMCNutBossClip::ChargeLoop,BossSettings.TankChargeLoopAnimation);
         Set(EMCNutBossClip::ChargeRecovery,BossSettings.TankChargeRecoveryAnimation);
+        Set(EMCNutBossClip::ChainCowboy,BossSettings.TankChainCowboyAnimation);
     } else {
         Set(EMCNutBossClip::Idle,BossSettings.MageIdleAnimation); Set(EMCNutBossClip::Walk,BossSettings.MageWalkAnimation);
         Set(EMCNutBossClip::Cast,BossSettings.MageCastAnimation); Set(EMCNutBossClip::HeavyCast,BossSettings.MageHeavyCastAnimation);
@@ -487,7 +515,18 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
     if(Recovery) AttackWeight=Out.bMage?1-FMath::SmoothStep(.65f,1.f,RecoveryProgress):
         1-FMath::SmoothStep(float(AttackEndAt-StateStartedAt)-Out.BlendSeconds,
         float(AttackEndAt-StateStartedAt),float(Time-StateStartedAt));
-    if(Active && Attack==EMCNutBossAttack::Roll) {
+    if(!Out.bMage && !bDefeated && Attack==EMCNutBossAttack::Chain
+        && (Telegraph || State==EMCNutBossState::Executing)
+        && Has(EMCNutBossClip::ChainCowboy)) {
+        AttackClip=EMCNutBossClip::ChainCowboy;
+        const float SinceRelease=FMath::Clamp(float(Time-ResolveAt),0.f,ChainCowboyFollowThroughSeconds);
+        const float Seconds=Telegraph?ChainCowboyReleaseSeconds*GetChainPhaseAlpha():ChainCowboyReleaseSeconds+SinceRelease;
+        Phase=Seconds/BossAnimations[int32(AttackClip)]->GetPlayLength();
+        Out.bAuthoredChainThrow=true;
+        // The planted rear leg uses bounded authored stretch at full reach.
+        Out.bAllowTankScale=true;
+        Out.VisualKey=2600;
+    } else if(Active && Attack==EMCNutBossAttack::Roll) {
         const bool NewExit=Recovery && Has(EMCNutBossClip::BallEnd);
         AttackClip=NewExit?EMCNutBossClip::BallEnd:EMCNutBossClip::Transform;
         Phase=Telegraph?WindupProgress:NewExit?Progress(Time-StateStartedAt,BossSettings.TankBallEndSeconds):Recovery?1-RecoveryProgress:1;
@@ -616,7 +655,7 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
         UAnimSequence* Clip=BossAnimations[int32(Slot)]; const float Length=Clip->GetPlayLength();
         if(Length<=KINDA_SMALL_NUMBER) return;
         FMCNutBossClipSample Sample; Sample.Clip=Clip;Sample.Weight=Weight;Sample.bLoop=Loop;Sample.LocomotionMode=LocomotionMode;
-        Sample.bAllowTankScale=Slot==EMCNutBossClip::Transform || Slot==EMCNutBossClip::BallEnd;
+        Sample.bAllowTankScale=Slot==EMCNutBossClip::Transform || Slot==EMCNutBossClip::BallEnd || Slot==EMCNutBossClip::ChainCowboy;
         Sample.Seconds=Loop?float(FMath::Fmod(FMath::Max(0.,Time-LoopStartedAt)*Rate,double(Length))):FMath::Clamp(Fraction,0.f,1.f)*Length;
         Out.Samples.Add(Sample);
     };
@@ -659,7 +698,7 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
     const float ReactionSeconds=Has(Reaction)?BossAnimations[int32(Reaction)]->GetPlayLength():.4f;
     // Block is a guarded loop: show a short response to each actual frontal hit.
     const float ReactionWindow=Reaction==EMCNutBossClip::Block?FMath::Min(.55f,ReactionSeconds):ReactionSeconds;
-    if(!Out.bMage && !bDefeated && !IsCounterShoving() && HitAge>=0 && HitAge<ReactionWindow && Has(Reaction)
+    if(!Out.bMage && !bDefeated && !Out.bAuthoredChainThrow && !IsCounterShoving() && HitAge>=0 && HitAge<ReactionWindow && Has(Reaction)
         && (!Stunned || VisualHitAt>ShieldBrokenAt+.01)) {
         // A sharp reaction reads on contact, then gives control back to the same
         // attack timeline. Keep a telegraph or executing strike visible under it.
@@ -742,7 +781,11 @@ void AMCNutBoss::PresentTankModel(double Time)
         MageModel->SetRelativeScale3D(Scale); MageModel->SetRelativeLocation(-ModelRotation.RotateVector(MageModelCenter*Scale)+FVector(0,0,BossSettings.MageHeight*.5f-Settings.BodyRadius));
         MageModel->SetRelativeRotation(ModelRotation); Visual->SetVisibility(false);
     }
-    if(BossRole!=EMCNutBossRole::Tank) {TankModel->SetVisibility(false);TankBall->SetVisibility(false);return;}
+    if(BossRole!=EMCNutBossRole::Tank) {
+        TankModel->SetVisibility(false);TankBall->SetVisibility(false);
+        KnightClubHardware->SetVisibility(false);KnightClubStowedHook->SetVisibility(false);
+        return;
+    }
     TankTurnPivot->SetRelativeLocation(FVector(0,0,-Settings.BodyRadius-4.f));
     const bool Rolling=Attack==EMCNutBossAttack::Roll && State==EMCNutBossState::Executing && !bDefeated;
     const bool Winding=Attack==EMCNutBossAttack::Roll && State==EMCNutBossState::Telegraph && !bDefeated;
@@ -756,6 +799,11 @@ void AMCNutBoss::PresentTankModel(double Time)
     const bool HasWarrior=TankModel->GetSkeletalMeshAsset()!=nullptr;
     const bool KnightVisible=!Transforming || PhaseAge<HeadSplitAt;
     TankBall->SetVisibility(BallWeight>.001f && KnightVisible); TankModel->SetVisibility(HasWarrior && BallWeight<.999f && KnightVisible);
+    const bool bClubVisible=TankModel->IsVisible() && KnightClubHardware->GetStaticMesh();
+    const bool bHookUndocked=Attack==EMCNutBossAttack::Chain && (ChainPhase!=EMCNutBossChainPhase::Inactive
+        || (State==EMCNutBossState::Telegraph && GetChainPhaseAlpha()>CowboyUnpark));
+    KnightClubHardware->SetVisibility(bClubVisible);
+    KnightClubStowedHook->SetVisibility(bClubVisible && !bHookUndocked && KnightClubStowedHook->GetStaticMesh());
     Visual->SetVisibility(!HasWarrior && BallWeight<.999f && KnightVisible);
     Feedback->SetVisualTarget(BallWeight>.5f?static_cast<UMeshComponent*>(TankBall.Get()):
         HasWarrior?static_cast<UMeshComponent*>(TankModel.Get()):Visual.Get());
@@ -1027,6 +1075,7 @@ float AMCNutBoss::GetAttackCooldownRemaining(EMCNutBossAttack Ability) const
     case EMCNutBossAttack::Summon: ReadyAt=NextSummonAt;break;
     case EMCNutBossAttack::NutRain: ReadyAt=NextRainAt;break;
     case EMCNutBossAttack::Teleport: ReadyAt=NextTeleportAt;break;
+    case EMCNutBossAttack::Chain: ReadyAt=NextChainAt;break;
     default: break;
     }
     if(Ability!=EMCNutBossAttack::None && Ability!=EMCNutBossAttack::Melee) ReadyAt=FMath::Max(ReadyAt,NextSpecialAt);
@@ -1195,14 +1244,16 @@ void AMCNutBoss::TrackAttackActor(AActor* Actor)
     ActiveAttacks.RemoveAll([](const auto& Item){return !Item.IsValid();});
 }
 
-void AMCNutBoss::BeginAttack(EMCNutBossAttack Next)
+void AMCNutBoss::BeginAttack(EMCNutBossAttack Next,bool bChainFollowUp)
 {
     if(!HasAuthority() || !IsLiveTarget(Target)) return;
+    if(Next==EMCNutBossAttack::Chain) {BeginChain(Target);return;}
     const double Time=Now();
     if(Next==EMCNutBossAttack::Charge || Next==EMCNutBossAttack::Jump || Next==EMCNutBossAttack::NutRain || Next==EMCNutBossAttack::Roll) SelectTarget(true);
     if(!IsLiveTarget(Target)) return;
     Attack=Next; AttackSeed=Random.RandRange(1,MAX_int32); LockedStart=GetActorLocation();
-    if(Next==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank) TankMeleeVariant=uint8(TankMeleeSequence++%3);
+    if(Next==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank)
+        TankMeleeVariant=bChainFollowUp?0:uint8(TankMeleeSequence++%3);
     LockedTarget=Target->GetActorLocation(); AttackForward=(LockedTarget-LockedStart).GetSafeNormal2D();
     if(AttackForward.IsNearlyZero()) AttackForward=GetActorForwardVector();
     // Tank finishes turning during its visible windup, without snapping here.
@@ -1273,7 +1324,12 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next)
         || Next==EMCNutBossAttack::Jump || Next==EMCNutBossAttack::NutRain
         || (Next==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank);
     const float Recovery=Next==EMCNutBossAttack::Jump?1.7f:Sustained?1.4f:Next==EMCNutBossAttack::Summon?1.2f:.9f;
-    StartAttackCooldown(ResolveAt+(Sustained?ActiveSeconds:0.f)+RecoverySeconds(Recovery));
+    const double RecoveryEndsAt=ResolveAt+(Sustained?ActiveSeconds:0.f)+RecoverySeconds(Recovery);
+    StartAttackCooldown(RecoveryEndsAt);
+    if(bChainFollowUp) {
+        NextChainAt=RecoveryEndsAt+BossSettings.TankChainCooldown;
+        NextSpecialAt=RecoveryEndsAt+BossSettings.SpecialAttackGap;
+    }
     Enter(EMCNutBossState::Telegraph,Windup);
     // Only body attacks have a complete outcome here. Projectile/rain impacts
     // belong to their spawned attack actors and never award on a cast finishing.
@@ -1364,11 +1420,19 @@ void AMCNutBoss::PushNutsAlongSegment(FVector Start,FVector End,float Seconds)
         if(Direction.IsNearlyZero()) Direction=Motion;
         const float Closing=FVector::DotProduct(Motion*Speed-Nut->Body->GetPhysicsLinearVelocity(),Direction);
         if(Closing<=0) continue;
+        if(BossRole==EMCNutBossRole::Tank && Attack==EMCNutBossAttack::Charge && State==EMCNutBossState::Executing) {
+            FCollisionQueryParams Query(SCENE_QUERY_STAT(MCNutChargeNutContact),false,this);
+            Query.AddIgnoredActor(Nut);
+            if(GetWorld()->LineTraceTestByChannel(Closest,Contact,ECC_Visibility,Query)) continue;
+            if(Nut->FractureKnightNut(Direction,Closing)) continue;
+        }
+        // A rolling Knight passes momentum into the whole hull. Chaos
+        // resolves subsequent collisions between the intact walnuts.
         if(Nut->ApplyNutImpulse(Direction*Closing,Contact)) NutContactAt.Add(Nut,Time);
     }
 }
 
-void AMCNutBoss::PushNutsInArea(FVector Center,float Radius,float Speed,bool bForwardOnly)
+void AMCNutBoss::ImpactNutsInArea(FVector Center,float Radius,float Speed,bool bForwardOnly)
 {
     if(!HasAuthority() || !IsEncounterAlive() || Radius<=0 || Speed<=0) return;
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
@@ -1384,6 +1448,7 @@ void AMCNutBoss::PushNutsInArea(FVector Center,float Radius,float Speed,bool bFo
         FCollisionQueryParams Query(SCENE_QUERY_STAT(MCNutBossNutImpulse),false,this); Query.AddIgnoredActor(Nut);
         if(GetWorld()->LineTraceSingleByChannel(Obstacle,Center+FVector(0,0,80),Nut->Body->GetCenterOfMass(),ECC_Visibility,Query)) continue;
         const float Falloff=FMath::Lerp(1.f,.4f,FMath::Clamp(Distance/Radius,0.f,1.f));
+        if(BossRole==EMCNutBossRole::Tank && Nut->FractureKnightNut(Direction,Speed*Falloff)) continue;
         Nut->ApplyNutImpulse((Direction*Speed+FVector(0,0,Speed*.16f))*Falloff,Contact);
     }
 }
@@ -1521,6 +1586,7 @@ void AMCNutBoss::Recover(float Seconds)
 float AMCNutBoss::RecoverySeconds(float Requested) const
 {
     if(Attack==EMCNutBossAttack::CounterShove) return BossSettings.TankCounterRecovery;
+    if(Attack==EMCNutBossAttack::Chain) return Requested;
     if(BossRole==EMCNutBossRole::Mage && Attack!=EMCNutBossAttack::Melee && Attack!=EMCNutBossAttack::None)
         return Attack==EMCNutBossAttack::NutRain?FMath::Max(Requested,
             MageAttackAnimationSeconds()-BossSettings.RainWindup-BossSettings.RainActiveSeconds+BossSettings.AnimationBlendSeconds):
@@ -1581,6 +1647,7 @@ void AMCNutBoss::StartAttackCooldown(double RecoveryEndsAt)
     case EMCNutBossAttack::Summon: NextSummonAt=RecoveryEndsAt+BossSettings.SummonCooldown;break;
     case EMCNutBossAttack::NutRain: NextRainAt=RecoveryEndsAt+BossSettings.RainCooldown;break;
     case EMCNutBossAttack::Teleport: NextTeleportAt=RecoveryEndsAt+BossSettings.MageTeleportCooldown;break;
+    case EMCNutBossAttack::Chain: NextChainAt=RecoveryEndsAt+BossSettings.TankChainCooldown;break;
     default: return;
     }
     if(Attack!=EMCNutBossAttack::Melee) NextSpecialAt=RecoveryEndsAt+BossSettings.SpecialAttackGap;
@@ -1588,6 +1655,7 @@ void AMCNutBoss::StartAttackCooldown(double RecoveryEndsAt)
 
 void AMCNutBoss::ExecuteAttack(float Dt)
 {
+    if(Attack==EMCNutBossAttack::Chain) {ExecuteChain(Dt);return;}
     const double Time=Now();
     if(State==EMCNutBossState::Telegraph) {
         // Track the living target throughout the cast; freeze this aim only
@@ -1611,6 +1679,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         if(!bResolved) {
             bResolved=true;
             DamageArea(LockedStart,BossSettings.TankCounterRadius,BossSettings.TankCounterDamage,BossSettings.TankCounterPush,&AttackHits);
+            ImpactNutsInArea(LockedStart,BossSettings.TankCounterRadius,BossSettings.TankCounterPush);
             TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("CounterShove"),TEXT("Impact")),this,Tongue,EMCNutCombatCue::SlamImpact,
                 LockedStart,LockedStart,BossSettings.TankCounterRadius,0,.35f,AttackSeed));
         }
@@ -1648,7 +1717,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         SetActorLocation(Goal,false);
         if(Alpha>=1 && !bResolved) {
             bResolved=true; DamageArea(LockedTarget,BossSettings.JumpRadius,BossSettings.JumpDamage,BossSettings.TankJumpPush,&AttackHits);
-            PushNutsInArea(LockedTarget,BossSettings.JumpRadius,BossSettings.TankJumpPush);
+            ImpactNutsInArea(LockedTarget,BossSettings.JumpRadius,BossSettings.TankJumpPush);
             TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Jump"),TEXT("Impact")),this,Tongue,EMCNutCombatCue::SlamImpact,LockedTarget,LockedTarget,BossSettings.JumpRadius,0,.6f,AttackSeed));
             Recover(1.7f);
         }
@@ -1672,7 +1741,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
             if(!GroundHit) for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
                 if(FVector::DotProduct((It->GetActorLocation()-LockedStart).GetSafeNormal2D(),AttackForward)<.35f) AttackHits.Add(*It);
             DamageArea(Center,BossSettings.MeleeRange*(GroundHit?.8f:1.f),BossSettings.MeleeDamage,BossSettings.TankMeleePush,&AttackHits);
-            PushNutsInArea(Center,BossSettings.MeleeRange*(GroundHit?.8f:1.f),BossSettings.TankMeleePush,!GroundHit);
+            ImpactNutsInArea(Center,BossSettings.MeleeRange*(GroundHit?.8f:1.f),BossSettings.TankMeleePush,!GroundHit);
             TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Melee"),GroundHit?TEXT("Slam"):TEXT("Slash")),this,Tongue,GroundHit?EMCNutCombatCue::SlamImpact:EMCNutCombatCue::MeleeSlash,
                 Center,GroundHit?Center:LockedTarget,BossSettings.MeleeRange*(GroundHit?.8f:1.f),0,GroundHit?.6f:.22f,AttackSeed+MeleeHitsResolved));
             ++MeleeHitsResolved;
@@ -1705,7 +1774,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
             }
             DamageArea(LockedStart,BossSettings.MeleeRange,BossSettings.MeleeDamage,
                 BossRole==EMCNutBossRole::Tank?BossSettings.TankMeleePush:90,&AttackHits);
-            PushNutsInArea(LockedStart,BossSettings.MeleeRange,
+            ImpactNutsInArea(LockedStart,BossSettings.MeleeRange,
                 BossRole==EMCNutBossRole::Tank?BossSettings.TankMeleePush:90,true);
             TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Melee"),TEXT("Slash")),this,Tongue,EMCNutCombatCue::MeleeSlash,LockedStart,LockedTarget,
                 BossSettings.MeleeRange,0,.22f,AttackSeed));
@@ -1719,6 +1788,7 @@ void AMCNutBoss::Tick(float Dt)
     AActor::Tick(Dt); TickClientPresentation(Dt); const double Time=Now(); TickPresentation(Time); PresentTankModel(Time);
     Label->SetVisibility(!bDefeated && MCDeveloperUIEnabled(GetWorld()));
     AMCNutCombatEffect::UpdateShieldDamageVisual(this);
+    UpdateChainPresentation();
     if(!HasAuthority() || bDefeated) return;
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
     if(Game && (Game->Phase==EMCShiftPhase::Won || Game->Phase==EMCShiftPhase::Lost)) {CancelAttacks();return;}
@@ -1746,6 +1816,11 @@ void AMCNutBoss::Tick(float Dt)
     if(State==EMCNutBossState::Stunned) {
         // Further hits play Damage2 but never restart or extend this window.
         if(Time<AttackEndAt) return;
+        if(Attack==EMCNutBossAttack::Chain) {
+            PresentChainEvent(TEXT("End"),GetChainOrigin(),ChainTip);
+            SetChainPhase(EMCNutBossChainPhase::Inactive,0.f);
+            Attack=EMCNutBossAttack::None;
+        }
         Enter(EMCNutBossState::Idle,0);
         NextMeleeAt=FMath::Max(NextMeleeAt,Time+.5);
         NextSpecialAt=FMath::Max(NextSpecialAt,Time+BossSettings.SpecialAttackGap);
@@ -1805,6 +1880,7 @@ void AMCNutBoss::Tick(float Dt)
         && Distance<BossSettings.MeleeRange*.95f && HasLineOfSight(Target,GetActorLocation())) {
         BeginAttack(EMCNutBossAttack::Melee);return;
     }
+    if(BossRole==EMCNutBossRole::Tank && TryBeginChain(Time)) return;
     if(Time>=NextSpecialAt && BossRole==EMCNutBossRole::Tank) {
         if(Time>=NextRollAt) {BeginAttack(EMCNutBossAttack::Roll);return;}
         if(Time>=NextJumpAt) {BeginAttack(EMCNutBossAttack::Jump);return;}
@@ -1837,6 +1913,14 @@ bool AMCNutBoss::IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeD
         if(Delta.SizeSquared2D()>FMath::Square(Settings.BodyRadius+HeroRadius+35)) return false;
         EscapeDirection=Delta.GetSafeNormal2D();
     } else if(State!=EMCNutBossState::Telegraph && State!=EMCNutBossState::Executing) return false;
+    else if(Attack==EMCNutBossAttack::Chain) {
+        if(State==EMCNutBossState::Executing && ChainPhase!=EMCNutBossChainPhase::Flight) return false;
+        const FVector Start=LockedStart;
+        const FVector Closest=FMath::ClosestPointOnSegment(Point,Start,ChainFlightEnd);
+        if(FVector::DistSquared(Point,Closest)>FMath::Square(HeroRadius+35.f)) return false;
+        EscapeDirection=(Point-Closest).GetSafeNormal2D();
+        if(EscapeDirection.IsNearlyZero()) EscapeDirection=FVector::CrossProduct(FVector::UpVector,(ChainFlightEnd-Start).GetSafeNormal2D());
+    }
     else if(Attack==EMCNutBossAttack::Roll) {
         const FVector Start=State==EMCNutBossState::Telegraph?LockedStart:GetActorLocation();
         const FVector End=State==EMCNutBossState::Telegraph?LockedTarget:Start+AttackForward*BossSettings.RollSpeed*.7f;
@@ -1873,6 +1957,7 @@ bool AMCNutBoss::IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeD
 void AMCNutBoss::CancelAttacks()
 {
     if(!HasAuthority()) return;
+    CancelChain();
     if(ShieldPresentation)ShieldPresentation->StopPresentation(true);
     if(FireballPresentation)FireballPresentation->StopPresentation(true);
     UMCDefenseSprayPassives::NotifyAttackFinished(this,uint64(AttackSeed),true);
@@ -1952,4 +2037,8 @@ void AMCNutBoss::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
     DOREPLIFETIME(AMCNutBoss,NextMeleeAt); DOREPLIFETIME(AMCNutBoss,NextChargeAt); DOREPLIFETIME(AMCNutBoss,NextJumpAt);
     DOREPLIFETIME(AMCNutBoss,NextRollAt); DOREPLIFETIME(AMCNutBoss,NextFireballAt); DOREPLIFETIME(AMCNutBoss,NextSummonAt);
     DOREPLIFETIME(AMCNutBoss,NextRainAt); DOREPLIFETIME(AMCNutBoss,NextTeleportAt);
+    DOREPLIFETIME(AMCNutBoss,NextChainAt); DOREPLIFETIME(AMCNutBoss,ChainPhase);
+    DOREPLIFETIME(AMCNutBoss,ChainPhaseStartedAt); DOREPLIFETIME(AMCNutBoss,ChainPhaseEndsAt);
+    DOREPLIFETIME(AMCNutBoss,ChainTip); DOREPLIFETIME(AMCNutBoss,ChainCargo);
+    DOREPLIFETIME(AMCNutBoss,ChainFlightEnd);
 }

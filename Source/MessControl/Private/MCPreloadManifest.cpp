@@ -14,6 +14,7 @@
 #include "MCVFXPresentationLibrary.h"
 #include "MCVFXSourceContracts.h"
 #include "MCNutCombatEffect.h"
+#include "MCNutVFXCatalog.h"
 #include "MCNutSpellProjectile.h"
 #include "MCDataAssets.h"
 #include "MCEventSFXReadiness.h"
@@ -30,6 +31,11 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
+#include "MetasoundAssetManager.h"
+#include "MetasoundFrontendNodeClassRegistry.h"
+#include "MetasoundGlobals.h"
+#include "MetasoundSettings.h"
+#include "MetasoundSource.h"
 #include "Misc/PackageName.h"
 #include "Sound/SoundBase.h"
 #include "Sound/SoundCue.h"
@@ -161,6 +167,62 @@ private:
     bool& bWaiting;
     bool bPrepare=false,bAllowLoad=false;
     TSet<USoundNode*> Visited,Active;
+};
+
+class FMCMetaSoundResourceClosure
+{
+public:
+    FMCMetaSoundResourceClosure(FMCEventSFXSamplePlan& InPlan, FString& InError)
+        : Plan(InPlan), Error(InError) {}
+
+    bool Visit(FMetasoundAssetBase& Graph, int32 Depth=0)
+    {
+        const UObject* Asset=Graph.GetOwningAsset();
+        if(!ValidateRuntimeAudioObject(Asset,Error))return false;
+        if(Active.Contains(Asset) || Depth>32 || Visited.Num()+Active.Num()>=128)
+        {Error=TEXT("MetaSound graph dependencies contain a cycle or exceed the preparation bound.");return false;}
+        if(Visited.Contains(Asset))return true;
+        Active.Add(Asset);
+
+        const auto References=Graph.GetReferencedAssets();
+        if(References.Num()!=Graph.GetReferencedAssetClassKeys().Num())
+        {Error=TEXT("MetaSound graph dependencies are unresolved. Open and save the source and its referenced graphs.");return false;}
+        for(FMetasoundAssetBase* Reference:References) {
+            if(!Visit(*Reference,Depth+1))return false;
+            Plan.ReferencedGraphs.AddUnique(Reference->GetOwningAsset());
+        }
+
+        // Follow the same authored page selection and UObject literals used by
+        // UE's graph proxy cache, including defaults, arrays and graph variables.
+        Metasound::Frontend::ForEachLiteral(Graph.GetConstDocumentChecked(),
+            [this](const FName&, const FMetasoundFrontendLiteral& Literal)
+            {
+                if(!Error.IsEmpty())return;
+                UObject* Object=nullptr;
+                if(Literal.TryGet(Object))AddSample(Object);
+                else if(TArray<UObject*> Objects;Literal.TryGet(Objects))
+                    for(UObject* Item:Objects)AddSample(Item);
+            }, UMetaSoundSettings::GetPageOrder());
+        if(!Error.IsEmpty())return false;
+        Active.Remove(Asset);
+        Visited.Add(Asset);
+        return true;
+    }
+
+private:
+    void AddSample(UObject* Object)
+    {
+        if(!Object || !Error.IsEmpty())return;
+        if(!ValidateRuntimeAudioObject(Object,Error))return;
+        auto* Wave=Cast<USoundWave>(Object);
+        if(!Wave || Wave->IsProcedurallyGenerated() || Wave->bIsSourceBus)
+        {Error=TEXT("MetaSound object input requires a provider audit: ")+Object->GetPathName();return;}
+        Plan.SampleWaves.AddUnique(Wave);
+    }
+
+    FMCEventSFXSamplePlan& Plan;
+    FString& Error;
+    TSet<const UObject*> Visited,Active;
 };
 
 class FMCVisualReferenceCollector
@@ -338,6 +400,41 @@ private:
     FString* AudioError=nullptr;
 };
 
+bool BuildMetaSoundPlan(UMetaSoundSource* Source, FMCEventSFXSamplePlan& OutPlan, FString& Error, bool bPrepare)
+{
+    FMCEventSFXSamplePlan Candidate;
+    Candidate.Source=Source;
+    if(!FMCMetaSoundResourceClosure(Candidate,Error).Visit(*Source)) {
+        Error=Source->GetPathName()+TEXT(": ")+Error;
+        return false;
+    }
+    TArray<FSoftObjectPath> Dependencies;
+    FMCVisualReferenceCollector(Dependencies,nullptr,&Error).Object(Source);
+    if(!Error.IsEmpty())return false;
+
+    if(bPrepare && Metasound::CanEverExecuteGraph()) {
+        Metasound::Frontend::FMetaSoundAssetRegistrationOptions Options;
+        Options.PageOrder=UMetaSoundSettings::GetPageOrder();
+        Options.bForceReregister=false;
+        Options.bAutoUpdate=false;
+#if WITH_EDITOR
+        Options.bForceViewSynchronization=false;
+        Options.bRebuildReferencedAssetClasses=false;
+#endif
+        Source->UpdateAndRegisterForExecution(Options);
+    }
+
+    const auto* Registry=Metasound::Frontend::INodeClassRegistry::Get();
+    if(!Source->IsRegistered() || !Registry || !Registry->IsGraphRegistered(Source->GetGraphRegistryKey())) {
+        Error=TEXT("MetaSound graph execution resources could not be prepared: ")+Source->GetPathName();
+        return false;
+    }
+    Candidate.bDependencyAuditComplete=true;
+    Candidate.bGraphPrepared=true;
+    OutPlan=MoveTemp(Candidate);
+    return true;
+}
+
 void AddAsset(const TCHAR* Package,TArray<FSoftObjectPath>& Out)
 {
     const FString Name(Package);
@@ -369,7 +466,8 @@ bool FMCPreloadManifest::BuildEventAudioPlan(USoundBase* Source,FMCEventSFXSampl
         if(!Error.IsEmpty())return false;
         OutPlan=MoveTemp(Candidate);return true;
     }
-    Error=TEXT("Unsupported MetaSound/procedural/dynamic audio source: resource dependency closure needs its actual source-provider audit: ")+Source->GetPathName();
+    if(auto* MetaSound=Cast<UMetaSoundSource>(Source))return BuildMetaSoundPlan(MetaSound,OutPlan,Error,false);
+    Error=TEXT("Unsupported procedural/dynamic audio source: resource dependency closure needs its actual source-provider audit: ")+Source->GetPathName();
     return false;
 }
 
@@ -383,6 +481,7 @@ bool FMCPreloadManifest::PrepareEventAudioPlan(USoundBase* Source,FMCEventSFXSam
         if(!FMCSoundCueResourceClosure(Candidate,Error,bWaiting,true,bAllowDependencyLoad).Visit(Cue->FirstNode))return false;
         return BuildEventAudioPlan(Source,OutPlan,Error);
     }
+    if(auto* MetaSound=Cast<UMetaSoundSource>(Source))return BuildMetaSoundPlan(MetaSound,OutPlan,Error,true);
     return BuildEventAudioPlan(Source,OutPlan,Error);
 }
 
@@ -461,6 +560,13 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     // them in this location before the first ordinary or custom cast.
     Collector.Object(AMCNutCombatEffect::StaticClass());
     Collector.Object(AMCNutSpellProjectile::StaticClass());
+    if(Map==TEXT("L_Mouth")) {
+        const auto* Chain=MCNutVFX::Find(MCNutVFX::ChainSource());
+        for(FName Event:Chain->Events) {
+            AddPath(MCNutVFX::ChainDefaultSystem(Event).ToSoftObjectPath(),OutPaths);
+            AddPath(MCNutVFX::ChainDefaultSound(Event).ToSoftObjectPath(),OutPaths);
+        }
+    }
 
     // Match the run's authored profile, including a host-selected day, on clients as well.
     const auto* Mode=World->GetAuthGameMode<AMCGameMode>();
