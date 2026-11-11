@@ -2,6 +2,7 @@
 
 #include "MCGameplayUIFactory.h"
 #include "MCHubInteractionPromptWidget.h"
+#include "MCHubShopShowcaseWidget.h"
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/Pawn.h"
@@ -30,6 +31,24 @@ AMCHubShopStation::AMCHubShopStation()
     InteractionPrompt->SetGenerateOverlapEvents(false);InteractionPrompt->SetCanEverAffectNavigation(false);
     InteractionPrompt->SetCastShadow(false);InteractionPrompt->SetVisibility(false);InteractionPrompt->SetHiddenInGame(true);
     InteractionPrompt->PrimaryComponentTick.bStartWithTickEnabled=false;
+
+    ShopShowcase = CreateDefaultSubobject<UWidgetComponent>(TEXT("ShopShowcase"));
+    ShopShowcase->SetupAttachment(InteractionVolume);
+    // Fit the screen to the inset on the saved SM_BusterShop cabinet.
+    ShopShowcase->SetRelativeLocationAndRotation(FVector(145.8, -23.75, 4.22), FRotator(0., 180., 0.));
+    constexpr int32 ScreenWidth = UMCHubShopShowcaseWidget::DisplayWidth;
+    constexpr int32 ScreenHeight = UMCHubShopShowcaseWidget::DisplayHeight;
+    ShopShowcase->SetRelativeScale3D(FVector(1., 97. / ScreenWidth, 218. / ScreenHeight));
+    ShopShowcase->SetPivot(FVector2D(.5, .5));
+    ShopShowcase->SetWidgetSpace(EWidgetSpace::World);
+    ShopShowcase->SetWidgetClass(UMCHubShopShowcaseWidget::StaticClass());
+    ShopShowcase->SetDrawSize(FVector2D(ScreenWidth, ScreenHeight));
+    ShopShowcase->SetBlendMode(EWidgetBlendMode::Transparent);
+    ShopShowcase->SetTickWhenOffscreen(false);
+    ShopShowcase->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    ShopShowcase->SetGenerateOverlapEvents(false);
+    ShopShowcase->SetCanEverAffectNavigation(false);
+    ShopShowcase->SetCastShadow(false);
 }
 
 void AMCHubShopStation::BeginPlay()
@@ -38,6 +57,18 @@ void AMCHubShopStation::BeginPlay()
     if(GetNetMode()!=NM_DedicatedServer && InteractionPrompt->GetWidgetClass()==UMCHubInteractionPromptWidget::StaticClass())
         InteractionPrompt->SetWidgetClass(UMCGameplayUIFactory::ResolveClass(TEXT("HubInteractionPrompt"),UMCHubInteractionPromptWidget::StaticClass()));
     InteractionPrompt->SetVisibility(false);InteractionPrompt->SetHiddenInGame(true);InteractionPrompt->SetComponentTickEnabled(false);
+    if (!bEnabled || GetNetMode() == NM_DedicatedServer)
+    {
+        ShopShowcase->SetHiddenInGame(true);
+        ShopShowcase->SetTickMode(ETickMode::Disabled);
+    }
+    else
+    {
+        // Prepare the widget material and target while the Hub is loading.
+        ShopShowcase->SetMaterial(0, ShopShowcase->GetMaterial(0));
+        ShopShowcase->UpdateRenderTarget(FIntPoint(UMCHubShopShowcaseWidget::DisplayWidth,
+            UMCHubShopShowcaseWidget::DisplayHeight));
+    }
 }
 
 void AMCHubShopStation::SetLocalPromptVisible(APlayerController* LocalController,bool bVisible)

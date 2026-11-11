@@ -19,6 +19,8 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Shop") TObjectPtr<UBoxComponent> InteractionVolume;
     /** Editable anchor for the keycap above the existing vending machine. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Shop|Prompt") TObjectPtr<UWidgetComponent> InteractionPrompt;
+    /** World-space screen fitted inside the existing cabinet bezel. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Shop|Showcase") TObjectPtr<UWidgetComponent> ShopShowcase;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shop") bool bEnabled=true;
     UFUNCTION(BlueprintPure, Category="Shop") bool ContainsPawn(const APawn* Pawn) const;
     /** Owning-client presentation only; this does not replicate or enable interaction. */

@@ -531,6 +531,8 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
         AddAsset(TEXT("/Game/Gameplay/Hub/Economy/M_CaseHologramProjection"),OutPaths);
         AddAsset(TEXT("/Game/Gameplay/Hub/Economy/T_CaseRareToothReaction"),OutPaths);
         AddAsset(TEXT("/Game/Gameplay/Hub/Economy/SFX/SW_CaseRareFanfare"),OutPaths);
+        AddAsset(TEXT("/Engine/EngineMaterials/Widget3DPassThrough"),OutPaths);
+        AddAsset(TEXT("/Engine/EngineMaterials/Widget3DPassThrough_Translucent_OneSided"),OutPaths);
         // Hub characters share their actual movement/hit tool source library.
         AddPath(MCVFXSourceContracts::ToolLibraryPath(),OutPaths);
     }
