@@ -5,6 +5,7 @@
 #include "MCMainMenuWidget.h"
 #include "MCUnifiedUIWidget.h"
 #include "MCUnifiedFrontendWidget.h"
+#include "MCUnifiedTeamWidget.h"
 #include "MCTutorialTypes.h"
 #include "AssetRegistry/AssetData.h"
 #include "Blueprint/WidgetTree.h"
@@ -41,6 +42,8 @@
 #include "Widgets/Layout/SScaleBox.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Text/STextBlock.h"
+
+#include <type_traits>
 
 #define LOCTEXT_NAMESPACE "MCGameplayUIPreview"
 
@@ -101,6 +104,12 @@ namespace
         {TEXT("BasketballControls"),LOCTEXT("UnifiedHubBasketballControls","Basketball controls")},
         {TEXT("BasketballPickup"),LOCTEXT("UnifiedHubBasketballPickup","Basketball: pick up")},
         {TEXT("ControlsLongText"),LOCTEXT("UnifiedHubControlsLongText","Long control instructions")}
+    };
+    const TUnifiedOverlayPreviewChoice<FName> UnifiedTeamModes[]={
+        {NAME_None,LOCTEXT("UnifiedTeamArena","Arena scoreboard")},
+        {TEXT("HubLocal"),LOCTEXT("UnifiedTeamHubLocal","Hub: local player")},
+        {TEXT("HubHost"),LOCTEXT("UnifiedTeamHubHost","Hub: room host")},
+        {TEXT("HubGuest"),LOCTEXT("UnifiedTeamHubGuest","Hub: room guest")}
     };
     const TUnifiedOverlayPreviewChoice<FName> UnifiedRewardModes[]={
         {NAME_None,LOCTEXT("UnifiedRewardChoice","Reward choice")},
@@ -392,6 +401,7 @@ namespace
         EMCUnifiedUIScreen UnifiedScreen=EMCUnifiedUIScreen::Menu;
         int32 UnifiedSettingsTab=0;
         FName UnifiedHubMode;
+        FName UnifiedTeamMode;
         FName UnifiedRewardMode;
         FName UnifiedGameplayMenuMode;
         FName UnifiedCatchMode;
@@ -572,6 +582,8 @@ namespace
                     + SVerticalBox::Slot().AutoHeight()
                     [MakeUnifiedModeSection(WeakSelf,WeakEditor,EMCUnifiedUIScreen::Hub,LOCTEXT("UnifiedHubMode","Hub mode (preview only)"),&FPreviewSession::UnifiedHubMode,UnifiedHubModes)]
                     + SVerticalBox::Slot().AutoHeight()
+                    [MakeUnifiedModeSection(WeakSelf,WeakEditor,EMCUnifiedUIScreen::Team,LOCTEXT("UnifiedTeamMode","Team mode (preview only)"),&FPreviewSession::UnifiedTeamMode,UnifiedTeamModes)]
+                    + SVerticalBox::Slot().AutoHeight()
                     [MakeUnifiedModeSection(WeakSelf,WeakEditor,EMCUnifiedUIScreen::Reward,LOCTEXT("UnifiedRewardMode","Reward mode (preview only)"),&FPreviewSession::UnifiedRewardMode,UnifiedRewardModes)]
                     + SVerticalBox::Slot().AutoHeight()
                     [MakeUnifiedModeSection(WeakSelf,WeakEditor,EMCUnifiedUIScreen::Frontend,LOCTEXT("UnifiedFrontendPage","Frontend page (preview only)"),&FPreviewSession::UnifiedFrontendPage,UnifiedFrontendPages)]
@@ -715,6 +727,9 @@ namespace
             {
                 Session.UnifiedScreen=Root->PreviewScreen;
                 Session.UnifiedSettingsTab=FMath::Clamp(Root->PreviewSettingsTab,0,4);
+                if(Root->WidgetTree) if(const auto* Team=Root->WidgetTree->FindWidget<UMCUnifiedTeamWidget>(TEXT("UnifiedTeam")))
+                    if(Team->PreviewState==TEXT("HubLocal") || Team->PreviewState==TEXT("HubHost") || Team->PreviewState==TEXT("HubGuest"))
+                        Session.UnifiedTeamMode=Team->PreviewState;
                 Session.UnifiedHubMode=Root->PreviewHubMode;Session.UnifiedRewardMode=Root->PreviewRewardMode;Session.UnifiedGameplayMenuMode=Root->PreviewGameplayMenuMode;Session.UnifiedCatchMode=Root->PreviewCatchMode;Session.UnifiedHUDExtrasMode=Root->PreviewHUDExtrasMode;Session.UnifiedLoadingMode=Root->PreviewLoadingMode;Session.UnifiedBossMode=Root->PreviewBossMode;Session.UnifiedAlertMode=Root->PreviewAlertMode;Session.UnifiedFrontendPage=Root->PreviewFrontendPage;
                 Session.UnifiedTutorialMode=Root->PreviewTutorialMode;
                 Session.UnifiedTutorialLesson=Root->PreviewTutorialLesson;
@@ -751,6 +766,8 @@ namespace
                 Root->PreviewCulture=Session.UnifiedCulture;
                 Root->PreviewScenario=Session.UnifiedScenario;
                 Root->PreviewState=FName(*StaticEnum<EMCUnifiedUIScreen>()->GetNameStringByValue(int64(Session.UnifiedScreen)));
+                if(Root->WidgetTree) if(auto* Team=Root->WidgetTree->FindWidget<UMCUnifiedTeamWidget>(TEXT("UnifiedTeam")))
+                    Team->PreviewState=Session.UnifiedTeamMode;
             }
             auto* Menu=Cast<UMCMainMenuWidget>(Widget);
             if (!Menu || !Session.bHasMenuSelection || !Menu->IsDesignTime()
@@ -996,7 +1013,12 @@ namespace
                             {
                                 if(auto Self=WeakSelf.Pin()) if(auto Editor=WeakEditor.Pin()) {
                                     auto& Session=Self->SessionFor(Editor.ToSharedRef());
-                                    Session.bHasUnifiedSelection=true;Session.*Field=Value;NormalizeUnifiedScenario(Session);Self->Execute(Editor,0);
+                                    Session.bHasUnifiedSelection=true;Session.*Field=Value;NormalizeUnifiedScenario(Session);
+                                    // Reload the authored tree when switching roster layouts so
+                                    // the compact Hub metrics cannot carry into the arena fixture.
+                                    if constexpr(std::is_same_v<T,FName>)
+                                        if(Field==&FPreviewSession::UnifiedTeamMode) Editor->RefreshPreview();
+                                    Self->Execute(Editor,0);
                                 }
                             }),FCanExecuteAction(),FIsActionChecked::CreateLambda([WeakSelf,WeakEditor,Field,Value]
                             {

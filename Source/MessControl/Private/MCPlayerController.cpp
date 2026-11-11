@@ -184,7 +184,14 @@ bool AMCPlayerController::InputKey(const FInputKeyEventArgs& Params)
     // sticks over empty parts of the table must not activate weapons/gameplay.
     // Releases still reach PlayerInput so keys released in the panel cannot stick.
     if(ScoreboardWidget && ScoreboardWidget->IsVisible() && Params.Key!=EKeys::Tab && Params.Key!=EKeys::Gamepad_Special_Left
-        && Params.Event!=IE_Released) return true;
+        && Params.Event!=IE_Released)
+    {
+        // A click outside the Hub party panel can move Slate focus to the viewport.
+        if(Params.Event==IE_Pressed && IsHubWorld() && (Params.Key==EKeys::Escape
+            || Params.Key==EKeys::Gamepad_FaceButton_Right || Params.Key==EKeys::Gamepad_Special_Right))
+            HideScoreboard();
+        return true;
+    }
     return Super::InputKey(Params);
 }
 void AMCPlayerController::FlushPressedKeys()

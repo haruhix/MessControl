@@ -527,7 +527,8 @@ void MCWorldActionPreviewAdapters::Register()
     MCStainSurfacePreviewAdapter::Register();
     // Exact runtime hooks are editable even while their full contextual
     // gameplay/UI scenario is unavailable. No synthetic scenario factory.
-    for(const FName ID:{FName(TEXT("Reward.Chest")),FName(TEXT("Reward.PerkPickup")),FName(TEXT("Reward.TaskComplete")),FName(TEXT("UI.ShiftFeedback"))}) {
+    for(const FName ID:{FName(TEXT("Reward.Chest")),FName(TEXT("Reward.PerkPickup")),FName(TEXT("Reward.TaskComplete")),
+        FName(TEXT("Hub.Grill")),FName(TEXT("UI.ShiftFeedback"))}) {
         if(MCPerkPreviewAdapters::Find(ID))continue;
         const auto* C=MCVFXSourceContracts::Find(ID);if(!C)continue;
         FMCPerkPreviewAdapterEntry E;E.PerkID=ID;E.Kind=EMCPerkPreviewAdapterKind::Context;E.Label=C->Label;E.Stages=C->Events;E.bSupportsProfileOverride=true;MCPerkPreviewAdapters::Register(MoveTemp(E));

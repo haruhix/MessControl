@@ -6,10 +6,13 @@
 #include "MCHubGrillPresentationComponent.generated.h"
 
 class AMCHubGrillStation;
+class UAudioComponent;
 class UMCHubEconomyComponent;
 class UTextBlock;
 class UBorder;
 class UMaterialInterface;
+class USoundBase;
+class UTexture2D;
 class UWidgetComponent;
 class UStaticMeshComponent;
 class USizeBox;
@@ -26,7 +29,11 @@ public:
     virtual void ApplyTheme() override;
     virtual void ApplyEditorPreview(float Time) override;
     UFUNCTION(BlueprintCallable,Category="Grill") void SetStation(AMCHubGrillStation* Station);
+    void SetRareReactionTexture(UTexture2D* Texture);
+    void StartRareReaction(const FGuid& Roll, double StartTime);
+    void UseFixedProjectionLayout();
     void TickPresentation(float DeltaSeconds);
+    UFUNCTION(BlueprintPure,Category="Grill|Presentation") float GetRareReactionOpacity() const {return RareReactionOpacity;}
     bool HasPreparedReelCatalog() const {return PreparedEconomy.IsValid();}
     /** New only: source text may grow the container beyond the base rail width. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Presentation|World|Grill",meta=(ClampMin="390",ClampMax="900")) float MaximumNewCaptionWidth=680.f;
@@ -39,6 +46,7 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Grill|Legacy",meta=(ClampMin="0",ClampMax="1")) float ScanlineStrength=.12f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Grill|Legacy",meta=(ClampMin="0",ClampMax="1")) float ColorSeparation=.15f;
 protected:
+    virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
     virtual int32 NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
         FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const override;
     virtual void OnLocalizationChanged() override;
@@ -65,6 +73,10 @@ private:
     void RefreshReel(const AMCHubGrillStation& Grill,const UMCHubEconomyComponent* Economy);
     void DrawCardIcon(FSlateWindowElementList& Elements,int32 Layer,const FGeometry& IconGeometry,
         const FReelCard& Card,const FLinearColor& Tint) const;
+    void DrawReelCard(FSlateWindowElementList& Elements,int32 Layer,const FGeometry& RailGeometry,
+        double Left,const FReelCard& Card,const FLinearColor& Tint,bool bWinning) const;
+    int32 PaintRareWinScene(FSlateWindowElementList& Elements,int32 Layer,const FGeometry& Geometry,
+        const FLinearColor& Tint,const FReelCard& Prize) const;
     UPROPERTY(Transient) TObjectPtr<USizeBox> HologramReelSlot;
     UPROPERTY(Transient) TObjectPtr<USizeBox> NewHologramRoot;
     UPROPERTY(Transient) TObjectPtr<USizeBox> NewHologramReelSlot;
@@ -80,14 +92,22 @@ private:
     UPROPERTY(Transient) TObjectPtr<UBorder> HologramPanel;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> HologramTitle;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> HologramReward;
+    UPROPERTY(Transient) TObjectPtr<UTexture2D> RareReactionTexture;
     TWeakObjectPtr<AMCHubGrillStation> Source;
     TWeakObjectPtr<const UMCHubEconomyComponent> PreparedEconomy;
     TArray<FReelCard> FillerCards;
     TArray<FReelCard> ReelCards;
     FGuid DisplayedRoll;
+    FGuid RareReactionRoll;
+    double RareReactionStartedAt=0.;
     FSlateFontInfo CardFont;
     float ReelCursor=3.f;
+    float RareReactionArrival=0.f;
+    float RareReactionOpacity=0.f;
+    TOptional<float> HiddenBaseOpacity;
     bool bResultCentered=false;
+    bool bIdleReel=false;
+    bool bFixedProjectionLayout=false;
 };
 
 /** Local presentation only. No camera capture and no second roll or reward selection. */
@@ -100,20 +120,19 @@ public:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick) override;
+    UFUNCTION(BlueprintPure,Category="Grill|Presentation") FGuid GetLastFanfareRoll() const {return LastFanfareRoll;}
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Grill|Hologram") FVector HologramLocalOffset=FVector(0,0,290);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Grill|Hologram") float VisibleDistance=2200.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Grill|Hologram") TSubclassOf<UMCHubGrillHologramWidget> WidgetClass;
 private:
     UPROPERTY(Transient) TObjectPtr<UWidgetComponent> Display;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> IntakeFish;
+    UPROPERTY(Transient) TObjectPtr<USoundBase> RareFanfare;
+    UPROPERTY(Transient) TObjectPtr<UAudioComponent> RareFanfarePlayback;
     TWeakObjectPtr<AMCHubGrillStation> Station;
-    void RefreshDisplaySizing();
-    void RestoreDisplaySizing();
-    TWeakObjectPtr<UWidgetComponent> DesiredSizeDisplay;
-    TOptional<bool> CurrentDisplayDrawAtDesiredSize;
-    bool bChangedDisplayDrawAtDesiredSize=false;
-    bool bWasVisible=false;
     float VisibilityAlpha=0;
     FGuid IntakeRoll;
+    FGuid PresentedRareWinRoll;
+    FGuid LastFanfareRoll;
     FVector IntakeStart=FVector::ZeroVector;
 };

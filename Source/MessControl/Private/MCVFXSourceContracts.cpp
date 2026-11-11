@@ -95,8 +95,22 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         Add(TEXT("Hub.Fishing.Cast"),TEXT("Рыбалка · заброс и улов"),TEXT("Hub"),TEXT("UMCFishingRodComponent"),Hub,{TEXT("Cast"),TEXT("Line"),TEXT("Ripple"),TEXT("Catch")});
         Add(TEXT("EditorOnly.FishingCatch"),TEXT("Награда · улов рыбы"),TEXT("Hub"),TEXT("UMCFishingRewardWidget / MCPlayerFishingFeedback"),Hub,{TEXT("Catch")});
         auto& Grill=Add(TEXT("Hub.Grill"),TEXT("Слот-машина · рыба, прокрутка и приз"),TEXT("Hub"),
-            TEXT("AMCHubGrillStation / UMCHubGrillPresentationComponent / UMCHubGrillHologramWidget"),Hub,{TEXT("Intake"),TEXT("Spin"),TEXT("Result")});
-        Grill.Description=TEXT("Intake принимает рыбу у автомата. Spin и Result используют экранную голограмму WBP_GrillHologram у крышки и подтверждённый результат из DT_GrillRewards. Лента карточек рисуется в Slate. Контекстный просмотр недоступен, пока в Composer нет изолированного сценария реального автомата с временным кошельком.");
+            TEXT("AMCHubGrillStation / UMCHubGrillPresentationComponent / UMCHubGrillHologramWidget"),Hub,
+            {TEXT("Intake"),TEXT("Spin"),TEXT("Result"),TEXT("RareWin")});
+        Grill.Description=TEXT("В ожидании проекция показывает зацикленную ленту каталога и зубика справа. Intake показывает приём рыбы. Spin и Result отображают принятый бросок на неподвижной проекции над корпусом автомата. Лента рисуется в Slate из данных реального броска.\n")
+            TEXT("RareWin показывает принятый эпический или легендарный предмет. Зубики выезжают с двух сторон поверх карточки на проекции Slate. По бокам корпуса автомата вспыхивают звёзды в цвете редкости и разлетается конфетти. Празднование запускается вместе с фанфарой и выездом у получателя.\n")
+            TEXT("Виджет /Game/Gameplay/UI/WBP_GrillHologram\n")
+            TEXT("Материал проекции /Game/Gameplay/Hub/Economy/M_CaseHologramProjection\n")
+            TEXT("Атлас реакции /Game/Gameplay/Hub/Economy/T_CaseRareToothReaction\n")
+            TEXT("Вспышка и звёзды /Game/Gameplay/Hub/Economy/VFX/NS_CaseRareCardSparks\n")
+            TEXT("Конфетти /Game/Gameplay/Hub/Economy/VFX/NS_CaseRareWinConfetti\n")
+            TEXT("Фанфара /Game/Gameplay/Hub/Economy/SFX/SW_CaseRareFanfare\n")
+            TEXT("Контекстный просмотр недоступен, пока в Composer нет изолированного сценария реального автомата с временным профилем.");
+        FMCVFXOriginalSFXContract GrillFanfare;
+        GrillFanfare.ID=TEXT("RareWin.Original");GrillFanfare.Label=FText::FromString(TEXT("Исходный звук · фанфара ценного приза"));
+        GrillFanfare.Resource=FSoftObjectPath(TEXT("/Game/Gameplay/Hub/Economy/SFX/SW_CaseRareFanfare.SW_CaseRareFanfare"));
+        GrillFanfare.bSuppressionWired=true;
+        Grill.OriginalAudio.Add(TEXT("RareWin"),MoveTemp(GrillFanfare));
         Add(TEXT("Hub.ReadyZone"),TEXT("Хаб · зона готовности"),TEXT("Hub"),TEXT("AMCHubReadyZone"),Hub,{TEXT("Active"),TEXT("Ready")});
         Add(TEXT("Hub.DeliveryZone"),TEXT("Хаб · зона доставки"),TEXT("Hub"),TEXT("UMCDeliveryZoneVisualComponent"),Hub,{TEXT("Active"),TEXT("Complete")});
         Add(TEXT("Hub.Basketball"),TEXT("Хаб · баскетбол"),TEXT("Hub"),TEXT("AMCHubBasketball"),Hub,{TEXT("Contact"),TEXT("Score")});

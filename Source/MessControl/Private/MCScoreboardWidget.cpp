@@ -312,7 +312,7 @@ void UMCScoreboardWidget::RefreshHubPartyControls()
     Copy(TEXT("HubPartyPublicLabel"),TEXT("hub.privacy.public"),LOCTEXT("RoomPublic","Открытая"));
     Copy(TEXT("HubPartyFriendsLabel"),TEXT("hub.privacy.friends"),LOCTEXT("RoomFriends","Только друзья"));
     Copy(TEXT("HubPartyInviteOnlyLabel"),TEXT("hub.privacy.invite"),LOCTEXT("RoomInvite","По приглашению"));
-    Copy(TEXT("HubPartyCloseLabel"),TEXT("hub.party.close"),LOCTEXT("PartyClose","Вернуться в хаб"));
+    Copy(TEXT("HubPartyCloseLabel"),TEXT("UI.Common.Back"),LOCTEXT("PartyClose","Назад"));
     Copy(TEXT("HubPartyPrivacyTitle"),Online?TEXT("hub.party.privacy_title"):TEXT("hub.party.local_title"),
         Online?LOCTEXT("PartyPrivacyTitle","Доступ в комнату"):LOCTEXT("PartyLocalTitle","Локальный хаб"));
     if(Known) if(auto* Title=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubPartyPrivacyTitle")))) {
@@ -545,7 +545,15 @@ void UMCScoreboardWidget::UpdatePresentationLayout(FVector2D Area)
     if(Area.X<=1 || Area.Y<=1) Area=FVector2D(1920,1080);
     if(!bLayoutDirty && Area.Equals(LastLayoutArea,.5f)) return;
     LastLayoutArea=Area;
-    const float Width=FMath::Min(1060.f,FMath::Max(620.f,float(Area.X)-48.f));
+    const bool bHub=IsHubPartyPresentation();
+    UCanvasPanelSlot* HubSlot=nullptr;
+    bool CanScale=false;
+    for(UWidget* Parent=Size->GetParent();Parent;Parent=Parent->GetParent()) if(Cast<UScaleBox>(Parent)) {
+        CanScale=true;
+        if(bHub && !IsDesignTime()) HubSlot=Cast<UCanvasPanelSlot>(Parent->Slot);
+        break;
+    }
+    const float Width=HubSlot?820.f:FMath::Min(1060.f,FMath::Max(620.f,float(Area.X)-48.f));
     Size->SetWidthOverride(Width);
     for(const TCHAR* Name:{TEXT("ScoreTitle"),TEXT("ScoreFooterText"),TEXT("ScorePlayerHeader"),TEXT("ScorePointsHeader"),TEXT("ScorePingHeader"),TEXT("ScoreVoiceHeader")})
         if(auto* Label=Cast<UTextBlock>(WidgetTree->FindWidget(Name))) {
@@ -578,10 +586,18 @@ void UMCScoreboardWidget::UpdatePresentationLayout(FVector2D Area)
         Height+=(Child==Scroll?RowsHeight:Child->GetDesiredSize().Y)+(ChildSlot?ChildSlot->GetPadding().GetDesiredSize().Y:0.f);
     }
     const float MaximumHeight=FMath::Max(220.f,float(Area.Y)-48.f);
-    bool CanScale=false;
-    for(UWidget* Parent=Size->GetParent();Parent;Parent=Parent->GetParent()) if(Cast<UScaleBox>(Parent)) {CanScale=true;break;}
-    const bool FitWholeParty=IsHubPartyPresentation() && CanScale;
-    Size->SetHeightOverride(FitWholeParty?FMath::Max(220.f,FMath::CeilToFloat(Height)):FMath::Clamp(FMath::CeilToFloat(Height),220.f,MaximumHeight));
+    const bool FitWholeParty=bHub && CanScale;
+    const float DesignHeight=FitWholeParty?FMath::Max(220.f,FMath::CeilToFloat(Height)):FMath::Clamp(FMath::CeilToFloat(Height),220.f,MaximumHeight);
+    Size->SetHeightOverride(DesignHeight);
+    if(HubSlot) {
+        constexpr float EdgeClearance=48.f;
+        const float Scale=FMath::Min3(1.f,FMath::Max(1.f,float(Area.X)-EdgeClearance)/Width,
+            FMath::Max(1.f,float(Area.Y)-EdgeClearance)/DesignHeight);
+        HubSlot->SetAnchors(FAnchors(.5f,.5f));
+        HubSlot->SetAlignment(FVector2D(.5f,.5f));
+        HubSlot->SetAutoSize(false);
+        HubSlot->SetOffsets(FMargin(0,0,Width*Scale,DesignHeight*Scale));
+    }
     // TAB is a held overlay. Keeping the ordinary four rows fully visible is
     // preferable to a permanently allocated blank fifth row.
     Scroll->SetScrollBarVisibility(!FitWholeParty && Height>MaximumHeight?ESlateVisibility::Visible:ESlateVisibility::Collapsed);

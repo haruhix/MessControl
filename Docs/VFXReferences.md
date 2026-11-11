@@ -2183,13 +2183,34 @@ companion evidence are under the task validation directory.
 The supplied CS2 reference defines the single row, fixed marker, rarity accents
 and stop on the winning card. The Hub reel uses a single clipped Slate region
 and eases its position from the station's server clock. Existing catalog icons
-and the Hub theme supply the artwork. During a local roll the screen widget is
-centered in the initiating player's viewport. At idle it returns to the station.
-The current sources are registered under `Hub.Grill` with `Intake`, `Spin` and
-`Result`.
+and the Hub theme supply the artwork. The reel sources are registered under
+`Hub.Grill` with `Intake`, `Spin` and `Result`.
 [Epic's Slate clipping guidance](https://dev.epicgames.com/documentation/unreal-engine/clipping-for-umg-widgets-in-unreal-engine)
 and [Slate easing reference](https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/SlateCore/ECurveEaseFunction).
 
+
+### Fixed hologram projection · 2026-11-10
+
+- Soft emissive color, translucency and a clear silhouette make the display read as projected light. Use the editable `M_CaseHologramProjection` surface material on the station's world widget, with the result area reserved throughout the roll. The widget displays the accepted reward. [Rodrigo Souza's hologram study](https://theorya.artstation.com/projects/BklLO8)
+- Fine scanlines, a slow sweep and occasional chromatic interference give the projection an analog-video character. Confine tracking interference to the image edges and keep the rail and marker UVs fixed. [BAVC Media's tracking-error examples](https://www.avartifactatlas.com/artifacts/tracking_error.html) · [Epic's video scanline material](https://dev.epicgames.com/documentation/en-us/unreal-engine/post-process-material-example?application_version=4.27)
+
+The Hub preload manifest includes the projection material. Solo Hub PIE found its material instance and render target in place before the first roll. The station kept a fixed transform and draw size through a real roll while the player moved 4.74 m and rotated the camera 21°. The narrower panel and prize label were visible in the gameplay captures. The team HUD covered a small upper corner at some angles. The `Hub.Grill` Composer entry identifies the widget and material sources and has no isolated real-machine preview scenario.
+
+The idle display cycles through the available prize catalog. The right side of the reel fades into the rail beneath a single pointing mascot from the same atlas as the rare reveal. The cost is visible below the rail. A real spin brings back the selection marker and stops on the accepted reward.
+
+Solo Hub PIE showed the moving reel before and after a real spin. The projection and its render target were ready before interaction, the E prompt cleared the cost label, and the accepted reward settled once while the camera turned 19°. A separate solo PIE confirmed the centered 760-unit Team window and that Esc closes it and restores input. Both runs restored the isolated PIE profile.
+
+### Valuable prize reaction · 2026-11-10
+
+The accepted reveal of a new Epic or Legendary item displays its winning reel card inside the fixed 510 × 245 projection and plays a one-shot fanfare for the opener. The two pointing figures slide in simultaneously from the edges of the rail over 620 ms. Both render above the card, with the larger left figure in the foreground. The rail crops the figures, and the title and accepted item name occupy separate plates. The atlas contains two transparent square cells rendered from the game's `SK_CharacterGameplay` rig. The figure and 1.32-second brass and bell cue recipes live in `Tools/Blender/render_case_meme_tooth.py` and `Tools/AudioDesk/synthesize_case_rare_fanfare.py`. The Hub preload manifest includes both runtime assets. `Hub.Grill / RareWin` exposes the audio and source paths in Composer. [Two Soyjaks Pointing template](https://www.reddit.com/r/MemeRestoration/comments/p3xjjn/two_soyjaks_pointing_hd_template_40963239/) · [Riot's visual effects overview](https://www.riotgames.com/en/artedu/visual-effects) · [Epic's widget animation guide](https://dev.epicgames.com/documentation/en-us/unreal-engine/animating-umg-widgets-in-unreal-engine?application_version=5.8)
+
+Earlier solo Hub PIE used the ordinary interaction path with three controlled reward outcomes. The Legendary Rocket Launcher played the fanfare once, the duplicate paid 10 coins, and trash showed its regular caption. The test used temporary in-memory reward rows and verified identical saved package bytes after restoration. The Composer entry identifies that the contextual slot-machine preview is unavailable.
+
+The 2026-11-11 solo Hub PIE pass opened the saved station with the normal interaction and an isolated Legendary Rocket Launcher roll. The captured frames show both figures entering together and settling above the fixed card. The recorded mixer contained one fanfare at the reveal. The atlas, sound, projection material instance and render target were resident before the roll. The authored reward table was restored with identical saved bytes.
+
+The cabinet celebration uses a bright pair of shoulder flashes, a fan of large rarity-colored stars and a second pass of tumbling paper confetti. The `Hub.Grill / RareWin` event supplies a front-facing world frame and lateral distance measured from the closed lid mesh. The accents spread upward and outward from the cabinet to leave the hologram readable. The Hub presentation library owns the editable layers. The confetti reuses the Hub basketball paper meshes and material with a separate short Niagara system. The split between the payoff flash and the slower falling pieces adapts Daniele Bulgaro's mobile chest-opening breakdown. [Diggy chest-opening breakdown](https://allendust.artstation.com/projects/GvArRQ?album_id=1236500) · [Epic Niagara Quick Start](https://dev.epicgames.com/documentation/en-us/unreal-engine/quick-start-for-niagara-effects-in-unreal-engine?application_version=5.8)
+
+Solo Hub PIE confirmed the three saved layers on a normal Legendary Rocket Launcher reveal. Both confetti fans and the gold stars rendered in the gameplay camera, and all layers had cleared by the 979 ms sample. The mixer recorded one fanfare. The Hub readiness check found the Niagara systems, the paper meshes and their material resident before the first roll. The reward table was restored with its saved bytes intact. The asset's compile and save resolved a first-run stateless initialization failure.
 
 ## Food-cut droplets settling — 2026-11-10
 

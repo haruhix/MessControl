@@ -57,6 +57,12 @@ public:
     UMCUnifiedTeamWidget();
     /** PSD heading face only; ordinary player/voice text keeps the shared body font. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Appearance|Typography") FSlateFontInfo TeamTitleFont;
+    /** Maximum width of the centered team window in logical viewport units. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub Party|Layout",meta=(ClampMin="240",ClampMax="900")) float HubPanelWidth=760.f;
+    /** Horizontal and vertical clearance from the viewport edges. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub Party|Layout",meta=(ClampMin="0")) FVector2D HubPanelInset=FVector2D(32,48);
+    /** Scales roster fonts, row sizes and spacing within the window. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub Party|Layout",meta=(ClampMin="0.75",ClampMax="1.5")) float HubContentScale=1.f;
     virtual void BuildPresentationTree() override;
     virtual void ApplyTheme() override;
     virtual void ApplyEditorPreview(float Time) override;

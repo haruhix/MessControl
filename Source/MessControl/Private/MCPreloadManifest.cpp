@@ -528,6 +528,9 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     const bool Hub=Map==TEXT("Hub") || Map==TEXT("L_HubSelection");
     if(Hub) {
         AddPath(MCVFXSourceContracts::HubLibraryPath(),OutPaths);
+        AddAsset(TEXT("/Game/Gameplay/Hub/Economy/M_CaseHologramProjection"),OutPaths);
+        AddAsset(TEXT("/Game/Gameplay/Hub/Economy/T_CaseRareToothReaction"),OutPaths);
+        AddAsset(TEXT("/Game/Gameplay/Hub/Economy/SFX/SW_CaseRareFanfare"),OutPaths);
         // Hub characters share their actual movement/hit tool source library.
         AddPath(MCVFXSourceContracts::ToolLibraryPath(),OutPaths);
     }

@@ -1,8 +1,10 @@
 #include "MCUnifiedTeamWidget.h"
 
 #include "MCGameplayUIFactory.h"
+#include "MCPlayerController.h"
 #include "MCUIDataLibrary.h"
 #include "MCUniversalUIWidget.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Blueprint/WidgetTree.h"
 #include "Brushes/SlateNoResource.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
@@ -11,6 +13,7 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
+#include "Components/OverlaySlot.h"
 #include "Components/Spacer.h"
 #include "Components/ScrollBox.h"
 #include "Components/ScrollBoxSlot.h"
@@ -30,6 +33,11 @@
 namespace
 {
     FLinearColor MCUnifiedTeamPrivate_Color(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
+    bool IsHubTeamPreview(const UMCUnifiedTeamWidget& Widget)
+    {
+        return Widget.IsDesignTime() && (Widget.PreviewState==TEXT("HubLocal")
+            || Widget.PreviewState==TEXT("HubHost") || Widget.PreviewState==TEXT("HubGuest"));
+    }
     bool MCUnifiedTeamPrivate_OwnVisible(const UWidget* Widget)
     {
         return Widget && Widget->GetVisibility()!=ESlateVisibility::Collapsed && Widget->GetVisibility()!=ESlateVisibility::Hidden;
@@ -204,7 +212,11 @@ void UMCUnifiedTeamWidget::EnsureRowsViewport()
 void UMCUnifiedTeamWidget::UpdateLayout()
 {
     if(!WidgetTree) return;
-    const FVector2D Area=GetPaintSpaceGeometry().GetLocalSize();if(Area.X<=1 || Area.Y<=1) return;LastLayoutViewport=Area;
+    FVector2D Area=GetPaintSpaceGeometry().GetLocalSize();
+    if(!IsDesignTime() && (Area.X<=1 || Area.Y<=1))
+        Area=UWidgetLayoutLibrary::GetViewportSize(this)/FMath::Max(.001f,UWidgetLayoutLibrary::GetViewportScale(this));
+    if(Area.X<=1 || Area.Y<=1) return;
+    LastLayoutViewport=Area;
     auto* WidthBounds=WidgetTree->FindWidget<USizeBox>(TEXT("TeamDesignSize"));
     auto* CardBounds=WidgetTree->FindWidget<USizeBox>(TEXT("TeamCardSize"));
     auto* Card=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("TeamCard"));
@@ -212,61 +224,148 @@ void UMCUnifiedTeamWidget::UpdateLayout()
     auto* PlayerRows=WidgetTree->FindWidget<UVerticalBox>(TEXT("TeamRows"));
     auto* HubBounds=WidgetTree->FindWidget<USizeBox>(TEXT("TeamHubSize"));
     if(!WidthBounds || !CardBounds || !Card || !Viewport || !PlayerRows) return;
-    // Retain the PSD's vertical breathing room as well as its overall width.
-    // A saved compact tree receives the same authored proportions in place.
-    if(Card->ContentPadding!=FMargin(42,38,42,42)) {Card->ContentPadding=FMargin(42,38,42,42);Card->ApplyTheme();}
-    if(auto* Header=WidgetTree->FindWidget(TEXT("TeamHeader"))) if(auto* Cell=Cast<UVerticalBoxSlot>(Header->Slot)) Cell->SetPadding(FMargin(0,0,10,30));
-    const float Width=FMath::Max(1.f,FMath::Min(1100.f,float(Area.X)-16.f));
-    const float InnerWidth=FMath::Max(1.f,Width-10.f-Card->ContentPadding.Left-Card->ContentPadding.Right);
+    const auto* PC=GetOwningPlayer<AMCPlayerController>();
+    // The retained team widget can be laid out while the root is being moved
+    // between viewport layers, before its scoreboard source is attached.
+    const bool bHub=IsDesignTime()?IsHubTeamPreview(*this)
+        :(PC && PC->IsHubWorld()) || (Backend.IsValid() && Backend->IsUnifiedHubParty());
+    const float MaxContentScale=FMath::Clamp(float(Area.X)/560.f,.75f,1.5f);
+    const float ContentScale=bHub?FMath::Clamp(HubContentScale,.75f,MaxContentScale):1.f;
+    auto HubFont=[&](int32 Size) {return GetResolvedTheme()->MakeFont(FMath::Max(1,FMath::RoundToInt(Size*ContentScale)),true);};
+    // Count the host's existing padding toward the clearance on both sides.
+    const auto* HostSlot=GetParent()?Cast<UOverlaySlot>(GetParent()->Slot):nullptr;
+    const FMargin HostInset=HostSlot?HostSlot->GetPadding():FMargin(0);
+    const FVector2D HubInset(
+        FMath::Clamp(HubPanelInset.X-FMath::Min(HostInset.Left,HostInset.Right),0.0,Area.X*.15),
+        FMath::Clamp(HubPanelInset.Y-FMath::Min(HostInset.Top,HostInset.Bottom),0.0,Area.Y*.15));
+    if(auto* Cell=Cast<UCanvasPanelSlot>(WidthBounds->Slot)) {
+        if(bHub) {
+            Cell->SetAnchors(FAnchors(.5f,.5f));
+            Cell->SetAlignment(FVector2D(.5f,.5f));
+            Cell->SetPosition(FVector2D::ZeroVector);
+        }
+        Cell->SetAutoSize(true);
+    }
+    const FMargin CardInset=bHub?FMargin(24,20,24,24)*ContentScale:FMargin(42,38,42,42);
+    if(Card->ContentPadding!=CardInset) {Card->ContentPadding=CardInset;Card->ApplyTheme();}
+    if(auto* Header=WidgetTree->FindWidget(TEXT("TeamHeader"))) if(auto* Cell=Cast<UVerticalBoxSlot>(Header->Slot))
+        Cell->SetPadding(bHub?FMargin(0,0,4,16)*ContentScale:FMargin(0,0,10,30));
+    const float Width=FMath::Max(1.f,FMath::Min(bHub?FMath::Clamp(HubPanelWidth,240.f,900.f):1100.f,
+        float(Area.X)-(bHub?2.f*float(HubInset.X)+12.f*ContentScale:16.f)));
+    const float InnerWidth=FMath::Max(1.f,Width-10.f*ContentScale-Card->ContentPadding.Left-Card->ContentPadding.Right);
     WidthBounds->ClearMinDesiredWidth();WidthBounds->SetMaxDesiredWidth(Width);WidthBounds->SetWidthOverride(Width);
     WidthBounds->ClearHeightOverride();WidthBounds->ClearMinDesiredHeight();WidthBounds->ClearMaxDesiredHeight();
     CardBounds->ClearHeightOverride();
-    if(auto* Cell=Cast<UCanvasPanelSlot>(WidthBounds->Slot)) Cell->SetAutoSize(true);
     if(auto* Cell=Cast<UVerticalBoxSlot>(CardBounds->Slot)) Cell->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));
-    const float HubInnerWidth=FMath::Max(1.f,Width-54.f);
-    if(auto* Actions=WidgetTree->FindWidget<UWrapBox>(TEXT("TeamHubActions"))) {Actions->SetExplicitWrapSize(true);Actions->SetWrapSize(HubInnerWidth);}
-    for(const TCHAR* Name:{TEXT("TeamHubSummary"),TEXT("TeamHubStatus")}) if(auto* Caption=WidgetTree->FindWidget<UTextBlock>(Name)) {Caption->SetAutoWrapText(false);Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Caption->SetWrapTextAt(HubInnerWidth);}
+    auto* CardContents=Cast<UVerticalBox>(Viewport->GetParent());
+    // Move the existing room controls below the roster inside the main frame.
+    if(bHub && HubBounds && CardContents && HubBounds->GetParent()==CardBounds->GetParent()) {
+        HubBounds->RemoveFromParent();
+        CardContents->AddChildToVerticalBox(HubBounds);
+    }
+    const bool bRoomInsideCard=HubBounds && CardContents && HubBounds->GetParent()==CardContents;
+    const FMargin RoomInset=FMargin(16,12)*ContentScale;
+    const float RoomWidth=bRoomInsideCard?InnerWidth-7.f*ContentScale:Width-10.f*ContentScale;
+    const float HubInnerWidth=FMath::Max(1.f,bHub?RoomWidth-RoomInset.Left-RoomInset.Right:Width-54.f);
+    if(bHub && HubBounds) {
+        if(auto* Hub=Cast<UMCUniversalUIWidget>(HubBounds->GetContent());Hub && Hub->ContentPadding!=RoomInset) {
+            Hub->ContentPadding=RoomInset;Hub->ApplyTheme();
+        }
+        if(auto* Cell=Cast<UVerticalBoxSlot>(HubBounds->Slot))
+            Cell->SetPadding((bRoomInsideCard?FMargin(0,14,7,8):FMargin(0,8,10,9))*ContentScale);
+    }
+    if(auto* Actions=WidgetTree->FindWidget<UWrapBox>(TEXT("TeamHubActions"))) {
+        Actions->SetExplicitWrapSize(true);Actions->SetWrapSize(HubInnerWidth);
+        if(bHub) {
+            Actions->SetInnerSlotPadding(FVector2D(6,5)*ContentScale);
+            if(auto* Cell=Cast<UVerticalBoxSlot>(Actions->Slot)) Cell->SetPadding(FMargin(0,0,0,5)*ContentScale);
+        }
+    }
+    for(const TCHAR* Name:{TEXT("TeamHubSummary"),TEXT("TeamHubStatus")}) if(auto* Caption=WidgetTree->FindWidget<UTextBlock>(Name)) {
+        Caption->SetAutoWrapText(false);Caption->SetWrappingPolicy(bHub?ETextWrappingPolicy::AllowPerCharacterWrapping:ETextWrappingPolicy::DefaultWrapping);Caption->SetWrapTextAt(HubInnerWidth);
+        if(bHub) {
+            const bool bSummary=Caption->GetFName()==TEXT("TeamHubSummary");
+            Caption->SetFont(HubFont(bSummary?19:16));
+            if(bSummary) if(auto* Cell=Cast<UVerticalBoxSlot>(Caption->Slot)) Cell->SetPadding(FMargin(0,0,0,5)*ContentScale);
+        }
+    }
     for(const TCHAR* Name:{TEXT("HubPartyInvite"),TEXT("HubPartyPublic"),TEXT("HubPartyFriends"),TEXT("HubPartyInviteOnly"),TEXT("HubPartyClose")})
         if(auto* Button=WidgetTree->FindWidget<UMCUnifiedPartyButton>(Name)) {
-            if(auto* Bounds=Cast<USizeBox>(Button->GetParent())) Bounds->SetMaxDesiredWidth(HubInnerWidth);
-            if(auto* Caption=Cast<UTextBlock>(Button->GetContent())) {Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Caption->SetAutoWrapText(false);Caption->SetWrapTextAt(FMath::Max(1.f,HubInnerWidth-36.f));}
+            if(auto* Bounds=Cast<USizeBox>(Button->GetParent())) {
+                Bounds->SetMaxDesiredWidth(HubInnerWidth);
+                if(bHub) Bounds->SetMinDesiredHeight(40.f*ContentScale);
+            }
+            if(auto* Caption=Cast<UTextBlock>(Button->GetContent())) {
+                Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Caption->SetAutoWrapText(false);
+                Caption->SetWrapTextAt(FMath::Max(1.f,HubInnerWidth-(bHub?24.f*ContentScale:36.f)));
+                if(bHub) {
+                    Caption->SetFont(HubFont(17));
+                    if(auto* Cell=Cast<UButtonSlot>(Caption->Slot)) Cell->SetPadding(FMargin(12,6)*ContentScale);
+                }
+            }
         }
     // Apply the display face only to TEAM and the input badge. Player data uses
     // the existing composite body face, with its unchanged localized fallbacks.
     for(const TCHAR* Name:{TEXT("TeamTitle"),TEXT("TeamTabKey")}) if(auto* Caption=WidgetTree->FindWidget<UTextBlock>(Name)) {
+        if(Caption->GetFName()==TEXT("TeamTabKey")) {
+            const FText Key=FText::AsCultureInvariant(bHub?(PC && PC->IsUsingGamepad()?TEXT("B"):TEXT("ESC")):TEXT("TAB"));
+            if(!Caption->GetText().EqualTo(Key)) Caption->SetText(Key);
+        }
         FSlateFontInfo Font=TeamTitleFont.HasValidFont()?TeamTitleFont:GetResolvedTheme()->MakeFont(48,true);
-        Font.Size=48;Caption->SetFont(Font);
-        Caption->SetAutoWrapText(false);Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Caption->SetWrapTextAt(FMath::Max(1.f,InnerWidth-300.f));
+        Font.Size=bHub?FMath::RoundToInt((Caption->GetFName()==TEXT("TeamTitle")?34.f:21.f)*ContentScale):48;Caption->SetFont(Font);
+        Caption->SetAutoWrapText(false);Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
+        Caption->SetWrapTextAt(bHub?0.f:FMath::Max(1.f,InnerWidth-300.f));
     }
-    if(auto* TitleBounds=WidgetTree->FindWidget<USizeBox>(TEXT("TeamTitleBounds"))) {TitleBounds->SetMinDesiredWidth(FMath::Min(260.f,InnerWidth*.45f));TitleBounds->SetMaxDesiredWidth(FMath::Max(1.f,InnerWidth-270.f));}
+    if(bHub) for(const TCHAR* Name:{TEXT("TeamTitleBadge"),TEXT("TeamTabBadge")})
+        if(auto* Badge=WidgetTree->FindWidget<UMCUniversalUIWidget>(Name);Badge && Badge->ContentPadding!=FMargin(10,4)*ContentScale) {
+            Badge->ContentPadding=FMargin(10,4)*ContentScale;Badge->ApplyTheme();
+        }
+    if(auto* TitleBounds=WidgetTree->FindWidget<USizeBox>(TEXT("TeamTitleBounds"))) {
+        TitleBounds->SetMinDesiredWidth(FMath::Min(bHub?116.f*ContentScale:260.f,InnerWidth*.45f));
+        TitleBounds->SetMaxDesiredWidth(FMath::Max(1.f,InnerWidth-(bHub?88.f*ContentScale:270.f)));
+    }
     if(auto* Badge=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("TeamTabBadge"))) {
         auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("TeamTabBounds"));
         if(!Bounds) if(auto* Header=Cast<UHorizontalBox>(Badge->GetParent())) {
             Badge->RemoveFromParent();Bounds=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("TeamTabBounds"));
             Bounds->SetContent(Badge);Header->AddChildToHorizontalBox(Bounds)->SetVerticalAlignment(VAlign_Center);
         }
-        if(Bounds) Bounds->SetWidthOverride(FMath::Min(260.f,InnerWidth*.3f));
+        if(Bounds) Bounds->SetWidthOverride(FMath::Min(bHub?70.f*ContentScale:260.f,InnerWidth*.3f));
     }
     const float RowWidth=FMath::Max(1.f,InnerWidth-76.f);
     constexpr float NameShare=.65f,PointsShare=.15f,PingShare=.20f;
     const float NameWidth=FMath::Max(1.f,(RowWidth-60.f)*NameShare-16.f);
     for(int32 I=0;I<4;++I) {
         const FString Prefix=FString::Printf(TEXT("TeamPlayer%d"),I+1);
-        if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(FName(Prefix+TEXT("Size")))) Bounds->SetMinDesiredHeight(78);
-        if(auto* Row=WidgetTree->FindWidget<UMCUniversalUIWidget>(FName(Prefix));Row && Row->ContentPadding!=FMargin(38,10)) {Row->ContentPadding=FMargin(38,10);Row->ApplyTheme();}
-        if(auto* Name=WidgetTree->FindWidget<UTextBlock>(FName(Prefix+TEXT("Name")))) {
-            // User nicknames can contain no Unicode word breaks. Wrap their
-            // complete glyphs at the name column; never truncate or scale them.
-            Name->SetAutoWrapText(false);Name->SetWrapTextAt(NameWidth);Name->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
-            if(auto* Cell=Cast<UHorizontalBoxSlot>(Name->Slot)) {FSlateChildSize Size(ESlateSizeRule::Fill);Size.Value=NameShare;Cell->SetSize(Size);Cell->SetPadding(FMargin(0,0,16,0));}
+        if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(FName(Prefix+TEXT("Size")))) {
+            Bounds->SetMinDesiredHeight(bHub?54.f*ContentScale:78.f);
+            if(bHub) if(auto* Cell=Cast<UVerticalBoxSlot>(Bounds->Slot)) Cell->SetPadding(FMargin(0,0,0,I<3?8.f*ContentScale:0.f));
         }
-        if(auto* Mic=WidgetTree->FindWidget<USizeBox>(FName(Prefix+TEXT("MicrophoneSize")))) {Mic->SetWidthOverride(34);Mic->SetHeightOverride(44);}
-        if(auto* Mute=WidgetTree->FindWidget(FName(Prefix+TEXT("Mute")))) if(auto* Cell=Cast<UHorizontalBoxSlot>(Mute->Slot)) {Cell->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));Cell->SetPadding(FMargin(0,0,12,0));}
+        const FMargin RowInset=bHub?FMargin(16,7)*ContentScale:FMargin(38,10);
+        if(auto* Row=WidgetTree->FindWidget<UMCUniversalUIWidget>(FName(Prefix));Row && Row->ContentPadding!=RowInset) {Row->ContentPadding=RowInset;Row->ApplyTheme();}
+        if(auto* Name=WidgetTree->FindWidget<UTextBlock>(FName(Prefix+TEXT("Name")))) {
+            Name->SetAutoWrapText(false);Name->SetWrapTextAt(bHub?0.f:NameWidth);
+            Name->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+            Name->SetTextOverflowPolicy(bHub?ETextOverflowPolicy::Ellipsis:ETextOverflowPolicy::Clip);
+            Name->SetClipping(bHub?EWidgetClipping::ClipToBounds:EWidgetClipping::Inherit);
+            if(bHub) Name->SetFont(HubFont(20));
+            if(auto* Cell=Cast<UHorizontalBoxSlot>(Name->Slot)) {FSlateChildSize Size(ESlateSizeRule::Fill);Size.Value=bHub?1.f:NameShare;Cell->SetSize(Size);Cell->SetPadding(FMargin(0,0,bHub?6.f*ContentScale:16.f,0));}
+        }
+        if(auto* Mic=WidgetTree->FindWidget<USizeBox>(FName(Prefix+TEXT("MicrophoneSize")))) {
+            Mic->SetWidthOverride(bHub?25.f*ContentScale:34.f);Mic->SetHeightOverride(bHub?32.f*ContentScale:44.f);
+            if(bHub) if(auto* Cell=Cast<UButtonSlot>(Mic->Slot)) Cell->SetPadding(FMargin(7,3)*ContentScale);
+        }
+        if(auto* Mute=WidgetTree->FindWidget(FName(Prefix+TEXT("Mute")))) if(auto* Cell=Cast<UHorizontalBoxSlot>(Mute->Slot)) {Cell->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));Cell->SetPadding(FMargin(0,0,bHub?5.f*ContentScale:12.f,0));}
         for(bool Ping:{false,true}) if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(FName(Prefix+(Ping?TEXT("PingSize"):TEXT("PointsSize"))))) {
             Bounds->ClearWidthOverride();Bounds->ClearMinDesiredWidth();Bounds->ClearMaxDesiredWidth();
             const float Share=Ping?PingShare:PointsShare;
-            if(auto* Cell=Cast<UHorizontalBoxSlot>(Bounds->Slot)) {FSlateChildSize Size(ESlateSizeRule::Fill);Size.Value=Share;Cell->SetSize(Size);Cell->SetPadding(FMargin(0));}
-            if(auto* Caption=Cast<UTextBlock>(Bounds->GetContent())) {Caption->SetAutoWrapText(false);Caption->SetWrapTextAt(FMath::Max(1.f,(RowWidth-60.f)*Share));Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);}
+            if(bHub && Ping) Bounds->SetWidthOverride(FMath::Min(72.f*ContentScale,InnerWidth*.25f));
+            if(auto* Cell=Cast<UHorizontalBoxSlot>(Bounds->Slot)) {FSlateChildSize Size(bHub?ESlateSizeRule::Automatic:ESlateSizeRule::Fill);Size.Value=Share;Cell->SetSize(Size);Cell->SetPadding(FMargin(0));}
+            if(auto* Caption=Cast<UTextBlock>(Bounds->GetContent())) {
+                Caption->SetAutoWrapText(false);Caption->SetWrapTextAt(bHub?0.f:FMath::Max(1.f,(RowWidth-60.f)*Share));
+                Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
+                if(bHub) Caption->SetFont(HubFont(17));
+            }
         }
     }
     const float Scale=FMath::Max(.001f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
@@ -284,8 +383,7 @@ void UMCUnifiedTeamWidget::UpdateLayout()
         Cell->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));Cell->SetVerticalAlignment(VAlign_Top);
         RowPadding=Cell->GetPadding().Top+Cell->GetPadding().Bottom;
     }
-    // Measure actual rows rather than the scroll child's previous aggregate allocation.
-    // Their authored minimum, wrapped name and microphone sizes remain unchanged.
+    // Measure actual rows rather than the scroll child's previous allocation.
     float NaturalRowsHeight=0.f,LastRowShadowHeight=0.f;
     for(UWidget* PlayerRow:PlayerRows->GetAllChildren()) {
         if(!PlayerRow || !PlayerRow->IsVisible()) continue;
@@ -304,16 +402,36 @@ void UMCUnifiedTeamWidget::UpdateLayout()
     float CardPadding=0.f;
     if(auto* Cell=Cast<UVerticalBoxSlot>(CardBounds->Slot)) {
         Cell->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));Cell->SetVerticalAlignment(VAlign_Top);
+        if(bHub) Cell->SetPadding(FMargin(0,0,10,6)*ContentScale);
         CardPadding=Cell->GetPadding().Top+Cell->GetPadding().Bottom;
     }
-    const float Reserved=MeasuredHeight(HubBounds)+HeaderHeight+FramePadding+RowPadding+CardPadding+12.f;
-    const float RowsHeight=FMath::Min(NaturalRowsHeight,FMath::Max(0.f,float(Area.Y)-Reserved));
+    const float RoomHeight=MeasuredHeight(HubBounds);
+    const float Reserved=RoomHeight+HeaderHeight+FramePadding+RowPadding+CardPadding+12.f*ContentScale;
+    const float AvailableHeight=FMath::Max(1.f,float(Area.Y)-(bHub?2.f*float(HubInset.Y)+12.f*ContentScale:0.f));
+    const bool bScrollWholePanel=bHub && Reserved+FMath::Min(NaturalRowsHeight,54.f*ContentScale)>AvailableHeight;
+    auto* PanelScroll=WidgetTree->FindWidget<UScrollBox>(TEXT("TeamHubPanelScroll"));
+    if(bScrollWholePanel && !PanelScroll) if(auto* Stack=WidthBounds->GetContent()) {
+        Stack->RemoveFromParent();
+        PanelScroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),TEXT("TeamHubPanelScroll"));
+        PanelScroll->SetAllowOverscroll(false);
+        PanelScroll->SetConsumeMouseWheel(EConsumeMouseWheel::WhenScrollingPossible);
+        PanelScroll->SetScrollWhenFocusChanges(EScrollWhenFocusChanges::AnimatedScroll);
+        PanelScroll->AddChild(Stack);
+        WidthBounds->SetContent(PanelScroll);
+    }
+    if(PanelScroll) {
+        PanelScroll->SetScrollBarVisibility(bScrollWholePanel?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+        if(bHub) {WidthBounds->SetMaxDesiredHeight(AvailableHeight);PanelScroll->SetScrollbarThickness(FVector2D(5,5)*ContentScale);}
+    }
+    const float RowsHeight=bScrollWholePanel?NaturalRowsHeight:FMath::Min(NaturalRowsHeight,FMath::Max(0.f,AvailableHeight-Reserved));
     Viewport->ClearMinDesiredHeight();Viewport->ClearMaxDesiredHeight();Viewport->SetHeightOverride(RowsHeight);
-    if(auto* Scroll=WidgetTree->FindWidget<UScrollBox>(TEXT("TeamRowsScroll")))
+    if(auto* Scroll=WidgetTree->FindWidget<UScrollBox>(TEXT("TeamRowsScroll"))) {
         Scroll->SetScrollBarVisibility(NaturalRowsHeight>RowsHeight+.5f?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+        if(bHub) Scroll->SetScrollbarThickness(FVector2D(5,5)*ContentScale);
+    }
     CardBounds->ClearMinDesiredHeight();CardBounds->ClearMaxDesiredHeight();
     // Retained saved bounds cannot stretch the frame beyond the actual content.
-    CardBounds->SetHeightOverride(HeaderHeight+RowsHeight+RowPadding+FramePadding);
+    CardBounds->SetHeightOverride(HeaderHeight+RowsHeight+RowPadding+FramePadding+(bRoomInsideCard?RoomHeight:0.f));
 }
 void UMCUnifiedTeamWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
@@ -353,6 +471,32 @@ void UMCUnifiedTeamWidget::ApplyTheme()
 void UMCUnifiedTeamWidget::ApplyEditorPreview(float Time)
 {
     Super::ApplyEditorPreview(Time);BuildPresentationTree();
+    if(IsHubTeamPreview(*this)) {
+        const FName SourceName(TEXT("HubTeamPreviewSource"));
+        auto* Source=FindObjectFast<UMCScoreboardWidget>(this,SourceName);
+        if(!Source) {
+            Source=NewObject<UMCScoreboardWidget>(this,SourceName,RF_Transient);
+            Source->SetDesignerFlags(EWidgetDesignFlags::Designing);
+            Source->Initialize();
+        }
+        Source->PreviewState=PreviewState;
+        Source->PreviewCulture=PreviewCulture;
+        Source->PreviewScenario=PreviewScenario;
+        Source->ApplyEditorPreview(Time);
+        const int32 PlayerCount=PreviewState==TEXT("HubLocal")?1:3;
+        if(Source->PlayerEntries.Num()>PlayerCount) {
+            Source->PlayerEntries.SetNum(PlayerCount);
+        }
+        const int32 LocalPlayer=PreviewState==TEXT("HubGuest")?1:0;
+        for(int32 Index=0;Index<Source->PlayerEntries.Num();++Index)
+            Source->PlayerEntries[Index].bLocalPlayer=Index==LocalPlayer;
+        Source->ApplyTheme();
+        const TGuardValue<TWeakObjectPtr<UMCScoreboardWidget>> PreviewBackend(Backend,TWeakObjectPtr<UMCScoreboardWidget>(Source));
+        PresentEntries(Source->PlayerEntries,true);
+        RefreshHubControls();
+        UpdateLayout();
+        return;
+    }
     TArray<FMCScoreboardEntry> Entries;
     const int32 Count=PreviewScenario==EMCGameplayUIPreviewScenario::Empty?0:4;
     for(int32 I=0;I<Count;++I) {auto& Entry=Entries.AddDefaulted_GetRef();Entry.Nickname=I==0 && PreviewScenario==EMCGameplayUIPreviewScenario::LongText?TEXT("HASBULADO_WITH_A_VERY_LONG_PLAYER_NAME"):TEXT("HASBULADO");Entry.Points=300;Entry.bVoiceControlEnabled=true;Entry.bVoiceMuted=I==2;Entry.bHost=I==0;}
