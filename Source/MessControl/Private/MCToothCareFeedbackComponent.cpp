@@ -77,7 +77,17 @@ void UMCToothCareFeedbackComponent::ReportAccepted(EMCToothCareFeedbackKind Kind
     FVector SurfacePoint,SurfaceNormal;
     // Tool collision may hit the supporting box. Seat cosmetics on this tooth's
     // real enamel instead of drawing a floating cloud on a box corner.
-    if(!ProjectSurface(Point,Normal.GetSafeNormal(),SurfacePoint,SurfaceNormal)) return;
+    if(!ProjectSurface(Point,Normal.GetSafeNormal(),SurfacePoint,SurfaceNormal)) {
+        // The repair trace can hit the support box where a large piece of the
+        // crown is missing. Healing is already accepted, but that ray need
+        // not intersect the remaining enamel. Keep the repair presentation
+        // alive at the authored fracture anchor in this case.
+        static const FName ChipSocket(TEXT("MC_TreatmentChip"));
+        if(Kind!=EMCToothCareFeedbackKind::Repair || !OwnerTooth->Visual->DoesSocketExist(ChipSocket)) return;
+        SurfacePoint=OwnerTooth->Visual->GetSocketLocation(ChipSocket);
+        SurfaceNormal=Normal.GetSafeNormal();
+        if(SurfacePoint.ContainsNaN() || SurfaceNormal.IsNearlyZero()) return;
+    }
     Point=SurfacePoint;Normal=SurfaceNormal;
     const FTransform Surface=OwnerTooth->Visual->GetComponentTransform();
     if(State.WorkSerial<=0 || State.Kind!=Kind || Now-State.WorkAt>=.24)State.ContactStartedAt=Now;

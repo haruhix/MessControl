@@ -1,0 +1,522 @@
+[
+  {
+    "intact": "/Game/Gameplay/Arena/V2/SM_Teeth_L_01.SM_Teeth_L_01",
+    "scale": 2.89716064453125,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_01_Chipped.SM_Teeth_L_01_Chipped",
+        "point": [
+          -5.987372348320113,
+          -39.96962822075757,
+          99.25407593041328
+        ],
+        "area": 26764.141837443753,
+        "triangles": 193
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_01_Broken.SM_Teeth_L_01_Broken",
+        "point": [
+          -4.733618416783893,
+          -11.770057681696173,
+          77.1575812245193
+        ],
+        "area": 40761.97336268041,
+        "triangles": 226
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V2/SM_Teeth_L_02.SM_Teeth_L_02",
+    "scale": 2.7988189697265624,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_02_Chipped.SM_Teeth_L_02_Chipped",
+        "point": [
+          -1.5140988201823495,
+          -37.52532805515153,
+          94.33033629860593
+        ],
+        "area": 29289.692094599275,
+        "triangles": 163
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_02_Broken.SM_Teeth_L_02_Broken",
+        "point": [
+          -0.10933863953995689,
+          -2.452165544299823,
+          51.76836281201543
+        ],
+        "area": 44842.64914457345,
+        "triangles": 204
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V2/SM_Teeth_L_03.SM_Teeth_L_03",
+    "scale": 3.1945458984375,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_03_Chipped.SM_Teeth_L_03_Chipped",
+        "point": [
+          -1.4050979759968472,
+          45.58096321277678,
+          122.38494864411857
+        ],
+        "area": 32387.14269250302,
+        "triangles": 161
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_03_Broken.SM_Teeth_L_03_Broken",
+        "point": [
+          1.8535098536025862,
+          1.5480396861450336,
+          82.35899014186991
+        ],
+        "area": 65276.03319513883,
+        "triangles": 203
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V2/SM_Teeth_R_01.SM_Teeth_R_01",
+    "scale": 2.89716064453125,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_01_Chipped.SM_Teeth_R_01_Chipped",
+        "point": [
+          6.934731444256289,
+          -32.220111801329956,
+          101.26239676189817
+        ],
+        "area": 29689.344447177245,
+        "triangles": 176
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_01_Broken.SM_Teeth_R_01_Broken",
+        "point": [
+          -0.9027514511221573,
+          -7.1018995372824785,
+          59.05853676410958
+        ],
+        "area": 43574.30221902595,
+        "triangles": 157
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V2/SM_Teeth_R_02.SM_Teeth_R_02",
+    "scale": 2.7988189697265624,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_02_Chipped.SM_Teeth_R_02_Chipped",
+        "point": [
+          4.026382263900624,
+          -50.86560321869558,
+          99.24357595823322
+        ],
+        "area": 23802.072863154863,
+        "triangles": 164
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_02_Broken.SM_Teeth_R_02_Broken",
+        "point": [
+          -1.1467122042759132,
+          -5.829791591552436,
+          67.31647989357626
+        ],
+        "area": 45672.04161959177,
+        "triangles": 199
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V2/SM_Teeth_R_03.SM_Teeth_R_03",
+    "scale": 3.1945458984375,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_03_Chipped.SM_Teeth_R_03_Chipped",
+        "point": [
+          2.621574298864601,
+          -38.643804073774774,
+          104.66406524326455
+        ],
+        "area": 31643.151006077685,
+        "triangles": 168
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_03_Broken.SM_Teeth_R_03_Broken",
+        "point": [
+          0.08737348812686051,
+          2.2686880908489186,
+          80.79360481560812
+        ],
+        "area": 50058.08684067792,
+        "triangles": 179
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V2/SM_Teeth_R_04.SM_Teeth_R_04",
+    "scale": 3.3162265014648438,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_04_Chipped.SM_Teeth_R_04_Chipped",
+        "point": [
+          3.0208374879599353,
+          57.22240017090951,
+          112.06365743417398
+        ],
+        "area": 31776.86990602655,
+        "triangles": 154
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_04_Broken.SM_Teeth_R_04_Broken",
+        "point": [
+          1.489609749582563,
+          -11.715044103755485,
+          69.08341343107904
+        ],
+        "area": 74214.94186282695,
+        "triangles": 217
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V2/SM_Teeth_l_04.SM_Teeth_l_04",
+    "scale": 3.3162261962890627,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_l_04_Chipped.SM_Teeth_l_04_Chipped",
+        "point": [
+          -1.9657748645394122,
+          -39.63769868644149,
+          121.13072657380113
+        ],
+        "area": 48813.404229328036,
+        "triangles": 212
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_l_04_Broken.SM_Teeth_l_04_Broken",
+        "point": [
+          -0.4138771241691772,
+          -2.575688367639328,
+          79.52705142073356
+        ],
+        "area": 61298.4642189481,
+        "triangles": 175
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V10/SM_Teeth_L_01.SM_Teeth_L_01",
+    "scale": 4.602067260742188,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_01_Chipped.SM_Teeth_L_01_Chipped",
+        "point": [
+          -6.546261946776268,
+          -68.98115659731064,
+          158.45758949578897
+        ],
+        "area": 66339.79231260762,
+        "triangles": 184
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_01_Broken.SM_Teeth_L_01_Broken",
+        "point": [
+          -5.638849465620047,
+          -10.831449832729911,
+          124.0539895107135
+        ],
+        "area": 108424.69555667999,
+        "triangles": 229
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01.SM_Teeth_R_01",
+    "scale": 4.60206787109375,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_01_Chipped.SM_Teeth_R_01_Chipped",
+        "point": [
+          7.624855530732122,
+          -56.43912076080906,
+          160.7495121497256
+        ],
+        "area": 73227.95057632407,
+        "triangles": 162
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_01_Broken.SM_Teeth_R_01_Broken",
+        "point": [
+          -1.2395336515390951,
+          -4.34096583141966,
+          95.65174068810978
+        ],
+        "area": 115166.16242548735,
+        "triangles": 158
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02",
+    "scale": 4.5268707275390625,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_02_Chipped.SM_Teeth_L_02_Chipped",
+        "point": [
+          -11.522498534089014,
+          -65.15126881935166,
+          151.29609446179813
+        ],
+        "area": 72504.16555250707,
+        "triangles": 160
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_02_Broken.SM_Teeth_L_02_Broken",
+        "point": [
+          -4.7090260955061725,
+          4.193628070138996,
+          84.59846893589354
+        ],
+        "area": 122363.17559857068,
+        "triangles": 207
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V10/SM_Teeth_R_02.SM_Teeth_R_02",
+    "scale": 4.5268707275390625,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_02_Chipped.SM_Teeth_R_02_Chipped",
+        "point": [
+          17.367701743330542,
+          -87.97796868156247,
+          159.21131805871562
+        ],
+        "area": 58029.37830812216,
+        "triangles": 154
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_02_Broken.SM_Teeth_R_02_Broken",
+        "point": [
+          2.3747081848468867,
+          -2.5139212775869555,
+          108.09346760690762
+        ],
+        "area": 123627.45505686552,
+        "triangles": 195
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03",
+    "scale": 4.35187255859375,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_03_Chipped.SM_Teeth_L_03_Chipped",
+        "point": [
+          13.89141186013647,
+          90.214641980901,
+          162.7764244091435
+        ],
+        "area": 70007.31748677477,
+        "triangles": 170
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_03_Broken.SM_Teeth_L_03_Broken",
+        "point": [
+          2.9758082729556103,
+          4.501426509873603,
+          108.05954905778981
+        ],
+        "area": 148241.1682537803,
+        "triangles": 204
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V10/SM_Teeth_R_03.SM_Teeth_R_03",
+    "scale": 4.351872406005859,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_03_Chipped.SM_Teeth_R_03_Chipped",
+        "point": [
+          17.47981638051437,
+          -78.00410814521084,
+          138.98205073517963
+        ],
+        "area": 70108.04963167557,
+        "triangles": 155
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_03_Broken.SM_Teeth_R_03_Broken",
+        "point": [
+          -0.43431644071782904,
+          4.947928341875324,
+          109.0503196121364
+        ],
+        "area": 123687.61285031789,
+        "triangles": 178
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04",
+    "scale": 4.656195831298828,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_04_Chipped.SM_Teeth_L_04_Chipped",
+        "point": [
+          10.653601581329026,
+          86.01584753093012,
+          152.752089393507
+        ],
+        "area": 77637.10999812638,
+        "triangles": 171
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_04_Broken.SM_Teeth_L_04_Broken",
+        "point": [
+          -2.511805166644836,
+          -5.390437422034036,
+          124.69992179884966
+        ],
+        "area": 144644.90432447774,
+        "triangles": 235
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V10/SM_Teeth_R_04.SM_Teeth_R_04",
+    "scale": 4.6561956787109375,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_04_Chipped.SM_Teeth_R_04_Chipped",
+        "point": [
+          -14.628952076965064,
+          91.67069857373143,
+          155.864424837665
+        ],
+        "area": 71254.6932055694,
+        "triangles": 152
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_04_Broken.SM_Teeth_R_04_Broken",
+        "point": [
+          3.4646057142449402,
+          -17.65004244307961,
+          96.43801867236596
+        ],
+        "area": 162764.9558992577,
+        "triangles": 209
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V10/SM_Teeth_L_05.SM_Teeth_L_05",
+    "scale": 4.870477294921875,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_05_Chipped.SM_Teeth_L_05_Chipped",
+        "point": [
+          5.690560849948723,
+          86.74431020843647,
+          153.60519260812785
+        ],
+        "area": 83083.55922182824,
+        "triangles": 99
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_05_Broken.SM_Teeth_L_05_Broken",
+        "point": [
+          0.19271621263770108,
+          -11.404038044004961,
+          92.68865300973037
+        ],
+        "area": 147428.41852803316,
+        "triangles": 196
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V10/SM_Teeth_R_05.SM_Teeth_R_05",
+    "scale": 4.870477447509765,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_05_Chipped.SM_Teeth_R_05_Chipped",
+        "point": [
+          10.646841963044762,
+          -105.20579882692083,
+          167.47074148980286
+        ],
+        "area": 71432.80558515151,
+        "triangles": 144
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_05_Broken.SM_Teeth_R_05_Broken",
+        "point": [
+          -4.051617765036293,
+          -1.3847703651378316,
+          122.3256487370158
+        ],
+        "area": 139664.15838009023,
+        "triangles": 168
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V10/SM_Teeth_L_07.SM_Teeth_L_07",
+    "scale": 4.945608520507813,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_07_Chipped.SM_Teeth_L_07_Chipped",
+        "point": [
+          -3.29748332984396,
+          75.39292304144526,
+          170.63588831057106
+        ],
+        "area": 102491.03911546528,
+        "triangles": 185
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_07_Broken.SM_Teeth_L_07_Broken",
+        "point": [
+          -3.3916890374843436,
+          -2.732943400224077,
+          95.21014190348524
+        ],
+        "area": 179265.039683874,
+        "triangles": 194
+      }
+    }
+  },
+  {
+    "intact": "/Game/Gameplay/Arena/V10/SM_Teeth_R_06.SM_Teeth_R_06",
+    "scale": 4.9456088256835935,
+    "stages": {
+      "chipped": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_06_Chipped.SM_Teeth_R_06_Chipped",
+        "point": [
+          -2.713250175896525,
+          -82.82375579452234,
+          162.06121960094814
+        ],
+        "area": 87701.29009156587,
+        "triangles": 162
+      },
+      "broken": {
+        "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_06_Broken.SM_Teeth_R_06_Broken",
+        "point": [
+          2.8853430884592517,
+          -10.16209922009857,
+          85.23371653333572
+        ],
+        "area": 160373.5793443539,
+        "triangles": 161
+      }
+    }
+  }
+]
