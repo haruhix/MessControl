@@ -26,6 +26,8 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Tongue") TObjectPtr<UMCTongueProfile> Profile;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue") FMCTongueSettings Settings;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue") FMCTongueMotionState Motion;
+    /** Short, cosmetic landing waves; they never apply the normal pain-wave forces. */
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue|Motion") TArray<FMCTongueMotionState> BossImpactPainWaves;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue|Weight") FMCTonguePressureSettings PressureSettings;
     UPROPERTY(ReplicatedUsing=OnRep_PressureFrame) FMCTonguePressureFrame PressureFrame;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue|Weight") TObjectPtr<UMCTonguePressurePreset> ActivePressurePreset;
@@ -40,6 +42,7 @@ public:
     UFUNCTION(BlueprintPure,Category="Tongue") bool IsMotionActive() const;
     UFUNCTION(CallInEditor,Category="Tongue") void RebuildSurface();
     bool TriggerPain(FVector WorldPoint);
+    bool TriggerBossImpactPainWave(FVector WorldPoint,float DamageRadius);
     bool TriggerToothpickPain(FVector WorldPoint);
     bool TriggerJolt();
     /** Water provokes a cosmetic tickle of the uvula, without a pain attack. */

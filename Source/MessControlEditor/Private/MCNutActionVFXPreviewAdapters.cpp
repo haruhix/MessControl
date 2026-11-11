@@ -406,6 +406,10 @@ const bool Registered=[]
             Row.Category=Contract.ID.ToString().StartsWith(TEXT("Boss."))?TEXT("Boss"):TEXT("World");
             Row.SourceOwner=TEXT("MCNutVFXCatalog / actual AMCNutBoss, AMCNutKamikaze or AMCNutLandingShadow owner");
             Row.Description=FText::FromString(TEXT("Настоящие игровые события. Контакт, хитбоксы и опасная область принадлежат механике; VFX и SFX редактируются отдельно. Миграция исходного арта проверяется отдельно от наличия привязки."));
+            if(Contract.ID==TEXT("Boss.NutKnight.Jump") || Contract.ID==TEXT("Boss.NutKnight.Melee")) {
+                Row.SourceOwner+=TEXT(" / AMCTongue::TriggerBossImpactPainWave");
+                Row.Description=FText::FromString(Row.Description.ToString()+TEXT("\nПриземление прыжка или Slam последнего удара комбо создаёт волну на языке (AMCTongue, MCTongue.cpp); радиус — 135% радиуса удара. Геометрия языка не редактируется профилем Niagara; плоская поверхность сценария не показывает её деформацию."));
+            }
             if(!HasLab)Row.UnsupportedReason=TEXT("В каталоге не указан зарегистрированный настоящий сценарий полигона.");
             MCVFXActionCatalog::RegisterSource(MoveTemp(Row));
         }

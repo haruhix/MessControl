@@ -419,6 +419,17 @@ bool FMCNutBossJumpTest::RunTest(const FString&)
     if(!TestTrue(TEXT("A random live target starts a locked jump"),T.WaitFor(EMCNutBossAttack::Jump,EMCNutBossState::Telegraph,2))) return false;
     // Put one fixture worker at the advertised point and the other outside it.
     const FVector Center=T.Boss->LockedTarget;
+    auto AddArenaTooth=[&](int32 Id,FVector Point) {
+        const FTransform Pose(Point);
+        auto* Tooth=T.World->SpawnActorDeferred<AMCArenaTooth>(AMCArenaTooth::StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        FMCArenaToothSettings Settings; Settings.InitialCalculusEveryNthTooth=0;
+        Tooth->SetAppearance(T.Cube,FVector(2,3,3)); Tooth->Initialize(Id,Settings); Tooth->FinishSpawning(Pose);
+        return Tooth;
+    };
+    auto* StruckTooth=AddArenaTooth(10,Center+FVector(0,-240,0));
+    auto* FarTooth=AddArenaTooth(11,Center+FVector(0,-1000,0));
+    T.Tongue->TriggerPain(Center);
+    const int32 ExistingPainSerial=T.Tongue->Motion.Serial;
     Inside->SetActorLocation(Center+FVector(0,0,16)); Outside->SetActorLocation(Center+FVector(0,650,16));
     const float InsideBefore=Inside->Status->State.Health,OutsideBefore=Outside->Status->State.Health;
     T.Step(1.1f);
@@ -426,7 +437,18 @@ bool FMCNutBossJumpTest::RunTest(const FString&)
     T.Step(1.05f);
     TestTrue(TEXT("Landing applies one bounded area hit"),FMath::IsNearlyEqual(Inside->Status->State.Health,InsideBefore-T.Boss->BossSettings.JumpDamage));
     TestEqual(TEXT("Leaving the advertised radius avoids the landing hit"),Outside->Status->State.Health,OutsideBefore);
+    TestEqual(TEXT("A tooth inside the landing footprint takes the configured hit"),StruckTooth->State.Health,100.f-T.Boss->BossSettings.JumpDamage);
+    TestEqual(TEXT("A tooth outside the landing footprint is untouched"),FarTooth->State.Health,100.f);
+    TestEqual(TEXT("Landing does not replace an existing pain motion"),T.Tongue->Motion.Serial,ExistingPainSerial);
+    if(TestEqual(TEXT("Landing creates one independent tongue wave"),T.Tongue->BossImpactPainWaves.Num(),1)) {
+        const auto& Wave=T.Tongue->BossImpactPainWaves[0];
+        TestEqual(TEXT("The larger visual wave extends beyond damage"),Wave.Settings.Radius,T.Boss->BossSettings.JumpRadius*1.35f,.01f);
+        TestEqual(TEXT("The wave applies no push"),Wave.Settings.Push,0.f);
+        TestEqual(TEXT("The wave applies no lift"),Wave.Settings.Lift,0.f);
+    }
+    const float ToothAfter=StruckTooth->State.Health;
     const float After=Inside->Status->State.Health; T.Step(.5f);
+    TestEqual(TEXT("Recovery does not repeatedly damage a tooth"),StruckTooth->State.Health,ToothAfter);
     TestEqual(TEXT("Recovery does not repeat the landing damage"),Inside->Status->State.Health,After);
     if(!TestEqual(TEXT("Landing retains the native jump recovery"),T.Boss->State,EMCNutBossState::Recovery)) return false;
     const auto& Settings=T.Boss->BossSettings;
@@ -477,6 +499,10 @@ bool FMCNutBossComboTest::RunTest(const FString&)
     }
     const FVector ExpectedSlam=T.Boss->LockedStart+T.Boss->AttackForward*T.Boss->BossSettings.MeleeRange*.55f;
     Hero->SetActorLocation(FVector(1300,900,130)); // Exercise the advertised dodge before any contact.
+    const auto& ComboSettings=T.Boss->BossSettings;
+    const double FinalContact=T.Boss->ResolveAt+(ComboSettings.TankComboContactFractions.Z-ComboSettings.TankComboContactFractions.X)*ComboSettings.TankComboAnimationSeconds;
+    T.Step(FMath::Max(0.f,float(FinalContact-T.World->GetTimeSeconds())-.08f));
+    TestEqual(TEXT("The earlier combo swings do not create a ground pain wave"),T.Tongue->BossImpactPainWaves.Num(),0);
     if(!TestTrue(TEXT("All three authored contacts complete before combo recovery"),
         T.WaitFor(EMCNutBossAttack::Melee,EMCNutBossState::Recovery,4))) return false;
     TestEqual(TEXT("The complete combo enters recovery"),T.Boss->State,EMCNutBossState::Recovery);
@@ -500,6 +526,12 @@ bool FMCNutBossComboTest::RunTest(const FString&)
         if(It->SourceActor==T.Boss && It->Cue.Type==EMCNutCombatCue::SlamImpact)
             GroundImpact|=FVector::DistSquared(It->Cue.Target,ExpectedSlam)<1.f;
     TestTrue(TEXT("The last blow's ground VFX shares the actual damage centre"),GroundImpact);
+    if(TestEqual(TEXT("Only the final ground hit creates a tongue wave"),T.Tongue->BossImpactPainWaves.Num(),1)) {
+        const auto& Wave=T.Tongue->BossImpactPainWaves[0];
+        TestTrue(TEXT("The wave originates at the real combo slam"),FVector::DistSquared(T.Tongue->GetActorTransform().TransformPosition(Wave.Origin),ExpectedSlam)<1.f);
+        TestEqual(TEXT("The combo wave uses the actual ground-hit radius"),Wave.Settings.Radius,Settings.MeleeRange*.8f*1.35f,.01f);
+        TestEqual(TEXT("The combo wave does not apply physical push"),Wave.Settings.Push,0.f);
+    }
     T.Step(FMath::Max(0.f,float(T.Boss->AttackEndAt-T.World->GetTimeSeconds())-.1f));
     TestEqual(TEXT("The knight remains inactive throughout the damage window"),T.Boss->State,EMCNutBossState::Recovery);
     TestEqual(TEXT("A dodging worker stays unharmed through every swing and the complete combo"),Hero->Status->State.Health,Before);

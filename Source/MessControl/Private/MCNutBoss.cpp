@@ -1318,7 +1318,7 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next,bool bChainFollowUp)
         LockedTarget=LockedStart+AttackForward*BossSettings.MeleeRange;
         if(BossRole==EMCNutBossRole::Tank) ActiveSeconds=TankMeleeActiveSeconds();
     }
-    bResolved=false; AttackHits.Reset(); RainHitAt.Reset(); RollHitAt.Reset(); RollToothHitAt.Reset(); RainDropsResolved=0; MeleeHitsResolved=0;
+    bResolved=false; AttackHits.Reset(); RainHitAt.Reset(); RollHitAt.Reset(); RollToothHitAt.Reset(); ChargeToothHits.Reset(); RainDropsResolved=0; MeleeHitsResolved=0;
     AttackStartedAt=Time; ResolveAt=Time+Windup;
     const bool Sustained=Next==EMCNutBossAttack::Charge || Next==EMCNutBossAttack::Roll
         || Next==EMCNutBossAttack::Jump || Next==EMCNutBossAttack::NutRain
@@ -1393,6 +1393,27 @@ void AMCNutBoss::DamageArea(FVector Center,float Radius,float Damage,float Push,
         if(HitSet) HitSet->Add(Hero);
         if(!Hero->Status->Damage(Damage,Direction,this,Attack==EMCNutBossAttack::NutRain?EMCRogueDamageKind::FallingNut:EMCRogueDamageKind::Ordinary)) continue;
         PushPlayer(Hero,Direction,Push);
+    }
+}
+
+void AMCNutBoss::DamageTeethInArea(FVector Center,float Radius,float Damage,bool bForwardOnly)
+{
+    if(!HasAuthority() || Radius<=0 || Damage<=0) return;
+    for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) {
+        AMCArenaTooth* Tooth=*It;
+        if(!IsValid(Tooth) || !Tooth->IsAvailable() || !IsValid(Tooth->Body)) continue;
+        const FBox Bounds=Tooth->Body->Bounds.GetBox();
+        if(Bounds.Min.Z>Center.Z+230 || Bounds.Max.Z<Center.Z-230) continue;
+        const FVector Probe(Center.X,Center.Y,FMath::Clamp(Center.Z,Bounds.Min.Z,Bounds.Max.Z));
+        FVector Contact;
+        if(Tooth->Body->GetClosestPointOnCollision(Probe,Contact)<0 || FVector::DistSquared2D(Center,Contact)>FMath::Square(Radius)) continue;
+        FVector Direction=(Tooth->GetActorLocation()-Center).GetSafeNormal2D();
+        if(Direction.IsNearlyZero()) Direction=AttackForward;
+        if(bForwardOnly && FVector::DotProduct(Direction,AttackForward)<.35f) continue;
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCNutBossToothContact),false,this);
+        Query.AddIgnoredActor(Tooth);
+        if(GetWorld()->LineTraceTestByChannel(Center+FVector(0,0,80),Contact,ECC_Visibility,Query)) continue;
+        Tooth->ReceiveArenaHit(Damage,Direction);
     }
 }
 
@@ -1679,6 +1700,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         if(!bResolved) {
             bResolved=true;
             DamageArea(LockedStart,BossSettings.TankCounterRadius,BossSettings.TankCounterDamage,BossSettings.TankCounterPush,&AttackHits);
+            DamageTeethInArea(LockedStart,BossSettings.TankCounterRadius,BossSettings.TankCounterDamage);
             ImpactNutsInArea(LockedStart,BossSettings.TankCounterRadius,BossSettings.TankCounterPush);
             TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("CounterShove"),TEXT("Impact")),this,Tongue,EMCNutCombatCue::SlamImpact,
                 LockedStart,LockedStart,BossSettings.TankCounterRadius,0,.35f,AttackSeed));
@@ -1707,6 +1729,8 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         FVector Goal;
         if(!LockSurfacePoint(LockedStart+AttackForward*Travel,Settings.BodyRadius+5,Goal)) { Recover(1.4f); return; }
         FHitResult Hit; MoveAttackBody(Goal,Hit); DamageChargeSegment(Previous,GetActorLocation());
+        if(auto* Tooth=Cast<AMCArenaTooth>(Hit.GetActor()); Hit.bBlockingHit && IsValid(Tooth) && Tooth->IsAvailable() && !ChargeToothHits.Contains(Tooth))
+            if(Tooth->ReceiveArenaHit(BossSettings.ChargeDamage,AttackForward)) ChargeToothHits.Add(Tooth);
         PushNutsAlongSegment(Previous,GetActorLocation(),FMath::Max(.001f,Dt));
         if(Time>=AttackEndAt || (Hit.bBlockingHit && FVector::DistSquared2D(Previous,GetActorLocation())<4)) Recover(1.4f);
     } else if(Attack==EMCNutBossAttack::Roll) {
@@ -1717,6 +1741,8 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         SetActorLocation(Goal,false);
         if(Alpha>=1 && !bResolved) {
             bResolved=true; DamageArea(LockedTarget,BossSettings.JumpRadius,BossSettings.JumpDamage,BossSettings.TankJumpPush,&AttackHits);
+            DamageTeethInArea(LockedTarget,BossSettings.JumpRadius,BossSettings.JumpDamage);
+            if(IsValid(Tongue)) Tongue->TriggerBossImpactPainWave(LockedTarget,BossSettings.JumpRadius);
             ImpactNutsInArea(LockedTarget,BossSettings.JumpRadius,BossSettings.TankJumpPush);
             TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Jump"),TEXT("Impact")),this,Tongue,EMCNutCombatCue::SlamImpact,LockedTarget,LockedTarget,BossSettings.JumpRadius,0,.6f,AttackSeed));
             Recover(1.7f);
@@ -1741,6 +1767,8 @@ void AMCNutBoss::ExecuteAttack(float Dt)
             if(!GroundHit) for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
                 if(FVector::DotProduct((It->GetActorLocation()-LockedStart).GetSafeNormal2D(),AttackForward)<.35f) AttackHits.Add(*It);
             DamageArea(Center,BossSettings.MeleeRange*(GroundHit?.8f:1.f),BossSettings.MeleeDamage,BossSettings.TankMeleePush,&AttackHits);
+            DamageTeethInArea(Center,BossSettings.MeleeRange*(GroundHit?.8f:1.f),BossSettings.MeleeDamage,!GroundHit);
+            if(GroundHit && IsValid(Tongue)) Tongue->TriggerBossImpactPainWave(Center,BossSettings.MeleeRange*.8f);
             ImpactNutsInArea(Center,BossSettings.MeleeRange*(GroundHit?.8f:1.f),BossSettings.TankMeleePush,!GroundHit);
             TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Melee"),GroundHit?TEXT("Slam"):TEXT("Slash")),this,Tongue,GroundHit?EMCNutCombatCue::SlamImpact:EMCNutCombatCue::MeleeSlash,
                 Center,GroundHit?Center:LockedTarget,BossSettings.MeleeRange*(GroundHit?.8f:1.f),0,GroundHit?.6f:.22f,AttackSeed+MeleeHitsResolved));
@@ -1774,6 +1802,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
             }
             DamageArea(LockedStart,BossSettings.MeleeRange,BossSettings.MeleeDamage,
                 BossRole==EMCNutBossRole::Tank?BossSettings.TankMeleePush:90,&AttackHits);
+            DamageTeethInArea(LockedStart,BossSettings.MeleeRange,BossSettings.MeleeDamage,true);
             ImpactNutsInArea(LockedStart,BossSettings.MeleeRange,
                 BossRole==EMCNutBossRole::Tank?BossSettings.TankMeleePush:90,true);
             TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Melee"),TEXT("Slash")),this,Tongue,EMCNutCombatCue::MeleeSlash,LockedStart,LockedTarget,

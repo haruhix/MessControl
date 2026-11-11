@@ -189,6 +189,7 @@ private:
     float DeathSeconds() const;
     void StartAttackCooldown(double RecoveryEndsAt);
     void DamageArea(FVector Center,float Radius,float Damage,float Push,TSet<TWeakObjectPtr<AMCToothCharacter>>* HitSet=nullptr);
+    void DamageTeethInArea(FVector Center,float Radius,float Damage,bool bForwardOnly=false);
     void PushNutsAlongSegment(FVector Start,FVector End,float Seconds);
     void ImpactNutsInArea(FVector Center,float Radius,float Speed,bool bForwardOnly=false);
     TMap<TWeakObjectPtr<AMCFoodActor>,double> NutContactAt;
@@ -228,6 +229,7 @@ private:
     TMap<TWeakObjectPtr<AMCToothCharacter>,double> RainHitAt;
     TMap<TWeakObjectPtr<AMCToothCharacter>,double> RollHitAt;
     TMap<TWeakObjectPtr<AMCArenaTooth>,double> RollToothHitAt;
+    TSet<TWeakObjectPtr<AMCArenaTooth>> ChargeToothHits;
     FVector TankModelScale=FVector::OneVector;
     FVector TankModelGroundAnchor=FVector::ZeroVector;
     FVector TankBallScale=FVector::OneVector,TankBallCenter=FVector::ZeroVector;

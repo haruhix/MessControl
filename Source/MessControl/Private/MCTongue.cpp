@@ -128,6 +128,29 @@ bool AMCTongue::TriggerPain(FVector Point)
     Event.AffectHeight=Settings.AffectHeight; Event.RestAfter=FMath::Max(.2f,Settings.Cooldown-Settings.Duration());
     return StartMotion(Event,Point,FVector::ForwardVector,1);
 }
+bool AMCTongue::TriggerBossImpactPainWave(FVector Point,float DamageRadius)
+{
+    if(!HasAuthority() || Point.ContainsNaN() || !FMath::IsFinite(DamageRadius) || DamageRadius<=0) return false;
+    const double Time=ServerTime();
+    BossImpactPainWaves.RemoveAll([Time](const FMCTongueMotionState& Wave) {
+        return Time>=Wave.StartedAt+Wave.Settings.Duration();
+    });
+    // Bound simultaneous cosmetics without interrupting the ordinary pain motion.
+    if(BossImpactPainWaves.Num()>=8) BossImpactPainWaves.RemoveAt(0);
+    FMCTongueMotionState& Wave=BossImpactPainWaves.AddDefaulted_GetRef();
+    Wave.Settings.Shape=EMCTongueShape::RadialWave;
+    Wave.Settings.Height=FMath::Min(40.f,Settings.WaveHeight*1.25f);
+    Wave.Settings.Radius=DamageRadius*1.35f;
+    Wave.Settings.Width=FMath::Clamp(Settings.WaveWidth*.8f,160.f,240.f);
+    Wave.Settings.Speed=Settings.WaveSpeed;
+    Wave.Settings.Anticipation=0; Wave.Settings.RestAfter=0;
+    Wave.Settings.Redness=.55f; Wave.Settings.Push=0; Wave.Settings.Lift=0;
+    Wave.Settings.Sanitize();
+    Wave.Origin=GetActorTransform().InverseTransformPosition(Point);
+    Wave.StartedAt=Time; Wave.Serial=1;
+    ForceNetUpdate();
+    return true;
+}
 bool AMCTongue::TriggerToothpickPain(FVector Point)
 {
     FMCTongueMotionSettings Event=Profile && Profile->PainMotion?Profile->PainMotion->Settings:FMCTongueMotionSettings();
@@ -307,6 +330,8 @@ void AMCTongue::Deform(float Time)
         FMCTongueMotionState Pulse;
         if(It->SurfaceMotion(this,Time,Pulse)) Pulses.Add(Pulse);
     }
+    for(const FMCTongueMotionState& Wave:BossImpactPainWaves)
+        if(Time>=Wave.StartedAt && Time<Wave.StartedAt+Wave.Settings.Duration()) Pulses.Add(Wave);
     RefreshDeformationMotion();
     const float IdleAngle=Time*2*PI/Settings.IdlePeriod;
     const float Envelope=Motion.Settings.IsWave()?0:Motion.Settings.Envelope(Time-Motion.StartedAt);
@@ -600,6 +625,7 @@ void AMCTongue::Tick(float Dt)
 void AMCTongue::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCTongue,Settings); DOREPLIFETIME(AMCTongue,Motion);
+    DOREPLIFETIME(AMCTongue,BossImpactPainWaves);
     DOREPLIFETIME(AMCTongue,PressureSettings); DOREPLIFETIME(AMCTongue,PressureFrame);
     DOREPLIFETIME(AMCTongue,ActivePressurePreset);
     DOREPLIFETIME(AMCTongue,ActivePressureMaterial);
