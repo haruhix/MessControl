@@ -14,7 +14,7 @@ UENUM(BlueprintType)
 enum class EMCNutBossState : uint8 { Falling, Idle, Telegraph, Executing, Recovery, Defeated, Stunned, Retargeting, Transforming };
 
 UENUM(BlueprintType)
-enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain, Roll, Teleport, CounterShove, Chain };
+enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain, Roll, Teleport, CounterShove, Chain, GravityWaves, NutSphere };
 
 UENUM(BlueprintType)
 enum class EMCNutBossChainPhase : uint8 { Inactive, Flight, PullPlayer, PullNut, Reeling, Impact };

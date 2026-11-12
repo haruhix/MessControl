@@ -1,15 +1,20 @@
 #include "MCNutRainEvent.h"
 
 #include "MCFoodActor.h"
+#include "MCNutGravityTrajectory.h"
 #include "MCFoodBodyComponent.h"
 #include "MCGameState.h"
 #include "MCNutEnemy.h"
 #include "MCNutBoss.h"
 #include "MCNutLandingShadow.h"
+#include "MCNutVFXCatalog.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "Components/BoxComponent.h"
+#include "CollisionQueryParams.h"
+#include "CollisionShape.h"
 #include "Engine/DataTable.h"
 #include "Engine/World.h"
 #include "Engine/StaticMesh.h"
@@ -19,9 +24,49 @@
 
 namespace
 {
+constexpr float WizardGravityDropSpeed=160.f;
+constexpr float WizardGravityScatterMin=220.f;
+constexpr float WizardGravityScatterMax=540.f;
+constexpr float WizardGravityScatterSpeedLimit=950.f;
+
+FVector WizardGravityLandingCenter(const AMCFoodActor& Food,FVector Floor)
+{
+    return Floor+FVector(0,0,Food.Body->GetScaledBoxExtent().Z+5.f);
+}
+
+bool PlanWizardGravityDrop(const AMCFoodActor& Food,const AMCTongue& Tongue,FVector Start,FVector Landing,float& Seconds)
+{
+    const UWorld& World=*Food.GetWorld();
+    const FVector Travel=Landing-Start;
+    const float GravityZ=World.GetGravityZ();
+    if(Travel.Z>-80.f) return false;
+    Seconds=MCNutGravity::FlightSeconds(float(-Travel.Z),GravityZ,WizardGravityDropSpeed);
+    if(Seconds<=0.f || Travel.SizeSquared2D()>FMath::Square(WizardGravityScatterSpeedLimit*Seconds)) return false;
+
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCWizardGravityScatter),false,&Food);
+    Query.AddIgnoredActor(&Tongue);
+    Query.bFindInitialOverlaps=false;
+    FCollisionResponseParams Response(Food.Body->GetCollisionResponseToChannels());
+    Response.CollisionResponse.SetResponse(ECC_Pawn,ECR_Ignore);
+    Response.CollisionResponse.SetResponse(ECC_PhysicsBody,ECR_Ignore);
+    Response.CollisionResponse.SetResponse(AMCFoodActor::FragmentCollisionChannel,ECR_Ignore);
+    const FCollisionShape Shape=FCollisionShape::MakeBox(Food.Body->Bounds.BoxExtent);
+    const FVector Origin=Start+Food.Body->Bounds.Origin-Food.GetActorLocation();
+    const FVector Velocity(Travel.X/Seconds,Travel.Y/Seconds,-WizardGravityDropSpeed);
+    FVector Previous=Origin;
+    constexpr int32 Segments=6;
+    for(int32 Step=1;Step<=Segments;++Step) {
+        const float Time=Seconds*Step/Segments;
+        const FVector Point=Origin+Velocity*Time+FVector(0,0,.5f*GravityZ*Time*Time);
+        if(World.SweepTestByChannel(Previous,Point,FQuat::Identity,Food.Body->GetCollisionObjectType(),Shape,Query,Response)) return false;
+        Previous=Point;
+    }
+    return true;
+}
+
 bool IsSupportedRainNut(const AMCFoodActor* Food,const AMCTongue* Tongue,float NutHeight)
 {
-    if(!IsValid(Food) || Food->IsMouthEntryActive()) return false;
+    if(!IsValid(Food) || Food->IsMouthEntryActive() || Food->IsWizardGravityLiftActive()) return false;
     if(Food->Phase==EMCFoodPhase::Free || Food->Phase==EMCFoodPhase::Stuck) return true;
     if(Food->Phase!=EMCFoodPhase::Falling || !IsValid(Tongue) || !Food->Body) return false;
     // Food/obstacle contacts can stop entry without setting the food's
@@ -395,6 +440,161 @@ void AMCNutRainEvent::GetAvailableRainNuts(TArray<AMCFoodActor*>& Out) const
     }
 }
 
+bool AMCNutRainEvent::FindWizardGravityFloor(const AMCFoodActor* Food,FHitResult& Floor,bool bRequireGrounded) const
+{
+    if(!IsValid(Tongue) || !IsValid(Food) || Food->IsActorBeingDestroyed() || !Food->IsNutKineticsActive()) return false;
+    const FVector Position=Food->GetActorLocation();
+    const float Margin=float(Food->Body->GetScaledBoxExtent().Size2D())+12.f;
+    if(!Tongue->GameplaySpawnFootprint(Position,Margin,Floor)) return false;
+    if(!bRequireGrounded) return true;
+    const float Height=float(Food->Body->Bounds.GetBox().Min.Z-Floor.ImpactPoint.Z);
+    return Height>=-55.f && Height<=55.f && Food->GetVelocity().SizeSquared()<=FMath::Square(180.f);
+}
+
+int32 AMCNutRainEvent::BeginWizardGravityWaves(FVector Origin,FVector Right,UMCVFXPresentationComponent* PreviewSource)
+{
+    if(!HasAuthority() || Stage!=EMCNutRainStage::Enemies || !Settings.bBossEncounter || Origin.ContainsNaN() || Right.ContainsNaN()) return 0;
+    if(HasWizardGravityDropsInFlight() || !WizardNutSphereNuts.IsEmpty()) return 0;
+    for(const auto& Nut:WizardGravityNuts)
+        if(const auto* Food=Nut.Food.Get(); Food && Food->IsWizardGravityLiftActive()) return 0;
+    WizardGravityNuts.Reset(); WizardGravityPreview.Reset();
+    for(auto& Hits:WizardGravityWaveHits) Hits.Reset();
+    Right=Right.GetSafeNormal2D();
+    if(Right.IsNearlyZero()) return 0;
+
+    TArray<AMCFoodActor*> Candidates;
+    GetAvailableRainNuts(Candidates);
+    Candidates.RemoveAll([this](const AMCFoodActor* Food) {
+        FHitResult Floor;
+        return !FindWizardGravityFloor(Food,Floor,true);
+    });
+    if(Candidates.Num()<2) return 0;
+    Candidates.Sort([Origin,Right](const AMCFoodActor& A,const AMCFoodActor& B) {
+        const double SideA=FVector::DotProduct(A.GetActorLocation()-Origin,Right);
+        const double SideB=FVector::DotProduct(B.GetActorLocation()-Origin,Right);
+        return SideA==SideB?A.GetUniqueID()<B.GetUniqueID():SideA<SideB;
+    });
+
+    const int32 LeftCount=(Candidates.Num()+1)/2;
+    WizardGravityNuts.Reserve(Candidates.Num());
+    for(int32 Index=0;Index<Candidates.Num();++Index) {
+        auto& Nut=WizardGravityNuts.Emplace_GetRef();
+        Nut.Food=Candidates[Index]; Nut.WaveIndex=Index<LeftCount?0:1;
+    }
+    WizardGravityPreview=PreviewSource;
+    return WizardGravityNuts.Num();
+}
+
+int32 AMCNutRainEvent::StartWizardGravityWave(int32 WaveIndex,float LiftSeconds,float HoldSeconds,float Height)
+{
+    if(!HasAuthority() || Stage!=EMCNutRainStage::Enemies || (WaveIndex!=0 && WaveIndex!=1)) return 0;
+    int32 Lifted=0;
+    TArray<FNutLandingReservation> Destinations;
+    for(auto& Nut:WizardGravityNuts) {
+        if(Nut.WaveIndex!=WaveIndex || Nut.bLiftAttempted) continue;
+        Nut.bLiftAttempted=true;
+        auto* Food=Nut.Food.Get();
+        FHitResult Floor;
+        if(!FindWizardGravityFloor(Food,Floor,true)) continue;
+        const float LiftHeight=Food->BeginWizardGravityLift(Tongue,LiftSeconds,HoldSeconds,Height);
+        if(LiftHeight<=0) continue;
+
+        const FVector Start=Food->GetActorLocation()+FVector(0,0,LiftHeight);
+        const float BodyRadius=float(Food->Body->GetScaledBoxExtent().Size2D());
+        const float Margin=FMath::Max(BodyRadius+12.f,Settings.ImpactRadius);
+        float DropTime=0.f;
+        bool bFoundLanding=false;
+        for(int32 Attempt=0;Attempt<16;++Attempt) {
+            const float Angle=Random.FRandRange(-PI,PI);
+            const float Distance=Random.FRandRange(WizardGravityScatterMin,WizardGravityScatterMax);
+            const FVector Candidate=Floor.ImpactPoint+FVector(FMath::Cos(Angle),FMath::Sin(Angle),0)*Distance;
+            FHitResult ScatterFloor;
+            if(!Tongue->GameplaySpawnFootprint(Candidate,Margin,ScatterFloor)
+                || !IsNutLandingClear(ScatterFloor.ImpactPoint,BodyRadius,Settings.LargeNutHeight,Destinations)
+                || !PlanWizardGravityDrop(*Food,*Tongue,Start,WizardGravityLandingCenter(*Food,ScatterFloor.ImpactPoint),DropTime)) continue;
+            Floor=ScatterFloor;
+            bFoundLanding=true;
+            break;
+        }
+        if(!bFoundLanding && !PlanWizardGravityDrop(*Food,*Tongue,Start,WizardGravityLandingCenter(*Food,Floor.ImpactPoint),DropTime)) {
+            Food->CancelWizardGravityMotion();
+            continue;
+        }
+        const FTransform ShadowPose(Floor.ImpactPoint);
+        auto* Warning=GetWorld()->SpawnActorDeferred<AMCNutLandingShadow>(AMCNutLandingShadow::StaticClass(),ShadowPose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        if(!Warning) {Food->CancelWizardGravityMotion();continue;}
+        Warning->Configure(Tongue,Food,Floor.ImpactPoint,LiftSeconds+HoldSeconds+DropTime,Settings.ImpactRadius,Settings.LandingShadowOpacity,
+            Settings.ImpactDamageLimit,Settings.ImpactPushSpeed,MCNutVFX::GravityWavesSource(),WizardGravityPreview.Get());
+        Warning->ConfigureWizardGravityLift(LiftSeconds+HoldSeconds);
+        Warning->FinishSpawning(ShadowPose);
+        Destinations.Add({Floor.ImpactPoint,BodyRadius});
+        LandingShadows.Add(Warning); Nut.Warning=Warning; ++Lifted;
+    }
+    return Lifted;
+}
+
+int32 AMCNutRainEvent::DropWizardGravityWave(int32 WaveIndex)
+{
+    if(!HasAuthority() || Stage!=EMCNutRainStage::Enemies || (WaveIndex!=0 && WaveIndex!=1)) return 0;
+    int32 Dropped=0;
+    for(auto& Nut:WizardGravityNuts) {
+        if(Nut.WaveIndex!=WaveIndex || !Nut.bLiftAttempted || Nut.bDropAttempted) continue;
+        Nut.bDropAttempted=true;
+        auto* Food=Nut.Food.Get();
+        auto* Warning=Nut.Warning.Get();
+        FHitResult Floor;
+        if(Warning && Food && Food->IsWizardGravityLiftActive() && FindWizardGravityFloor(Food,Floor,false)) {
+            const FVector Advertised=Tongue->GetActorTransform().TransformPosition(Warning->SurfaceAnchor);
+            const float Margin=float(Food->Body->GetScaledBoxExtent().Size2D())+12.f;
+            // A moved obstacle may cancel this drop. Keep the advertised XY for every accepted launch.
+            if(Tongue->GameplaySpawnFootprint(Advertised,Margin,Floor)) {
+                const FVector Landing=WizardGravityLandingCenter(*Food,Floor.ImpactPoint);
+                float DropTime=0.f;
+                if(PlanWizardGravityDrop(*Food,*Tongue,Food->GetActorLocation(),Landing,DropTime)
+                    && Food->DropWizardGravityNut(Landing,WizardGravityDropSpeed)) {
+                    Warning->UpdateWizardGravityDropTime(DropTime);
+                    ++Dropped;
+                    continue;
+                }
+            }
+        }
+        if(Food) Food->CancelWizardGravityMotion();
+        if(Warning) Warning->Destroy();
+        Nut.Warning.Reset();
+    }
+    return Dropped;
+}
+
+bool AMCNutRainEvent::HasWizardGravityDropsInFlight() const
+{
+    for(const auto& Nut:WizardGravityNuts)
+        if(const auto* Food=Nut.Food.Get(); Food && Food->IsWizardGravityDropActive()) return true;
+    return false;
+}
+
+bool AMCNutRainEvent::ClaimWizardGravityWaveHit(const AMCNutLandingShadow* Warning,AMCToothCharacter* Hero)
+{
+    if(!HasAuthority() || !IsValid(Warning) || !IsValid(Hero)) return false;
+    const auto* Nut=WizardGravityNuts.FindByPredicate([Warning](const FWizardGravityNut& Candidate) {
+        return Candidate.Warning.Get()==Warning;
+    });
+    if(!Nut || !Nut->bDropAttempted) return false;
+    bool bAlreadyHit=false;
+    WizardGravityWaveHits[Nut->WaveIndex].Add(TWeakObjectPtr<AMCToothCharacter>(Hero),&bAlreadyHit);
+    return !bAlreadyHit;
+}
+
+void AMCNutRainEvent::CancelWizardGravityWaves()
+{
+    if(!HasAuthority()) return;
+    for(const auto& Nut:WizardGravityNuts) {
+        if(auto* Food=Nut.Food.Get()) Food->CancelWizardGravityMotion();
+        if(auto* Warning=Nut.Warning.Get(); Warning && !Warning->bImpacted) Warning->Destroy();
+    }
+    WizardGravityNuts.Reset(); WizardGravityPreview.Reset();
+    for(auto& Hits:WizardGravityWaveHits) Hits.Reset();
+}
+
 bool AMCNutRainEvent::AreRainDropsResolved() const
 {
     for(const AMCFoodActor* Food:Nuts) {
@@ -517,7 +717,9 @@ void AMCNutRainEvent::Tick(float Dt)
     if(!HasAuthority() || Stage==EMCNutRainStage::Idle || Stage==EMCNutRainStage::Complete) return;
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     if(GS && (GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost)) { Stop(); return; }
-    const double Age=GetWorld()->GetTimeSeconds()-StageStartedAt;
+    const double Time=GetWorld()->GetTimeSeconds();
+    const double Age=Time-StageStartedAt;
+    if(bWizardNutSphereTickOnly) {TickWizardNutSphere(Time);return;}
     if(Stage==EMCNutRainStage::Rainfall)
     {
         if(Settings.bBossEncounter) {
@@ -588,14 +790,17 @@ void AMCNutRainEvent::Tick(float Dt)
             // remain IsEncounterAlive() until the wizard phase is defeated;
             // completed corpses finish their own death lifespan during Stop.
             Record(TEXT("Орехи: Рыцарь и его вторая форма Колдун побеждены; директор снова управляет промежутком"));
+            CancelWizardNutSphere();
             Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false);
-        }
+        } else TickWizardNutSphere(Time);
     }
 }
 
 void AMCNutRainEvent::Stop()
 {
     if(!HasAuthority()) return;
+    CancelWizardGravityWaves();
+    CancelWizardNutSphere();
     SetActorTickEnabled(false);
     const bool CompletedBossEncounter=Stage==EMCNutRainStage::Complete && Settings.bBossEncounter && !bFailed;
     // Bosses are also present in Enemies/EncounterActors. Visit each actor once

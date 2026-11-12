@@ -87,9 +87,10 @@ void AMCVFXLabBossStation::BeginPlay()
 }
 
 bool AMCVFXLabBossStation::IsNutKind() const
-{ return uint8(Kind)<=uint8(EMCVFXLabBossKind::MageEntrance) || Kind==EMCVFXLabBossKind::TankCounterShove || Kind==EMCVFXLabBossKind::TankHeadSplit || Kind==EMCVFXLabBossKind::TankChain; }
+{ return uint8(Kind)<=uint8(EMCVFXLabBossKind::MageEntrance) || Kind==EMCVFXLabBossKind::TankCounterShove || Kind==EMCVFXLabBossKind::TankHeadSplit || Kind==EMCVFXLabBossKind::TankChain || IsMageKind(); }
 bool AMCVFXLabBossStation::IsMageKind() const
-{ return uint8(Kind)>=uint8(EMCVFXLabBossKind::MageMelee) && uint8(Kind)<=uint8(EMCVFXLabBossKind::MageEntrance); }
+{ return (uint8(Kind)>=uint8(EMCVFXLabBossKind::MageMelee) && uint8(Kind)<=uint8(EMCVFXLabBossKind::MageEntrance))
+    || Kind==EMCVFXLabBossKind::MageGravityWaves || Kind==EMCVFXLabBossKind::MageNutSphere || Kind==EMCVFXLabBossKind::MageFlash; }
 bool AMCVFXLabBossStation::IsKamikazeKind() const
 { return Kind==EMCVFXLabBossKind::KamikazeFuse || Kind==EMCVFXLabBossKind::KamikazeBlast; }
 bool AMCVFXLabBossStation::IsEntranceKind() const
@@ -101,7 +102,8 @@ bool AMCVFXLabBossStation::IsCombatKind() const
     return Kind==EMCVFXLabBossKind::TankMelee || Kind==EMCVFXLabBossKind::TankCharge
         || Kind==EMCVFXLabBossKind::TankJump || Kind==EMCVFXLabBossKind::TankRoll
         || Kind==EMCVFXLabBossKind::MageMelee || Kind==EMCVFXLabBossKind::MageFireball
-        || Kind==EMCVFXLabBossKind::MageSummon || Kind==EMCVFXLabBossKind::MageNutRain
+        || Kind==EMCVFXLabBossKind::MageSummon || Kind==EMCVFXLabBossKind::MageNutRain || Kind==EMCVFXLabBossKind::MageGravityWaves
+        || Kind==EMCVFXLabBossKind::MageNutSphere || Kind==EMCVFXLabBossKind::MageFlash
         || Kind==EMCVFXLabBossKind::MageTeleport || Kind==EMCVFXLabBossKind::ZombiePunchLeft
         || Kind==EMCVFXLabBossKind::TankCounterShove || Kind==EMCVFXLabBossKind::TankChain
         || Kind==EMCVFXLabBossKind::ZombiePunchRight || Kind==EMCVFXLabBossKind::ZombieKick
@@ -166,7 +168,8 @@ bool AMCVFXLabBossStation::BeginCycle(AMCToothCharacter* BorrowedSubject)
     const FVector Forward=Facing.Vector();
     const bool Ranged=Kind==EMCVFXLabBossKind::TankCharge || Kind==EMCVFXLabBossKind::TankJump
         || Kind==EMCVFXLabBossKind::TankRoll || Kind==EMCVFXLabBossKind::MageFireball
-        || Kind==EMCVFXLabBossKind::MageSummon || Kind==EMCVFXLabBossKind::MageNutRain
+        || Kind==EMCVFXLabBossKind::MageSummon || Kind==EMCVFXLabBossKind::MageNutRain || Kind==EMCVFXLabBossKind::MageGravityWaves
+        || Kind==EMCVFXLabBossKind::MageNutSphere
         || Kind==EMCVFXLabBossKind::MageTeleport || Kind==EMCVFXLabBossKind::Phase3AreaAttack || Kind==EMCVFXLabBossKind::TankChain;
     FHitResult SubjectGround;
     const FVector SubjectPoint=BorrowedSubject?BorrowedSubject->GetActorLocation():Ground.ImpactPoint+Forward*(Ranged?650.f:260.f);
@@ -537,6 +540,8 @@ bool AMCVFXLabBossStation::LaunchAction()
             return FMath::IsNearlyEqual(BossHealthBefore,NutBoss->Health,.1f) && FMath::IsNearlyZero(AppliedHealthDamage,.1f)
                 && FMath::IsNearlyEqual(NutBoss->ShieldHealth,FMath::Max(0.f,ShieldBefore-Raw),.1f);
         }
+        if(Kind==EMCVFXLabBossKind::MageNutSphere) return NutBoss->BeginMageNutSphere();
+        if(Kind==EMCVFXLabBossKind::MageFlash) return false; // Requires the preview pawn's real tool input.
         if(Kind==EMCVFXLabBossKind::MageTeleport) NutBoss->BeginTeleport();
         else {
             EMCNutBossAttack Attack=EMCNutBossAttack::Melee;
@@ -548,6 +553,7 @@ bool AMCVFXLabBossStation::LaunchAction()
             case EMCVFXLabBossKind::MageFireball: Attack=EMCNutBossAttack::Fireball;break;
             case EMCVFXLabBossKind::MageSummon: Attack=EMCNutBossAttack::Summon;break;
             case EMCVFXLabBossKind::MageNutRain: Attack=EMCNutBossAttack::NutRain;break;
+            case EMCVFXLabBossKind::MageGravityWaves: Attack=EMCNutBossAttack::GravityWaves;break;
             default: break;
             }
             NutBoss->BeginAttack(Attack);
