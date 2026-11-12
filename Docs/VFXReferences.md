@@ -2252,3 +2252,17 @@ A solo L_Mouth test recorded the real master mix during an accepted tomato cut. 
 For a knife swing with an eligible food target already in reach, `MulticastSwing` starts `KnifeFoodHit` along with the swing, and the later food-contact sound is suppressed. The target query includes the existing reach and obstruction checks. Because this anticipates the cut, the crunch can still play if the target moves away or the later cut is rejected. Other hit and upgrade paths keep their prior behavior.
 
 Editor build succeeded. Composer produced Swing, Hit and FoodCut with one crunch, while an empty swing had no food crunch. In solo PIE the injected press selected KnifeSwing and KnifeFoodHit in the same frame (36 ms after the press marker), and the test captured the master mix; this does not measure output-device latency. Test settings were restored and PIE stopped. No packaged or multiplayer test was performed.
+
+## Wizard gravity waves — 2026-11-12
+
+Ashif Ali's spiral-mesh and rising-particle breakdown informed the grip around each suspended nut. The first pass reuses the project's editable Niagara spirals and palm accents. Each effect is attached to the actual nut or the evaluated palm. The existing landing warning reads the accepted ground point from gameplay. [CGHOW spiral and vortex breakdown](https://cghow.com/heal-spell-in-ue5-niagara-tutorial/), [Epic Niagara attachment quick start](https://dev.epicgames.com/documentation/en-us/unreal-engine/quick-start-for-niagara-effects-in-unreal-engine)
+
+The arena prewarm retains the default systems. `Boss.NutMage.GravityWaves` exposes separate lift and drop events for each hand and events for the held nut, fall and impact. The food actor owns motion and damage.
+
+Solo L_Mouth PIE observed the native Armageddon, both gravity waves and the summon in order. The two waves lifted 17 and 16 existing nuts, recorded 32 warned contacts with the tongue and supplied 31 of those nuts to the following summon. Editor prewarm reported all three default systems ready. Front and side captures show both gestures, the lifts and the impacts. The gameplay camera in this fixture loses part of the first wave at the edge of its frame. The current Editor Live Coding session could load the runtime patch and could not link the editor adapter against the new exports. Composer preview, saved-profile roundtrip and performance measurement await validation.
+
+## Wizard nut sphere and flash — 2026-11-12
+
+`Boss.NutMage.NutSphere` reuses the editable Fireball charge and release systems with their existing Niagara color parameters. The red and blue charges follow the evaluated palms before moving to the arena sphere. The purple shot accent reads the accepted launch position and target. `Boss.NutMage.Flash` reuses Arcane Burst at the accepted departure and arrival points. The native defaults are scoped to the Mouth preload. [Epic Niagara user parameters](https://dev.epicgames.com/documentation/unreal-engine/system-settings-reference-for-niagara-effects-in-unreal-engine)
+
+The solo `L_Mouth` run observed a lateral Flash from a real Pickaxe strike, eight existing nuts gathering and firing, and armed kamikazes after the sphere. All three Niagara systems were ready during editor prewarm. This run shortened the wait before the second Armageddon. The new Composer actions are registered in source. The current editor could not load the Composer Live Coding patch because its base runtime DLL lacks the gravity-wave exports, so catalogue discovery and scenario playback remain unverified.

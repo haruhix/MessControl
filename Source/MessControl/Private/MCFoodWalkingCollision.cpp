@@ -258,7 +258,7 @@ void AMCFoodActor::ResetWalkingObstacle()
         if(IsDisposed() || bCutIntakeReceipt)WalkingBlocker->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
     if(Body)Body->SetCollisionResponseToChannel(ECC_Pawn,
-        bFragment || Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
+        bWizardGravityDrop || bFragment || Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
     if(WasBlocking)
     {
         if(HasAuthority())ForceNetUpdate();
@@ -288,7 +288,7 @@ void AMCFoodActor::RefreshWalkingCollision()
     if(Block && !WalkingBlocker->GetComponentTransform().Equals(WalkingObstacleTransform,.001f))
         WalkingBlocker->SetWorldTransform(WalkingObstacleTransform,false,nullptr,ETeleportType::TeleportPhysics);
     Body->SetCollisionResponseToChannel(ECC_Pawn,
-        Block || bFragment || Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
+        Block || bWizardGravityDrop || bFragment || Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
     if(WasBlocking!=Block)AMCToothCharacter::NotifyFoodMovementContact(this);
 }
 

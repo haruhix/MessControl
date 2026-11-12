@@ -13,6 +13,7 @@ class AMCTongue;
 class AMCNutLandingShadow;
 class UMCVFXPresentationComponent;
 class AMCNutBoss;
+class AMCToothCharacter;
 
 UENUM(BlueprintType)
 enum class EMCNutRainStage : uint8 { Idle, Rainfall, Settling, Enemies, Complete };
@@ -38,6 +39,21 @@ public:
     bool SpawnSpellNut(FVector Candidate,int32 Seed,int32 PatternIndex=INDEX_NONE,UMCVFXPresentationComponent* PreviewSource=nullptr);
     /** Available whole ground nuts only. The caller disposes one after its summon was successfully created. */
     void GetAvailableRainNuts(TArray<AMCFoodActor*>& Out) const;
+    /** Capture the current real nuts and fix their left/right order for this cast. */
+    int32 BeginWizardGravityWaves(FVector Origin,FVector Right,UMCVFXPresentationComponent* PreviewSource=nullptr);
+    int32 StartWizardGravityWave(int32 WaveIndex,float LiftSeconds,float HoldSeconds,float Height);
+    int32 DropWizardGravityWave(int32 WaveIndex);
+    bool HasWizardGravityDropsInFlight() const;
+    void CancelWizardGravityWaves();
+    /** Lift the event's existing whole nuts into the sphere above the requested floor point. */
+    int32 BeginWizardNutSphere(FVector Center,float GatherSeconds,float Height);
+    bool FireWizardNutSphereShot(FVector Target,FVector& OutOrigin,FVector& OutTarget);
+    void CancelWizardNutSphere();
+    bool HasWizardNutSphereAmmo() const;
+    bool HasWizardNutSphereShotsInFlight() const;
+    FVector GetWizardNutSphereLocation() const { return WizardNutSphereLocation; }
+    /** Overlapping walnuts can advertise separate contacts but hit a worker once per hand. */
+    bool ClaimWizardGravityWaveHit(const AMCNutLandingShadow* Warning,AMCToothCharacter* Hero);
     /** Restricted disposable Composer fixture; does not start a shift or touch a live arena. */
     bool PrepareIsolatedSpellContext(AMCTongue* Surface,UMCNutRainProfile* Profile);
     /** One real opening-rain drop, restricted to the disposable editor Game world. */
@@ -82,6 +98,29 @@ private:
     bool ChooseLanding(float Margin,float NutBodyRadius,FHitResult& Floor);
     bool ResolvePatternLanding(FVector2D Zone,float Margin,FHitResult& Floor) const;
     bool AreRainDropsResolved() const;
+    bool FindWizardGravityFloor(const AMCFoodActor* Food,FHitResult& Floor,bool bRequireGrounded) const;
+    struct FWizardGravityNut {
+        TWeakObjectPtr<AMCFoodActor> Food;
+        TWeakObjectPtr<AMCNutLandingShadow> Warning;
+        int32 WaveIndex=INDEX_NONE;
+        bool bLiftAttempted=false,bDropAttempted=false;
+    };
+    TArray<FWizardGravityNut> WizardGravityNuts;
+    TSet<TWeakObjectPtr<AMCToothCharacter>> WizardGravityWaveHits[2];
+    TWeakObjectPtr<UMCVFXPresentationComponent> WizardGravityPreview;
+    struct FWizardNutSphereNut {
+        TWeakObjectPtr<AMCFoodActor> Food;
+        FVector Origin=FVector::ZeroVector,LiftPoint=FVector::ZeroVector,GatherEnd=FVector::ZeroVector;
+        FVector ShotTarget=FVector::ZeroVector;
+        double ShotStartedAt=0.;
+        float ShotSeconds=0.f;
+    };
+    void TickWizardNutSphere(double Now);
+    void ReleaseWizardNutSphereNut(const FWizardNutSphereNut& Nut,bool bRestoreOrigin);
+    TArray<FWizardNutSphereNut> WizardNutSphereNuts;
+    FVector WizardNutSphereLocation=FVector::ZeroVector;
+    double WizardNutSphereGatherAt=0.,WizardNutSphereReadyAt=0.;
+    bool bWizardNutSphereTickOnly=false;
     UPROPERTY() TObjectPtr<UMCNutRainProfile> ActiveProfile;
     UPROPERTY() TObjectPtr<AMCTongue> Tongue;
     UPROPERTY() FMCFoodRow NutRow;

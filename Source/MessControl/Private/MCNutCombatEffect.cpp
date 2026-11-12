@@ -310,7 +310,7 @@ AMCNutCombatEffect* AMCNutCombatEffect::Spawn(AActor* Source,AMCTongue* Surface,
     const FMCVFXPreparedNativePresentation* NativePresentation,FName NativeEvent,const FMCNutCuePresentation& Context)
 {
     if(!IsValid(Source) || !Source->HasAuthority() || !IsValid(Surface) || Surface->GetWorld()!=Source->GetWorld()
-        || Origin.ContainsNaN() || Target.ContainsNaN() || uint8(Type)>uint8(EMCNutCombatCue::KnightHeadSplit)) return nullptr;
+        || Origin.ContainsNaN() || Target.ContainsNaN() || uint8(Type)>uint8(EMCNutCombatCue::WizardSpell)) return nullptr;
     const FTransform Pose(Target);
     auto* Effect=Source->GetWorld()->SpawnActorDeferred<AMCNutCombatEffect>(StaticClass(),Pose,Source,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if(!Effect) return nullptr;
@@ -335,6 +335,10 @@ AMCNutCombatEffect* AMCNutCombatEffect::Spawn(AActor* Source,AMCTongue* Surface,
         TInlineComponentArray<UMCVFXPresentationComponent*> Owners(Source);
         for(const auto* Owner:Owners)if(IsValid(Owner) && Owner->IsSourcePrepared(Context.Source)) {
             FString Error;if(Owner->CopyPreparedSourceTo(Context.Source,Effect->Presentation,Error))break;
+        }
+        if(Context.Source==MCNutVFX::GravityWavesSource()) {
+            FString Error;
+            MCNutVFX::Prepare(Effect->Presentation,Context.Source,Error,false);
         }
     }
     if(NativePresentation && NativePresentation->Snapshot) {
@@ -378,7 +382,7 @@ void AMCNutCombatEffect::BeginPlay()
 
 void AMCNutCombatEffect::InitializeMaterials()
 {
-    if(WarningMID) return;
+    if(WarningMID || Cue.Type==EMCNutCombatCue::GravityHand || Cue.Type==EMCNutCombatCue::WizardSpell) return;
     WarningMID=Material(Warning,TelegraphMaterial.LoadSynchronous());
     SmallWarningMID=Material(DropWarnings,TelegraphMaterial.LoadSynchronous());
     ShadowMID=Material(DropShadows,ShadowMaterial.LoadSynchronous());
@@ -829,6 +833,7 @@ void AMCNutCombatEffect::PresentKnightHeadSplit(float Age)
 void AMCNutCombatEffect::Present(float Age)
 {
     using namespace MCNutCombatVisuals;
+    if(Cue.Type==EMCNutCombatCue::GravityHand || Cue.Type==EMCNutCombatCue::WizardSpell) return;
     if(Cue.Type==EMCNutCombatCue::KnightHeadSplit) {PresentKnightHeadSplit(Age);return;}
     if(Cue.Role==EMCNutBossRole::Tank && (Cue.Type==EMCNutCombatCue::ShieldHit || Cue.Type==EMCNutCombatCue::MeleeSlash)) {
         PresentTankImpact(Age);return;
@@ -1084,6 +1089,35 @@ bool AMCNutCombatEffect::UpdateComposedPresentation(float Age)
     const float Duration=DelayedHeadSplit?FMath::Max(.01f,Cue.ActiveSeconds):Cue.AfterWindupEvent.IsNone()?Total:Second?FMath::Max(.01f,Cue.ActiveSeconds):FMath::Max(.01f,Cue.WindupSeconds);
     Values.Duration=Duration;Values.LocalStateAgeSeconds=FMath::Max(0.f,Age-((Second||DelayedHeadSplit)?Cue.WindupSeconds:0.f));
     Values.Fill=FMath::Clamp(Values.LocalStateAgeSeconds/Duration,0.f,1.f);
+    if(Cue.Type==EMCNutCombatCue::WizardSpell) {
+        const bool bLeft=Cue.PresentationEvent==TEXT("ChargeLeft"),bRight=Cue.PresentationEvent==TEXT("ChargeRight");
+        if(bLeft || bRight) {
+            auto* Boss=Cast<AMCNutBoss>(SourceActor);
+            if(!Boss || !Boss->MageModel) return false;
+            const FVector Hand=Boss->GetGravityHandOrigin(bRight);
+            const float Transfer=FMath::SmoothStep(.72f,1.f,Values.Fill);
+            Point=FMath::Lerp(Hand,Cue.Target,Transfer);
+            Direction=(Cue.Target-Point).GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
+            Values.SourcePosition=Point;
+            Values.Direction=Direction;
+            Prerequisite=Boss->MageModel.Get();
+        }
+        return Presentation->UpdateLocalSourceState(Cue.PresentationSource,Cue.PresentationEvent,Active,
+            FTransform(Direction.Rotation(),Point),Values,Prerequisite,Error);
+    }
+    if(Cue.Type==EMCNutCombatCue::GravityHand) {
+        auto* Boss=Cast<AMCNutBoss>(SourceActor);
+        if(!Boss || !Boss->MageModel)return false;
+        const bool bRight=Cue.PresentationEvent==TEXT("LiftRight") || Cue.PresentationEvent==TEXT("DropRight");
+        const FVector Hand=Boss->GetGravityHandOrigin(bRight);
+        const FVector HandDirection=Cue.Target-Cue.Origin;
+        Values.VisualSubject=Boss->MageModel.Get();
+        Values.SourcePosition=Hand;
+        Values.TargetPosition=Hand+HandDirection;
+        Values.Direction=HandDirection.GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
+        return Presentation->UpdateLocalSourceState(Cue.PresentationSource,Cue.PresentationEvent,Active,
+            FTransform(Values.Direction.Rotation(),Hand),Values,Boss->MageModel.Get(),Error);
+    }
     if(auto* Boss=Cast<AMCNutBoss>(SourceActor)) {
         Values.VisualSubject=Boss->BossRole==EMCNutBossRole::Mage?static_cast<USceneComponent*>(Boss->MageModel.Get()):static_cast<USceneComponent*>(Boss->TankModel.Get());
         Prerequisite=Values.VisualSubject.Get();

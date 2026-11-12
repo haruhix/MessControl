@@ -75,7 +75,7 @@ FNutChainPose BlendChainPose(const FNutChainPose& From,const FNutChainPose& To,f
         FMath::Lerp(From.GripWeight,To.GripWeight,Alpha)};
 }
 
-void WriteChainLimb(FCompactPose& Pose,FCompactPoseBoneIndex UpperBone,FCompactPoseBoneIndex LowerBone,
+void WriteLimbPose(FCompactPose& Pose,FCompactPoseBoneIndex UpperBone,FCompactPoseBoneIndex LowerBone,
     FCompactPoseBoneIndex EndBone,const FTransform& Upper,const FTransform& Lower,const FTransform& End)
 {
     const auto Parent=Pose.GetBoneContainer().GetParentBoneIndex(UpperBone);
@@ -94,7 +94,7 @@ FCompactPoseBoneIndex ChainCompactBone(const FCompactPose& Pose,int32 Bone)
     return Bone==INDEX_NONE?FCompactPoseBoneIndex(INDEX_NONE):Pose.GetBoneContainer().MakeCompactPoseIndex(FMeshPoseBoneIndex(Bone));
 }
 
-bool IsChainLimb(const FCompactPose& Pose,FCompactPoseBoneIndex Upper,FCompactPoseBoneIndex Lower,FCompactPoseBoneIndex End)
+bool HasDirectLimbChain(const FCompactPose& Pose,FCompactPoseBoneIndex Upper,FCompactPoseBoneIndex Lower,FCompactPoseBoneIndex End)
 {
     return Upper.GetInt()!=INDEX_NONE && Lower.GetInt()!=INDEX_NONE && End.GetInt()!=INDEX_NONE
         && Pose.GetBoneContainer().GetParentBoneIndex(Lower)==Upper && Pose.GetBoneContainer().GetParentBoneIndex(End)==Lower;
@@ -105,11 +105,11 @@ void PlantChainFoot(FCompactPose& Pose,const FNutChainLeg& Leg,const FTransform&
     const auto Thigh=ChainCompactBone(Pose,Leg.Bones[0]);
     const auto Shin=ChainCompactBone(Pose,Leg.Bones[1]);
     const auto Ankle=ChainCompactBone(Pose,Leg.Bones[2]);
-    if(!IsChainLimb(Pose,Thigh,Shin,Ankle)) return;
+    if(!HasDirectLimbChain(Pose,Thigh,Shin,Ankle)) return;
     FTransform Upper=ComponentBone(Pose,Thigh),Lower=ComponentBone(Pose,Shin),End=ComponentBone(Pose,Ankle);
     AnimationCore::SolveTwoBoneIK(Upper,Lower,End,Lower.GetLocation(),Foot.GetLocation(),false,1.,1.);
     End.SetRotation(Foot.GetRotation());
-    WriteChainLimb(Pose,Thigh,Shin,Ankle,Upper,Lower,End);
+    WriteLimbPose(Pose,Thigh,Shin,Ankle,Upper,Lower,End);
 }
 
 void MatchCastHand(FCompactPose& Pose,const FMCNutBossAnimationSnapshot& Input,float Weight)
@@ -131,29 +131,102 @@ void MatchCastHand(FCompactPose& Pose,const FMCNutBossAnimationSnapshot& Input,f
     Pose[Forearm]=Lower.GetRelativeTransform(Upper); Pose[Hand]=End.GetRelativeTransform(Lower);
 }
 
-void ApplyMageWalkingArms(FPoseContext& Output,const FMCNutBossAnimationSnapshot& Input)
+void ApplyMageGravityPose(FCompactPose& Pose,const FMCNutBossAnimationSnapshot& Input)
 {
-    if(!Input.bMage || !Input.MageWalkIdleArms || Input.MageWalkIdleArmsWeight<=.001f) return;
-    FPoseContext Idle(Output);Idle.ResetToRefPose();FAnimationPoseData IdleData(Idle);
-    Input.MageWalkIdleArms->GetAnimationPose(IdleData,FAnimExtractContext(Input.MageWalkIdleArmsSeconds,false,{},true));
-    const FBoneContainer& Bones=Output.Pose.GetBoneContainer();
-    for(const auto Arm:{EMCNutPoseBone::LeftArm,EMCNutPoseBone::RightArm}) {
-        const auto Upper=PoseBone(Output.Pose,Input,Arm);
-        if(Upper.GetInt()==INDEX_NONE) continue;
-        // The project rig parents arm_stretch under its dedicated shoulder.
-        auto Root=Bones.GetParentBoneIndex(Upper);
-        if(Root.GetInt()==INDEX_NONE) Root=Upper;
-        for(const auto Bone:Output.Pose.ForEachBoneIndex()) {
-            auto Parent=Bone;bool InArm=false;
-            for(int32 Depth=0;Parent.GetInt()!=INDEX_NONE && Depth<64;++Depth) {
-                if(Parent==Root) {InArm=true;break;}
-                Parent=Bones.GetParentBoneIndex(Parent);
-            }
-            if(InArm) {
-                FTransform Blended;Blended.Blend(Output.Pose[Bone],Idle.Pose[Bone],Input.MageWalkIdleArmsWeight);
-                Output.Pose[Bone]=Blended;
-            }
-        }
+    const bool bLeft=Input.GravityLeftGesture>=0.f;
+    const float Progress=bLeft?Input.GravityLeftGesture:Input.GravityRightGesture;
+    const float Weight=FMath::SmoothStep(0.f,.20f,Progress)*(1.f-FMath::SmoothStep(.89f,1.f,Progress));
+    if(Weight<=KINDA_SMALL_NUMBER) return;
+
+    const auto Arm=PoseBone(Pose,Input,bLeft?EMCNutPoseBone::LeftArm:EMCNutPoseBone::RightArm);
+    const auto Forearm=PoseBone(Pose,Input,bLeft?EMCNutPoseBone::LeftForearm:EMCNutPoseBone::RightForearm);
+    const auto Hand=PoseBone(Pose,Input,bLeft?EMCNutPoseBone::LeftHand:EMCNutPoseBone::RightHand);
+    if(!HasDirectLimbChain(Pose,Arm,Forearm,Hand)) return;
+
+    const float Side=bLeft?-1.f:1.f;
+    // The shoulder leads the lift and the elbow leads the wrist on the release at .82.
+    const float ShoulderLift=FMath::SmoothStep(.16f,.56f,Progress);
+    const float Lift=FMath::SmoothStep(.22f,.65f,Progress);
+    const float Brace=FMath::SmoothStep(.66f,.78f,Progress);
+    const float ElbowDrop=FMath::SmoothStep(.76f,.85f,Progress);
+    const float WristDrop=FMath::SmoothStep(.795f,.885f,Progress);
+    const float PalmFlip=FMath::SmoothStep(.755f,.900f,Progress);
+    const float Raise=ShoulderLift*(1.f-ElbowDrop);
+    const auto ShoulderBone=Pose.GetBoneContainer().GetParentBoneIndex(Arm);
+    RotateComponent(Pose,ShoulderBone,FRotator(Weight*(6.f*Raise-4.f*ElbowDrop),0.f,-Side*Weight*(4.f+6.f*Raise)),Input.ActorToComponent);
+    RotateComponent(Pose,PoseBone(Pose,Input,EMCNutPoseBone::Head),
+        FRotator((Lift*11.f*(1.f-WristDrop)-WristDrop*8.f)*Weight,Side*Weight*11.f,0.f),Input.ActorToComponent);
+
+    FTransform Upper=ComponentBone(Pose,Arm),Lower=ComponentBone(Pose,Forearm),End=ComponentBone(Pose,Hand);
+    const FVector Shoulder=Upper.GetLocation();
+    const double Reach=FVector::Distance(Shoulder,Lower.GetLocation())+FVector::Distance(Lower.GetLocation(),End.GetLocation());
+    // Positions are fractions of this rig's arm length in actor-facing axes.
+    const FVector Gather(.27,-.13*Side,-.45),Scoop(.76,.32*Side,-.22),Raised(.36,.34*Side,.69);
+    const FVector RaiseArc=FMath::Lerp(FMath::Lerp(Gather,Scoop,Lift),FMath::Lerp(Scoop,Raised,Lift),Lift);
+    const FVector Held=RaiseArc+FVector(-.10,.06*Side,.07)*Brace;
+    const FVector Strike(.70,.49*Side,.04),Released(.37,.45*Side,-.58);
+    const FVector Offset=FMath::Lerp(FMath::Lerp(Held,Strike,WristDrop),FMath::Lerp(Strike,Released,WristDrop),WristDrop);
+    const FVector Goal=Shoulder+Input.ActorToComponent.RotateVector(Offset*Reach);
+    const FVector ElbowOffset(.11+.23*Raise,(.60+.15*Raise+.15*ElbowDrop)*Side,-.62+.25*Raise-.09*ElbowDrop);
+    const FVector ElbowGoal=Shoulder+Input.ActorToComponent.RotateVector(ElbowOffset*Reach);
+    const FVector Elbow=FMath::Lerp(Lower.GetLocation(),ElbowGoal,Weight);
+    AnimationCore::SolveTwoBoneIK(Upper,Lower,End,Elbow,FMath::Lerp(End.GetLocation(),Goal,Weight),false,1.,1.);
+
+    const float Uncup=FMath::SmoothStep(.83f,.91f,Progress);
+    const FVector GatherPalm(.15,-.85*Side,.52),HeldPalm(-.35,-.15*Side,.92);
+    const FVector TurnPalm(.24,.95*Side,.10),DownPalm(.24,.10*Side,-.96);
+    const float PalmTurn=PI*PalmFlip;
+    const FVector Palm=FMath::Lerp(FMath::Lerp(GatherPalm,HeldPalm,Lift),DownPalm,.5f-.5f*FMath::Cos(PalmTurn))
+        +TurnPalm*FMath::Sin(PalmTurn);
+    const FVector DigitDirection(.91,(.26+.26*WristDrop)*Side,-.39+.75*Lift*(1.f-WristDrop)-.14*WristDrop);
+    const FVector ForearmAxis=(End.GetLocation()-Lower.GetLocation()).GetSafeNormal();
+    const FVector Digits=FMath::Lerp(Input.ActorToComponent.RotateVector(DigitDirection),ForearmAxis,.3).GetSafeNormal();
+    // The imported Wizard's fingers extend along -Y and the palm faces -Z.
+    const FQuat HandTarget=FRotationMatrix::MakeFromYZ(-Digits,-Input.ActorToComponent.RotateVector(Palm)).ToQuat();
+    const FQuat HandRotation=FQuat::Slerp(End.GetRotation(),HandTarget,Weight).GetNormalized();
+    // Drive forearm roll continuously across the palm turn without changing the IK joint positions.
+    const double ForearmRoll=Side*Weight*FMath::Lerp(-10.f-25.f*Lift,27.f,PalmFlip);
+    const FQuat ForearmTwist(ForearmAxis,FMath::DegreesToRadians(ForearmRoll));
+    Lower.SetRotation((ForearmTwist*Lower.GetRotation()).GetNormalized());
+    End.SetRotation(HandRotation);
+    WriteLimbPose(Pose,Arm,Forearm,Hand,Upper,Lower,End);
+
+    static const FName DigitsBySide[2][3]={{TEXT("thumb1_l"),TEXT("ring1_l"),TEXT("pinky1_l")},
+        {TEXT("thumb1_r"),TEXT("ring1_r"),TEXT("pinky1_r")}};
+    const float CurlDegrees=Weight*(18.f+13.f*Brace-25.f*Uncup);
+    const FVector CurlAxis=HandRotation.GetAxisX();
+    const FBoneContainer& Bones=Pose.GetBoneContainer();
+    for(const FName DigitName:DigitsBySide[bLeft?0:1]) {
+        const auto Digit=ChainCompactBone(Pose,Bones.GetPoseBoneIndexForBoneName(DigitName));
+        if(Digit.GetInt()==INDEX_NONE) continue;
+        const FQuat ParentRotation=ComponentBone(Pose,Bones.GetParentBoneIndex(Digit)).GetRotation();
+        const float DigitCurl=DigitName==DigitsBySide[bLeft?0:1][0]?.45f*CurlDegrees:CurlDegrees;
+        const FQuat Curl(ParentRotation.UnrotateVector(CurlAxis),FMath::DegreesToRadians(DigitCurl));
+        Pose[Digit].SetRotation((Curl*Pose[Digit].GetRotation()).GetNormalized());
+    }
+}
+
+void ApplyMageHoverLegs(FCompactPose& Pose,const FMCNutBossAnimationSnapshot& Input,float Weight,
+    float ForwardSpeed,float SideSpeed)
+{
+    if(Weight<=.001f) return;
+
+    static const FName Legs[2][3]={{TEXT("thigh_stretch_l"),TEXT("leg_stretch_l"),TEXT("foot_l")},
+        {TEXT("thigh_stretch_r"),TEXT("leg_stretch_r"),TEXT("foot_r")}};
+    const FBoneContainer& Bones=Pose.GetBoneContainer();
+    const float Glide=FMath::Min(1.f,FMath::Sqrt(FMath::Square(ForwardSpeed)+FMath::Square(SideSpeed)));
+    const double Phase=Input.ServerTime*1.9;
+    for(int32 Side=0;Side<2;++Side) {
+        const auto Thigh=ChainCompactBone(Pose,Bones.GetPoseBoneIndexForBoneName(Legs[Side][0]));
+        const auto Shin=ChainCompactBone(Pose,Bones.GetPoseBoneIndexForBoneName(Legs[Side][1]));
+        const auto Foot=ChainCompactBone(Pose,Bones.GetPoseBoneIndexForBoneName(Legs[Side][2]));
+        if(!HasDirectLimbChain(Pose,Thigh,Shin,Foot)) continue;
+
+        const float Drift=float(FMath::Sin(Phase+Side*.85));
+        // Knees stay soft and the ankles hang behind, with a small lag as the body glides.
+        RotateComponent(Pose,Thigh,FRotator(Weight*(6.f-7.f*ForwardSpeed+2.f*Drift),0.f,-3.f*Weight*SideSpeed),Input.ActorToComponent);
+        RotateComponent(Pose,Shin,FRotator(-Weight*(19.f+6.f*Glide+2.f*Drift),0.f,0.f),Input.ActorToComponent);
+        RotateComponent(Pose,Foot,FRotator(-Weight*(6.f+2.f*Glide),0.f,0.f),Input.ActorToComponent);
     }
 }
 
@@ -223,7 +296,7 @@ protected:
     {
         Output.ResetToRefPose();
         FAnimationPoseData Result(Output);
-        float Sum=0,Authored=0;
+        float Sum=0,Authored=0,Hover=0;
         for(const FMCNutBossClipSample& Sample:Input.Samples) {
             const float Weight=Sample.Weight*(Sample.LocomotionMode==1?1-MovementAlpha:Sample.LocomotionMode==2?MovementAlpha:1.f);
             if(!Sample.Clip || Weight<=.001f) continue;
@@ -235,11 +308,13 @@ protected:
                     SamplePose.Pose[Bone].SetScale3D(SamplePose.Pose.GetBoneContainer().GetRefPoseTransform(Bone).GetScale3D());
             FAnimationRuntime::BlendTwoPosesTogetherInPlace(Result,SampleData,Sum/(Sum+Weight)); Sum+=Weight;
             if(!Input.bMage && Sample.Clip->EvaluateCurveData(TEXT("MCAuthoredCartoon"),FAnimExtractContext(0.,false))>.5f) Authored+=Weight;
+            if(Input.bMage && Sample.bLoop) Hover+=Weight;
         }
         if(!Input.bMage && Sum>KINDA_SMALL_NUMBER) Input.AuthoredTankMotionWeight=FMath::Clamp(Authored/Sum,0.f,1.f);
         if(!Input.bAuthoredChainThrow) {
             ApplyOverlays(Output.Pose);
-            ApplyMageWalkingArms(Output,Input);
+            if(Input.bMage && Input.Death<=0.f && Sum>KINDA_SMALL_NUMBER)
+                ApplyMageHoverLegs(Output.Pose,Input,Hover/Sum,ForwardSpeed,SideSpeed);
         }
         const int32 Count=Output.Pose.GetNumBones();
         if(bNewTransition) {
@@ -386,7 +461,7 @@ private:
         const auto Arm=PoseBone(Pose,Input,EMCNutPoseBone::RightArm);
         const auto Forearm=PoseBone(Pose,Input,EMCNutPoseBone::RightForearm);
         const auto Hand=PoseBone(Pose,Input,EMCNutPoseBone::RightHand);
-        if(!IsChainLimb(Pose,Arm,Forearm,Hand)) return;
+        if(!HasDirectLimbChain(Pose,Arm,Forearm,Hand)) return;
         FTransform Upper=ComponentBone(Pose,Arm),Lower=ComponentBone(Pose,Forearm),End=ComponentBone(Pose,Hand);
         const FQuat Wrist=Input.ActorToComponent*ChainPose.Wrist.Quaternion()*Input.ActorToComponent.Inverse()*End.GetRotation();
         const FVector Grip=ChainGripOriginCS+ChainActorToComponent.TransformVector(ChainPose.Grip);
@@ -402,11 +477,15 @@ private:
         End.AddToTranslation(Lead);
         AnimationCore::SolveTwoBoneIK(Upper,Lower,End,Elbow,Target,false,1.,1.);
         End.SetRotation(FQuat::Slerp(End.GetRotation(),Wrist,ChainPose.GripWeight).GetNormalized());
-        WriteChainLimb(Pose,Arm,Forearm,Hand,Upper,Lower,End);
+        WriteLimbPose(Pose,Arm,Forearm,Hand,Upper,Lower,End);
     }
 
     void ApplyOverlays(FCompactPose& Pose)
     {
+        if(Input.bMage && (Input.GravityLeftGesture>=0.f || Input.GravityRightGesture>=0.f)) {
+            ApplyMageGravityPose(Pose,Input);
+            return;
+        }
         if(Input.bMage && Input.AuthoredMageMotionWeight>.999f) return;
         auto Rotate=[&](FCompactPoseBoneIndex Bone,const FRotator& Rotation){RotateComponent(Pose,Bone,Rotation,Input.ActorToComponent);};
         const auto Torso=PoseBone(Pose,Input,EMCNutPoseBone::Torso);

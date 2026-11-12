@@ -31,6 +31,8 @@ struct FMCNutBossAnimationSnapshot
     bool bAllowTankScale=false;
     bool bAuthoredChainThrow=false;
     float Cast=0,CastProgress=0,Release=0,Channel=0,Guard=0,Hit=0,ShieldHit=0,Death=0,Airborne=0,Melee=0,MeleePhase=0;
+    /** One active hand per gravity wave. Progress is normalized, and -1 means idle. */
+    float GravityLeftGesture=-1.f,GravityRightGesture=-1.f;
     float CastReleaseFraction=.55f;
     FVector HitDirection=FVector::ZeroVector;
     FVector CastEmitter=FVector::ZeroVector;
@@ -41,8 +43,6 @@ struct FMCNutBossAnimationSnapshot
     float AuthoredTankMotionWeight=0,AuthoredTankHitWeight=0;
     float AuthoredMageMotionWeight=0;
     /** Walking keeps its original legs/body while both shoulder subtrees use idle. */
-    UAnimSequence* MageWalkIdleArms=nullptr;
-    float MageWalkIdleArmsSeconds=0,MageWalkIdleArmsWeight=0;
 
     /** Correct the palm at release/channel contact, leaving authored gathering and recovery gestures free. */
     float CastHandAlignmentWeight() const

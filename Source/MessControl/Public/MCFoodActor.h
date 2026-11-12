@@ -13,6 +13,7 @@ class UTextRenderComponent;
 class UMCWorldStatusComponent;
 class USceneComponent;
 class AMCToothCharacter;
+class AMCTongue;
 struct FMCPreparedFoodCutState;
 struct FMCFoodCutTransaction;
 DECLARE_MULTICAST_DELEGATE_OneParam(FMCFoodEntryLanding,const FHitResult&);
@@ -157,6 +158,12 @@ public:
     /** Launch a newly spawned piece through the mouth; call after FinishSpawning. */
     void BeginMouthEntry(FVector LaunchVelocity,float PushSpeed,TOptional<FVector> ExpectedLanding=TOptional<FVector>());
     bool IsMouthEntryActive() const { return bMouthEntry; }
+    /** Suspend this same whole walnut until the owning encounter releases its wave. */
+    float BeginWizardGravityLift(AMCTongue* Support,float LiftSeconds,float HoldSeconds,float RequestedHeight,bool bMoveExternally=false);
+    bool DropWizardGravityNut(FVector ExpectedLanding,float DownwardSpeed);
+    void CancelWizardGravityMotion();
+    bool IsWizardGravityLiftActive() const { return bWizardGravityLift; }
+    bool IsWizardGravityDropActive() const { return bWizardGravityDrop && bMouthEntry; }
     /** Call after ConfigureItem/FinishSpawning, before the rain launch. */
     void EnableNutKinetics();
     bool IsNutKineticsActive() const;
@@ -378,6 +385,12 @@ private:
     void UpdateNutFragmentThrowImpact();
     void EndManualThrowFlight();
     bool bMouthEntry=false;
+    bool bWizardGravityLift=false,bWizardGravityDrop=false,bWizardGravityLiftExternallyDriven=false;
+    double WizardGravityDisarmedUntil=0;
+    FVector WizardGravityLiftStart=FVector::ZeroVector;
+    double WizardGravityLiftStartedAt=0,WizardGravityLiftExpiresAt=0;
+    float WizardGravityLiftSeconds=0,WizardGravityLiftHeight=0;
+    void TickWizardGravityLift();
     bool bEntryImpactManaged=false;
     double EntryImpactSafeUntil=0;
     TOptional<FVector> MouthEntryLanding;

@@ -571,6 +571,14 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
             AddPath(MCNutVFX::ChainDefaultSystem(Event).ToSoftObjectPath(),OutPaths);
             AddPath(MCNutVFX::ChainDefaultSound(Event).ToSoftObjectPath(),OutPaths);
         }
+        if(const auto* GravityWaves=MCNutVFX::Find(MCNutVFX::GravityWavesSource()))
+            for(FName Event:GravityWaves->Events)
+                AddPath(MCNutVFX::GravityWavesDefaultSystem(Event).ToSoftObjectPath(),OutPaths);
+        for(const FName Source:{FName(TEXT("Boss.NutMage.Flash")),FName(TEXT("Boss.NutMage.NutSphere"))})
+            if(const auto* Spell=MCNutVFX::Find(Source))
+                for(const FName Event:Spell->Events)
+                    if(const TCHAR* Path=MCNutVFX::WizardSpellDefaultPath(Source,Event))
+                        AddPath(FSoftObjectPath(Path),OutPaths);
     }
 
     // Match the run's authored profile, including a host-selected day, on clients as well.
