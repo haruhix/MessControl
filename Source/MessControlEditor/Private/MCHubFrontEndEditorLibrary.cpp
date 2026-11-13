@@ -7,9 +7,11 @@
 #include "MCScoreboardWidget.h"
 #include "Blueprint/WidgetBlueprintGeneratedClass.h"
 #include "Blueprint/WidgetTree.h"
+#include "Brushes/SlateNoResource.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
+#include "Components/ButtonSlot.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/HorizontalBox.h"
@@ -316,6 +318,130 @@ bool UMCHubFrontEndEditorLibrary::AddScoreboardVoicePresentation(UWidgetBlueprin
 {
     return Blueprint && Blueprint->ParentClass && Blueprint->ParentClass->IsChildOf(UMCScoreboardWidget::StaticClass())
         && AddHubGuidancePresentation(Blueprint);
+}
+
+bool UMCHubFrontEndEditorLibrary::AuthorCompactHubPresentation(UWidgetBlueprint* Blueprint)
+{
+    if(!Editable(Blueprint) || Blueprint->GetPathName()!=TEXT("/Game/Gameplay/UI/WBP_Hub.WBP_Hub")
+        || Blueprint->ParentClass!=UMCHubWidget::StaticClass()) return false;
+    auto* Tree=Blueprint->WidgetTree.Get();
+    auto* Viewport=Tree->FindWidget<UCanvasPanel>(TEXT("HubViewportCanvas"));
+    auto* Stage=Tree->FindWidget<UCanvasPanel>(TEXT("HubCanvas"));
+    auto* Defaults=Cast<UMCHubWidget>(Blueprint->GeneratedClass->GetDefaultObject());
+    if(!Viewport || Tree->RootWidget!=Viewport || !Stage || !Defaults) return false;
+    // This saved-only wrapper is the runtime opt-in to Designer-owned geometry.
+    // Re-running the authoring action must retain subsequent artist edits.
+    if(auto* Existing=Tree->FindWidget(TEXT("HubCompactHUD")))
+        return Cast<UCanvasPanel>(Existing) && Existing->GetParent()==Viewport
+            && Tree->FindWidget(TEXT("HubPartyButton")) && Tree->FindWidget(TEXT("HubReadyWaypointRow"));
+    auto* Backdrop=Tree->FindWidget<UBorder>(TEXT("HubFooterBackdrop"));
+    auto* Bar=Tree->FindWidget<UHorizontalBox>(TEXT("HubBottomBar"));
+    auto* Ready=Tree->FindWidget<UBorder>(TEXT("HubReadinessPanel"));
+    auto* Waypoint=Tree->FindWidget<UBorder>(TEXT("HubReadyWaypoint"));
+    auto* Arrow=Tree->FindWidget<UTextBlock>(TEXT("HubReadyWaypointArrow"));
+    auto* WaypointLabel=Tree->FindWidget<UTextBlock>(TEXT("HubReadyWaypointLabel"));
+    auto* WaypointBody=Waypoint?Cast<UVerticalBox>(Waypoint->GetContent()):nullptr;
+    if(!Backdrop || !Bar || !Ready || !Waypoint || !Arrow || !WaypointLabel || !WaypointBody
+        || WaypointBody->GetChildrenCount()!=2 || Arrow->GetParent()!=WaypointBody || WaypointLabel->GetParent()!=WaypointBody
+        || Tree->FindWidget(TEXT("HubPartyButton")) || Tree->FindWidget(TEXT("HubPartyButtonLabel"))
+        || Tree->FindWidget(TEXT("HubReadyWaypointRow"))) return false;
+    for(UWidget* Item:{static_cast<UWidget*>(Backdrop),static_cast<UWidget*>(Bar),static_cast<UWidget*>(Waypoint)})
+        if(Item->GetParent()!=Viewport && Item->GetParent()!=Stage) return false;
+    if(Ready->GetParent()!=Stage && Ready->GetParent()!=Viewport && !Cast<USizeBox>(Ready->GetParent())) return false;
+    const auto* Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
+    if(!Theme) return false;
+    TStrongObjectPtr<UWidgetBlueprint> Guard(Blueprint);
+    const auto OriginalGuids=Blueprint->WidgetVariableNameToGuidMap;
+    {
+        const FScopedTransaction Transaction(NSLOCTEXT("MCHubEditor","CompactHub","Author compact Hub HUD"));
+        Blueprint->Modify();Tree->Modify();Defaults->Modify();
+        Tree->ForEachWidget([](UWidget* Widget){Widget->Modify();if(Widget->Slot) Widget->Slot->Modify();});
+        auto* Compact=Tree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),TEXT("HubCompactHUD"));
+        Compact->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+        auto* FullSlot=Viewport->AddChildToCanvas(Compact);
+        FullSlot->SetAnchors(FAnchors(0,0,1,1));FullSlot->SetOffsets(FMargin(0));FullSlot->SetZOrder(5);
+        for(UWidget* Item:{static_cast<UWidget*>(Backdrop),static_cast<UWidget*>(Bar),static_cast<UWidget*>(Ready),static_cast<UWidget*>(Waypoint)}) {
+            Item->RemoveFromParent();Compact->AddChildToCanvas(Item);
+        }
+        auto* BackSlot=CastChecked<UCanvasPanelSlot>(Backdrop->Slot);
+        BackSlot->SetAnchors(FAnchors(0,1,1,1));BackSlot->SetAutoSize(false);
+        BackSlot->SetOffsets(FMargin(0,-40,0,40));BackSlot->SetZOrder(4);Backdrop->SetPadding(FMargin(0));
+        auto* BarSlot=CastChecked<UCanvasPanelSlot>(Bar->Slot);
+        BarSlot->SetAnchors(FAnchors(0,1,1,1));BarSlot->SetAutoSize(false);
+        BarSlot->SetOffsets(FMargin(12,-37,12,34));BarSlot->SetZOrder(5);
+        auto* ReadySlot=CastChecked<UCanvasPanelSlot>(Ready->Slot);
+        ReadySlot->SetAnchors(FAnchors(.5f,1.f));ReadySlot->SetAlignment(FVector2D(.5f,1.f));
+        ReadySlot->SetAutoSize(true);ReadySlot->SetPosition(FVector2D(0,-50));ReadySlot->SetZOrder(4);
+        Ready->SetPadding(FMargin(10,4));
+        auto* WaypointSlot=CastChecked<UCanvasPanelSlot>(Waypoint->Slot);
+        WaypointSlot->SetAutoSize(true);WaypointSlot->SetAlignment(FVector2D(.5f,.5f));WaypointSlot->SetZOrder(2);
+        Waypoint->SetPadding(FMargin(9,4));
+        auto* Row=Tree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("HubReadyWaypointRow"));
+        Arrow->RemoveFromParent();WaypointLabel->RemoveFromParent();WaypointBody->AddChildToVerticalBox(Row)->SetPadding(FMargin(0));
+        Row->AddChildToHorizontalBox(Arrow)->SetVerticalAlignment(VAlign_Center);
+        auto* LabelSlot=Row->AddChildToHorizontalBox(WaypointLabel);
+        LabelSlot->SetVerticalAlignment(VAlign_Center);LabelSlot->SetPadding(FMargin(7,0,0,0));
+        WaypointLabel->SetAutoWrapText(false);WaypointLabel->SetWrapTextAt(0);WaypointLabel->SetMinDesiredWidth(0);
+        auto* Party=Tree->ConstructWidget<UMCHubActionButton>(UMCHubActionButton::StaticClass(),TEXT("HubPartyButton"));
+        auto* PartyLabel=Tree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("HubPartyButtonLabel"));
+        PartyLabel->SetJustification(ETextJustify::Center);PartyLabel->SetAutoWrapText(false);
+        Party->AddChild(PartyLabel);Bar->AddChildToHorizontalBox(Party)->SetVerticalAlignment(VAlign_Center);
+        // Native Configure rebinds the behavior on the real owner, after load.
+        for(FName Name:{FName(TEXT("HubProfileCard")),FName(TEXT("HubPartyHint")),FName(TEXT("HubReadinessTitle")),
+            FName(TEXT("HubReadinessCount")),FName(TEXT("HubPlayerNames"))})
+            if(auto* Widget=Tree->FindWidget(Name)) Widget->SetVisibility(ESlateVisibility::Collapsed);
+        for(FName Name:{FName(TEXT("HubWalletCard")),FName(TEXT("HubFishCard"))})
+            if(auto* Card=Tree->FindWidget<UBorder>(Name)) {
+                Card->SetPadding(FMargin(10,2));Card->SetVerticalAlignment(VAlign_Center);
+                if(auto* Slot=Cast<UHorizontalBoxSlot>(Card->Slot)) {Slot->SetVerticalAlignment(VAlign_Center);Slot->SetPadding(FMargin(0,0,6,0));}
+            }
+        for(FName Name:{FName(TEXT("HubCoinIcon")),FName(TEXT("HubFishIcon"))})
+            if(auto* Icon=Tree->FindWidget(Name)) if(auto* Box=Cast<USizeBox>(Icon->GetParent())) {Box->SetWidthOverride(18);Box->SetHeightOverride(18);}
+        for(FName Name:{FName(TEXT("HubWalletCount")),FName(TEXT("HubBottomFishCount"))})
+            if(auto* Text=Tree->FindWidget<UTextBlock>(Name)) if(auto* Slot=Cast<UHorizontalBoxSlot>(Text->Slot)) {
+                Slot->SetVerticalAlignment(VAlign_Center);Slot->SetPadding(FMargin(5,0,0,0));
+            }
+        for(FName Name:{FName(TEXT("HubOpenSelection")),FName(TEXT("HubPartyButton")),FName(TEXT("HubLaunch")),FName(TEXT("HubReturn"))})
+            if(auto* Button=Tree->FindWidget<UButton>(Name)) {
+                auto Style=Button->GetStyle();Style.SetNormalPadding(FMargin(10,3));Style.SetPressedPadding(FMargin(10,3));Button->SetStyle(Style);
+                if(auto* Slot=Cast<UButtonSlot>(Button->GetContentSlot())) Slot->SetPadding(FMargin(0));
+                if(auto* Slot=Cast<UVerticalBoxSlot>(Button->Slot)) Slot->SetPadding(FMargin(0));
+            }
+        if(auto* Selection=Tree->FindWidget<UBorder>(TEXT("HubSelectionFooter"))) {
+            Selection->SetBrush(FSlateNoResource());
+            if(auto* Bounds=Cast<USizeBox>(Selection->GetParent())) Bounds->ClearWidthOverride();
+        }
+        if(auto* Title=Tree->FindWidget(TEXT("HubSelectionTitle"))) Title->SetVisibility(ESlateVisibility::Collapsed);
+        struct FLabelStyle {const TCHAR* Name;EMCUIColorToken Color;int32 Size;};
+        const FLabelStyle Labels[]={
+            {TEXT("HubWalletCount"),EMCUIColorToken::Ink,16},{TEXT("HubBottomFishCount"),EMCUIColorToken::Ink,16},
+            {TEXT("HubPartyButtonLabel"),EMCUIColorToken::ButtonText,16},{TEXT("HubOpenSelectionLabel"),EMCUIColorToken::ButtonText,16},
+            {TEXT("HubLaunchLabel"),EMCUIColorToken::ButtonText,16},{TEXT("HubReturnLabel"),EMCUIColorToken::ButtonText,16},
+            {TEXT("HubReadinessHint"),EMCUIColorToken::OnMarine,16},{TEXT("HubSelectionStatus"),EMCUIColorToken::Ink,16},
+            {TEXT("HubReadyWaypointArrow"),EMCUIColorToken::Accent,16},{TEXT("HubReadyWaypointLabel"),EMCUIColorToken::OnMarine,14}};
+        for(const auto& Label:Labels) if(auto* Text=Tree->FindWidget<UTextBlock>(Label.Name)) {
+            Text->SetFont(Theme->MakeGameplayFont(Label.Size,true));Text->SetAutoWrapText(false);Text->SetMinDesiredWidth(0);
+            Defaults->BindStyle(Label.Name,Label.Color,EMCUIStyleTarget::Text,Label.Size,true);
+        }
+        if(auto* Hint=Tree->FindWidget<UTextBlock>(TEXT("HubReadinessHint"))) {
+            Hint->SetWrapTextAt(300);Hint->SetJustification(ETextJustify::Center);
+            if(auto* Slot=Cast<UVerticalBoxSlot>(Hint->Slot)) Slot->SetPadding(FMargin(0));
+        }
+        Defaults->BindStyle(TEXT("HubPartyButton"),EMCUIColorToken::Button,EMCUIStyleTarget::Button);
+        for(UWidget* Added:{static_cast<UWidget*>(Compact),static_cast<UWidget*>(Row),static_cast<UWidget*>(Party),static_cast<UWidget*>(PartyLabel)}) {
+            Added->ClearFlags(RF_Transient);Added->SetFlags(RF_Transactional);Added->bIsVariable=false;
+            Blueprint->OnVariableAdded(Added->GetFName());
+        }
+        FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);FKismetEditorUtilities::CompileBlueprint(Blueprint);
+    }
+    bool Preserved=Blueprint->Status!=BS_Error && Blueprint->GeneratedClass;
+    for(const auto& Entry:OriginalGuids) Preserved&=Blueprint->WidgetVariableNameToGuidMap.FindRef(Entry.Key)==Entry.Value;
+    if(!Preserved) {
+        if(GEditor->UndoTransaction(false)) {FKismetEditorUtilities::CompileBlueprint(Blueprint);Blueprint->GetPackage()->SetDirtyFlag(false);}
+        return false;
+    }
+    CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
+    Blueprint->MarkPackageDirty();return true;
 }
 
 bool UMCHubFrontEndEditorLibrary::AddScoreboardHubPartyPresentation(UWidgetBlueprint* Blueprint)

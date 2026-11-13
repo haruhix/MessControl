@@ -88,7 +88,7 @@ bool AMCFoodActor::CompleteAutomaticIntake(FVector Direction,bool bExplosive)
     if(!HasAuthority() || IsDisposed() || bAutomaticallyConsumed || bAutomaticallyDiscarded || bDeliveryScored || IsInActiveContainer()
         || Phase==EMCFoodPhase::Swallowing || Phase==EMCFoodPhase::Absorbing
         || EquippedBy || Direction.ContainsNaN()) return false;
-    if(!bExplosive && (IsCutTransactionPending() || !UsesAutomaticCutIntake() || !FitsAutomaticIntakePortion()
+    if(!bExplosive && (IsCutTransactionPending() || !UsesAutomaticCutIntake() || (!bCutIntakeReceipt&&!FitsAutomaticIntakePortion())
         || StackCarrier || !Holders.IsEmpty())) return false;
 
     // Use the remaining cut geometry, whose origin may lie outside its visible half.

@@ -1,6 +1,7 @@
 #include "MCToothCharacter.h"
 
 #include "MCKatanaBlade.h"
+#include "MCKatanaPlayback.h"
 #include "MCKatanaEnemyContact.h"
 #include "MCCombatPassiveSubsystem.h"
 #include "MCFoodActor.h"
@@ -46,10 +47,10 @@ void AMCToothCharacter::TickKatanaAction()
     }
     const auto Variant=MCKatanaSwing::Decode(KatanaSwingID);
     if(Variant==MCKatanaSwing::EVariant::None) return;
-    const auto Cuts=MCKatanaSwing::Cuts(Variant);
+    const auto Cuts=MCKatanaSwing::PlaybackCuts(Variant);
     const auto* Clip=AnimationProfile?MCKatanaBlade::ClipFor(*AnimationProfile,Variant):nullptr;
     const float End=MCKatanaSwing::ClipDuration(Variant);
-    const float Time=FMath::Clamp(GetToolSwingElapsed()*KatanaSwingPlayRate+MCKatanaSwing::StartOffset(Variant),
+    const float Time=FMath::Clamp(GetToolSwingElapsed()*KatanaSwingPlayRate+MCKatanaSwing::PlaybackStart(Variant),
         KatanaTracedTime,End);
     const FTransform MeshWorld=Frame.ToCanonicalWorld(GetMesh()->GetComponentTransform());
     const float StepDuration=Time-KatanaTracedTime;
@@ -86,7 +87,7 @@ void AMCToothCharacter::TickKatanaAction()
     KatanaLastMeshWorld=MeshWorld;
     KatanaLastBodyPose=KatanaBodyPose;
     if(Time>=End) {
-        CancelKatanaAction();
+        CancelKatanaAction(false);
         ForceNetUpdate();
     }
 }

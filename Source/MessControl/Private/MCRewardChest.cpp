@@ -497,15 +497,18 @@ void AMCRewardChest::UpdateRewardEffectsVisibility(bool Suppressed)
 
 void AMCRewardChest::RefreshPresentation()
 {
-    const bool BeganOpening=bRewardInitialized&&Stage==EMCRewardChestStage::Opening&&LastPresentationStage!=EMCRewardChestStage::Opening;
+    const auto OpenCueStage=bTeamStageBooster?EMCRewardChestStage::Open:EMCRewardChestStage::Opening;
+    const bool BeganOpening=bRewardInitialized && Stage==OpenCueStage && LastPresentationStage!=OpenCueStage;
     if(Stage==EMCRewardChestStage::Landed && LastPresentationStage==EMCRewardChestStage::Falling)
         LandingPresentationStartedAt=StageStartedAt;
     if(Stage==EMCRewardChestStage::Telegraph) LandingPresentationStartedAt=-1.;
     LastPresentationStage=Stage;
     if(BeganOpening&&ComposerPresentation) {
         const FName ID=bTeamStageBooster?FName(TEXT("Reward.StageBooster")):FName(TEXT("Reward.Chest"));
-        if(auto* Source=ComposerPresentation->GetSource(ID)) {
-            FMCPerkVFXGameplayValues V;V.Radius=Body->Bounds.SphereRadius;V.LocalStateAgeSeconds=FMath::Max(0.f,float(ServerNow()-StageStartedAt));
+        const float Age=FMath::Max(0.f,float(ServerNow()-StageStartedAt));
+        // Open persists for the whole team offer. Its onset cue should not replay on late relevancy.
+        if(auto* Source=ComposerPresentation->GetSource(ID);Source && (!bTeamStageBooster || Age<1.f)) {
+            FMCPerkVFXGameplayValues V;V.Radius=Body->Bounds.SphereRadius;V.LocalStateAgeSeconds=Age;
             Source->PlayLocalSourceEvent(ID,TEXT("Open"),GetActorTransform(),V);
         }
     }
@@ -541,7 +544,7 @@ void AMCRewardChest::RefreshPresentation()
         // Restore the airborne pose before first presentation, without a floor blink.
         UpdateFlightPresentation(FMath::Max(0.f,float(ServerNow()-StageStartedAt)));
     }
-    if(bRewardInitialized && !Animated) {
+    if(bRewardInitialized && (!Animated || Stage==EMCRewardChestStage::Open)) {
         SetActorLocation(LandingPoint);
         LidPivot->SetRelativeRotation(FRotator(Stage>=EMCRewardChestStage::Open?105.f:0.f,0,0));
     }
@@ -721,14 +724,10 @@ void AMCRewardChest::Tick(float Dt)
             if(bMimic) { CaptureOpener(); return; }
             SetStage(EMCRewardChestStage::Open);
             if(IsValid(OpeningPlayer) && OpeningPlayer->Expression) OpeningPlayer->Expression->PlayChestCelebration();
-            if(bTeamStageBooster) {
-                if(IsValid(OpeningPlayer)) PublishStageChoiceFor(OpeningPlayer);
-                PollTeamBoosterApproach();
-            }
-            else if(LootIDs.IsEmpty()) {ClaimedMask=7;FinishReward(false);}
+            if(LootIDs.IsEmpty()) {ClaimedMask=7;FinishReward(false);}
             else if(RogueKind!=EMCRogueRewardKind::Ordinary) PublishRogueOffer();
             else if(IsValid(OpeningPlayer)) if(auto* PC=Cast<AMCPlayerController>(OpeningPlayer->GetController()))
-                PC->ClientShowPerkChoices(this,LootIDs,Polarity,bTeamStageBooster,0.,GetChoiceOfferID(PC->GetPlayerState<AMCPlayerState>()));
+                PC->ClientShowPerkChoices(this,LootIDs,Polarity,false,0.,GetChoiceOfferID(PC->GetPlayerState<AMCPlayerState>()));
         }
     }
     if((Stage==EMCRewardChestStage::Landed || Stage==EMCRewardChestStage::Open)
@@ -771,8 +770,9 @@ bool AMCRewardChest::HasValidLoot(UDataTable* Table,const UMCPerkComponent* Reci
 void AMCRewardChest::PollApproach()
 {
     if(!HasAuthority() || !bRewardInitialized) return;
-    if(bTeamStageBooster && (Stage==EMCRewardChestStage::Landed || Stage==EMCRewardChestStage::Opening
-        || Stage==EMCRewardChestStage::Open)) {PollTeamBoosterApproach();return;}
+    if(bTeamStageBooster && (Stage==EMCRewardChestStage::Landed || Stage==EMCRewardChestStage::Open)) {
+        PollTeamBoosterApproach();return;
+    }
     if(Stage==EMCRewardChestStage::Falling) {
         const double Age=ServerNow()-StageStartedAt;
         const float Duration=ArrivalDuration();

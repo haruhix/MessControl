@@ -110,6 +110,11 @@ Combat02 still shows occlusion: the hero hides much of the NPC punch, PowerHit o
 
 Work/quality contract: [PassiveVFXTask](PassiveVFXTask.md). Event hooks and bounded cue prototypes are built; artistic acceptance requires recorded gameplay review. Existing hit opacity is reduced for NPCs while player danger feedback is preserved. New cue CrO/MIC roots enter the arena preload manifest; first-visible-use and layered readability are checked separately from native regression results. No final approval is implied by this entry.
 
+## Player hook and Sponge Ride contact — 2026-11-10
+
+- The player hook keeps the DynamicBeam ribbon in `NS_Hook_Loop`. Absolute Bézier handles bend its midpoint downward and introduce a small lateral wave. Both anchors remain on the moving hand and hook tail. The accepted cast phase supplies the load, which rises during a pull and relaxes as the rope reels in. [Epic’s Niagara Beam Effect](https://dev.epicgames.com/documentation/en-us/unreal-engine/how-to-create-a-beam-effect-in-niagara-for-unreal-engine), [Epic’s Cable Components](https://dev.epicgames.com/documentation/en-us/unreal-engine/cable-components-in-unreal-engine)
+- The Sponge Ride impact layers short mesh foam and lighter sprite flecks above accepted dirt contacts. The sweep supplies the contact normal and bounded footprint. The stain texture fades the remaining coverage outward from that contact over 0.45 seconds after the sweep is credited. The effect reuses the foam and sprite materials already authored for active skills. [Lush’s foam breakdown](https://realtimevfx.com/t/real-time-foam-soap-suds-shader/9919), [Epic’s Niagara renderer reference](https://dev.epicgames.com/documentation/en-us/unreal-engine/render-module-reference-for-niagara-effects-in-unreal-engine)
+
 ## Current passive cues — 2026-10-28
 
 eeviewed before the new native cues:
@@ -2185,7 +2190,9 @@ Composer confirmed source opening, a live two-layer burst, interruption/reset an
 
 The endpoint pattern reuses the reviewed [Epic Niagara beam guide](https://dev.epicgames.com/documentation/en-us/unreal-engine/how-to-create-a-beam-effect-in-niagara-for-unreal-engine). Gameplay supplies the evaluated gauntlet and the accepted hook tip as typed world positions. The new editable `NS_NutKnightChainTether` uses opaque mesh links, alternating link orientation, a single hook mesh and bounded decorative sag between those points. Link spacing and slack are Niagara inputs. The runtime collision sweep remains authoritative.
 
-The system uses one bounded CPU burst with up to 64 links and one hook. It references original link and hook meshes and a shared tempered bronze material. Niagara compiled and the system was saved. Contextual motion and first use are reviewed separately in VFX Composer and solo PIE.
+The system uses one bounded CPU burst with up to 144 links and one hook. It distributes the links along the full span and adjusts their spacing when the endpoint distance exceeds the requested density. The link and hook meshes share a steel material. Niagara compiled and the system was saved. Contextual motion and first use are reviewed separately in VFX Composer and solo PIE.
+
+The long-range pass observed the full chain during a native 30.91 m cast in `L_Mouth`. The effect reported ready during preload. Composer passed player capture and a miss, then bait capture on a fresh Editor. One post-PIE Composer retry hit a GPU skinning assertion during scene setup. Evidence is retained in `KnightHookRange_20261110`.
 
 The follow-up uses the existing Knight melee tell and slash after a completed player pull. Composer verified the player strike, physical bait fracture and empty reel. Solo PIE observed an 8.06 m player pull, a 0.65 s tell, one 12-point hit and three moving walnut pieces from the same club swing. The roll transferred impulse between two whole nuts while the second hull was outside the Knight's contact radius. A fresh solo bait fixture observed a 6.47 m nut pull, physical shell/kernel debris, shield damage and stun with zero player damage.
 
@@ -2222,6 +2229,16 @@ The Hub preload manifest includes the projection material. Solo Hub PIE found it
 The idle display cycles through the available prize catalog. The right side of the reel fades into the rail beneath a single pointing mascot from the same atlas as the rare reveal. The cost is visible below the rail. A real spin brings back the selection marker and stops on the accepted reward.
 
 Solo Hub PIE showed the moving reel before and after a real spin. The projection and its render target were ready before interaction, the E prompt cleared the cost label, and the accepted reward settled once while the camera turned 19°. A separate solo PIE confirmed the centered 760-unit Team window and that Esc closes it and restores input. Both runs restored the isolated PIE profile.
+
+### Slot hologram reset · 2026-11-12
+
+The transition uses a short horizontal phosphor line and a dark beat to sell loss of signal. The idle reel then opens from the line with a brief tracking sweep. The image animates inside the existing render target and the world projection stays anchored above the slot machine. The timing and colors reuse the editable hologram widget and the Hub's prewarmed projection. [Old Cathode's sync and persistence breakdown](https://github.com/stoatworks-labs/old-cathode#sync) · [pend00's VHS and CRT shader](https://godotshaders.com/shader/VHS-and-CRT-monitor-effect/)
+
+`Hub.Grill / Reset` receives the accepted roll ID and the hologram's world transform when the station returns to idle. A valuable prize keeps the celebration frame, portraits and caption through the collapse. The hologram widget offers `Reset to idle` and `Big win reset` scenarios in UMG Designer.
+
+The Hub manifest prewarms `SW_CaseHologramReset`. The original spatial cue plays a relay contact at 158 ms and a boot transient at 327 ms. A new roll stops its remaining playback. The [sound recipe](../Tools/AudioDesk/synthesize_case_hologram_reset.py) generates the PCM source. Composer lists the event and its original audio control. Its isolated, playable slot-machine scenario remains unavailable.
+
+Solo Hub PIE verified both audio beats in the Unreal mixer, the retained valuable-prize frame through collapse, and the return to the idle reel after blackout. The audio asset was resident at Hub readiness. The editor also reported a previously observed late shader compilation for `M_CaseHologramProjection` before the first roll.
 
 ### Valuable prize reaction · 2026-11-10
 

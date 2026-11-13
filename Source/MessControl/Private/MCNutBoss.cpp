@@ -46,6 +46,13 @@ namespace
 // ChainCowboy contains Blender frames 1–57 at 24 fps. Frame 42 is release.
 constexpr float ChainCowboyReleaseSeconds=41.f/24.f;
 constexpr float ChainCowboyFollowThroughSeconds=15.f/24.f;
+constexpr float RollJumpDelay=3.f;
+constexpr float RollJumpFlightSeconds=.65f;
+constexpr float RollJumpHeight=180.f;
+constexpr float RollJumpApex=.57f;
+constexpr float RollJumpSpinScale=.8f;
+constexpr int32 RollJumpSweepSteps=8;
+
 constexpr float GravityWindupSeconds=.45f;
 constexpr float GravityRiseSeconds=.7f;
 constexpr float GravityHoldSeconds=.3f;
@@ -63,6 +70,16 @@ constexpr float MageSphereHeight=245.f;
 constexpr float MageSphereAimSeconds=.34f;
 constexpr float MageSphereShotInterval=.64f;
 
+FVector RollJumpPoint(const FVector& Start,const FVector& Landing,float Alpha)
+{
+    // Keep the takeoff and touchdown speed matched to the ground roll.
+    const float Blend=Alpha*(1.f-Alpha);
+    const float Travel=Alpha+2.f*FMath::Square(Blend)*(1.f-2.f*Alpha);
+    // A longer rise and a steeper drop give the ball a heavier landing.
+    const float FromApex=(Alpha-RollJumpApex)/(Alpha<RollJumpApex?RollJumpApex:1.f-RollJumpApex);
+    const float Lift=RollJumpHeight*(1.f-FMath::Square(FromApex));
+    return FMath::Lerp(Start,Landing,Travel)+FVector(0,0,Lift);
+}
 
 FMCNutCuePresentation NutVFXContext(EMCNutBossRole Role,const TCHAR* Action,FName Event,FName AfterWindup=NAME_None)
 {
@@ -343,7 +360,8 @@ void AMCNutBoss::UpdatePlayerBlocking()
     // contacts here would snag the active-ragdoll limbs and physical food;
     // attacks already apply their authoritative impulses explicitly.
     const bool Airborne=State==EMCNutBossState::Falling
-        || (State==EMCNutBossState::Executing && Attack==EMCNutBossAttack::Jump);
+        || (State==EMCNutBossState::Executing && (Attack==EMCNutBossAttack::Jump
+            || (Attack==EMCNutBossAttack::Roll && bRollJumpAirborne)));
     Body->SetCollisionObjectType(ECC_WorldDynamic);
     Body->SetCollisionResponseToChannel(ECC_Pawn,IsEncounterAlive() && !Airborne?ECR_Block:ECR_Ignore);
     Body->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Ignore);
@@ -869,12 +887,12 @@ void AMCNutBoss::PresentTankModel(double Time)
             FVector Travel=Position-LastTankRollLocation; Travel.Z=0;
             const float Distance=Travel.Size();
             if(Distance>KINDA_SMALL_NUMBER && Distance<200.f) {
-                // Physical rolling: top of the ball moves with travel, while
-                // its contact point moves against it. World-space accumulation
-                // also keeps orientation continuous through turns and bounces.
+                // Keep the orientation continuous through turns, bounces and
+                // the jump. Airborne spin is looser than ground contact.
                 const FVector Axis=FVector::CrossProduct(FVector::UpVector,Travel/Distance);
                 const float Radius=FMath::Max(1.f,(TankBall->GetStaticMesh()?BossSettings.TankBallHeight:BossSettings.TankHeight)*.5f);
-                TankRollWorldRotation=(FQuat(Axis,Distance/Radius)*TankRollWorldRotation).GetNormalized();
+                const float SpinScale=bRollJumpAirborne?RollJumpSpinScale:1.f;
+                TankRollWorldRotation=(FQuat(Axis,Distance/Radius*SpinScale)*TankRollWorldRotation).GetNormalized();
             }
         }
         LastTankRollLocation=Position;
@@ -1603,11 +1621,123 @@ void AMCNutBoss::DamageRollSegment(FVector Start,FVector End)
     }
 }
 
+bool AMCNutBoss::FindRollJumpSupport(FVector Candidate,FVector& Center,FVector& Floor) const
+{
+    FHitResult Ground;
+    if(!Tongue->InteriorSurfacePoint(Candidate,Settings.BodyRadius+5,Ground)) return false;
+    Floor=Ground.ImpactPoint;
+    // Allow the whole sphere to clear sloped support on the final swept step.
+    Center=Floor+FVector(0,0,Body->GetScaledSphereRadius()/Ground.ImpactNormal.Z+4);
+    return true;
+}
+
+bool AMCNutBoss::TryBeginRollJump(double Time)
+{
+    if(!IsValid(Tongue) || Tongue->IsMotionActive()) return false;
+
+    const FVector Start=GetActorLocation();
+    const float Travel=BossSettings.RollSpeed*RollJumpFlightSeconds;
+    const FCollisionShape Shape=FCollisionShape::MakeSphere(Body->GetScaledSphereRadius());
+    const FCollisionQueryParams Query(SCENE_QUERY_STAT(MCNutRollJump),false,this);
+    FCollisionResponseParams Response(Body->GetCollisionResponseToChannels());
+    Response.CollisionResponse.SetResponse(ECC_Pawn,ECR_Ignore);
+
+    for(const float Scale:{1.f,.7f}) {
+        FVector Landing,Floor;
+        if(!FindRollJumpSupport(Start+AttackForward*Travel*Scale,Landing,Floor)) continue;
+        FVector Previous=Start;
+        bool bClear=true;
+        for(int32 Step=1;Step<=RollJumpSweepSteps;++Step) {
+            const FVector Goal=RollJumpPoint(Start,Landing,float(Step)/RollJumpSweepSteps);
+            if(GetWorld()->SweepTestByChannel(Previous,Goal,FQuat::Identity,Body->GetCollisionObjectType(),Shape,Query,Response)) {
+                bClear=false;
+                break;
+            }
+            Previous=Goal;
+        }
+        if(!bClear) continue;
+
+        NextRollJumpAt=0;
+        RollJumpStart=Start;
+        RollJumpLanding=Landing;
+        RollJumpStartedAt=Time;
+        RollJumpProgress=0;
+        bRollJumpAirborne=true;
+        UpdatePlayerBlocking();
+        ForceNetUpdate();
+
+        auto* Tell=AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Roll"),TEXT("JumpTell")),
+            this,Tongue,EMCNutCombatCue::JumpTell,Floor,Floor,AMCTongue::RollLandingPainRadius,RollJumpFlightSeconds,0,AttackSeed);
+        RollJumpTell=Tell;
+        TrackAttackActor(Tell);
+        return true;
+    }
+    return false;
+}
+
+void AMCNutBoss::ExecuteRollJump(double Time)
+{
+    const float Progress=FMath::Clamp(float(Time-RollJumpStartedAt)/RollJumpFlightSeconds,0.f,1.f);
+    if(Progress<=RollJumpProgress) return;
+
+    const bool bTouchdown=Progress>=1;
+    FVector Landing,Floor;
+    if(bTouchdown && !FindRollJumpSupport(RollJumpLanding,Landing,Floor)) {
+        FinishRollJump(false);
+        return;
+    }
+    // Sweep the arc in small pieces even when a frame spans most of the jump.
+    const int32 Steps=FMath::CeilToInt((Progress-RollJumpProgress)*RollJumpSweepSteps);
+    for(int32 Step=1;Step<=Steps;++Step) {
+        const float Alpha=FMath::Lerp(RollJumpProgress,Progress,float(Step)/Steps);
+        const FVector Goal=bTouchdown && Step==Steps ? Landing : RollJumpPoint(RollJumpStart,RollJumpLanding,Alpha);
+        FHitResult Hit;
+        MoveAttackBody(Goal,Hit);
+        if(Hit.bBlockingHit) {
+            FinishRollJump(false);
+            return;
+        }
+    }
+    RollJumpProgress=Progress;
+    if(!bTouchdown) return;
+
+    FinishRollJump(true);
+    if(Tongue->TriggerRollLandingPain(Floor))
+        TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Roll"),TEXT("JumpImpact")),
+            this,Tongue,EMCNutCombatCue::SlamImpact,Floor,Floor,AMCTongue::RollLandingPainRadius,0,.55f,AttackSeed));
+}
+
+void AMCNutBoss::FinishRollJump(bool bLanded)
+{
+    if(!bRollJumpAirborne) return;
+    if(auto* Tell=RollJumpTell.Get()) Tell->Cancel();
+    RollJumpTell.Reset();
+
+    if(!bLanded && GetWorld() && !GetWorld()->bIsTearingDown && !IsActorBeingDestroyed()
+        && IsValid(Tongue) && !Tongue->IsActorBeingDestroyed()) {
+        FVector Support,Floor;
+        FHitResult Hit;
+        const bool bHasSupport=FindRollJumpSupport(GetActorLocation(),Support,Floor);
+        if(bHasSupport) MoveAttackBody(Support,Hit);
+        if((!bHasSupport || Hit.bBlockingHit) && FindRollJumpSupport(RollJumpStart,Support,Floor))
+            SetActorLocation(Support,false,nullptr,ETeleportType::TeleportPhysics);
+    }
+
+    bRollJumpAirborne=false;
+    UpdatePlayerBlocking();
+    ForceNetUpdate();
+}
+
 void AMCNutBoss::ExecuteRoll(float Dt)
 {
     if(!HasAuthority() || !FMath::IsFinite(Dt) || Dt<=0) return;
     const double Time=Now();
+    if(bRollJumpAirborne) {ExecuteRollJump(Time);return;}
     if(Time>=AttackEndAt) {Recover(1.4f);return;}
+    if(NextRollJumpAt>0 && Time>=NextRollJumpAt && Time+RollJumpFlightSeconds<AttackEndAt) {
+        if(TryBeginRollJump(Time)) return;
+        NextRollJumpAt=Time+.25;
+    }
     if(!IsLiveTarget(Target) || Time>=NextTargetAt) SelectTarget(false);
     const float FrameSeconds=FMath::Min(Dt,.25f);
     {
@@ -1954,6 +2084,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
             Attack==EMCNutBossAttack::NutSphere?MageSphereShotsRemaining*MageSphereShotInterval+2.f:
             Attack==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank?TankMeleeActiveSeconds():.1f;
         Enter(EMCNutBossState::Executing,Duration);
+        if(Attack==EMCNutBossAttack::Roll) NextRollJumpAt=Time+RollJumpDelay;
     }
     if(Attack==EMCNutBossAttack::CounterShove) {
         if(!bResolved) {
@@ -2235,6 +2366,12 @@ bool AMCNutBoss::IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeD
         EscapeDirection=(Point-Closest).GetSafeNormal2D();
         if(EscapeDirection.IsNearlyZero()) EscapeDirection=FVector::CrossProduct(FVector::UpVector,(ChainFlightEnd-Start).GetSafeNormal2D());
     }
+    else if(Attack==EMCNutBossAttack::Roll && bRollJumpAirborne && HasAuthority()) {
+        const FVector Delta=Point-RollJumpLanding;
+        if(Delta.SizeSquared2D()>FMath::Square(AMCTongue::RollLandingPainRadius+HeroRadius)
+            || FMath::Abs(Delta.Z)>180) return false;
+        EscapeDirection=Delta.GetSafeNormal2D();
+    }
     else if(Attack==EMCNutBossAttack::Roll) {
         const FVector Start=State==EMCNutBossState::Telegraph?LockedStart:GetActorLocation();
         const FVector End=State==EMCNutBossState::Telegraph?LockedTarget:Start+AttackForward*BossSettings.RollSpeed*.7f;
@@ -2274,6 +2411,8 @@ void AMCNutBoss::CancelAttacks()
     if(Attack==EMCNutBossAttack::GravityWaves && IsValid(EncounterOwner)) EncounterOwner->CancelWizardGravityWaves();
     if(Attack==EMCNutBossAttack::NutSphere && IsValid(EncounterOwner)) EncounterOwner->CancelWizardNutSphere();
     MageNutFollowup=EMageNutFollowup::None;
+    FinishRollJump(false);
+    NextRollJumpAt=0;
     CancelChain();
     if(ShieldPresentation)ShieldPresentation->StopPresentation(true);
     if(FireballPresentation)FireballPresentation->StopPresentation(true);
@@ -2344,6 +2483,7 @@ void AMCNutBoss::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
     DOREPLIFETIME(AMCNutBoss,EncounterOwner); DOREPLIFETIME(AMCNutBoss,BossSettings); DOREPLIFETIME(AMCNutBoss,BossRole);
     DOREPLIFETIME(AMCNutBoss,bHasMagePhase);
     DOREPLIFETIME(AMCNutBoss,State); DOREPLIFETIME(AMCNutBoss,Attack); DOREPLIFETIME(AMCNutBoss,StateStartedAt);
+    DOREPLIFETIME(AMCNutBoss,bRollJumpAirborne);
     DOREPLIFETIME(AMCNutBoss,GravityRightLiftAt);
     DOREPLIFETIME(AMCNutBoss,MageFlashAt);
     DOREPLIFETIME(AMCNutBoss,ResolveAt); DOREPLIFETIME(AMCNutBoss,AttackEndAt); DOREPLIFETIME(AMCNutBoss,LockedStart);

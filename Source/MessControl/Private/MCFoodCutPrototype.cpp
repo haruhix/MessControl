@@ -1,6 +1,7 @@
 #include "MCFoodActor.h"
 #include "MCFoodBodyComponent.h"
 #include "MCFoodCutGeometry.h"
+#include "MCKatanaBlade.h"
 #include "MCThroat.h"
 #include "Components/StaticMeshComponent.h"
 #include "CollisionQueryParams.h"
@@ -20,7 +21,9 @@
 #include "MCToothCharacter.h"
 #include "MCPlayerState.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "HAL/PlatformTime.h"
+#include "HAL/IConsoleManager.h"
 #include "Chaos/Convex.h"
 #include "UObject/StrongObjectPtr.h"
 
@@ -72,6 +75,7 @@ struct FMCFoodCutTransaction
     TArray<double> Weights,LocalVolumes;
     TArray<FBox> Bounds;
     TArray<int32> Units;
+    TArray<bool> Ready;
     TArray<TSharedPtr<const FMCPreparedFoodCutState>> Prepared;
     TArray<TWeakObjectPtr<AMCFoodActor>> Pieces;
     TArray<TStrongObjectPtr<UMaterialInterface>> Materials;
@@ -99,6 +103,75 @@ struct FMCFoodCutTransaction
 
 namespace
 {
+bool FitsKatanaFinisher(const FMCPreparedFoodCutState& Prepared,const FTransform& FoodPose,
+    const AMCToothCharacter* Worker,const AMCFoodActor* Source)
+{
+    if(!IsValid(Worker) || !Worker->IsKatanaEquipped() || Prepared.Key.History.IsEmpty()) return false;
+    const FBox& Bounds=Prepared.Mesh->Bounds;
+    const FVector Origin=Worker->GetActorLocation();
+    const FVector Forward=Worker->GetActorForwardVector().GetSafeNormal2D();
+    const FTransform Hand=Worker->GetSimulationMeshSocketTransform(Worker->RigBone(TEXT("hand_r")));
+    const float BladeLength=FVector::Dist(MCKatanaBlade::Edge[0],
+        MCKatanaBlade::Edge[UE_ARRAY_COUNT(MCKatanaBlade::Edge)-1])*Hand.GetScale3D().GetAbsMax();
+    const float Reach=FVector::Dist2D(Origin,Hand.GetLocation())+BladeLength;
+    const float Below=Worker->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+    if(Origin.ContainsNaN() || Hand.ContainsNaN() || Forward.IsNearlyZero() || !FMath::IsFinite(Reach)) return false;
+    double MinWorldZ=DBL_MAX,MaxDistanceSquared=0.,MinFacing=1.;
+    bool Contained=!Prepared.Mesh->Vertices.IsEmpty();
+    // The reach sector uses the front half-space. Checking every referenced vertex contains
+    // the whole portion without rejecting empty corners of a rotated box.
+    for(const FVector& Local:Prepared.Mesh->Vertices) {
+        const FVector Offset=FoodPose.TransformPosition(Local)-Origin;
+        const double Facing=FVector::DotProduct(Offset.GetSafeNormal2D(),Forward);
+        MinWorldZ=FMath::Min(MinWorldZ,Offset.Z+Origin.Z);
+        MaxDistanceSquared=FMath::Max(MaxDistanceSquared,Offset.SizeSquared());
+        MinFacing=FMath::Min(MinFacing,Facing);
+        Contained&=!Offset.ContainsNaN() && Offset.SizeSquared()<=FMath::Square(Reach)
+            && Offset.Z >= -Below && Offset.Z <= BladeLength && Facing>=0.f;
+    }
+    auto Rejected=[&](const TCHAR* Reason) {
+#if !UE_BUILD_SHIPPING
+        const IConsoleVariable* Trace=IConsoleManager::Get().FindConsoleVariable(TEXT("mc.Katana.TraceDebug"));
+        if(Trace && Trace->GetInt()>=2)
+            UE_LOG(LogMCFoodCuts,Display,TEXT("MC_KATANA_FINISH_REJECT source=%s reason=%s vertices=%d min_z=%.3f floor=%.3f max_distance=%.3f reach=%.3f min_facing=%.3f"),
+                *GetNameSafe(Source),Reason,Prepared.Mesh->Vertices.Num(),MinWorldZ,Origin.Z-Below,
+                FMath::Sqrt(MaxDistanceSquared),Reach,MinFacing);
+#endif
+        return false;
+    };
+    if(!Contained) return Rejected(TEXT("footprint"));
+    const auto& Plane=Prepared.Key.History.Last();
+    if(!Plane.bEnabled) return Rejected(TEXT("cut_plane"));
+    const FVector Point=FoodPose.TransformPosition(Plane.Position);
+    const FVector Normal=FoodPose.TransformVectorNoScale(Plane.Normal/FoodPose.GetScale3D()).GetSafeNormal();
+    const FTransform Model=Prepared.Key.SourceTransform*FoodPose;
+    bool Contacted=false;
+    // An ingredient can contain disconnected fruit. Only the island whose new
+    // cut cap reaches the actual finite blade contact receives the finisher.
+    for(const FProcMeshSection& Section:Prepared.Mesh->Sections) {
+        for(int32 Index=0;Index+2<Section.ProcIndexBuffer.Num();Index+=3) {
+            const FVector A=Model.TransformPosition(Section.ProcVertexBuffer[Section.ProcIndexBuffer[Index]].Position);
+            const FVector B=Model.TransformPosition(Section.ProcVertexBuffer[Section.ProcIndexBuffer[Index+1]].Position);
+            const FVector C=Model.TransformPosition(Section.ProcVertexBuffer[Section.ProcIndexBuffer[Index+2]].Position);
+            if(FMath::Abs(FVector::DotProduct(A-Point,Normal))>.1f
+                || FMath::Abs(FVector::DotProduct(B-Point,Normal))>.1f
+                || FMath::Abs(FVector::DotProduct(C-Point,Normal))>.1f) continue;
+            if(FVector::DistSquared(Point,FMath::ClosestPointOnTriangleToPoint(Point,A,B,C))<=1.f) {
+                Contacted=true;
+                break;
+            }
+        }
+        if(Contacted) break;
+    }
+    if(!Contacted) return Rejected(TEXT("contact_cap"));
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCKatanaFinishedPortion),true,Worker);
+    Query.AddIgnoredActor(Source);
+    FHitResult Block;
+    if(Worker->GetWorld()->LineTraceSingleByObjectType(Block,Origin,FoodPose.TransformPosition(Bounds.GetCenter()),
+        FCollisionObjectQueryParams(ECC_WorldStatic),Query)) return Rejected(TEXT("occluded"));
+    return true;
+}
+
 // FinishSpawning can reject a prepared body or mesh. Return its precise fault
 // to the parent transaction, which rolls back before reporting recovery.
 TWeakObjectPtr<AMCFoodActor> SpawningPortion;
@@ -448,7 +521,7 @@ bool AMCFoodActor::SupportsPlanarCut() const
 AMCFoodActor* AMCFoodActor::SpawnPreparedPortion(const FMCFoodCutTransaction& Plan,int32 Index,bool bQueued)
 {
     Plan.SpawnFailure.Reset();
-    const bool Ready=UsesAutomaticCutIntake()&&FitsAutomaticIntakeMetrics(Plan.LocalVolumes[Index]);
+    const bool Ready=Plan.Ready[Index];
     FVector Target;AMCThroat* Throat=nullptr;
     if(Ready && !ResolveAutomaticCutDestination(Plan.Pose.TransformPosition(Plan.Bounds[Index].GetCenter()),Target,Throat)) {
         Plan.SpawnFailure=EMCFoodProcessingFailure::MissingDestination;return nullptr;
@@ -504,7 +577,7 @@ AMCFoodActor* AMCFoodActor::SpawnPreparedPortion(const FMCFoodCutTransaction& Pl
 
 bool AMCFoodActor::SpawnPortionActors(const TArray<TArray<FMCFoodCutPlane>>& Histories,
     const TArray<double>& Weights,const TArray<FBox>& LocalBounds,const TArray<double>& LocalVolumes,FVector Direction,TArray<AMCFoodActor*>& OutPieces,
-    const TArray<TSharedPtr<const FMCPreparedFoodCutState>>& Prepared)
+    const TArray<TSharedPtr<const FMCPreparedFoodCutState>>& Prepared,const AMCToothCharacter* FinishingWorker)
 {
     TRACE_CPUPROFILER_EVENT_SCOPE(MCFoodSpawnPreparedPortions);
     OutPieces.Reset();
@@ -517,8 +590,12 @@ bool AMCFoodActor::SpawnPortionActors(const TArray<TArray<FMCFoodCutPlane>>& His
     const int32 Budget=bFragment?CutAwardUnits:FoodData.FragmentCount();
     if(Budget<0 || !FMath::IsFinite(FoodData.Mass) || FoodData.Mass<=0)return false;
     TArray<const MCFoodCutGeometry::FPreparedMesh*> PhysicalMeshes;
+    TArray<bool> ReadyPortions;
+    ReadyPortions.Reserve(Prepared.Num());
     for(int32 I=0;I<Prepared.Num();++I) {
-        const bool Ready=UsesAutomaticCutIntake()&&FitsAutomaticIntakeMetrics(LocalVolumes[I]);
+        const bool Ready=UsesAutomaticCutIntake()&&(FitsAutomaticIntakeMetrics(LocalVolumes[I])
+            || FitsKatanaFinisher(*Prepared[I],GetActorTransform(),FinishingWorker,this));
+        ReadyPortions.Add(Ready);
         if(Ready) {
             FVector Target;AMCThroat* Throat=nullptr;
             if(!ResolveAutomaticCutDestination(GetActorTransform().TransformPosition(LocalBounds[I].GetCenter()),Target,Throat)) {
@@ -533,6 +610,7 @@ bool AMCFoodActor::SpawnPortionActors(const TArray<TArray<FMCFoodCutPlane>>& His
     Plan->Histories=Histories;Plan->Weights=Weights;Plan->Bounds=LocalBounds;Plan->LocalVolumes=LocalVolumes;Plan->Prepared=Prepared;
     Plan->TotalWeight=Total;Plan->Food=FoodData;Plan->Settings=Settings;Plan->Profile=Profile;Plan->Pose=GetActorTransform();Plan->Direction=Direction;
     Plan->Handler=LastHandledBy;Plan->PreviousHandler=LastHandledBy;Plan->Owner=GetOwner();Plan->bSourceFragment=bFragment;
+    Plan->Ready=MoveTemp(ReadyPortions);
     Plan->SourceUnits=CutAwardUnits;Plan->SourceHealth=Health;Plan->SourcePhase=Phase;
     TArray<int32> Order;TArray<double> Remainders;Plan->Units.SetNum(Weights.Num());
     int32 Assigned=0;
@@ -740,7 +818,8 @@ bool AMCFoodActor::TraceKatanaCut(const FVector& Start,const FVector& End,FHitRe
     return true;
 }
 
-bool AMCFoodActor::SpawnCutFragments(FVector Direction,FVector WorldPoint,FVector WorldNormal,TArray<AMCFoodActor*>* OutPieces,bool bRequireSplit)
+bool AMCFoodActor::SpawnCutFragments(FVector Direction,FVector WorldPoint,FVector WorldNormal,TArray<AMCFoodActor*>* OutPieces,
+    bool bRequireSplit,const AMCToothCharacter* FinishingWorker)
 {
     // Automatic mode must leave every oversized remainder finishable. Its
     // history reconstructs geometry; twelve prior shaves are not completion.
@@ -813,7 +892,7 @@ bool AMCFoodActor::SpawnCutFragments(FVector Direction,FVector WorldPoint,FVecto
         Bounds.Add(Half->Mesh->Bounds);Prepared.Add(Half);
     }
     TArray<AMCFoodActor*> Pieces;
-    if(!SpawnPortionActors(Histories,Weights,Bounds,LocalVolumes,Direction,Pieces,Prepared))return false;
+    if(!SpawnPortionActors(Histories,Weights,Bounds,LocalVolumes,Direction,Pieces,Prepared,FinishingWorker))return false;
     if(IsCutTransactionPending()){PendingCutTransaction->CutNormal=WorldNormal;return true;}
     for(int32 I=0;I<Pieces.Num();++I) {
         auto* Piece=Pieces[I];

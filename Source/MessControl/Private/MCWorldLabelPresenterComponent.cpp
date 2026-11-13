@@ -19,6 +19,8 @@
 #include "CollisionQueryParams.h"
 #include "Widgets/SWidget.h"
 
+const FName UMCWorldLabelPresenterComponent::FixedScreenSizeTag(TEXT("MC.WorldLabel.FixedScreenSize"));
+
 UMCWorldLabelPresenterComponent::UMCWorldLabelPresenterComponent()
 {
     PrimaryComponentTick.bCanEverTick=true;PrimaryComponentTick.bStartWithTickEnabled=true;
@@ -170,35 +172,37 @@ bool UMCWorldLabelPresenterComponent::UpdateProjectedPresentation(UMCWorldLabelW
     const FVector Anchor=SourceText->GetComponentLocation();
     if(Anchor.ContainsNaN() || Eye.ContainsNaN() || ViewRotation.ContainsNaN()) return false;
     if(FVector::DotProduct(Anchor-Eye,ViewRotation.Vector())<=0.f) return false;
-    const float WorldLineHeight=float(FMath::Abs(double(SourceText->WorldSize)*SourceText->YScale*SourceText->GetComponentScale().Z));
-    if(!FMath::IsFinite(WorldLineHeight) || WorldLineHeight<=0.f) return false;
-    // Preserve the original plane's projected height, including the ready-zone floor label at a grazing angle.
-    const FVector SourceUp=SourceText->GetUpVector();
-    const FVector TopWorld=Anchor+SourceUp*(WorldLineHeight*GetPivot().Y);
-    const FVector BottomWorld=Anchor-SourceUp*(WorldLineHeight*(1.f-GetPivot().Y));
-    FVector2D TopPixel,BottomPixel,AnchorPixel;
-    if(!Controller->ProjectWorldLocationToScreen(TopWorld,TopPixel,false)
-        || !Controller->ProjectWorldLocationToScreen(BottomWorld,BottomPixel,false)
-        || !Controller->ProjectWorldLocationToScreen(Anchor,AnchorPixel,false)) return false;
-    if(TopPixel.ContainsNaN() || BottomPixel.ContainsNaN() || AnchorPixel.ContainsNaN()) return false;
-    LastProjectedLinePixels=float((BottomPixel-TopPixel).Size());
-    if(!FMath::IsFinite(LastProjectedLinePixels) || LastProjectedLinePixels<FMath::Max(.001f,MinimumProjectedLinePixels)) return false;
+    FVector2D AnchorPixel,AnchorLocal;
+    if(!Controller->ProjectWorldLocationToScreen(Anchor,AnchorPixel,false) || AnchorPixel.ContainsNaN()) return false;
     // Same pixel -> viewport-local conversion as SWorldWidgetScreenLayer. Do not mix desktop/tick coordinates.
-    FVector2D TopLocal,BottomLocal,AnchorLocal;
-    USlateBlueprintLibrary::ScreenToViewport(Controller,TopPixel,TopLocal);
-    USlateBlueprintLibrary::ScreenToViewport(Controller,BottomPixel,BottomLocal);
     USlateBlueprintLibrary::ScreenToViewport(Controller,AnchorPixel,AnchorLocal);
     const FVector2D ViewportExtent=UWidgetLayoutLibrary::GetViewportWidgetGeometry(this).GetLocalSize();
-    if(TopLocal.ContainsNaN() || BottomLocal.ContainsNaN() || AnchorLocal.ContainsNaN() || ViewportExtent.X<=1 || ViewportExtent.Y<=1) return false;
-    const float PerspectiveScale=float((BottomLocal-TopLocal).Size())/NewView->GetPreparedLineHeight();
-    if(!FMath::IsFinite(PerspectiveScale) || PerspectiveScale<=0.f) return false;
-    const FVector2D LabelExtent=NewView->GetDesiredSize()*PerspectiveScale;
+    if(AnchorLocal.ContainsNaN() || ViewportExtent.X<=1 || ViewportExtent.Y<=1) return false;
+
+    float RenderScale=1.f;
+    if(!ComponentHasTag(FixedScreenSizeTag)) {
+        const float WorldLineHeight=float(FMath::Abs(double(SourceText->WorldSize)*SourceText->YScale*SourceText->GetComponentScale().Z));
+        if(!FMath::IsFinite(WorldLineHeight) || WorldLineHeight<=0.f) return false;
+        const FVector SourceUp=SourceText->GetUpVector();
+        const FVector TopWorld=Anchor+SourceUp*(WorldLineHeight*GetPivot().Y);
+        const FVector BottomWorld=Anchor-SourceUp*(WorldLineHeight*(1.f-GetPivot().Y));
+        FVector2D TopPixel,BottomPixel,TopLocal,BottomLocal;
+        if(!Controller->ProjectWorldLocationToScreen(TopWorld,TopPixel,false)
+            || !Controller->ProjectWorldLocationToScreen(BottomWorld,BottomPixel,false)
+            || TopPixel.ContainsNaN() || BottomPixel.ContainsNaN()) return false;
+        LastProjectedLinePixels=float((BottomPixel-TopPixel).Size());
+        if(!FMath::IsFinite(LastProjectedLinePixels) || LastProjectedLinePixels<FMath::Max(.001f,MinimumProjectedLinePixels)) return false;
+        USlateBlueprintLibrary::ScreenToViewport(Controller,TopPixel,TopLocal);
+        USlateBlueprintLibrary::ScreenToViewport(Controller,BottomPixel,BottomLocal);
+        RenderScale=float((BottomLocal-TopLocal).Size())/NewView->GetPreparedLineHeight();
+        if(!FMath::IsFinite(RenderScale) || RenderScale<=0.f) return false;
+    }
+    const FVector2D LabelExtent=NewView->GetDesiredSize()*RenderScale;
     const FVector2D RectMinimum=AnchorLocal-LabelExtent*GetPivot(),RectMaximum=RectMinimum+LabelExtent;
     if(LabelExtent.ContainsNaN() || LabelExtent.X<=0 || LabelExtent.Y<=0
         || RectMaximum.X<0 || RectMaximum.Y<0 || RectMinimum.X>ViewportExtent.X || RectMinimum.Y>ViewportExtent.Y) return false;
-    // This is perspective, not a font-fit mechanism. All authored text/layout metrics stay fixed in local UMG units.
-    NewView->SetRenderTransformPivot(GetPivot());NewView->SetRenderScale(FVector2D(PerspectiveScale,PerspectiveScale));
-    LastPerspectiveScale=PerspectiveScale;bLastProjectionInView=true;return true;
+    NewView->SetRenderTransformPivot(GetPivot());NewView->SetRenderScale(FVector2D(RenderScale,RenderScale));
+    LastPerspectiveScale=RenderScale;bLastProjectionInView=true;return true;
 }
 
 bool UMCWorldLabelPresenterComponent::RefreshOcclusion()

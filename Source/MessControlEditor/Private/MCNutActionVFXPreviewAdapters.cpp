@@ -38,6 +38,7 @@
 namespace MCNutActionPreview
 {
 const FName KnightMelee(TEXT("Boss.NutKnight.Melee"));
+const FName KnightRoll(TEXT("Boss.NutKnight.Roll"));
 
 bool LabKind(const FMCNutVFXAction& Action,EMCVFXLabBossKind& Out)
 {
@@ -61,32 +62,56 @@ public:
             || !C.World->GetAuthGameMode<AMCPerkPreviewGameMode>() || !IsValid(C.Hero)
             || C.Hero->GetWorld()!=C.World || !C.Hero->HasAuthority())
         {Error=TEXT("Предпросмотр требует временный игровой мир и настоящий сценарий орехового босса.");return false;}
-        auto* Plane=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Plane.Plane"));
-        if(!Plane){Error=TEXT("Не найдена поверхность изолированного полигона.");return false;}
+        const bool bRoll=Kind==EMCVFXLabBossKind::TankRoll;
+        auto* FloorMesh=LoadObject<UStaticMesh>(nullptr,bRoll
+            ?TEXT("/Game/Gameplay/Arena/V10/SM_TongueSurface.SM_TongueSurface")
+            :TEXT("/Engine/BasicShapes/Plane.Plane"));
+        if(!FloorMesh){Error=TEXT("Не найдена поверхность изолированного полигона.");return false;}
         // Every native action samples the real tongue, including contact rings,
         // physical rain landings and teleport footprint/clearance queries.
         // Keep its private CPU-readable geometry and physical support consistent.
-        const bool bPhysicalEntry=true;
-        if(bPhysicalEntry) {
+        if(!bRoll) {
             // Only this disposable fixture owns the CPU-readable copy. Never
             // change the shared Engine Plane or its global Allow CPU Access.
-            Plane=DuplicateObject<UStaticMesh>(Plane,GetTransientPackage());
-            if(!Plane){Error=TEXT("Не удалось подготовить частный меш поверхности падения.");return false;}
-            Plane->ClearFlags(RF_Public|RF_Standalone);Plane->SetFlags(RF_Transient);Plane->bAllowCPUAccess=true;
+            FloorMesh=DuplicateObject<UStaticMesh>(FloorMesh,GetTransientPackage());
+            if(!FloorMesh){Error=TEXT("Не удалось подготовить частный меш поверхности падения.");return false;}
+            FloorMesh->ClearFlags(RF_Public|RF_Standalone);FloorMesh->SetFlags(RF_Transient);FloorMesh->bAllowCPUAccess=true;
         }
         // The runner's stage box is also physical. Native teleport clearance
         // uses BodyRadius+10 around a point BodyRadius+4 above support, so lift
         // the real tongue clear of that unrelated box instead of weakening the
         // native overlap test or changing its target/danger geometry.
         constexpr float SurfaceHeight=32.f;
-        const FTransform FloorPose(FRotator::ZeroRotator,FVector(0,0,SurfaceHeight),FVector(35,35,1));
+        FTransform FloorPose(FRotator::ZeroRotator,FVector(0,0,SurfaceHeight),FVector(35,35,1));
+        if(bRoll) {
+            if(!FloorMesh->bAllowCPUAccess || !FloorMesh->GetMaterial(0)) {
+                Error=TEXT("Для волны боли нужен доступный CPU меш языка с материалом арены.");return false;
+            }
+            const FVector HeroPosition=C.Hero->GetActorLocation();
+            const FVector FloorCenter(HeroPosition.X,HeroPosition.Y,SurfaceHeight);
+            const FBox Bounds=FloorMesh->GetBoundingBox();
+            const FVector Center(Bounds.GetCenter().X,Bounds.GetCenter().Y,Bounds.Max.Z);
+            // Use the authored arena orientation and center its tissue under the disposable pawn.
+            const FRotator Rotation(0,-90,0);
+            const FVector Scale(1.28,1.12,1);
+            FloorPose=FTransform(Rotation,FloorCenter-Rotation.RotateVector(Center*Scale),Scale);
+        }
         C.Hero->SetActorLocation(C.Hero->GetActorLocation()+FVector(0,0,SurfaceHeight),false,nullptr,ETeleportType::TeleportPhysics);
         auto* Surface=C.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),FloorPose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if(!Surface){Error=TEXT("Не удалось создать настоящую поверхность запросов.");return false;}
-        C.Targets.Add(Surface);Surface->SetFlags(RF_Transient);Surface->SourceMesh=Plane;Surface->bAutomaticYawns=false;
+        C.Targets.Add(Surface);Surface->SetFlags(RF_Transient);Surface->SourceMesh=FloorMesh;Surface->bAutomaticYawns=false;
         Surface->FinishSpawning(FloorPose);Surface->SetActorTickEnabled(false);
         Surface->Surface->SetVisibility(false);
-        Surface->Surface->SetCollisionEnabled(bPhysicalEntry?ECollisionEnabled::QueryAndPhysics:ECollisionEnabled::QueryOnly);
+        Surface->Surface->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+        if(bRoll) {
+            FHitResult Ground;
+            if(!Surface->SurfacePoint(C.Hero->GetActorLocation(),Ground)) {
+                Error=TEXT("Полигон не подтвердил поверхность языка под зубиком.");return false;
+            }
+            Surface->AddActorWorldOffset(FVector(0,0,SurfaceHeight-Ground.ImpactPoint.Z));
+            Surface->Settings.bAutomaticJolts=false;
+            RollSurface=Surface;
+        }
         const bool Ranged=Kind==EMCVFXLabBossKind::TankCharge || Kind==EMCVFXLabBossKind::TankJump
             || Kind==EMCVFXLabBossKind::TankRoll || Kind==EMCVFXLabBossKind::MageSummon
             || Kind==EMCVFXLabBossKind::MageNutRain || Kind==EMCVFXLabBossKind::MageGravityWaves
@@ -213,6 +238,10 @@ public:
     void OnCommitted(FMCPerkPreviewContext& C)override
     {
         bCommitted=true;Age=0;auto* Lab=Station.Get();auto* P=Lab?Lab->GetComparisonPresentation():nullptr;
+        if(auto* Surface=RollSurface.Get()) {
+            Surface->SetActorTickEnabled(true);
+            C.Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+        }
         if(bGravity || bSphere) {
             auto* B=Boss.Get();
             auto* Encounter=B?B->EncounterOwner.Get():nullptr;
@@ -365,6 +394,10 @@ public:
                 C.Hero->SetPrimaryInputHeld(true);
             }
         }
+        if(const auto* Surface=RollSurface.Get(); Surface && Seen.Contains(TEXT("JumpImpact"))
+            && Surface->Motion.Serial>0 && Surface->Motion.Settings.Shape==EMCTongueShape::RadialWave
+            && FMath::IsNearlyEqual(Surface->Motion.Settings.Radius,AMCTongue::RollLandingPainRadius))
+            Mark(TEXT("LocalPainWave"));
         if(bChain && Seen.Contains(TEXT("Strike")) && C.Hero->Status->State.Health<ChainSubjectHealth)Mark(TEXT("StrikeHit"));
         if(bChainBait && B && Seen.Contains(TEXT("Fracture")) && !Seen.Contains(TEXT("PhysicalFragments")))
             for(TActorIterator<AMCFoodActor> It(C.World);It;++It)
@@ -394,7 +427,8 @@ public:
                 bChainDodgeLaunched=true;
             }
         }
-        if(Age>(bMeleeSequence?45.f:20.f)){Release(C);bFailed=true;if(C.RecordEvent)C.RecordEvent(TEXT("NutNativeActionTimeout"));}
+        const float Timeout=bMeleeSequence?45.f:RollSurface.IsValid()?30.f:20.f;
+        if(Age>Timeout){Release(C);bFailed=true;if(C.RecordEvent)C.RecordEvent(TEXT("NutNativeActionTimeout"));}
     }
     bool IsComplete(const FMCPerkPreviewContext&)const override
     {
@@ -424,6 +458,8 @@ public:
         if(bHeadSplit)return B && B->BossRole==EMCNutBossRole::Mage && B->State==EMCNutBossState::Idle
             && Seen.Contains(TEXT("HeadSplit")) && Seen.Contains(TEXT("HeadDust"));
         if(bCounter)return B && B->State==EMCNutBossState::Idle && Seen.Contains(TEXT("Tell")) && Seen.Contains(TEXT("Impact"));
+        if(Source==KnightRoll)return B && B->State==EMCNutBossState::Idle
+            && Seen.Contains(TEXT("JumpTell")) && Seen.Contains(TEXT("JumpImpact")) && Seen.Contains(TEXT("LocalPainWave"));
         if(bGravity)return B && B->State==EMCNutBossState::Idle && GravityLiftedNuts.Num()>=2 && GravityImpactedNuts.Num()>=2
             && Seen.Contains(TEXT("LiftLeft")) && Seen.Contains(TEXT("DropLeft")) && Seen.Contains(TEXT("LiftRight"))
             && Seen.Contains(TEXT("DropRight")) && Seen.Contains(TEXT("Approach"));
@@ -446,6 +482,11 @@ public:
             if(auto* P=Lab->GetComparisonPresentation())P->OnSourceEventAccepted.Remove(ChainEvents);
             Lab->Destroy();
         }
+        if(auto* Surface=RollSurface.Get()) {
+            Surface->Destroy(false,false);
+            if(IsValid(C.Hero))C.Hero->GetCharacterMovement()->DisableMovement();
+        }
+        RollSurface.Reset();
         ChainEvents.Reset();
     }
     void Reset(FMCPerkPreviewContext& C)override {Cancel(C);Station.Reset();Boss.Reset();NativeOwner.Reset();LegacySystems.Reset();StartupCues.Reset();StartupShadows.Reset();Seen.Reset();Age=0;bCommitted=bLaunched=false;}
@@ -464,6 +505,7 @@ private:
         return true;
     }
     FName Source;TWeakObjectPtr<AMCVFXLabBossStation> Station;TWeakObjectPtr<AMCNutBoss> Boss;
+    TWeakObjectPtr<AMCTongue> RollSurface;
     TWeakObjectPtr<AActor> NativeOwner;
     TArray<TStrongObjectPtr<UNiagaraSystem>> LegacySystems;TArray<TWeakObjectPtr<AMCNutCombatEffect>> StartupCues;TSet<FName> Seen;
     TSet<TWeakObjectPtr<AMCFoodActor>> GravityLiftedNuts,GravityImpactedNuts;
@@ -497,9 +539,9 @@ const bool Registered=[]
             Row.Category=Contract.ID.ToString().StartsWith(TEXT("Boss."))?TEXT("Boss"):TEXT("World");
             Row.SourceOwner=TEXT("MCNutVFXCatalog / actual AMCNutBoss, AMCNutKamikaze or AMCNutLandingShadow owner");
             Row.Description=FText::FromString(TEXT("Настоящие игровые события. Контакт, хитбоксы и опасная область принадлежат механике; VFX и SFX редактируются отдельно. Миграция исходного арта проверяется отдельно от наличия привязки."));
-            if(Contract.ID==TEXT("Boss.NutKnight.Jump") || Contract.ID==TEXT("Boss.NutKnight.Melee")) {
-                Row.SourceOwner+=TEXT(" / AMCTongue::TriggerBossImpactPainWave");
-                Row.Description=FText::FromString(Row.Description.ToString()+TEXT("\nПриземление прыжка или Slam последнего удара комбо создаёт волну на языке (AMCTongue, MCTongue.cpp); радиус — 135% радиуса удара. Геометрия языка не редактируется профилем Niagara; плоская поверхность сценария не показывает её деформацию."));
+            if(Contract.ID==KnightRoll) {
+                Row.SourceOwner=TEXT("AMCNutBoss / AMCTongue");
+                Row.Description=FText::FromString(TEXT("Перекат, предупреждение о приземлении и эффект удара. Радиус, деформация языка и толчок волны заданы игровой механикой."));
             }
             if(bGravityAction) {
                 Row.SourceOwner=TEXT("AMCNutBoss / AMCNutRainEvent / AMCNutLandingShadow");
@@ -525,7 +567,11 @@ const bool Registered=[]
         };
         if(Contract.ID==TEXT("Boss.NutKnight.Death"))Default(TEXT("BodyBurst"),Defaults->ShieldHitSystem,TEXT("Всплеск у тела"));
         else if(Contract.ID==TEXT("Boss.NutMage.Death"))Default(TEXT("BodyBurst"),Defaults->ArcaneBurstSystem,TEXT("Всплеск у тела"));
-        else if(Contract.ID==TEXT("Boss.NutKnight.Roll"))Default(TEXT("TransformBurst"),Defaults->ShieldHitSystem,TEXT("Вспышка превращения"));
+        else if(Contract.ID==KnightRoll) {
+            Default(TEXT("TransformBurst"),Defaults->ShieldHitSystem,TEXT("Вспышка превращения"));
+            Entry.StageLabels.Add(TEXT("JumpTell"),FText::FromString(TEXT("Прыжок · предупреждение о приземлении")));
+            Default(TEXT("JumpImpact"),Defaults->DustImpactSystem,TEXT("Приземление · локальная волна боли"));
+        }
         else if(Contract.ID==TEXT("Boss.NutMage.Summon")||Contract.ID==TEXT("Boss.NutMage.NutRain"))
             Default(TEXT("ReleaseBurst"),Defaults->ArcaneBurstSystem,TEXT("Выпуск частиц ритуала"));
         else if(Contract.ID==TEXT("Boss.NutMage.Teleport"))Default(TEXT("ArrivalBurst"),Defaults->ArcaneBurstSystem,TEXT("Всплеск в точке прибытия"));
@@ -570,6 +616,7 @@ const bool Registered=[]
             Entry.Scenarios={EMCPerkPreviewScenario::Target};
             const TCHAR* ScenarioLabel=Kind==EMCVFXLabBossKind::TankMelee?TEXT("Три родных атаки: два взмаха → комбо с ударом в землю"):
                 bChainAction?TEXT("Крюк подтягивает зубика → удар дубиной"):
+                Kind==EMCVFXLabBossKind::TankRoll?TEXT("Перекат → прыжок → локальная волна боли"):
                 Kind==EMCVFXLabBossKind::TankCounterShove?TEXT("Контакты игрока → настоящий контрудар"):
                 Kind==EMCVFXLabBossKind::TankHeadSplit?TEXT("Поражение рыцаря → раскол → настоящий маг"):
                 bGravityAction?TEXT("Два целых ореха → левый и правый подъём → два приземления"):

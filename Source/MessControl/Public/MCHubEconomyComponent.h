@@ -12,6 +12,7 @@ USTRUCT(BlueprintType)
 struct MESSCONTROL_API FMCHubEconomySaveData
 {
     GENERATED_BODY()
+    /** Tagged saves may omit the old default. ExportSave writes the current version explicitly. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Version=2;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Coins=0;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<FName> OwnedCosmetics;
@@ -26,6 +27,9 @@ struct MESSCONTROL_API FMCHubEconomySaveData
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FGuid LastAppliedRunId;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 RunCalciumCharges=0;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FMCGrillReward PendingGrillReward;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<FMCHubRaidPerkStockEntry> RaidPerkStock;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) FMCHubRaidLoadout RaidLoadout;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) FGuid RaidTravelTicket;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMCHubEconomyChanged);
@@ -50,6 +54,8 @@ public:
     UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") FMCCharacterCosmeticLoadout EquippedLoadout;
     UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") int32 RunCalciumCharges=0;
     UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") FMCGrillReward LastGrillReward;
+    UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy|Raid") TArray<FMCHubRaidPerkStockEntry> RaidPerkStock;
+    UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy|Raid") FMCHubRaidLoadout RaidLoadout;
     UPROPERTY(BlueprintAssignable, Category="Economy") FMCHubEconomyChanged OnEconomyChanged;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Economy|Data") TSoftObjectPtr<UDataTable> CatalogTable;
@@ -78,6 +84,12 @@ public:
      * Returns the actual increase after the wallet cap; zero never creates a cosmetic reward. */
     int32 CreditObjectiveCoins(int32 Amount);
     bool TryEquipLoadout(const FMCCharacterCosmeticLoadout& Loadout, FText& Error);
+    UFUNCTION(BlueprintPure, Category="Economy|Raid") bool GetRaidPerkDefinition(FName PerkID,FMCPerkDefinition& Definition) const;
+    UFUNCTION(BlueprintPure, Category="Economy|Raid") int32 GetRaidPerkCopies(FName PerkID) const;
+    bool TrySetRaidLoadout(const FMCHubRaidLoadout& Loadout,FText& Error);
+    bool CanStartRaid(FText& Error) const;
+    bool LockRaidLoadout(const FGuid& Ticket,FText& Error);
+    void UnlockRaidLoadout(const FGuid& Ticket);
     /** Fish is reserved once; the server chooses and stores the result before accepting the attempt. */
     bool BeginGrillRoll(FGuid& Receipt, FMCGrillReward& Preview, FText& Error);
     bool CompleteGrillRoll(const FGuid& Receipt);
@@ -94,6 +106,8 @@ public:
 protected:
     virtual void BeginPlay() override;
 private:
+    static constexpr int32 MaximumRaidStockEntries=4096;
+    static constexpr int32 MaximumRaidStockCopies=1000000;
     bool IsAuthority() const;
     bool IsGatheringHub() const;
     bool IsRealRun() const;
@@ -103,6 +117,11 @@ private:
     bool IsCatalogUsable(const FMCHubCatalogRow& Item, bool bIncludeSuspended=false) const;
     bool CanQueueItem(FName ItemID, const FMCHubCatalogRow& Item, int32 Stacks=1) const;
     bool ResolvePerk(FName PerkID,FMCPerkDefinition& Definition) const;
+    static bool IsRaidPerkKind(const FMCPerkDefinition& Definition,EMCPerkKind Kind);
+    bool ValidateRaidLoadout(const FMCHubRaidLoadout& Loadout,FText& Error) const;
+    bool CanAddRaidPerkCopies(FName PerkID,int32 Copies) const;
+    void AddRaidPerkCopies(FName PerkID,int32 Copies,int32 LegacyCharges=INDEX_NONE);
+    void MigrateRaidPerkStock();
     TArray<FMCHubPendingPurchase> BuildPendingPlan(TArray<TArray<int32>>* LegacyIndices=nullptr) const;
     void RefreshMigrationNotice();
     struct FGrillCandidate
@@ -125,5 +144,6 @@ private:
     UPROPERTY(Transient) mutable TObjectPtr<UDataTable> LoadedRules;
     UPROPERTY(Transient) FMCGrillReward PendingRoll;
     UPROPERTY(Transient) FGuid LastAppliedRunId;
+    UPROPERTY(Transient) FGuid RaidTravelTicket;
     bool bMutating=false;
 };

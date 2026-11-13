@@ -67,7 +67,7 @@ public:
             C.Hero->Inventory->GrantDevToolUpgrade(EMCToolUpgrade::Chainsaw);
         C.Hero->SetPrimaryInputHeld(false);C.Hero->Inventory->ServerSelect(Slot);
         if(C.Hero->Inventory->Selected!=Slot){Error=TEXT("Штатный выбор инструмента отклонён.");return false;}
-        Before=C.Hero->ValidatedSwingCount;HitsBefore=C.Hero->ConfirmedHitCount;FoodCutsBefore=C.Hero->ConfirmedFoodCutCount;Age=0;bAccepted=bHit=bCut=bReleased=bDone=false;
+        Before=C.Hero->ValidatedSwingCount;HitsBefore=C.Hero->ConfirmedHitCount;FoodCutsBefore=C.Hero->ConfirmedFoodCutCount;Age=0;bAccepted=bHit=bCut=bReleased=bDone=bChargedAccepted=false;
         bContactScenario=C.Scenario==EMCPerkPreviewScenario::Target;
         FoodBefore.Reset();if(bContactScenario)for(TActorIterator<AMCFoodActor> It(C.World);It;++It)FoodBefore.Add(*It);
         if(bContactScenario&&!PrepareContactTarget(C,Error))return false;
@@ -93,6 +93,9 @@ public:
         Age+=Dt;
         if(!IsValid(C.Hero)){bDone=true;return;}
         if(!bAccepted&&C.Hero->ValidatedSwingCount>Before){bAccepted=true;if(C.RecordEvent)C.RecordEvent(TEXT("Swing"));}
+        if(bKatana&&!bChargedAccepted&&C.Hero->GetKatanaAttackID()==uint8(MCKatanaSwing::EVariant::Charged)) {
+            bChargedAccepted=true;if(C.RecordEvent)C.RecordEvent(TEXT("ChargedSeriesAccepted"));
+        }
         if(bContactScenario&&!bHit&&C.Hero->ConfirmedHitCount>HitsBefore) {
             const auto* Food=ContactFood.Get();
             if(!IsValid(Food)||Food->IsDisposed()||Food->Health<InitialHealth) {bHit=true;if(C.RecordEvent)C.RecordEvent(TEXT("Hit"));}
@@ -115,7 +118,12 @@ public:
     void Release(FMCPerkPreviewContext& C) override
     {if(IsValid(C.Hero))C.Hero->SetPrimaryInputHeld(false);bReleased=true;}
     void Cancel(FMCPerkPreviewContext& C) override
-    {Release(C);if(auto* Owner=Presentation.Get())Owner->StopStates(ID);bDone=true;}
+    {
+        Release(C);
+        if(bKatana&&IsValid(C.Hero))C.Hero->ServerSetPrimary(false);
+        if(auto* Owner=Presentation.Get())Owner->StopStates(ID);
+        bDone=true;
+    }
     void Reset(FMCPerkPreviewContext& C) override
     {
         Cancel(C);
@@ -223,7 +231,7 @@ private:
     EMCToolSlot Slot;
     EMCToolSlot PreviousSlot=EMCToolSlot::Brush;
     uint8 PreviousUpgradeMask=0;
-    bool bKatana=false;
+    bool bKatana=false,bChargedAccepted=false;
     FName ID;
     TWeakObjectPtr<UMCWorldPresentationComponent> Presentation;
     int32 Before=0;float Age=0;
@@ -494,7 +502,7 @@ void MCWorldActionPreviewAdapters::Register()
         Entry.StageLabels.Add(TEXT("Swing"),FText::FromString(TEXT("Режущая кромка · след взмаха")));
         Entry.StageLabels.Add(TEXT("Hit"),FText::FromString(TEXT("Настоящее попадание")));
         Entry.StageLabels.Add(TEXT("FoodCut"),FText::FromString(TEXT("Разрез еды · всплеск")));
-        Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Target,FText::FromString(TEXT("Заряженная серия · настоящая еда")));
+        Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Target,FText::FromString(TEXT("Рез и автоматическая серия · настоящая еда")));
         Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Timeout,FText::FromString(TEXT("Одиночный режущий взмах")));
         Entry.DefaultSystems.Add(TEXT("Swing"),TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/VFX/WeaponTrail/NS_KatanaSwingTrail.NS_KatanaSwingTrail"))));
         Entry.Create=[]()->TUniquePtr<IMCPerkPreviewAdapter>{return MakeUnique<FOrdinaryToolSwingAdapter>(EMCToolSlot::Knife,true);};

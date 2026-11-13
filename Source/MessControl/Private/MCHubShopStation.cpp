@@ -79,7 +79,11 @@ void AMCHubShopStation::SetLocalPromptVisible(APlayerController* LocalController
     if(bShow) {
         InteractionPrompt->SetOwnerPlayer(LocalController->GetLocalPlayer());
         InteractionPrompt->InitWidget();
-        if(auto* Widget=InteractionPrompt->GetUserWidgetObject()) Widget->SetOwningPlayer(LocalController);
+        if(auto* Widget=InteractionPrompt->GetUserWidgetObject()) {
+            if(Widget->GetOwningPlayer()!=LocalController) Widget->SetOwningPlayer(LocalController);
+            if(!InteractionPrompt->IsVisible())
+                if(auto* Prompt=Cast<UMCHubInteractionPromptWidget>(Widget)) Prompt->SetShopPrompt();
+        }
     }
     if(auto* Widget=InteractionPrompt->GetUserWidgetObject())
         Widget->SetVisibility(bShow?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);

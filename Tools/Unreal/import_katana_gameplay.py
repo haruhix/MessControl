@@ -100,7 +100,8 @@ def animation(source, hero, skeleton, entry):
     data.set_editor_properties({
         "animation_length": u.FBXAnimationLengthImportType.FBXALIT_EXPORTED_TIME,
         "import_bone_tracks": True,
-        "use_default_sample_rate": True,
+        "use_default_sample_rate": False,
+        "custom_sample_rate": int(entry["fps"]),
     })
     name = entry["asset"]
     clip = imported(source / (name + ".fbx"), ANIM_FOLDER, name, settings)

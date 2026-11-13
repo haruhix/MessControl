@@ -684,6 +684,17 @@ void AMCGameMode::StartLobby(APlayerController* Requester)
     }
     bLobbyRequested=false;
     State->bLobbyWaiting=false;
+    if(HubBoosterRunId.IsValid())
+    {
+        // Apply the approved equipment before the first arena phase begins.
+        for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
+            if(auto* PC=It->Get();IsGameplayParticipant(PC))
+                if(auto* Player=PC->GetPlayerState<AMCPlayerState>();Player && Player->Economy)
+                {
+                    FText Error;
+                    Player->Economy->ApplyPendingBoostersForRun(HubBoosterRunId,Error);
+                }
+    }
     State->PhaseEndsAt=State->GetServerWorldTimeSeconds();
     State->ForceNetUpdate();
     UE_LOG(LogTemp,Display,TEXT("MC_LOBBY_STARTED players=%d"),GetNumPlayers());

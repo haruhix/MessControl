@@ -168,6 +168,10 @@ private:
     void PresentGravityHand(int32 WaveIndex,bool bDrop);
     bool TryAdvanceMageNutCycle(double Time);
     void ExecuteRoll(float Dt);
+    bool FindRollJumpSupport(FVector Candidate,FVector& Center,FVector& Floor) const;
+    bool TryBeginRollJump(double Time);
+    void ExecuteRollJump(double Time);
+    void FinishRollJump(bool bLanded);
     /** Solid to ordinary character movement; attack sweeps resolve player hits separately. */
     void UpdatePlayerBlocking();
     void MoveAttackBody(FVector Goal,FHitResult& Hit);
@@ -211,6 +215,13 @@ private:
     FRandomStream Random;
     FVector EntranceLanding=FVector::ZeroVector;
     double NextTargetAt=0,NextRollPainAt=0;
+    double NextRollJumpAt=0;
+    double RollJumpStartedAt=0;
+    float RollJumpProgress=0;
+    FVector RollJumpStart=FVector::ZeroVector;
+    FVector RollJumpLanding=FVector::ZeroVector;
+    TWeakObjectPtr<AMCNutCombatEffect> RollJumpTell;
+    UPROPERTY(ReplicatedUsing=RefreshBossPresentation) bool bRollJumpAirborne=false;
     TWeakObjectPtr<AMCToothCharacter> ChainRetreatTarget;
     TWeakObjectPtr<AMCToothCharacter> ChainBaitTarget;
     TWeakObjectPtr<AMCToothCharacter> ChainStrikeTarget;

@@ -1256,7 +1256,8 @@ bool AMCFoodActor::HitFoodWithKatana(float Damage,const FVector& Direction,AMCTo
     const FVector& CutPoint,const FVector& CutNormal)
 {
     if(!HasAuthority() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld() || CutPoint.ContainsNaN()
-        || CutNormal.ContainsNaN() || CutNormal.IsNearlyZero()) return false;
+        || CutNormal.ContainsNaN() || CutNormal.IsNearlyZero() || Direction.ContainsNaN()
+        || !FMath::IsFinite(Damage) || Damage<=0.f) return false;
     // Hard shells still open through their authored damage/fracture path.
     const bool bExactCut=FoodData.Kind==EMCFoodKind::Food && !IsNutEncounterFragment()
         && (!IsHardFood() || bFragment);
@@ -1266,7 +1267,10 @@ bool AMCFoodActor::HitFoodWithKatana(float Damage,const FVector& Direction,AMCTo
     }
     TGuardValue<FVector> PointGuard(PendingCutPoint,bExactCut?CutPoint:FVector::ZeroVector);
     TGuardValue<FVector> NormalGuard(PendingCutNormal,bExactCut?CutNormal:FVector::ZeroVector);
-    return ApplyFoodDamage(Damage,Direction,Worker,nullptr,true,bExactCut);
+    const bool bCharged=Worker->GetKatanaSwingVariant()==MCKatanaSwing::EVariant::Charged;
+    if(bCharged && FoodData.Kind==EMCFoodKind::Food && IsHardFood() && !bFragment)
+        Damage=FMath::Max(Damage,Health);
+    return ApplyFoodDamage(Damage,Direction,Worker,nullptr,true,bExactCut,bCharged);
 }
 bool AMCFoodActor::ReceiveActiveSkillImpact(float Damage,FVector Direction,AMCPlayerState* SourcePS)
 {
@@ -1283,7 +1287,8 @@ bool AMCFoodActor::ReceiveActiveSkillImpact(float Damage,FVector Direction,AMCPl
     LastHandledBy=PreviousHandler;
     return false;
 }
-bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,AMCPlayerState* SourcePS,bool bWeaponPassives,bool bExactCut)
+bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,AMCPlayerState* SourcePS,
+    bool bWeaponPassives,bool bExactCut,bool bFinishCutPortions)
 {
     if(IsCutTransactionPending() || IsCutTransactionStaged())return false;
     if (!HasAuthority() || bBrushTool || IsDisposed() || IsInActiveContainer() || Phase==EMCFoodPhase::Swallowing || !FMath::IsFinite(Damage) || Damage<=0 || Direction.ContainsNaN()) return false;
@@ -1359,7 +1364,7 @@ bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharac
         if(IsValid(SourcePS) && SourcePS->GetWorld()==GetWorld()) LastHandledBy=SourcePS;
         else if(Worker) LastHandledBy=Worker->GetPlayerState<AMCPlayerState>();
         TArray<AMCFoodActor*> Pieces;
-        if(!SpawnCutFragments(Direction,PendingCutPoint,PendingCutNormal,&Pieces,bExactCut)) {LastHandledBy=PreviousHandler;return false;}
+        if(!SpawnCutFragments(Direction,PendingCutPoint,PendingCutNormal,&Pieces,bExactCut,bFinishCutPortions?Worker:nullptr)) {LastHandledBy=PreviousHandler;return false;}
         if(IsCutTransactionPending()){SetPendingCutCompletion(Worker,bWeaponPassives,true,PreviousHandler);return true;}
         CompleteCutPortions(Pieces,Direction,Worker,bWeaponPassives,true);
         return true;

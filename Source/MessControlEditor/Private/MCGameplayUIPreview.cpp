@@ -2,7 +2,9 @@
 
 #include "MCGameplayUITheme.h"
 #include "MCGameplayUIWidget.h"
+#include "MCHubGrillPresentationComponent.h"
 #include "MCMainMenuWidget.h"
+#include "MCRaidLoadoutWidget.h"
 #include "MCUnifiedUIWidget.h"
 #include "MCUnifiedFrontendWidget.h"
 #include "MCUnifiedTeamWidget.h"
@@ -95,8 +97,17 @@ namespace
     const TUnifiedOverlayPreviewChoice<FName> UnifiedHubModes[]={
         {NAME_None,LOCTEXT("UnifiedHubGathering","Gathering: host")},
         {TEXT("Guest"),LOCTEXT("UnifiedHubGuest","Gathering: guest")},
+        {TEXT("Walking"),LOCTEXT("UnifiedHubWalking","Walking")},
+        {TEXT("Ready"),LOCTEXT("UnifiedHubReady","Ready")},
+        {TEXT("WaitingForTeam"),LOCTEXT("UnifiedHubWaiting","Waiting for team")},
         {TEXT("Selecting"),LOCTEXT("UnifiedHubSelecting","Location selection: host")},
         {TEXT("SelectingGuest"),LOCTEXT("UnifiedHubSelectingGuest","Location selection: guest")},
+        {TEXT("RaidStock"),LOCTEXT("RaidStock","Raid kit: choose from stock")},
+        {TEXT("RaidEmpty"),LOCTEXT("RaidEmpty","Raid kit: empty stock")},
+        {TEXT("RaidFull"),LOCTEXT("RaidFull","Raid kit: full loadout")},
+        {TEXT("RaidReady"),LOCTEXT("RaidReady","Raid kit: local player ready")},
+        {TEXT("RaidGuest"),LOCTEXT("RaidGuest","Raid kit: guest")},
+        {TEXT("RaidAllReady"),LOCTEXT("RaidAllReady","Raid kit: all players ready")},
         {TEXT("Travelling"),LOCTEXT("UnifiedHubTravelling","Travelling")},
         {TEXT("FishingControls"),LOCTEXT("UnifiedHubFishingControls","Fishing controls")},
         {TEXT("FishingWaiting"),LOCTEXT("UnifiedHubFishingWaiting","Fishing: waiting")},
@@ -105,6 +116,38 @@ namespace
         {TEXT("BasketballPickup"),LOCTEXT("UnifiedHubBasketballPickup","Basketball: pick up")},
         {TEXT("ControlsLongText"),LOCTEXT("UnifiedHubControlsLongText","Long control instructions")}
     };
+    const TUnifiedOverlayPreviewChoice<FName> RaidLoadoutModes[]={
+        {TEXT("Default"),LOCTEXT("RaidLoadoutDefault","Default loadout")},
+        {TEXT("RaidStock"),LOCTEXT("RaidStock","Raid kit: choose from stock")},
+        {TEXT("RaidEmpty"),LOCTEXT("RaidEmpty","Raid kit: empty stock")},
+        {TEXT("RaidFull"),LOCTEXT("RaidFull","Raid kit: full loadout")},
+        {TEXT("RaidReady"),LOCTEXT("RaidReady","Raid kit: local player ready")},
+        {TEXT("RaidGuest"),LOCTEXT("RaidGuest","Raid kit: guest")},
+        {TEXT("RaidAllReady"),LOCTEXT("RaidAllReady","Raid kit: all players ready")}
+    };
+    const TUnifiedOverlayPreviewChoice<FName> RaidPerkRowModes[]={
+        {TEXT("Default"),LOCTEXT("RaidRowDefault","Equipped perk")},
+        {TEXT("Stock"),LOCTEXT("RaidRowStock","Owned perk with quantity")},
+        {TEXT("Add"),LOCTEXT("RaidRowAdd","Add perk")},
+        {TEXT("Disabled"),LOCTEXT("RaidRowDisabled","Unavailable perk")}
+    };
+
+    const TUnifiedOverlayPreviewChoice<FName> GrillHologramModes[]={
+        {TEXT("Idle"),LOCTEXT("GrillIdle","Idle reel")},
+        {TEXT("Default"),LOCTEXT("GrillSpin","Spin")},
+        {TEXT("NoPrize"),LOCTEXT("GrillNoPrize","No prize")},
+        {TEXT("Duplicate"),LOCTEXT("GrillDuplicate","Duplicate")},
+        {TEXT("Reset"),LOCTEXT("GrillReset","Reset to idle")},
+        {TEXT("RareReset"),LOCTEXT("GrillRareReset","Big win reset")}
+    };
+
+    TConstArrayView<TUnifiedOverlayPreviewChoice<FName>> WidgetScenariosForClass(const UClass* Class)
+    {
+        if(Class && Class->IsChildOf(UMCRaidLoadoutWidget::StaticClass())) return MakeArrayView(RaidLoadoutModes);
+        if(Class && Class->IsChildOf(UMCRaidPerkRowWidget::StaticClass())) return MakeArrayView(RaidPerkRowModes);
+        if(Class && Class->IsChildOf(UMCHubGrillHologramWidget::StaticClass())) return MakeArrayView(GrillHologramModes);
+        return {};
+    }
     const TUnifiedOverlayPreviewChoice<FName> UnifiedTeamModes[]={
         {NAME_None,LOCTEXT("UnifiedTeamArena","Arena scoreboard")},
         {TEXT("HubLocal"),LOCTEXT("UnifiedTeamHubLocal","Hub: local player")},
@@ -395,6 +438,8 @@ namespace
         FName MenuState=TEXT("Main");
         FString MenuCulture;
         bool bHasMenuSelection=false;
+        FName WidgetScenario;
+        bool bHasWidgetScenario=false;
         bool bHasPresentationSelection=false;
         EMCUIVersion PresentationVersion=EMCUIVersion::New;
         bool bHasUnifiedSelection=false;
@@ -567,6 +612,18 @@ namespace
                 ];
             }
             const auto* Blueprint=Editor->GetWidgetBlueprintObj();
+            const auto Scenarios=WidgetScenariosForClass(Blueprint?Blueprint->ParentClass.Get():nullptr);
+            if(!Scenarios.IsEmpty())
+            {
+                Category.AddCustomRow(LOCTEXT("WidgetScenarioSearch","Widget preview scenario"))
+                .WholeRowContent()
+                [
+                    SNew(SVerticalBox)
+                    + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
+                    [SNew(STextBlock).Text(LOCTEXT("WidgetScenarioLabel","Scenario (preview only)"))]
+                    + SVerticalBox::Slot().AutoHeight()[MakeWidgetScenarioSelector(WeakSelf,WeakEditor,Scenarios)]
+                ];
+            }
             if(Blueprint && Blueprint->ParentClass && Blueprint->ParentClass->IsChildOf(UMCUnifiedUIWidget::StaticClass()))
             {
                 Category.AddCustomRow(LOCTEXT("UnifiedScreenSearch","Interface screen language PSD Hub Reward Frontend GameplayMenu Catch HUD Loading Boss Alert Settings Tutorial Emotes mode page scenario"))
@@ -723,6 +780,11 @@ namespace
 
         static void CaptureMenuSelection(FPreviewSession& Session,UMCGameplayUIWidget* Widget)
         {
+            if(Widget && !Session.bHasWidgetScenario && !WidgetScenariosForClass(Widget->GetClass()).IsEmpty())
+            {
+                Session.WidgetScenario=Widget->PreviewState;
+                Session.bHasWidgetScenario=true;
+            }
             if(const auto* Root=Cast<UMCUnifiedUIWidget>(Widget);Root && !Session.bHasUnifiedSelection)
             {
                 Session.UnifiedScreen=Root->PreviewScreen;
@@ -753,6 +815,9 @@ namespace
         {
             if(Widget && Widget->IsDesignTime() && Session.bHasPresentationSelection)
             {Widget->bOverridePreviewUIVersion=true;Widget->PreviewUIVersion=Session.PresentationVersion;}
+            if(Widget && Widget->IsDesignTime() && Session.bHasWidgetScenario
+                && !Widget->HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject))
+                Widget->PreviewState=Session.WidgetScenario;
             if(auto* Root=Cast<UMCUnifiedUIWidget>(Widget);Root && Root->IsDesignTime() && Session.bHasUnifiedSelection
                 && !Root->HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject))
             {
@@ -788,6 +853,44 @@ namespace
             if (!Editor) return nullptr;
             for (auto& Session:Sessions) if (Session.Editor.Pin()==Editor) return &Session;
             return nullptr;
+        }
+
+        static TSharedRef<SWidget> MakeWidgetScenarioSelector(TWeakPtr<FGameplayPreviewExtender> WeakSelf,
+            TWeakPtr<FWidgetBlueprintEditor> WeakEditor,TConstArrayView<TUnifiedOverlayPreviewChoice<FName>> Choices)
+        {
+            return SNew(SComboButton)
+                .IsEnabled_Lambda([WeakEditor]{return GetGameplayPreview(WeakEditor.Pin())!=nullptr;})
+                .OnGetMenuContent_Lambda([WeakSelf,WeakEditor,Choices]() -> TSharedRef<SWidget>
+                {
+                    FMenuBuilder Menu(true,nullptr);
+                    for(const auto& Choice:Choices)
+                    {
+                        const FName State=Choice.Value;
+                        Menu.AddMenuEntry(Choice.Label,LOCTEXT("WidgetScenarioPreviewOnly","Changes only the Designer fixture."),FSlateIcon(),
+                            FUIAction(FExecuteAction::CreateLambda([WeakSelf,WeakEditor,State]
+                            {
+                                if(auto Self=WeakSelf.Pin()) if(auto Editor=WeakEditor.Pin())
+                                {
+                                    auto& Session=Self->SessionFor(Editor.ToSharedRef());
+                                    Session.WidgetScenario=State;
+                                    Session.bHasWidgetScenario=true;
+                                    Self->Execute(Editor,0);
+                                }
+                            }),FCanExecuteAction(),FIsActionChecked::CreateLambda([WeakSelf,WeakEditor,State]
+                            {
+                                if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                                    return Session->WidgetScenario==State;
+                                return false;
+                            })),NAME_None,EUserInterfaceActionType::RadioButton);
+                    }
+                    return Menu.MakeWidget();
+                })
+                .ButtonContent()[SNew(STextBlock).Text_Lambda([WeakSelf,WeakEditor,Choices]
+                {
+                    if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                        for(const auto& Choice:Choices) if(Session->WidgetScenario==Choice.Value) return Choice.Label;
+                    return LOCTEXT("WidgetScenarioDefault","Default preview");
+                })];
         }
 
         FText MenuSelectionLabel(const TSharedPtr<FWidgetBlueprintEditor>& Editor,bool bCulture)
@@ -1196,7 +1299,7 @@ namespace
                     QueueGeometrySettle(Session);
                     CaptureMenuSelection(Session,Widget);
                     RestoreMenuSelection(Session,Widget);
-                    if (Widget && (Session.bHasMenuSelection || Session.bHasUnifiedSelection))
+                    if (Widget && (Session.bHasMenuSelection || Session.bHasUnifiedSelection || Session.bHasWidgetScenario))
                     {
                         Widget->ApplyEditorPreview(0.f);
                         MCGameplayUIPreview::SynchronizeFixtureTree(Widget);

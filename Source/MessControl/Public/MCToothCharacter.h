@@ -281,6 +281,7 @@ public:
     void CacheKatanaBodyPose(const FTransform& Pose) const;
     bool GetCalculusSwingContact(FVector& Point,FVector& Normal) const;
     bool WantsCalculusFacing(FVector& Direction) const;
+    bool WantsKatanaFacing(FVector& Direction) const;
     /** Ground waves test the capsule sole, independently of animated body-bone bobbing. */
     bool ClearsGroundWave(float Clearance=12.f) const;
     // A pickaxe swing owns one patch until recovery; the contact follows the
@@ -473,12 +474,15 @@ private:
     UFUNCTION() void OnRep_ArenaArrivalHeld();
     UPROPERTY(ReplicatedUsing=OnRep_ArenaArrivalHeld) bool bArenaArrivalHeld=false;
     void ResolveSwing();
+    void ResolveSwingContact(float Damage);
     bool ApplyKatanaFoodContact(AMCFoodActor* Food,const FHitResult& Contact,const FVector& CutNormal,
         const FVector& StrokeDirection,float Damage);
     bool CanOwnKatanaAction() const;
     void BeginKatanaSwing(bool bCharged);
     void TickKatanaAction();
-    void CancelKatanaAction();
+    void TickKatanaInput();
+    void CancelKatanaAction(bool bInterrupted=true);
+    void PrepareKatanaFacing();
     void TraceKatanaStroke(int32 Stroke,const FTransform& From,const FTransform& To);
     AMCArenaTooth* FindCalculusTarget(FVector& Point,FVector& Normal) const;
     UPROPERTY() TObjectPtr<UInputMappingContext> InputMap;

@@ -32,6 +32,9 @@
 #include "MCWeaponImpact.h"
 #include "MCEnemyWeaponContact.h"
 #include "MCMeleeCombo.h"
+#include "MCKatanaInput.h"
+#include "MCKatanaPlayback.h"
+#include "MCKatanaBlade.h"
 #include "MCFoodActor.h"
 #include "MCGameMode.h"
 #include "MCHubGameMode.h"
@@ -1347,15 +1350,16 @@ void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
     if(IsKatanaEquipped() && !bInCoffee) {
         if(!bActive) {
             bPrimaryHeld=false;
-            KatanaChargeStartedAt=-1.;
+            CancelKatanaAction();
             ForceNetUpdate();
-        } else if(NewPrimaryPress && CanOwnKatanaAction() && GetWorld()->GetTimeSeconds()>=NextSwingTime) {
+        } else if(NewPrimaryPress && CanOwnKatanaAction()) {
             bPrimaryHeld=true;
             bWantsCling=false;
             bBrushing=false;
             bHandling=false;
-            const auto* GS=GetWorld()->GetGameState();
-            KatanaChargeStartedAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+            MCKatanaInput::Press(this,GetWorld()->GetTimeSeconds());
+            MCKatanaInput::Queue(this,false);
+            TickKatanaInput();
             ForceNetUpdate();
         }
         return;
@@ -1390,7 +1394,7 @@ void AMCToothCharacter::ResolvePrimaryAction(bool bNewPress)
     }
     const bool Mining=Inventory->Selected==EMCToolSlot::Pickaxe && IsValid(CalculusTarget)
         && CalculusTarget->Calculus && CalculusTarget->Calculus->HasCalculus();
-    if(!bInCoffee && IsKatanaEquipped()) return; // The release RPC owns katana attacks.
+    if(!bInCoffee && IsKatanaEquipped()) return; // Press edges and the hold timer own katana attacks.
     if(!bInCoffee && MCMeleeCombo::Supports(this) && !Mining) {
         // Combat consumes press edges. Food chopping and the advertised held
         // pickaxe self-rescue repeat only after the current swing has recovered.
@@ -1567,6 +1571,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     UpdateArenaBoundary();
     UpdateThrowInput(DeltaSeconds);
     TickKatanaAction();
+    TickKatanaInput();
     if(MCMeleeCombo::ConsumeBufferedPress(this)) ServerSwingBrush();
     UpdateRowing(DeltaSeconds);
     if(IsFreezingToDeath())
@@ -1782,6 +1787,7 @@ void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaT
         KatanaSwingID=AcceptedVisualStep;
         KatanaSwingPlayRate=AcceptedPlayRate;
         KatanaChargeStartedAt=-1.;
+        PrepareKatanaFacing();
     } else {
         KatanaSwingID=0;
     }
@@ -1894,7 +1900,7 @@ MCKatanaSwing::EVariant AMCToothCharacter::GetKatanaSwingVariant() const
     const auto Variant=MCKatanaSwing::Decode(KatanaSwingID);
     if(Variant==MCKatanaSwing::EVariant::None || !CanOwnKatanaAction()) return MCKatanaSwing::EVariant::None;
     const float Age=GetToolSwingElapsed();
-    const float Time=FMath::Max(0.f,Age)*KatanaSwingPlayRate+MCKatanaSwing::StartOffset(Variant);
+    const float Time=FMath::Max(0.f,Age)*KatanaSwingPlayRate+MCKatanaSwing::PlaybackStart(Variant);
     return Time<MCKatanaSwing::ClipDuration(Variant)?Variant:MCKatanaSwing::EVariant::None;
 }
 
@@ -1905,17 +1911,37 @@ float AMCToothCharacter::GetKatanaSwingElapsed() const
 
 void AMCToothCharacter::ServerReleaseKatanaPrimary_Implementation()
 {
-    const float ChargeAge=GetKatanaChargeElapsed();
-    const bool bHadCharge=KatanaChargeStartedAt>=0.;
-    if(!bHadCharge) {
-        if(bPrimaryHeld) ServerSetPrimary_Implementation(false);
-        return;
-    }
-    const bool bShouldSwing=bPrimaryHeld && ChargeAge>=0.f;
+    // The press already requested its single swing. Release only ends the
+    // gesture; a held charge is accepted by the timer without waiting for it.
+    if(bPrimaryHeld && CanOwnKatanaAction()) MCKatanaInput::QueueAutoCharge(this,GetWorld()->GetTimeSeconds());
     bPrimaryHeld=false;
     KatanaChargeStartedAt=-1.;
-    if(bShouldSwing) BeginKatanaSwing(ChargeAge>=MCKatanaSwing::ChargeThreshold);
+    MCKatanaInput::Release(this);
+    TickKatanaInput();
     ForceNetUpdate();
+}
+
+void AMCToothCharacter::TickKatanaInput()
+{
+    if(!HasAuthority()) return;
+    if(!CanOwnKatanaAction()) {
+        CancelKatanaAction();
+        return;
+    }
+    const double Now=GetWorld()->GetTimeSeconds();
+    MCKatanaInput::QueueAutoCharge(this,Now);
+    const double ChargeAt=MCKatanaInput::IsPreparingCharge(this)?MCKatanaInput::PressedAt(this):-1.;
+    if(KatanaChargeStartedAt!=ChargeAt) {
+        KatanaChargeStartedAt=ChargeAt;
+        ForceNetUpdate();
+    }
+    if(Now<NextSwingTime) return;
+    bool bCharged=false;
+    if(!MCKatanaInput::Consume(this,bCharged)) return;
+    const bool bStillHeld=bPrimaryHeld && MCKatanaInput::PressedAt(this)>=0.;
+    KatanaChargeStartedAt=-1.;
+    BeginKatanaSwing(bCharged);
+    bPrimaryHeld=bStillHeld;
 }
 
 void AMCToothCharacter::BeginKatanaSwing(bool bCharged)
@@ -1923,15 +1949,14 @@ void AMCToothCharacter::BeginKatanaSwing(bool bCharged)
     if(!HasAuthority() || !CanOwnKatanaAction() || KatanaChargeStartedAt>=0.) return;
     const double Now=GetWorld()->GetTimeSeconds();
     if(Now<NextSwingTime) return;
-    const auto Variant=bCharged?MCKatanaSwing::EVariant::Charged:
-        MCKatanaSwing::EVariant(FMath::RandRange(int32(MCKatanaSwing::EVariant::DiagonalRight),int32(MCKatanaSwing::EVariant::Horizontal)));
+    const auto Variant=bCharged?MCKatanaSwing::EVariant::Charged:MCKatanaInput::ChooseNormal(this);
     const auto* GS=GetWorld()->GetGameState();
     SwingStartedAt=GS?GS->GetServerWorldTimeSeconds():Now;
     KatanaSwingID=uint8(Variant);
-    KatanaSwingPlayRate=FMath::Clamp(Inventory->RogueAttackRate(),.2f,3.f);
-    KatanaContactDamage=Inventory->Damage()/FMath::Sqrt(float(MCKatanaSwing::Cuts(Variant).Num()));
-    NextSwingTime=Now+(MCKatanaSwing::ClipDuration(Variant)-MCKatanaSwing::StartOffset(Variant))/KatanaSwingPlayRate;
-    KatanaTracedTime=MCKatanaSwing::StartOffset(Variant);
+    KatanaSwingPlayRate=MCKatanaSwing::PlaybackRate(Variant,Inventory->RogueAttackRate());
+    KatanaContactDamage=Inventory->Damage()*(bCharged?1.15f:1.f);
+    NextSwingTime=Now+(MCKatanaSwing::ClipDuration(Variant)-MCKatanaSwing::PlaybackStart(Variant))/KatanaSwingPlayRate;
+    KatanaTracedTime=MCKatanaSwing::PlaybackStart(Variant);
     KatanaTracedStroke=INDEX_NONE;
     KatanaHitTargets.Reset();
     const auto Frame=GetPresentationFrame();
@@ -1953,13 +1978,60 @@ void AMCToothCharacter::BeginKatanaSwing(bool bCharged)
     ForceNetUpdate();
 }
 
-void AMCToothCharacter::CancelKatanaAction()
+void AMCToothCharacter::CancelKatanaAction(bool bInterrupted)
 {
-    if(KatanaChargeStartedAt>=0.) bPrimaryHeld=false;
-    KatanaChargeStartedAt=-1.;
+    if(bInterrupted) {
+        if(KatanaChargeStartedAt>=0. || MCKatanaInput::PressedAt(this)>=0.) bPrimaryHeld=false;
+        KatanaChargeStartedAt=-1.;
+        MCKatanaInput::Reset(this);
+    }
     KatanaSwingID=0;
     KatanaTracedStroke=INDEX_NONE;
     KatanaHitTargets.Reset();
+}
+
+void AMCToothCharacter::PrepareKatanaFacing()
+{
+    const FVector Origin=GetActorLocation();
+    MCKatanaInput::ArmFacing(this,Origin);
+    if(auto* Enemy=FindMeleeEnemyTarget()) {
+        FVector Point=Enemy->GetActorLocation();
+        if(const auto* Nut=Cast<AMCNutEnemy>(Enemy)) Point=Nut->GetToolTargetPoint(Origin);
+        else if(const auto* Boss=Cast<AMCBossCharacter>(Enemy)) Point=Boss->GetMeleeTargetPoint(Origin);
+        MCKatanaInput::ArmFacing(this,Point);
+        return;
+    }
+    // Food uses the visible bounds to find a modest facing correction. It is
+    // still cut only when the authored cutting edge touches its triangles.
+    AMCFoodActor* Best=nullptr;
+    FVector BestPoint=Origin;
+    float BestScore=MAX_flt;
+    const FTransform Hand=GetSimulationMeshSocketTransform(RigBone(TEXT("hand_r")));
+    const float Reach=FMath::Max(Inventory->MeleeReach(),FVector::Dist2D(Origin,Hand.GetLocation())
+        +FVector::Dist(MCKatanaBlade::Edge[0],MCKatanaBlade::Edge[UE_ARRAY_COUNT(MCKatanaBlade::Edge)-1])
+        *Hand.GetScale3D().GetAbsMax());
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
+        if(It->IsHidden() || !It->GetActorEnableCollision()) continue;
+        if(!Inventory->CanBreak(*It) || It->Phase==EMCFoodPhase::Swallowing) continue;
+        const FBox Bounds=It->bFragment?It->Body->Bounds.GetBox():It->GetCanonicalModelBounds();
+        FVector Point=Bounds.GetClosestPointTo(Origin);
+        if((Point-Origin).SizeSquared2D()<1.f) Point=Bounds.GetCenter();
+        const FVector Offset=Point-Origin;
+        const float Angle=FMath::Abs(FMath::FindDeltaAngleDegrees(GetActorRotation().Yaw,Offset.Rotation().Yaw));
+        if(Offset.SizeSquared()>FMath::Square(Reach) || FMath::Abs(Offset.Z)>120.f || Angle>40.f) continue;
+        FHitResult Block;
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCKatanaFacing),false,this);
+        Query.AddIgnoredActor(*It);
+        if(GetWorld()->LineTraceSingleByChannel(Block,Origin,Point,ECC_Visibility,Query)) continue;
+        const float Score=Angle/40.f+Offset.Size()/Reach;
+        if(Score<BestScore) {Best=*It;BestPoint=Point;BestScore=Score;}
+    }
+    if(Best) MCKatanaInput::ArmFacing(this,BestPoint);
+}
+
+bool AMCToothCharacter::WantsKatanaFacing(FVector& Direction) const
+{
+    return CanOwnKatanaAction() && MCKatanaInput::WantsFacing(this,Direction);
 }
 bool AMCToothCharacter::GetCalculusSwingContact(FVector& Point,FVector& Normal) const
 {
@@ -2049,13 +2121,19 @@ bool AMCToothCharacter::WantsFoodChop() const
 }
 void AMCToothCharacter::ResolveSwing()
 {
+    if(!Inventory) return;
+    ResolveSwingContact(Inventory->Damage());
+}
+
+void AMCToothCharacter::ResolveSwingContact(float Damage)
+{
     if (!HasAuthority() || !CanWork() || Inventory->Selected==EMCToolSlot::Spray) return;
     FMCCombatAttackScope PassiveAttack(this,true);
     if(Inventory->Selected==EMCToolSlot::Pickaxe && Inventory->HasUpgrade(EMCToolUpgrade::Buffer)) {Inventory->ResolveBufferContact();return;}
     const uint8 AudioTool=uint8(Inventory->Selected);
-    const float HitIntensity=FMath::Clamp(Inventory->Damage()/60.f,.25f,1.f);
+    const float HitIntensity=FMath::Clamp(Damage/60.f,.25f,1.f);
     if(Inventory->Selected==EMCToolSlot::Pickaxe) {
-        if(HasFrozenLegs() && HitFrozenLegsWithPickaxe(this,Inventory->Damage()))
+        if(HasFrozenLegs() && HitFrozenLegsWithPickaxe(this,Damage))
         {
             ++ConfirmedHitCount; MulticastHitSound(GetActorLocation()-FVector(0,0,35),AudioTool,HitIntensity); return;
         }
@@ -2070,14 +2148,14 @@ void AMCToothCharacter::ResolveSwing()
             if(GetWorld()->LineTraceSingleByChannel(Block,GetActorLocation(),It->GetActorLocation(),ECC_Visibility,Query)) continue;
             FrozenAlly=*It; IceDistance=Offset.SizeSquared();
         }
-        if(FrozenAlly && FrozenAlly->HitFrozenLegsWithPickaxe(this,Inventory->Damage()))
+        if(FrozenAlly && FrozenAlly->HitFrozenLegsWithPickaxe(this,Damage))
         {
             ++ConfirmedHitCount; MulticastHitSound(FrozenAlly->GetActorLocation()-FVector(0,0,35),AudioTool,HitIntensity); return;
         }
         for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
         {
             FVector Point;
-            if(It->IsActive() && It->HitObstructionWithPickaxe(this,Inventory->Damage(),Point))
+            if(It->IsActive() && It->HitObstructionWithPickaxe(this,Damage,Point))
             { ++ConfirmedHitCount; MulticastHitSound(Point,AudioTool,HitIntensity); return; }
         }
         // An aimed swing never falls through to the tooth or a player if
@@ -2086,7 +2164,7 @@ void AMCToothCharacter::ResolveSwing()
             FVector Point,Normal,EligiblePoint,EligibleNormal;
             if(GetCalculusSwingContact(Point,Normal) && CalculusTarget->Calculus
                 && CalculusTarget->Calculus->FindContact(this,EligiblePoint,EligibleNormal)
-                && CalculusTarget->Calculus->ApplyPickaxeHit(this,Point,Normal,Inventory->Damage())) {
+                && CalculusTarget->Calculus->ApplyPickaxeHit(this,Point,Normal,Damage)) {
                 ++ConfirmedHitCount; MulticastHitSound(Point,AudioTool,HitIntensity);
                 if(!CalculusTarget->Calculus->HasCalculus())
                 {
@@ -2102,7 +2180,7 @@ void AMCToothCharacter::ResolveSwing()
             const FVector Offset=It->Body->Bounds.GetBox().GetClosestPointTo(GetActorLocation())-GetActorLocation();
             if(Offset.SizeSquared()<PickDistance) {BestPick=*It;PickDistance=Offset.SizeSquared();}
         }
-        if(BestPick && BestPick->HitWithPickaxe(this,Inventory->Damage())) {++ConfirmedHitCount;MulticastHitSound(BestPick->GetActorLocation(),AudioTool,HitIntensity);return;}
+        if(BestPick && BestPick->HitWithPickaxe(this,Damage)) {++ConfirmedHitCount;MulticastHitSound(BestPick->GetActorLocation(),AudioTool,HitIntensity);return;}
         AMCSmallMintCandy* SmallCandy=nullptr;float SmallMintDistance=FMath::Square(Inventory->MeleeReach());
         for(TActorIterator<AMCSmallMintCandy> It(GetWorld());It;++It) {
             if(It->Stage!=EMCSmallMintStage::Active) continue;
@@ -2110,7 +2188,7 @@ void AMCToothCharacter::ResolveSwing()
             if(Offset.SizeSquared()<SmallMintDistance && MCEnemyWeaponContact::CanHit(this,*It,Point))
                 {SmallCandy=*It;SmallMintDistance=Offset.SizeSquared();}
         }
-        if(SmallCandy && SmallCandy->HitWithPickaxe(this,Inventory->Damage())) {
+        if(SmallCandy && SmallCandy->HitWithPickaxe(this,Damage)) {
             ++ConfirmedHitCount;MulticastHitSound(SmallCandy->ContactPoint(GetActorLocation()),AudioTool,HitIntensity);return;
         }
         AMCIceEvent* BestMint=nullptr; float MintDistance=FMath::Square(Inventory->MeleeReach());
@@ -2120,31 +2198,30 @@ void AMCToothCharacter::ResolveSwing()
             if(Offset.SizeSquared()<MintDistance && MCEnemyWeaponContact::CanHit(this,*It,Point))
             { BestMint=*It; MintDistance=Offset.SizeSquared(); }
         }
-        if(BestMint && BestMint->HitWithPickaxe(this,Inventory->Damage())) { ++ConfirmedHitCount; MulticastHitSound(BestMint->GetActorLocation(),AudioTool,HitIntensity); return; }
+        if(BestMint && BestMint->HitWithPickaxe(this,Damage)) { ++ConfirmedHitCount; MulticastHitSound(BestMint->GetActorLocation(),AudioTool,HitIntensity); return; }
         AMCIceBlock* BestIce=nullptr; float Distance=FMath::Square(Inventory->MeleeReach());
         for(TActorIterator<AMCIceBlock> It(GetWorld());It;++It) {
             const FVector D=It->Body->Bounds.GetBox().GetClosestPointTo(GetActorLocation())-GetActorLocation();
             if(!It->bBroken && D.SizeSquared()<Distance && FVector::DotProduct(D.GetSafeNormal2D(),GetActorForwardVector())>.25f && CanContact(*It)) { BestIce=*It; Distance=D.SizeSquared(); }
         }
-        if(BestIce && BestIce->HitWithPickaxe(this,Inventory->Damage())) { ++ConfirmedHitCount; MulticastHitSound(BestIce->GetActorLocation(),AudioTool,HitIntensity); if(BestIce->bBroken) NotifyTaskFeedback(true,BestIce->GetActorLocation()); return; }
+        if(BestIce && BestIce->HitWithPickaxe(this,Damage)) { ++ConfirmedHitCount; MulticastHitSound(BestIce->GetActorLocation(),AudioTool,HitIntensity); if(BestIce->bBroken) NotifyTaskFeedback(true,BestIce->GetActorLocation()); return; }
     }
     const bool FoodChop=MCMeleeCombo::IsFoodChop(this);
     if(auto* Enemy=FoodChop?nullptr:FindMeleeEnemyTarget()) {
         if(auto* Nut=Cast<AMCNutEnemy>(Enemy)) {
             const auto* Knight=Cast<AMCNutBoss>(Nut);
             const float ShieldBefore=Knight?Knight->ShieldHealth:0.f;
-            const float Applied=Nut->ReceiveToolDamage(Inventory->Damage(),this);
+            const float Applied=Nut->ReceiveToolDamage(Damage,this);
             if(Applied>0 || (Knight && Knight->ShieldHealth<ShieldBefore)) {
                 ++ConfirmedHitCount;MulticastHitSound(Nut->GetActorLocation(),AudioTool,HitIntensity);
             }
         } else if(auto* Boss=Cast<AMCBossCharacter>(Enemy)) {
-            if(Boss->ReceiveBossDamage(Inventory->Damage(),this)>0) {
+            if(Boss->ReceiveBossDamage(Damage,this)>0) {
                 ++ConfirmedHitCount;MulticastHitSound(Boss->GetMeleeTargetPoint(GetActorLocation()),AudioTool,HitIntensity);
             }
         }
         return;
     }
-    // A combat sweep that moves into food mid-swing must not cut it sideways.
     auto* FoodTarget=(!MCMeleeCombo::Supports(this) || FoodChop)?FindMeleeFoodTarget():nullptr;
     if (FoodTarget)
     {
@@ -2157,7 +2234,7 @@ void AMCToothCharacter::ResolveSwing()
         // swing. Other knife paths retain immediate contact audio.
         if(bKnifeContact && !FoodChop)
             MulticastHitSound(CutContact.ImpactPoint,uint8(AudioTool|KnifeFoodHitFlag|KnifeFoodAudioOnlyFlag),HitIntensity);
-        if (FoodTarget->HitFood(Inventory->Damage(),GetActorForwardVector(),this,bKnifeContact?CutContact.ImpactPoint:FVector::ZeroVector,CutNormal))
+        if (FoodTarget->HitFood(Damage,GetActorForwardVector(),this,bKnifeContact?CutContact.ImpactPoint:FVector::ZeroVector,CutNormal))
         {
             ++ConfirmedHitCount; MulticastHitSound(FoodTarget->GetActorLocation(),bKnifeContact?uint8(AudioTool|KnifeFoodHitFlag|KnifeFoodAudioPlayedFlag):AudioTool,HitIntensity);
             if(bKnifeContact) {++ConfirmedFoodCutCount;MulticastFoodCutSplash(CutContact.ImpactPoint,CutNormal,FoodColor);}
@@ -2202,7 +2279,7 @@ void AMCToothCharacter::ResolveSwing()
     }
     FVector Direction=(Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(); if (Direction.IsNearlyZero()) Direction=GetActorForwardVector();
     Target->ToothPhysics->ApplyHit(Direction*ToothPhysics->Settings.Knockback+FVector(0,0,ToothPhysics->Settings.Lift),Target->GetActorLocation()+FVector(0,0,15));
-    UMCCombatPassiveSubsystem::NotifyPhysicalHit(this,Target,Inventory->Damage());
+    UMCCombatPassiveSubsystem::NotifyPhysicalHit(this,Target,Damage);
     ++ConfirmedHitCount;
     MulticastHitSound(Target->GetActorLocation(),AudioTool,HitIntensity);
 }
@@ -2551,6 +2628,7 @@ void AMCToothCharacter::FellOutOfWorld(const UDamageType&)
 }
 void AMCToothCharacter::EndPlay(const EEndPlayReason::Type Reason)
 {
+    MCKatanaInput::Reset(this);
     ReleaseNetworkPresentation();
     bNetworkPresentationStarted=false;
     bPeerMovementCollisionStarted=false;

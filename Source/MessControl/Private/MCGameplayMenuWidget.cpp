@@ -486,8 +486,9 @@ void UMCGameplayMenuWidget::UpdatePageCopy()
         Set(Name,TEXT("UI.Common.Cancel"),LOCTEXT("Cancel","Отмена"));
     Set(TEXT("MenuCreditsBody"),TEXT("UI.Menu.CreditsBody"),LOCTEXT("CreditsBody","Mess Control\nКооперативная игра про маленькие зубы и большой беспорядок во рту."));
     Set(TEXT("MenuCreditsEngine"),TEXT("UI.Menu.CreditsEngine"),LOCTEXT("CreditsEngine","Движок: Unreal Engine\nUnreal Engine — товарный знак Epic Games, Inc.\nИмена команды и авторов материалов будут добавлены после утверждения титров."));
-    const bool bHost=IsPreviewing()?bPreviewHost:GetOwningPlayer() && GetOwningPlayer()->HasAuthority();
-    Set(TEXT("MenuLeaveBody"),bHost?TEXT("UI.Menu.LeaveHostBody"):TEXT("UI.Menu.LeaveClientBody"),bHost?
+    const auto* Player=GetOwningPlayer();
+    const bool bNetworkHost=IsPreviewing()?bPreviewHost:Player && Player->GetNetMode()!=NM_Standalone && Player->HasAuthority();
+    Set(TEXT("MenuLeaveBody"),bNetworkHost?TEXT("UI.Menu.LeaveHostBody"):TEXT("UI.Menu.LeaveClientBody"),bNetworkHost?
         LOCTEXT("LeaveHostBody","Ты — хост. При выходе соединение остальных игроков с комнатой закроется."):
         LOCTEXT("LeaveClientBody","Ты вернёшься в главное меню."));
     Set(TEXT("MenuLeaveConfirmLabel"),TEXT("UI.Menu.LeaveConfirm"),LOCTEXT("LeaveConfirm","Выйти в главное меню"));
@@ -941,7 +942,10 @@ void UMCGameplayMenuWidget::ApplyTheme()
     BindStyle(TEXT("GameplayMenuHeader"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
     if(Card) Card->SetPadding(FMargin(20,18));
     const float PanelWidth=Page==EPage::Settings || Page==EPage::Audio?840:Page==EPage::Credits?760:Page==EPage::Pause?500:640;
-    if(auto* Note=WidgetTree->FindWidget(TEXT("MenuNetworkNote"))) Note->SetVisibility(Page==EPage::Pause?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(auto* Note=WidgetTree->FindWidget(TEXT("MenuNetworkNote"))) {
+        const bool InHub=GetWorld() && GetWorld()->GetGameState<AMCHubGameState>();
+        Note->SetVisibility(Page==EPage::Pause && !InHub?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    }
     UpdatePageCopy();TArray<UWidget*> Widgets;WidgetTree->GetAllWidgets(Widgets);
     for(auto* Widget:Widgets) {
         if(auto* Label=Cast<UTextBlock>(Widget)) {

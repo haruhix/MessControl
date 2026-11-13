@@ -10,8 +10,8 @@ Content Browser → `/Game/Gameplay/ActiveSkills/VFX/`. Двойной клик 
 
 | Активка | Niagara System | Контекст |
 |---|---|---|
-| Губка | NS_Sponge_Start, NS_Sponge_Loop, NS_Sponge_End | Начало поездки, пена у контакта с полом, завершение |
-| Крюк | NS_Hook_Start, NS_Hook_Loop, NS_Hook_Impact, NS_Hook_End | Запуск после замаха, трос до летящей головки/контакта, попадание, возврат |
+| Губка | NS_Sponge_Start, NS_Sponge_Loop, NS_Sponge_Impact, NS_Sponge_End | Начало поездки, пена у пола, всплеск при снятии грязи, завершение |
+| Крюк | NS_Hook_Start, NS_Hook_Loop, NS_Hook_Impact, NS_Hook_End | Запуск после замаха, провисающая верёвка с натяжением при зацепе, попадание, возврат |
 | Граната | NS_Grenade_Start, NS_Grenade_Loop, NS_Grenade_Warning, NS_Grenade_Impact | Взведение, фитиль, опасная область на полу, взрыв |
 | Воздухан | NS_Air_Loop, NS_Air_Warning, NS_Air_Impact, NS_Air_Rupture | Всасывание/наполнение, переполнение, выдувание, разрыв мешка |
 | Ракетница | NS_Rocket_Start, NS_Rocket_Loop, NS_Rocket_Impact | Дульный акцент, полёт, взрыв |

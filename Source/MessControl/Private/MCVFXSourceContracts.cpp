@@ -25,7 +25,7 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         const auto Hub=MCVFXSourceContracts::HubLibraryPath(),UI=MCVFXSourceContracts::InterfaceLibraryPath();
         Add(TEXT("Tool.Knife"),TEXT("Нож · взмах и попадание"),TEXT("Tools"),TEXT("AMCToothCharacter / UMCInventoryComponent / MCMeleeCombo"),Tool,{TEXT("Swing"),TEXT("Hit"),TEXT("FoodCut")});
         auto& Katana=Add(TEXT("Tool.Katana"),TEXT("Катана · режущие взмахи"),TEXT("Tools"),TEXT("AMCToothCharacter / UMCInventoryComponent / UMCWeaponTrailComponent"),Tool,{TEXT("Swing"),TEXT("Hit"),TEXT("FoodCut")});
-        Katana.Description=TEXT("Три обычных реза и заряженная серия через настоящий основной ввод. Лента следует оценённым краям клинка и открывается в активной фазе каждого реза. Попадание и разрез еды приходят из авторитетного контакта.");
+        Katana.Description=TEXT("Четыре обычных реза без повторов подряд: нажатие сразу запускает удар, ранние нажатия сохраняются в очереди. Удержание автоматически добавляет заряженную серию. Лента следует оценённым краям клинка и открывается в активной фазе каждого реза. Попадание и разрез еды приходят из авторитетного контакта.");
         Add(TEXT("Tool.Pickaxe"),TEXT("Кирка · взмах и попадание"),TEXT("Tools"),TEXT("AMCToothCharacter / UMCInventoryComponent / MCMeleeCombo"),Tool,{TEXT("Swing"),TEXT("Hit")});
         Add(TEXT("Tool.Brush"),TEXT("Щётка · контакт"),TEXT("Cleaning"),TEXT("UMCBrushContactComponent / AMCToothCharacter"),Tool,{TEXT("Contact")});
         Add(TEXT("Tool.Spray"),TEXT("Распылитель · обработка"),TEXT("Tools"),TEXT("UMCInventoryComponent"),Tool,{TEXT("Start"),TEXT("WaterCare"),TEXT("Contact"),TEXT("End")});
@@ -101,9 +101,10 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         Add(TEXT("EditorOnly.FishingCatch"),TEXT("Награда · улов рыбы"),TEXT("Hub"),TEXT("UMCFishingRewardWidget / MCPlayerFishingFeedback"),Hub,{TEXT("Catch")});
         auto& Grill=Add(TEXT("Hub.Grill"),TEXT("Слот-машина · рыба, прокрутка и приз"),TEXT("Hub"),
             TEXT("AMCHubGrillStation / UMCHubGrillPresentationComponent / UMCHubGrillHologramWidget"),Hub,
-            {TEXT("Intake"),TEXT("Spin"),TEXT("Result"),TEXT("RareWin")});
+            {TEXT("Intake"),TEXT("Spin"),TEXT("Result"),TEXT("RareWin"),TEXT("Reset")});
         Grill.Description=TEXT("В ожидании проекция показывает зацикленную ленту каталога и зубика справа. Intake показывает приём рыбы. Spin и Result отображают принятый бросок на неподвижной проекции над корпусом автомата. Лента рисуется в Slate из данных реального броска.\n")
             TEXT("RareWin показывает принятый эпический или легендарный предмет. Зубики выезжают с двух сторон поверх карточки на проекции Slate. По бокам корпуса автомата вспыхивают звёзды в цвете редкости и разлетается конфетти. Празднование запускается вместе с фанфарой и выездом у получателя.\n")
+            TEXT("Reset запускается при возврате в ожидание после принятого броска. Проекция сжимается в строку, на мгновение гаснет и раскрывается с зацикленной лентой. Ценный приз с зубиками остаётся на экране до схлопывания. Пространственный звук автомата содержит щелчок реле и короткий звук включения. Переходы доступны в UMG Designer.\n")
             TEXT("Виджет /Game/Gameplay/UI/WBP_GrillHologram\n")
             TEXT("Материал проекции /Game/Gameplay/Hub/Economy/M_CaseHologramProjection\n")
             TEXT("Атлас реакции /Game/Gameplay/Hub/Economy/T_CaseRareToothReaction\n")
@@ -116,6 +117,11 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         GrillFanfare.Resource=FSoftObjectPath(TEXT("/Game/Gameplay/Hub/Economy/SFX/SW_CaseRareFanfare.SW_CaseRareFanfare"));
         GrillFanfare.bSuppressionWired=true;
         Grill.OriginalAudio.Add(TEXT("RareWin"),MoveTemp(GrillFanfare));
+        FMCVFXOriginalSFXContract GrillReset;
+        GrillReset.ID=TEXT("Reset.Original");GrillReset.Label=FText::FromString(TEXT("Исходный звук · перезагрузка голограммы"));
+        GrillReset.Resource=FSoftObjectPath(TEXT("/Game/Gameplay/Hub/Economy/SFX/SW_CaseHologramReset.SW_CaseHologramReset"));
+        GrillReset.bSuppressionWired=true;
+        Grill.OriginalAudio.Add(TEXT("Reset"),MoveTemp(GrillReset));
         Add(TEXT("Hub.ReadyZone"),TEXT("Хаб · зона готовности"),TEXT("Hub"),TEXT("AMCHubReadyZone"),Hub,{TEXT("Active"),TEXT("Ready")});
         Add(TEXT("Hub.DeliveryZone"),TEXT("Хаб · зона доставки"),TEXT("Hub"),TEXT("UMCDeliveryZoneVisualComponent"),Hub,{TEXT("Active"),TEXT("Complete")});
         Add(TEXT("Hub.Basketball"),TEXT("Хаб · баскетбол"),TEXT("Hub"),TEXT("AMCHubBasketball"),Hub,{TEXT("Contact"),TEXT("Score")});

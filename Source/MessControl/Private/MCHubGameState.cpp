@@ -89,6 +89,7 @@ void AMCHubGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCHubGameState, Phase);
     DOREPLIFETIME(AMCHubGameState, SceneGeneration);
+    DOREPLIFETIME(AMCHubGameState, RaidSelectionRevision);
     DOREPLIFETIME(AMCHubGameState, SelectedDay);
     DOREPLIFETIME(AMCHubGameState, Players);
     DOREPLIFETIME(AMCHubGameState, Notice);
@@ -166,6 +167,14 @@ bool AMCHubGameState::HasLoadedScene(const APlayerState* Player) const
     });
 }
 
+bool AMCHubGameState::IsPlayerReady(const APlayerState* Player) const
+{
+    return IsParticipant(Player) && Players.ContainsByPredicate([Player](const FMCHubPlayerReadiness& Entry)
+    {
+        return Entry.Player == Player && Entry.bReady && Entry.bLoaded;
+    });
+}
+
 bool AMCHubGameState::AreAllReady() const
 {
     const int32 Count = GetParticipantCount();
@@ -210,7 +219,12 @@ void AMCHubGameState::SetPhase(EMCHubPhase NewPhase)
     if (!HasAuthority() || Phase == NewPhase) return;
     Phase = NewPhase;
     SceneGeneration = SceneGeneration == MAX_int32 ? 1 : SceneGeneration + 1;
-    for (FMCHubPlayerReadiness& Player : Players) Player.bLoaded = false;
+    RaidSelectionRevision = RaidSelectionRevision == MAX_int32 ? 1 : RaidSelectionRevision + 1;
+    for (FMCHubPlayerReadiness& Player : Players)
+    {
+        Player.bLoaded = false;
+        if (NewPhase != EMCHubPhase::Travelling) Player.bReady = false;
+    }
     NotifyChanged();
 }
 
@@ -218,6 +232,9 @@ void AMCHubGameState::SetSelectedDay(int32 Day)
 {
     if (!HasAuthority() || Day < 1 || Day > 7 || SelectedDay == Day) return;
     SelectedDay = Day;
+    RaidSelectionRevision = RaidSelectionRevision == MAX_int32 ? 1 : RaidSelectionRevision + 1;
+    if (Phase == EMCHubPhase::Selecting)
+        for (FMCHubPlayerReadiness& Player : Players) Player.bReady = false;
     NotifyChanged();
 }
 

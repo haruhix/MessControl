@@ -1796,7 +1796,7 @@ void UMCGameplayHUD::RefreshState()
             }
         }
         if(Inv->Selected==EMCToolSlot::Knife && Inv->HasUpgrade(EMCToolUpgrade::Chainsaw))
-            Hint=Copy(TEXT("UI.HUD.Hint.Katana"),LOCTEXT("HintKatana","ЛКМ · РЕЗ     УДЕРЖИВАЙ И ОТПУСТИ · СЕРИЯ"));
+            Hint=Copy(TEXT("UI.HUD.Hint.Katana"),LOCTEXT("HintKatana","ЛКМ · РЕЗ     УДЕРЖИВАЙ · СЕРИЯ"));
         if(Inv->Selected==EMCToolSlot::Spray && Inv->HasUpgrade(EMCToolUpgrade::Watergun)) Hint=Inv->bPressureMode?(Inv->bWaterReloading?Copy(TEXT("UI.HUD.Hint.WatergunReload"),LOCTEXT("HintWatergunReload","ПЕРЕЗАРЯДКА · УДЕРЖИВАЙ ЛКМ ДЛЯ ПРОДОЛЖЕНИЯ     4 · РЕЖИМ")):Copy(TEXT("UI.HUD.Hint.WatergunShoot"),LOCTEXT("HintWatergunShoot","УДЕРЖИВАЙ ЛКМ · АВТОМАТИЧЕСКАЯ СТРЕЛЬБА     4 · РЕЖИМ"))):Copy(TEXT("UI.HUD.Hint.WatergunHeal"),LOCTEXT("HintWatergunHeal","УДЕРЖИВАЙ ЛКМ · ТУШИТЬ И ЛЕЧИТЬ     4 · РЕЖИМ"));
         if(!Hint.IsEmpty() && !Inv->IsChainsawRunning()) Hint=Format(TEXT("UI.HUD.Hint.WithBrace"),LOCTEXT("HintWithBrace","{Action}     ПКМ · ДЕРЖАТЬСЯ"),{{TEXT("Action"),Hint}});
         const auto IsFreshOrdinaryFood=[](const AMCFoodActor* Food) {

@@ -94,7 +94,7 @@ def local_weapon(hand, weapon, previous):
     return rotation, [1.0, *location[:3], rotation.x, rotation.y, rotation.z, rotation.w, *scale]
 
 
-def bake(scene, target, name, output, prop_samples):
+def bake(scene, target, name, output, prop_samples, sample_multiplier=1):
     bpy.context.window.scene = scene
     source = next(o for o in scene.objects if o.type == "ARMATURE" and o != target)
     skin = next(o for o in scene.objects if o.name.startswith("SM_Character") and o.type == "MESH")
@@ -118,8 +118,10 @@ def bake(scene, target, name, output, prop_samples):
               "MCWeaponQY", "MCWeaponQZ", "MCWeaponQW", "MCWeaponSX", "MCWeaponSY", "MCWeaponSZ")
     curves = {field: [] for field in (*fields, *MORPHS.values())}
     reference = []
-    for frame in range(scene.frame_start, scene.frame_end + 1):
-        scene.frame_set(frame)
+    sample_count = (scene.frame_end - scene.frame_start) * sample_multiplier + 1
+    for sample in range(sample_count):
+        frame = scene.frame_start + sample / sample_multiplier
+        scene.frame_set(int(frame), subframe=frame % 1.)
         graph = bpy.context.evaluated_depsgraph_get()
         evaluated = source.evaluated_get(graph)
         root_offset = offset.copy()
@@ -176,11 +178,12 @@ def bake(scene, target, name, output, prop_samples):
     path = output / (name + ".fbx")
     bpy.ops.export_scene.fbx(filepath=str(path), use_selection=True, object_types={"ARMATURE"},
         add_leaf_bones=False, use_armature_deform_only=False, bake_anim=True,
-        bake_anim_use_nla_strips=False, bake_anim_use_all_actions=False, bake_anim_simplify_factor=0)
-    fps = scene.render.fps / scene.render.fps_base
+        bake_anim_use_nla_strips=False, bake_anim_use_all_actions=False, bake_anim_simplify_factor=0,
+        bake_anim_step=1. / sample_multiplier)
+    fps = scene.render.fps / scene.render.fps_base * sample_multiplier
     action.use_fake_user = True
-    print(f"BAKED {name}: {scene.frame_end} samples, {peak_error:.6f} cm", flush=True)
-    return {"asset": name, "frames": scene.frame_end - scene.frame_start + 1, "fps": fps,
+    print(f"BAKED {name}: {sample_count} samples, {peak_error:.6f} cm", flush=True)
+    return {"asset": name, "frames": sample_count, "fps": fps,
             "max_bone_error_cm": peak_error, "curves": curves, "bone_count": len(mapping),
             "samples": reference}
 
@@ -277,7 +280,11 @@ def main():
         scene = bpy.data.scenes["Katana | " + label]
         if target.name not in scene.objects:
             scene.collection.objects.link(target)
-        result["clips"].append(bake(scene, target, "A_Katana_" + name, output, prop_samples))
+        # Fast, wide two-hand arcs need dense FK samples. At 30 FPS the
+        # independently interpolated wrist and twist chains lose the second
+        # grip between keys even though each authored IK pose is exact.
+        multiplier = 8 if scene.get("wide_katana_version") else 1
+        result["clips"].append(bake(scene, target, "A_Katana_" + name, output, prop_samples, multiplier))
     (output / "KatanaBake.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
 
 

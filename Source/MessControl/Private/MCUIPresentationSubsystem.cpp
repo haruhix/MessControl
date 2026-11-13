@@ -13,6 +13,7 @@
 #include "MCPlayerNameComponent.h"
 #include "MCDeliveryZoneCaptionWidget.h"
 #include "MCHubInteractionPromptWidget.h"
+#include "MCHubGameState.h"
 #include "Engine/DataTable.h"
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/Culture.h"
@@ -65,7 +66,7 @@ namespace MCWorldUIWarmupPrivate
         const auto* SourceTheme=IsValid(Defaults->Theme.Get())?Defaults->Theme.Get():CurrentTheme;
         return SourceTheme?SourceTheme->LocalizationTable.Get():nullptr;
     }
-    bool PrimeKnownWorldCaptions(const UMCGameplayUITheme* NewTheme,const UMCGameplayUITheme* CurrentTheme,float FontScale)
+    bool PrimeKnownWorldCaptions(const UMCGameplayUITheme* NewTheme,const UMCGameplayUITheme* CurrentTheme,float FontScale,bool bHub)
     {
         if(!NewTheme || !CurrentTheme) return false;
         const FString Culture=FInternationalization::Get().GetCurrentLanguage()->GetName();
@@ -106,7 +107,13 @@ namespace MCWorldUIWarmupPrivate
             || !MCWorldUIShapes::PrimeText(NewTheme->MakeFont(24,true),{FText::AsCultureInvariant(TEXT("\u00AB\u00BB"))},FontScale)
             || !MCWorldUIShapes::PrimeText(NewTheme->MakeFont(19,true),{},FontScale)) return false;
         const auto* Prompt=Cast<UMCHubInteractionPromptWidget>(ResidentSourceDefaults(CurrentTheme,TEXT("HubInteractionPrompt"),UMCHubInteractionPromptWidget::StaticClass()));
-        return Prompt && MCWorldUIShapes::PrimeText(NewTheme->MakeFont(36,true),{Prompt->KeyLabel},FontScale);
+        if(!Prompt || !MCWorldUIShapes::PrimeText(NewTheme->MakeFont(36,true),{Prompt->KeyLabel},FontScale)) return false;
+        if(!bHub) return true;
+        const auto* PromptTheme=IsValid(Prompt->Theme.Get())?Prompt->Theme.Get():CurrentTheme;
+        const FText ShopCopy=UMCHubInteractionPromptWidget::ShopPromptCopy(ResidentSourceCopyTable(Prompt,CurrentTheme),Culture);
+        const int32 ShopFont=UMCHubInteractionPromptWidget::ShopPromptFontSize;
+        return MCWorldUIShapes::PrimeText(NewTheme->MakeFont(ShopFont,true),{ShopCopy},FontScale)
+            && MCWorldUIShapes::PrimeText(PromptTheme->MakeGameplayFont(ShopFont,true),{ShopCopy},FontScale);
     }
 }
 
@@ -350,7 +357,8 @@ bool UMCUIPresentationSubsystem::PrepareWorldLabels(APlayerController* PC)
     }
     // Exact source-role copy, actual New font variants, no gameplay owner or hidden scene is created.
     const float FontScale=FMath::Max(.001f,PreparedWorldLabelView->GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
-    return MCWorldUIWarmupPrivate::PrimeKnownWorldCaptions(NewTheme,UMCGameplayUIFactory::GetMasterTheme(),FontScale);
+    return MCWorldUIWarmupPrivate::PrimeKnownWorldCaptions(NewTheme,UMCGameplayUIFactory::GetMasterTheme(),FontScale,
+        GetWorld()->GetGameState<AMCHubGameState>()!=nullptr);
 }
 
 bool UMCUIPresentationSubsystem::PrepareInterface(APlayerController* PC)

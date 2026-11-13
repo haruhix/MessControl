@@ -1,4 +1,5 @@
 #include "MCHubInteractionPromptWidget.h"
+#include "MCUIDataLibrary.h"
 #include "MCWorldUIShapes.h"
 
 #include "Blueprint/WidgetTree.h"
@@ -9,7 +10,7 @@
 
 namespace MCHubPromptKeycap
 {
-int32 FontSizeFor(const FText& Label) {return Label.ToString().Len()>1?16:36;}
+int32 FontSizeFor(const FText& Label) {return Label.ToString().Len()>1?UMCHubInteractionPromptWidget::ShopPromptFontSize:36;}
 void ApplyLabel(UTextBlock* Key,const FText& Label)
 {
     if(!Key) return;
@@ -22,6 +23,27 @@ void ApplyLabel(UTextBlock* Key,const FText& Label)
 }
 
 UMCHubInteractionPromptWidget::UMCHubInteractionPromptWidget() {bUseVersionedWorldPresentation=true;}
+
+FText UMCHubInteractionPromptWidget::ShopPromptCopy(UDataTable* CopyTable,const FString& Culture)
+{
+    const FText Title=UMCUIDataLibrary::ResolveText(CopyTable,TEXT("UI.Shop.Title"),
+        NSLOCTEXT("MCHubShop","Title","МАГАЗИН"),Culture);
+    return FText::Format(FText::AsCultureInvariant(TEXT("E · {0}")),Title);
+}
+
+void UMCHubInteractionPromptWidget::SetShopPrompt()
+{
+    if(!WidgetTree) return;
+    const FText Copy=ShopPromptCopy(GetResolvedTranslationTable());
+    if(KeyLabel.EqualTo(Copy)) return;
+    KeyLabel=Copy;
+    BuildPresentationTree();
+    if(auto* Size=WidgetTree->FindWidget<USizeBox>(TEXT("WorldPromptV2Root"))) Size->SetMinDesiredHeight(38.f);
+    if(auto* Plate=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("WorldPromptV2Plate"))) {
+        Plate->Fill=EMCUIColorToken::Mint;
+        Plate->ApplyTheme();
+    }
+}
 
 void UMCHubInteractionPromptWidget::NativeOnInitialized()
 {
@@ -80,7 +102,15 @@ void UMCHubInteractionPromptWidget::ApplyTheme()
 
 void UMCHubInteractionPromptWidget::ApplyEditorPreview(float Time)
 {
+    if(IsDesignTime() && PreviewState==TEXT("Shop"))
+        KeyLabel=ShopPromptCopy(GetResolvedTranslationTable(),PreviewCulture);
     Super::ApplyEditorPreview(Time);
+    if(IsDesignTime() && PreviewState==TEXT("Shop")) {
+        if(auto* Size=WidgetTree?WidgetTree->FindWidget<USizeBox>(TEXT("WorldPromptV2Root")):nullptr) Size->SetMinDesiredHeight(38.f);
+        if(auto* Plate=WidgetTree?WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("WorldPromptV2Plate")):nullptr) {
+            Plate->Fill=EMCUIColorToken::Mint;Plate->ApplyTheme();
+        }
+    }
     SetVisibility(PreviewScenario==EMCGameplayUIPreviewScenario::Empty
         ?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
 }

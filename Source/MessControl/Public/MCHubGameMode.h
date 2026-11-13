@@ -7,6 +7,7 @@
 #include "MCHubGameMode.generated.h"
 
 class AMCHubGameState;
+class AMCPlayerController;
 class AMCToothCharacter;
 
 /** A social hub and a shared selector. Deliberately does not inherit the level director GameMode. */
@@ -33,6 +34,9 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Hub") bool RequestSelectDay(APlayerController* Requester, int32 Day);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Hub") bool RequestLaunch(APlayerController* Requester);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Hub") bool RequestReturnToHub(APlayerController* Requester);
+    bool RequestRaidReady(AMCPlayerController* Requester, const AMCHubGameState* Hub, int32 Revision, bool bReady);
+    bool RequestRaidPerk(AMCPlayerController* Requester, const AMCHubGameState* Hub, int32 Revision,
+        FName PerkID, int32 Slot, bool bPassive, FName ExpectedPerkID);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Hub|Room")
     bool RequestSetRoomPrivacy(APlayerController* Requester, EMCRoomPrivacy Privacy);
     void AcknowledgeSceneLoaded(APlayerController* Player, const AMCHubGameState* LoadedHub, int32 Generation);
@@ -53,6 +57,7 @@ private:
     bool bTravelPending = false;
     int32 InitialSelectedDay = 1;
     TMap<TWeakObjectPtr<APlayerController>, int32> LoadedPlayers;
+    TMap<TWeakObjectPtr<APlayerController>, int32> RaidReadyPlayers;
     TMap<TWeakObjectPtr<APlayerController>, double> LastSelectionAt;
     TMap<TWeakObjectPtr<APlayerController>, double> RecoveryAt;
     TSet<TWeakObjectPtr<APlayerController>> ForcedRecovery;
@@ -73,5 +78,6 @@ private:
     float ArrivalYaw(const FVector& SpawnLocation, float FallbackYaw) const;
     bool IsParticipant(const APlayerController* Player) const;
     bool IsHostRequest(const APlayerController* Player) const;
+    bool IsRaidSelectionRequest(const APlayerController* Player, const AMCHubGameState* Hub, int32 Revision) const;
     bool TravelTo(const FString& URL, EMCHubPhase RestorePhase);
 };

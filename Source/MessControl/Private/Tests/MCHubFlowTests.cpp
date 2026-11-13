@@ -339,6 +339,18 @@ bool FMCHubEmbeddedSelectionRulesTest::RunTest(const FString&)
     TestFalse(TEXT("The new participant must acknowledge the current selector"),State->AreAllLoaded());
     Mode->AcknowledgeSceneLoaded(LatePlayer,State,SelectionGeneration);
     TestTrue(TEXT("Both current-generation participant ACKs release the barrier"),State->AreAllLoaded());
+    TestFalse(TEXT("Loading the selector does not confirm a raid kit"),State->AreAllReady());
+    const int32 FirstRaidRevision = State->RaidSelectionRevision;
+    TestTrue(TEXT("The host may confirm an empty raid kit"),Mode->RequestRaidReady(Player,State,FirstRaidRevision,true));
+    TestTrue(TEXT("The host's personal Ready is visible in the shared snapshot"),State->IsPlayerReady(Identity));
+    TestFalse(TEXT("A host cannot launch while a loaded teammate is still choosing"),Mode->RequestLaunch(Player));
+    TestTrue(TEXT("A guest may confirm their own empty kit"),Mode->RequestRaidReady(LatePlayer,State,FirstRaidRevision,true));
+    TestTrue(TEXT("Both individual Ready choices release the raid readiness barrier"),State->AreAllReady());
+    TestFalse(TEXT("Ready does not grant the guest permission to launch"),Mode->RequestLaunch(LatePlayer));
+    TestTrue(TEXT("The host can select a different raid day"),Mode->RequestSelectDay(Player,2));
+    TestTrue(TEXT("A day change preserves the loaded selector"),State->AreAllLoaded());
+    TestFalse(TEXT("A day change clears the team's raid readiness"),State->AreAllReady());
+    TestFalse(TEXT("Ready queued for the previous day cannot confirm the new day"),Mode->RequestRaidReady(LatePlayer,State,FirstRaidRevision,true));
     TestTrue(TEXT("Host returns to the same hub world"),Mode->RequestReturnToHub(Player));
     TestEqual(TEXT("Return restores Gathering"),State->Phase,EMCHubPhase::Gathering);
     TestTrue(TEXT("Return also avoids ServerTravel"),Fixture.World->NextURL.IsEmpty());

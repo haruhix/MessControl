@@ -414,12 +414,13 @@ private:
     bool SpawnFragments(FVector Direction,TArray<AMCFoodActor*>* OutPieces=nullptr);
     bool SupportsPlanarCut() const;
     /** A refusal preserves the parent; callers must not fall back to legacy fragments. */
-    bool SpawnCutFragments(FVector Direction,FVector WorldPoint,FVector WorldNormal,TArray<AMCFoodActor*>* OutPieces=nullptr,bool bRequireSplit=false);
+    bool SpawnCutFragments(FVector Direction,FVector WorldPoint,FVector WorldNormal,TArray<AMCFoodActor*>* OutPieces=nullptr,
+        bool bRequireSplit=false,const AMCToothCharacter* FinishingWorker=nullptr);
     /** 0 = already connected, 1 = all independent portions staged, -1 = atomic refusal. */
     int32 SpawnDisconnectedPortions(FVector Direction,TArray<AMCFoodActor*>& OutPieces);
     bool SpawnPortionActors(const TArray<TArray<FMCFoodCutPlane>>& Histories,const TArray<double>& Weights,
         const TArray<FBox>& LocalBounds,const TArray<double>& LocalVolumes,FVector Direction,TArray<AMCFoodActor*>& OutPieces,
-        const TArray<TSharedPtr<const FMCPreparedFoodCutState>>& Prepared={});
+        const TArray<TSharedPtr<const FMCPreparedFoodCutState>>& Prepared={},const AMCToothCharacter* FinishingWorker=nullptr);
     bool BuildCutVisual();
     bool PrepareCutGeometry();
     void ApplyPreparedSourceMaterials();
@@ -438,7 +439,7 @@ private:
     /** Parent tuning/geometry was staged before FinishSpawning; BeginPlay must not overwrite it. */
     bool bStagedCutPortion=false;
     FObjectKey CutParent;
-    /** Server-only receipt: accepted small geometry never needs a physical replicated actor. */
+    /** Server-only receipt for accepted cut geometry that is ready for crumb intake. */
     bool bCutIntakeReceipt=false;
     FBox CutIntakeReceiptBounds=FBox(ForceInit);
     bool bProcessingAutomaticCutDamage=false;
@@ -454,7 +455,8 @@ private:
     void CompleteCutPortions(const TArray<AMCFoodActor*>& Pieces,FVector Direction,AMCToothCharacter* Worker,bool bWeaponPassives,bool bPlayBreak);
     FBox CutStackLocalBounds=FBox(ForceInit);
     int32 CutAwardUnits=1;
-    bool ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,class AMCPlayerState* SourcePS,bool bWeaponPassives,bool bExactCut=false);
+    bool ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,class AMCPlayerState* SourcePS,
+        bool bWeaponPassives,bool bExactCut=false,bool bFinishCutPortions=false);
     FGuid ActiveContainerClaim;
     void RecoverUnreachableFood(float Dt);
     UPROPERTY() TObjectPtr<class AMCReactionVFX> SmellVFX;

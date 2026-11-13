@@ -41,6 +41,7 @@
 #include "Engine/Texture2D.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInterface.h"
+#include "Sound/SoundAttenuation.h"
 #include "Sound/SoundBase.h"
 
 #define LOCTEXT_NAMESPACE "MCHubGrillHologram"
@@ -54,12 +55,17 @@ constexpr float CurrentHeight=226.f;
 constexpr float ProjectionHeight=245.f;
 constexpr float ProjectionScale=.49f;
 constexpr double RareArrivalSeconds=.62;
+constexpr double ResetSeconds=.62;
+constexpr float ResetCollapseEnd=.29f;
+constexpr float ResetBootStart=.43f;
 constexpr float RailRadius=10.f;
 constexpr const TCHAR* ProjectionMaterial=TEXT("/Game/Gameplay/Hub/Economy/M_CaseHologramProjection.M_CaseHologramProjection");
 constexpr const TCHAR* RareReactionAtlas=TEXT("/Game/Gameplay/Hub/Economy/T_CaseRareToothReaction.T_CaseRareToothReaction");
 constexpr const TCHAR* RareFanfareAsset=TEXT("/Game/Gameplay/Hub/Economy/SFX/SW_CaseRareFanfare.SW_CaseRareFanfare");
+constexpr const TCHAR* ResetSoundAsset=TEXT("/Game/Gameplay/Hub/Economy/SFX/SW_CaseHologramReset.SW_CaseHologramReset");
 const FName ComposerSource(TEXT("Hub.Grill"));
 const FName RareWinEvent(TEXT("RareWin"));
+const FName ResetEvent(TEXT("Reset"));
 constexpr float CardWidth=116.f;
 constexpr float CardGap=9.f;
 constexpr double IdleCardsPerSecond=5./19.;
@@ -93,6 +99,24 @@ double PresentationTime(const AMCHubGrillStation& Grill)
     const auto* World=Grill.GetWorld();
     if(const auto* State=World?World->GetGameState():nullptr) return State->GetServerWorldTimeSeconds();
     return World?World->GetTimeSeconds():Grill.StageStartedAt;
+}
+
+float ResetProgressAt(const AMCHubGrillStation& Grill,double Now)
+{
+    if(Grill.Stage!=EMCHubGrillStage::Idle || !Grill.CurrentReward.RollID.IsValid()) return 1.f;
+    return float(FMath::Clamp((Now-Grill.StageStartedAt)/ResetSeconds,0.,1.));
+}
+
+FWidgetTransform ResetDisplayTransform(float Progress)
+{
+    const float Collapse=FMath::SmoothStep(0.f,ResetCollapseEnd,Progress);
+    const float Boot=FMath::SmoothStep(ResetBootStart,.87f,Progress);
+    const float Overshoot=.032f*FMath::SmoothStep(.70f,.86f,Progress)*(1.f-FMath::SmoothStep(.87f,1.f,Progress));
+    const float Tear=FMath::Sin(Progress*10.f*PI)*Collapse*(1.f-FMath::SmoothStep(.20f,.34f,Progress));
+    FWidgetTransform Transform;
+    Transform.Scale.Y=1.f-.998f*Collapse+.998f*Boot+Overshoot;
+    Transform.Translation.X=16.f*Tear;
+    return Transform;
 }
 
 float RareArrival(double Seconds)
@@ -240,36 +264,28 @@ void UMCHubGrillHologramWidget::ApplyTheme()
 void UMCHubGrillHologramWidget::TickPresentation(float DeltaSeconds)
 {
     RefreshWorldPresentationSelection();PrimeWorldPresentationFonts();
-    const auto* Grill=Source.Get();if(!Grill) {RefreshWorldPresentation();return;}
+    const auto* Grill=Source.Get();
+    if(!Grill) {
+        UpdateResetVisual(1.f);
+        UpdateRareReaction(0.f,0.f);
+        RefreshWorldPresentation();
+        return;
+    }
     const auto* PS=GetOwningPlayer()?GetOwningPlayer()->GetPlayerState<AMCPlayerState>():nullptr;
     const auto* Economy=PS?PS->Economy.Get():nullptr;
-    RefreshReel(*Grill,Economy);
+    const double Now=MCGrillStrip::PresentationTime(*Grill);
+    UpdateResetVisual(MCGrillStrip::ResetProgressAt(*Grill,Now));
+    RefreshReel(*Grill,Economy,Now);
     const bool bRareReveal=MCGrillStrip::IsRareReveal(*Grill);
-    float NextReactionArrival=0.f;
-    float NextReactionOpacity=0.f;
-    if(bRareReveal && RareReactionTexture && RareReactionRoll==Grill->CurrentReward.RollID) {
-        const double Now=MCGrillStrip::PresentationTime(*Grill);
-        NextReactionArrival=MCGrillStrip::RareArrival(Now-RareReactionStartedAt);
-        NextReactionOpacity=FMath::SmoothStep(0.f,.22f,float(Grill->StageEndsAt-Now));
-    }
-    if(RareReactionArrival!=NextReactionArrival || RareReactionOpacity!=NextReactionOpacity) {
-        if(auto* Base=WidgetTree?WidgetTree->RootWidget.Get():nullptr) {
-            if(NextReactionOpacity>0.f && !HiddenBaseOpacity.IsSet()) {
-                HiddenBaseOpacity=Base->GetRenderOpacity();
-                Base->SetRenderOpacity(0.f);
-            } else if(NextReactionOpacity<=0.f && HiddenBaseOpacity.IsSet()) {
-                Base->SetRenderOpacity(HiddenBaseOpacity.GetValue());
-                HiddenBaseOpacity.Reset();
-            }
-        }
-        RareReactionArrival=NextReactionArrival;
-        RareReactionOpacity=NextReactionOpacity;
-        Invalidate(EInvalidateWidgetReason::Paint);
-    }
+    // The last frame of the celebration is the picture that the CRT switches off.
+    const bool bShowRareReaction=RareReactionTexture && RareReactionRoll.IsValid()
+        && RareReactionRoll==Grill->CurrentReward.RollID
+        && (bRareReveal || Grill->Stage==EMCHubGrillStage::Opening || ResetProgress<MCGrillStrip::ResetBootStart);
+    UpdateRareReaction(bShowRareReaction?MCGrillStrip::RareArrival(Now-RareReactionStartedAt):0.f,bShowRareReaction?1.f:0.f);
     if(HologramTitle) {
         const FText Title=Grill->Stage==EMCHubGrillStage::Rolling?Localized(TEXT("UI.Grill.Rolling"),LOCTEXT("Rolling","КРУТИМ…")):
             Grill->Stage==EMCHubGrillStage::Closing?Localized(TEXT("UI.Grill.Accepted"),LOCTEXT("Cooking","РЫБА ПРИНЯТА")):
-            bRareReveal?GrillText(TEXT("UI.Grill.RareWin"),TEXT("ЦЕННЫЙ ПРИЗ"),TEXT("BIG WIN")):
+            (bRareReveal || bShowRareReaction)?GrillText(TEXT("UI.Grill.RareWin"),TEXT("ЦЕННЫЙ ПРИЗ"),TEXT("BIG WIN")):
             bResultCentered?GrillText(TEXT("UI.Grill.Result"),TEXT("ВАШ РЕЗУЛЬТАТ"),TEXT("YOUR RESULT")):
                 bIdleReel?GrillText(TEXT("UI.Grill.IdleTeaser"),TEXT("ЧТО ВЫПАДЕТ?"),TEXT("WHAT WILL DROP?")):
                     Localized(TEXT("UI.Grill.Idle"),LOCTEXT("Idle","1 РЫБА · 1 ПОПЫТКА"));
@@ -293,6 +309,43 @@ void UMCHubGrillHologramWidget::TickPresentation(float DeltaSeconds)
     }
     RefreshWorldPresentation();
 }
+
+void UMCHubGrillHologramWidget::UpdateRareReaction(float Arrival,float Opacity)
+{
+    if(RareReactionArrival==Arrival && RareReactionOpacity==Opacity) return;
+    if(auto* Base=WidgetTree?WidgetTree->RootWidget.Get():nullptr) {
+        if(Opacity>0.f && !HiddenBaseOpacity.IsSet()) {
+            HiddenBaseOpacity=Base->GetRenderOpacity();
+            Base->SetRenderOpacity(0.f);
+        } else if(Opacity<=0.f && HiddenBaseOpacity.IsSet()) {
+            Base->SetRenderOpacity(HiddenBaseOpacity.GetValue());
+            HiddenBaseOpacity.Reset();
+        }
+    }
+    RareReactionArrival=Arrival;
+    RareReactionOpacity=Opacity;
+    Invalidate(EInvalidateWidgetReason::Paint);
+}
+
+void UMCHubGrillHologramWidget::UpdateResetVisual(float Progress)
+{
+    using namespace MCGrillStrip;
+    auto* Base=WidgetTree?WidgetTree->RootWidget.Get():nullptr;
+    if(!Base || Progress==ResetProgress) return;
+    ResetProgress=Progress;
+    if(Progress>=1.f) {
+        if(BeforeResetTransform.IsSet()) Base->SetRenderTransform(BeforeResetTransform.GetValue());
+        BeforeResetTransform.Reset();
+    } else {
+        if(!BeforeResetTransform.IsSet()) BeforeResetTransform=Base->GetRenderTransform();
+        FWidgetTransform Transform=BeforeResetTransform.GetValue();
+        const FWidgetTransform Reset=ResetDisplayTransform(Progress);
+        Transform.Scale*=Reset.Scale;
+        Transform.Translation+=Reset.Translation;
+        Base->SetRenderTransform(Transform);
+    }
+    Invalidate(EInvalidateWidgetReason::Paint);
+}
 void UMCHubGrillHologramWidget::ApplyEditorPreview(float Time)
 {
     if(!IsDesignTime()) {BuildPresentationTree();ApplyTheme();TickPresentation(0);return;}
@@ -307,8 +360,16 @@ void UMCHubGrillHologramWidget::ApplyEditorPreview(float Time)
     for(auto& Card:PreviewCards) PrepareCardText(Card);
     ReelCards.Reset(MCGrillStrip::CardCount);
     for(int32 Index=0;Index<MCGrillStrip::CardCount;++Index) ReelCards.Add(PreviewCards[Index%UE_ARRAY_COUNT(PreviewCards)]);
-    bResultCentered=PreviewState==TEXT("NoPrize") || PreviewState==TEXT("Duplicate");
-    bIdleReel=PreviewState==TEXT("Idle");
+    const bool bPreviewRareReset=PreviewState==TEXT("RareReset");
+    const bool bPreviewReset=bPreviewRareReset || PreviewState==TEXT("Reset");
+    UpdateResetVisual(bPreviewReset?FMath::Clamp(float(Time/MCGrillStrip::ResetSeconds),0.f,1.f):1.f);
+    bResultCentered=PreviewState==TEXT("NoPrize") || PreviewState==TEXT("Duplicate")
+        || (bPreviewReset && ResetProgress<MCGrillStrip::ResetBootStart);
+    bIdleReel=PreviewState==TEXT("Idle") || (bPreviewReset && !bResultCentered);
+    if((bIdleReel || bPreviewRareReset) && !RareReactionTexture)
+        SetRareReactionTexture(LoadObject<UTexture2D>(nullptr,MCGrillStrip::RareReactionAtlas));
+    const bool bShowRareReaction=bPreviewRareReset && bResultCentered && RareReactionTexture;
+    UpdateRareReaction(bShowRareReaction?1.f:0.f,bShowRareReaction?1.f:0.f);
     ReelCursor=bResultCentered?float(MCGrillStrip::WinningCard):
         FMath::Lerp(float(MCGrillStrip::FirstCard),float(MCGrillStrip::WinningCard),1.f-FMath::Pow(1.f-FMath::Clamp(Time/2.f,0.f,1.f),3.f));
     if(HologramTitle) HologramTitle->SetText(Localized(TEXT("UI.Grill.Rolling"),LOCTEXT("Rolling","КРУТИМ…")));
@@ -317,11 +378,15 @@ void UMCHubGrillHologramWidget::ApplyEditorPreview(float Time)
         FillerCards.Reset(UE_ARRAY_COUNT(PreviewCards));
         FillerCards.Append(PreviewCards,UE_ARRAY_COUNT(PreviewCards));
         ReelCursor=float(FMath::Fmod(FMath::Max(0.,double(Time))*MCGrillStrip::IdleCardsPerSecond,double(FillerCards.Num())));
-        if(!RareReactionTexture) SetRareReactionTexture(LoadObject<UTexture2D>(nullptr,MCGrillStrip::RareReactionAtlas));
         if(HologramTitle) HologramTitle->SetText(GrillText(TEXT("UI.Grill.IdleTeaser"),TEXT("ЧТО ВЫПАДЕТ?"),TEXT("WHAT WILL DROP?")));
         if(HologramReward) HologramReward->SetText(Localized(TEXT("UI.Grill.Idle"),LOCTEXT("Idle","1 РЫБА · 1 ПОПЫТКА")));
+    } else if(bShowRareReaction) {
+        ReelCards[MCGrillStrip::WinningCard]=PreviewCards[1];
+        if(HologramTitle) HologramTitle->SetText(GrillText(TEXT("UI.Grill.RareWin"),TEXT("ЦЕННЫЙ ПРИЗ"),TEXT("BIG WIN")));
+        if(HologramReward) HologramReward->SetText(FText::Format(Localized(TEXT("UI.Grill.Item"),LOCTEXT("Item","{0} ×{1}")),
+            PreviewCards[1].Caption,FText::AsNumber(1)));
     } else if(bResultCentered) {
-        const bool bTrash=PreviewState==TEXT("NoPrize");
+        const bool bTrash=PreviewState==TEXT("NoPrize") || bPreviewReset;
         ReelCards[MCGrillStrip::WinningCard]=PreviewCards[bTrash?4:1];
         if(HologramTitle) HologramTitle->SetText(GrillText(TEXT("UI.Grill.Result"),TEXT("ВАШ РЕЗУЛЬТАТ"),TEXT("YOUR RESULT")));
         if(HologramReward) HologramReward->SetText(bTrash?GrillText(TEXT("UI.Grill.Trash"),TEXT("МУСОР · БЕЗ НАГРАДЫ"),TEXT("TRASH · NO REWARD")):
@@ -516,7 +581,7 @@ void UMCHubGrillHologramWidget::PrepareCardText(FReelCard& Card) const
         if(RewardLabel) Measure->Measure(Card.Caption,RewardLabel->GetFont(),1.f);
 }
 
-void UMCHubGrillHologramWidget::RefreshReel(const AMCHubGrillStation& Grill,const UMCHubEconomyComponent* Economy)
+void UMCHubGrillHologramWidget::RefreshReel(const AMCHubGrillStation& Grill,const UMCHubEconomyComponent* Economy,double Now)
 {
     using namespace MCGrillStrip;
     const FMCGrillReward& Reward=Grill.CurrentReward;
@@ -545,16 +610,17 @@ void UMCHubGrillHologramWidget::RefreshReel(const AMCHubGrillStation& Grill,cons
     }
     const bool bWasCentered=bResultCentered;
     const bool bWasIdle=bIdleReel;
-    bIdleReel=Grill.Stage==EMCHubGrillStage::Idle;
-    bResultCentered=Reward.RollID.IsValid() && (Grill.Stage==EMCHubGrillStage::Revealing || Grill.Stage==EMCHubGrillStage::Opening);
+    const bool bCollapsingResult=ResetProgress<ResetBootStart;
+    bIdleReel=Grill.Stage==EMCHubGrillStage::Idle && !bCollapsingResult;
+    bResultCentered=Reward.RollID.IsValid() && (Grill.Stage==EMCHubGrillStage::Revealing
+        || Grill.Stage==EMCHubGrillStage::Opening || bCollapsingResult);
     if(bResultCentered && !bWasCentered && !bNewRoll) ReelCards[WinningCard]=MakeCard(Reward,Economy);
     float NextReelPosition=float(bResultCentered?WinningCard:FirstCard);
     if(bIdleReel) {
         const int32 IdleCardCount=FillerCards.IsEmpty()?ReelCards.Num():FillerCards.Num();
-        const double Elapsed=FMath::Max(0.,PresentationTime(Grill)-Grill.StageStartedAt);
+        const double Elapsed=FMath::Max(0.,Now-Grill.StageStartedAt);
         NextReelPosition=float(FMath::Fmod(Elapsed*IdleCardsPerSecond,double(IdleCardCount)));
     } else if(Reward.RollID.IsValid() && Grill.Stage==EMCHubGrillStage::Rolling) {
-        const double Now=PresentationTime(Grill);
         const float Alpha=float(FMath::Clamp((Now-Grill.StageStartedAt)/FMath::Max(.1,Grill.StageEndsAt-Grill.StageStartedAt),0.,1.));
         NextReelPosition=FMath::Lerp(float(FirstCard),float(WinningCard),1.f-FMath::Pow(1.f-Alpha,3.f));
     }
@@ -719,13 +785,43 @@ int32 UMCHubGrillHologramWidget::PaintRareWinScene(FSlateWindowElementList& Elem
     return Layer+11;
 }
 
+int32 UMCHubGrillHologramWidget::PaintResetBeam(FSlateWindowElementList& Elements,int32 Layer,const FGeometry& Geometry,
+    const FLinearColor& Tint) const
+{
+    using namespace MCGrillStrip;
+    if(ResetProgress>=1.f) return Layer;
+    const FVector2D Bounds=Geometry.GetLocalSize();
+    const FVector2D Center=Bounds*.5;
+    const float CollapseGlow=FMath::SmoothStep(.16f,.28f,ResetProgress)*(1.f-FMath::SmoothStep(.29f,.40f,ResetProgress));
+    const float BootGlow=FMath::SmoothStep(.46f,.56f,ResetProgress)*(1.f-FMath::SmoothStep(.66f,.91f,ResetProgress));
+    const float Strength=CollapseGlow+.6f*BootGlow;
+    if(Strength<=UE_SMALL_NUMBER) return Layer;
+
+    const float FadeOut=FMath::SmoothStep(.29f,.40f,ResetProgress);
+    const float Scan=FMath::SmoothStep(.43f,.91f,ResetProgress);
+    const double HalfWidth=Center.X*(BootGlow>0.f?.91:FMath::Lerp(.94,.06,FadeOut));
+    const double Y=Center.Y+(BootGlow>0.f?Bounds.Y*.36*Scan:0.);
+    auto DrawBeam=[&](int32 Depth,double Thickness,FLinearColor Color) {
+        const auto Paint=Geometry.ToPaintGeometry({HalfWidth*2.,Thickness},FSlateLayoutTransform(FVector2D(Center.X-HalfWidth,Y-Thickness*.5)));
+        FSlateDrawElement::MakeBox(Elements,Layer+Depth,Paint,&Marker,ESlateDrawEffect::None,Color*Tint);
+    };
+    DrawBeam(1,10.,FLinearColor(.10f,.46f,.93f,Strength*.30f));
+    DrawBeam(2,4.,FLinearColor(.27f,.81f,1.f,Strength*.68f));
+    DrawBeam(3,1.6,FLinearColor(.68f,.96f,1.f,Strength));
+    return Layer+3;
+}
+
 int32 UMCHubGrillHologramWidget::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
 {
     using namespace MCGrillStrip;
     const int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
-    if(RareReactionTexture && RareReactionOpacity>0.f && ReelCards.IsValidIndex(WinningCard))
-        return PaintRareWinScene(Elements,Top,Geometry,Style.GetColorAndOpacityTint(),ReelCards[WinningCard]);
+    if(RareReactionTexture && RareReactionOpacity>0.f && ReelCards.IsValidIndex(WinningCard)) {
+        const FGeometry Picture=ResetProgress<1.f?Geometry.MakeChild(ResetDisplayTransform(ResetProgress).ToSlateRenderTransform()):Geometry;
+        const FLinearColor Tint=Style.GetColorAndOpacityTint();
+        const int32 PictureLayer=PaintRareWinScene(Elements,Top,Picture,Tint,ReelCards[WinningCard]);
+        return PaintResetBeam(Elements,PictureLayer,Geometry,Tint);
+    }
     const auto* ActiveReelSlot=IsNewWorldPresentation()?NewHologramReelSlot.Get():HologramReelSlot.Get();
     if(!ActiveReelSlot || ReelCards.IsEmpty()) return Top;
     const FGeometry& ReelGeometry=ActiveReelSlot->GetPaintSpaceGeometry();
@@ -779,7 +875,7 @@ int32 UMCHubGrillHologramWidget::NativePaint(const FPaintArgs& Args,const FGeome
         Box(8,Marker,{Center-6.,Bounds.Y-6.},{12.,4.},Gold);
     }
     Elements.PopClip();
-    return Top+8;
+    return PaintResetBeam(Elements,Top+8,Geometry,StyleTint);
 }
 
 UMCHubGrillPresentationComponent::UMCHubGrillPresentationComponent()
@@ -793,6 +889,12 @@ void UMCHubGrillPresentationComponent::BeginPlay()
     if(!Station.IsValid() || GetNetMode()==NM_DedicatedServer) {SetComponentTickEnabled(false);return;}
     MCWorldPresentation::PrepareOwner(Station.Get(),{MCGrillStrip::ComposerSource});
     RareFanfare=LoadObject<USoundBase>(nullptr,MCGrillStrip::RareFanfareAsset);
+    ResetSound=LoadObject<USoundBase>(nullptr,MCGrillStrip::ResetSoundAsset);
+    if(ResetSound) {
+        ResetSoundAttenuation=NewObject<USoundAttenuation>(this);
+        ResetSoundAttenuation->Attenuation.AttenuationShapeExtents=FVector(680.f,0.f,0.f);
+        ResetSoundAttenuation->Attenuation.FalloffDistance=1900.f;
+    }
     Display=NewObject<UWidgetComponent>(GetOwner(),TEXT("GrillHologramDisplay"));
     Display->SetupAttachment(GetOwner()->GetRootComponent());
     // The saved screen-space anchor leads to the machine body. Seat the fixed
@@ -828,6 +930,7 @@ void UMCHubGrillPresentationComponent::BeginPlay()
 void UMCHubGrillPresentationComponent::EndPlay(const EEndPlayReason::Type Reason)
 {
     if(IsValid(RareFanfarePlayback)) RareFanfarePlayback->Stop();
+    if(IsValid(ResetSoundPlayback)) ResetSoundPlayback->Stop();
     if(Display) {Display->DestroyComponent();Display=nullptr;}
     if(IntakeFish) {IntakeFish->DestroyComponent();IntakeFish=nullptr;}
     Super::EndPlay(Reason);
@@ -835,6 +938,10 @@ void UMCHubGrillPresentationComponent::EndPlay(const EEndPlayReason::Type Reason
 void UMCHubGrillPresentationComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick)
 {
     Super::TickComponent(Dt,Type,Tick);auto* Grill=Station.Get();if(!Grill || !Display) return;
+    if(ResetSoundPlayback && Grill->Stage!=EMCHubGrillStage::Idle) {
+        if(IsValid(ResetSoundPlayback)) ResetSoundPlayback->Stop();
+        ResetSoundPlayback=nullptr;
+    }
     if(IntakeFish) {
         const bool Taking=Grill->Stage==EMCHubGrillStage::Closing && Grill->CurrentReward.RollID.IsValid();
         IntakeFish->SetVisibility(Taking);
@@ -885,6 +992,24 @@ void UMCHubGrillPresentationComponent::TickComponent(float Dt,ELevelTick Type,FA
     const bool bVisible=VisibilityAlpha>.01f;
     Display->SetVisibility(bVisible);Display->SetHiddenInGame(!bVisible);Display->SetComponentTickEnabled(bVisible);
     Display->SetTintColorAndOpacity(FLinearColor(1.f,1.f,1.f,VisibilityAlpha));
+    using namespace MCGrillStrip;
+    const double Now=PresentationTime(*Grill);
+    if(bHasLocalPlayer && bVisible && PresentedResetRoll!=Grill->CurrentReward.RollID && ResetProgressAt(*Grill,Now)<1.f) {
+        PresentedResetRoll=Grill->CurrentReward.RollID;
+        const auto* Adapter=Grill->FindComponentByClass<UMCWorldPresentationComponent>();
+        auto* Channel=Adapter?Adapter->GetSource(ComposerSource):nullptr;
+        FMCPerkVFXGameplayValues Values;
+        Values.EpisodeID=PresentedResetRoll;
+        Values.VisualSubject=Grill->GetRootComponent();
+        const bool bPresented=Channel && Channel->PlayLocalSourceEvent(ComposerSource,ResetEvent,Display->GetComponentTransform(),Values)
+            !=EMCVFXPresentationResult::Rejected;
+        const float Age=float(FMath::Max(0.,Now-Grill->StageStartedAt));
+        if(ResetSound && Age<ResetSound->GetDuration() && (!bPresented || Adapter->UsesOriginalAudio(ComposerSource,ResetEvent))) {
+            ResetSoundPlayback=UGameplayStatics::SpawnSoundAttached(ResetSound,Display,NAME_None,FVector::ZeroVector,
+                EAttachLocation::SnapToTarget,true,1.f,1.f,Age,ResetSoundAttenuation);
+            if(ResetSoundPlayback) LastResetSoundRoll=PresentedResetRoll;
+        }
+    }
     if(Widget && bHasLocalPlayer) {
         if(Widget->GetOwningPlayer()!=PC) Widget->SetOwningPlayer(PC);
         if(!Widget->HasPreparedReelCatalog()) Widget->TickPresentation(0);

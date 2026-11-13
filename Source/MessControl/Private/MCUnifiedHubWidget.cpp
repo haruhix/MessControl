@@ -12,6 +12,7 @@
 #include "MCGameplayUIFactory.h"
 #include "MCHubFishingPresentation.h"
 #include "MCHubGameState.h"
+#include "MCRaidLoadoutWidget.h"
 #include "MCUIDataLibrary.h"
 #include "MCUniversalUIWidget.h"
 #include "Blueprint/WidgetTree.h"
@@ -34,6 +35,43 @@ namespace
 {
     FLinearColor MCUnifiedHubPrivate_Color(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
     UButton* MCUnifiedHubPrivate_Surface(UMCUniversalUIWidget* View) {return View && View->WidgetTree?View->WidgetTree->FindWidget<UButton>(TEXT("UniversalSurface")):nullptr;}
+
+    void ConfigureSelectionFooter(UWidgetTree* Tree)
+    {
+        if(auto* Footer=Tree->FindWidget<UMCUniversalUIWidget>(TEXT("HubV2SelectionFooter"))) {
+            Footer->bCustomColors=true;
+            Footer->CustomFill=Footer->CustomOutline=Footer->CustomShadow=FLinearColor::Transparent;
+            Footer->ContentPadding=FMargin(0);
+            Footer->ShadowOffset=FVector2D::ZeroVector;
+            Footer->ApplyTheme();
+        }
+        if(auto* Bounds=Tree->FindWidget<USizeBox>(TEXT("HubV2SelectionWidth"))) {
+            Bounds->ClearWidthOverride();
+            Bounds->ClearMinDesiredWidth();
+            Bounds->ClearMaxDesiredWidth();
+        }
+        if(auto* Actions=Tree->FindWidget<UWrapBox>(TEXT("HubV2SelectionActions"))) {
+            Actions->SetWrapSize(220.f);
+            Actions->SetInnerSlotPadding(FVector2D(10,6));
+        }
+        if(auto* Title=Tree->FindWidget(TEXT("HubV2SelectionTitle"))) Title->SetVisibility(ESlateVisibility::Collapsed);
+        if(auto* Status=Tree->FindWidget<UTextBlock>(TEXT("HubV2SelectionStatus"))) {
+            Status->SetWrapTextAt(360.f);
+            Status->SetJustification(ETextJustify::Center);
+            Status->SetVisibility(ESlateVisibility::Collapsed);
+        }
+        const TPair<FName,const TCHAR*> Buttons[]={{TEXT("HubV2Launch"),TEXT("Enter")},{TEXT("HubV2Return"),TEXT("Esc")}};
+        for(const auto& Spec:Buttons)
+            if(auto* Button=Tree->FindWidget<UMCUniversalUIWidget>(Spec.Key)) {
+                Button->LabelKey=NAME_None;
+                Button->Label=FText::AsCultureInvariant(Spec.Value);
+                Button->FontSize=18;
+                Button->ContentPadding=FMargin(14,6);
+                Button->CornerRadius=10;
+                Button->OutlineWidth=2;
+                Button->ApplyTheme();
+            }
+    }
 }
 void UMCUnifiedHubBinding::Clicked() {if(Owner.IsValid()) Owner->ForwardAction(Action);}
 UMCUnifiedHubWidget::UMCUnifiedHubWidget()
@@ -43,7 +81,7 @@ UMCUnifiedHubWidget::UMCUnifiedHubWidget()
 void UMCUnifiedHubWidget::BuildPresentationTree()
 {
     if(!WidgetTree) return;
-    if(WidgetTree->RootWidget) {EnsureControlsPresentation();return;}
+    if(WidgetTree->RootWidget) {ConfigureSelectionFooter(WidgetTree);EnsureControlsPresentation();return;}
     if(!Theme) Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
     auto* Root=WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),TEXT("HubV2Root"));Root->SetVisibility(ESlateVisibility::SelfHitTestInvisible);WidgetTree->RootWidget=Root;
     auto Shape=[&](FName Name,FLinearColor Fill,FLinearColor Outline,FLinearColor Shadow,FMargin Inset,EMCUniversalUIKind Kind=EMCUniversalUIKind::Panel) {
@@ -107,8 +145,9 @@ void UMCUnifiedHubWidget::BuildPresentationTree()
     FooterBody->AddChildToVerticalBox(Text(TEXT("HubV2SelectionTitle"),NAME_None,FText::GetEmpty(),27));
     FooterBody->AddChildToVerticalBox(Text(TEXT("HubV2SelectionStatus"),NAME_None,FText::GetEmpty(),21))->SetPadding(FMargin(0,6,0,14));
     auto* FooterActions=WidgetTree->ConstructWidget<UWrapBox>(UWrapBox::StaticClass(),TEXT("HubV2SelectionActions"));FooterActions->SetExplicitWrapSize(true);FooterActions->SetWrapSize(1300);FooterActions->SetInnerSlotPadding(FVector2D(20,10));FooterActions->SetHorizontalAlignment(HAlign_Center);FooterActions->SetVisibility(ESlateVisibility::SelfHitTestInvisible);FooterBody->AddChildToVerticalBox(FooterActions)->SetHorizontalAlignment(HAlign_Center);
-    auto* Launch=Action(TEXT("HubV2Launch"),MCUnifiedHubPrivate_Color(TEXT("2AA85C")),26);Launch->Label=Localized(TEXT("hub.selection.start"),LOCTEXT("Launch","ENTER · НАЧАТЬ"));Launch->ApplyTheme();FooterActions->AddChildToWrapBox(Launch);
-    auto* Back=Action(TEXT("HubV2Return"),MCUnifiedHubPrivate_Color(TEXT("A35173")),26);Back->Label=Localized(TEXT("hub.selection.cancel"),LOCTEXT("Return","ESC · ВЕРНУТЬСЯ В ХАБ"));Back->ApplyTheme();FooterActions->AddChildToWrapBox(Back);
+    FooterActions->AddChildToWrapBox(Action(TEXT("HubV2Launch"),MCUnifiedHubPrivate_Color(TEXT("2AA85C")),18));
+    FooterActions->AddChildToWrapBox(Action(TEXT("HubV2Return"),MCUnifiedHubPrivate_Color(TEXT("A35173")),18));
+    ConfigureSelectionFooter(WidgetTree);
     ShowMode(true);EnsureControlsPresentation();
 }
 void UMCUnifiedHubWidget::BindActions()
@@ -131,8 +170,17 @@ void UMCUnifiedHubWidget::SetBackend(UMCHubWidget* Source)
 void UMCUnifiedHubWidget::ShowMode(bool bGathering)
 {
     if(!WidgetTree) return;
-    if(auto* Top=WidgetTree->FindWidget(TEXT("HubV2TopWidth"))) Top->SetVisibility(bGathering?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
-    if(auto* Footer=WidgetTree->FindWidget(TEXT("HubV2SelectionWidth"))) Footer->SetVisibility(bGathering?ESlateVisibility::Collapsed:ESlateVisibility::SelfHitTestInvisible);
+    // Gathering chrome is shared with the native Hub. This view owns the
+    // selection footer and the fishing/basketball presentation bridge.
+    auto* Preview=WidgetTree->FindWidget(TEXT("HubV2CompactPreview"));
+    if(Preview) Preview->SetVisibility(IsDesignTime() && bGathering?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+    if(auto* Top=WidgetTree->FindWidget(TEXT("HubV2TopWidth"))) Top->SetVisibility(
+        IsDesignTime() && bGathering && !Preview?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+    const auto* RaidPreview=WidgetTree->FindWidget(TEXT("HubV2RaidPreview"));
+    const bool bRaid=Backend.IsValid() && Backend->HasRaidLoadoutPresentation()
+        || RaidPreview && RaidPreview->IsVisible();
+    if(auto* Footer=WidgetTree->FindWidget(TEXT("HubV2SelectionWidth")))
+        Footer->SetVisibility(bGathering || bRaid?ESlateVisibility::Collapsed:ESlateVisibility::SelfHitTestInvisible);
 }
 void UMCUnifiedHubWidget::RefreshFromBackend()
 {
@@ -143,26 +191,27 @@ void UMCUnifiedHubWidget::RefreshFromBackend()
         auto* Source=Backend->WidgetTree->FindWidget<UTextBlock>(SourceName);auto* Target=WidgetTree->FindWidget<UTextBlock>(TargetName);
         if(Source && Target && !Target->GetText().EqualTo(Source->GetText())) Target->SetText(Source->GetText());
     };
-    Copy(TEXT("HubReadinessTitle"),TEXT("HubV2ReadinessTitle"));Copy(TEXT("HubReadinessCount"),TEXT("HubV2ReadinessCount"));Copy(TEXT("HubReadinessHint"),TEXT("HubV2ReadinessHint"));
-    Copy(TEXT("HubProfileName"),TEXT("HubV2ProfileName"));Copy(TEXT("HubWalletCount"),TEXT("HubV2WalletCount"));Copy(TEXT("HubBottomFishCount"),TEXT("HubV2FishCount"));Copy(TEXT("HubPartyHint"),TEXT("HubV2PartyHint"));
-    Copy(TEXT("HubSelectionTitle"),TEXT("HubV2SelectionTitle"));Copy(TEXT("HubSelectionStatus"),TEXT("HubV2SelectionStatus"));
-    const FName Sources[]={TEXT("HubOpenSelection"),TEXT("HubLaunch"),TEXT("HubReturn")},Targets[]={TEXT("HubV2OpenSelection"),TEXT("HubV2Launch"),TEXT("HubV2Return")};
-    for(int32 I=0;I<3;++I) if(auto* Target=WidgetTree->FindWidget<UMCUniversalUIWidget>(Targets[I])) {
+    Copy(TEXT("HubSelectionStatus"),TEXT("HubV2SelectionStatus"));
+    if(auto* Status=WidgetTree->FindWidget<UTextBlock>(TEXT("HubV2SelectionStatus")))
+        Status->SetVisibility(Status->GetText().IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
+    const FName Sources[]={TEXT("HubLaunch"),TEXT("HubReturn")},Targets[]={TEXT("HubV2Launch"),TEXT("HubV2Return")};
+    for(int32 I=0;I<2;++I) if(auto* Target=WidgetTree->FindWidget<UMCUniversalUIWidget>(Targets[I])) {
         auto* Source=Backend->WidgetTree->FindWidget<UButton>(Sources[I]);const bool Visible=Source && Source->GetVisibility()!=ESlateVisibility::Collapsed && Source->GetVisibility()!=ESlateVisibility::Hidden;
         Target->SetVisibility(Visible?ESlateVisibility::Visible:ESlateVisibility::Collapsed);Target->SetIsEnabled(Source && Source->GetIsEnabled());
-        if(I>0) if(auto* Caption=Backend->WidgetTree->FindWidget<UTextBlock>(FName(Sources[I].ToString()+TEXT("Label")))) Target->Label=Caption->GetText();
         Target->ApplyTheme();
     }
 }
 bool UMCUnifiedHubWidget::RequiresMenuInput() const {return Backend.IsValid() && Backend->RequiresMenuInput();}
 UWidget* UMCUnifiedHubWidget::GetDefaultFocusTarget() const
 {
+    if(Backend.IsValid() && !RequiresMenuInput()) return Backend->GetFocusTarget();
+    if(Backend.IsValid() && Backend->HasRaidLoadoutPresentation()) return Backend->GetFocusTarget();
     if(WidgetTree) for(const TCHAR* Name:RequiresMenuInput()?TArray<const TCHAR*>{TEXT("HubV2Launch"),TEXT("HubV2Return")}:TArray<const TCHAR*>{TEXT("HubV2OpenSelection")})
         if(auto* View=WidgetTree->FindWidget<UMCUniversalUIWidget>(FName(Name));View && View->GetIsEnabled() && View->GetVisibility()==ESlateVisibility::Visible) if(auto* Button=MCUnifiedHubPrivate_Surface(View)) return Button;
     return const_cast<UMCUnifiedHubWidget*>(this);
 }
-UWidget* UMCUnifiedHubWidget::GetFishCounterIcon() const {return WidgetTree?WidgetTree->FindWidget(TEXT("HubV2FishIcon")):nullptr;}
-UWidget* UMCUnifiedHubWidget::GetFishCounterCard() const {return WidgetTree?WidgetTree->FindWidget(TEXT("HubV2WalletCard")):nullptr;}
+UWidget* UMCUnifiedHubWidget::GetFishCounterIcon() const {return Backend.IsValid()?Backend->GetWidgetFromName(TEXT("HubFishIcon")):nullptr;}
+UWidget* UMCUnifiedHubWidget::GetFishCounterCard() const {return Backend.IsValid()?Backend->GetWidgetFromName(TEXT("HubFishCard")):nullptr;}
 void UMCUnifiedHubWidget::ForwardAction(EMCHubMenuAction Action)
 {
     if(!IsDesignTime() && Backend.IsValid() && Backend->GetWorld()==GetWorld()) Backend->HandleAction(Action);
@@ -173,7 +222,7 @@ bool UMCUnifiedHubWidget::RouteSourceMouseWheel(const FPointerEvent& Event) {ret
 void UMCUnifiedHubWidget::NativeConstruct() {Super::NativeConstruct();BindActions();BindControlsNotification();PrepareControlsPresentation();RefreshFromBackend();}
 void UMCUnifiedHubWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
-    Super::NativeTick(Geometry,DeltaSeconds);RefreshViewportLayout();PrepareControlsPresentation();RefreshControlsPresentation();
+    Super::NativeTick(Geometry,DeltaSeconds);PrepareControlsPresentation();RefreshControlsPresentation();
 }
 void UMCUnifiedHubWidget::RefreshReadinessTitleWidth(float AvailableTopWidth)
 {
@@ -220,7 +269,6 @@ void UMCUnifiedHubWidget::RefreshViewportLayout()
     if(!bFitViewportColumns || !WidgetTree) return;
     const double Width=GetPaintSpaceGeometry().GetLocalSize().X;if(Width<=1) return;
     const float TopWidth=float(FMath::Clamp(Width-36.,320.,1500.));
-    const float FooterWidth=float(FMath::Clamp(Width-48.,320.,1400.));
     RefreshReadinessTitleWidth(TopWidth);
     // Match the nameplate to the real nickname before allowing a long-name wrap.
     // Normal names remain on one line; exceptional names use balanced lines.
@@ -243,12 +291,6 @@ void UMCUnifiedHubWidget::RefreshViewportLayout()
         if(!FMath::IsNearlyEqual(Bounds->GetWidthOverride(),TopWidth,.5f)) Bounds->SetWidthOverride(TopWidth);
     if(auto* Wrap=WidgetTree->FindWidget<UWrapBox>(TEXT("HubV2Top")))
         if(!FMath::IsNearlyEqual(Wrap->GetWrapSize(),TopWidth,.5f)) Wrap->SetWrapSize(TopWidth);
-    if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("HubV2SelectionWidth"))) {
-        Bounds->SetMinDesiredWidth(FMath::Min(740.f,FooterWidth));
-        if(!FMath::IsNearlyEqual(Bounds->GetWidthOverride(),FooterWidth,.5f)) Bounds->SetWidthOverride(FooterWidth);
-    }
-    if(auto* Wrap=WidgetTree->FindWidget<UWrapBox>(TEXT("HubV2SelectionActions")))
-        if(!FMath::IsNearlyEqual(Wrap->GetWrapSize(),FooterWidth-60,.5f)) Wrap->SetWrapSize(FooterWidth-60);
 }
 void UMCUnifiedHubWidget::ApplyTheme() {bReadinessTitleMeasured=false;Super::ApplyTheme();bControlsPrepared=false;PrepareControlsPresentation();if(!IsDesignTime()) RefreshFromBackend();}
 void UMCUnifiedHubWidget::EnsureControlsPresentation()
@@ -372,8 +414,43 @@ void UMCUnifiedHubWidget::OnLocalizationChanged() {Super::OnLocalizationChanged(
 void UMCUnifiedHubWidget::ApplyEditorPreview(float Time)
 {
     Super::ApplyEditorPreview(Time);BuildPresentationTree();if(!IsDesignTime() || !WidgetTree) return;
-    const bool Selecting=PreviewState==TEXT("Selecting") || PreviewState==TEXT("Selection") || PreviewState==TEXT("Travelling") || PreviewState==TEXT("SelectingGuest") || PreviewScenario==EMCGameplayUIPreviewScenario::Selected;
+    const bool bRaidScenario=PreviewState.ToString().StartsWith(TEXT("Raid"));
+    const bool Selecting=bRaidScenario || PreviewState==TEXT("Selecting") || PreviewState==TEXT("Selection") || PreviewState==TEXT("Travelling") || PreviewState==TEXT("SelectingGuest") || PreviewScenario==EMCGameplayUIPreviewScenario::Selected;
     const bool Travelling=PreviewState==TEXT("Travelling"),Guest=PreviewState==TEXT("Guest") || PreviewState==TEXT("SelectingGuest"),Waiting=PreviewScenario==EMCGameplayUIPreviewScenario::Waiting;
+#if WITH_EDITOR
+    auto* Raid=WidgetTree->FindWidget<UMCRaidLoadoutWidget>(TEXT("HubV2RaidPreview"));
+    if(bRaidScenario && !Raid)
+        if(auto* Canvas=Cast<UCanvasPanel>(WidgetTree->RootWidget)) {
+            UClass* RaidClass=FSoftClassPath(TEXT("/Game/Gameplay/UI/V2/WBP_UIRaidLoadout.WBP_UIRaidLoadout_C")).TryLoadClass<UMCRaidLoadoutWidget>();
+            if(!RaidClass) RaidClass=UMCRaidLoadoutWidget::StaticClass();
+            Raid=WidgetTree->ConstructWidget<UMCRaidLoadoutWidget>(RaidClass,TEXT("HubV2RaidPreview"));
+            Raid->SetDesignerFlags(EWidgetDesignFlags::Designing);Raid->Initialize();
+            auto* Cell=Canvas->AddChildToCanvas(Raid);Cell->SetAnchors(FAnchors(0,0,1,1));Cell->SetOffsets(FMargin(0));
+        }
+    if(Raid) {
+        Raid->SetVisibility(bRaidScenario?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+        if(bRaidScenario) {
+            Raid->Theme=GetResolvedTheme();Raid->TranslationTable=GetResolvedTranslationTable();
+            Raid->PreviewState=PreviewState;Raid->PreviewCulture=PreviewCulture;Raid->ApplyEditorPreview(Time);
+        }
+    }
+    if(!Selecting) if(auto* Canvas=Cast<UCanvasPanel>(WidgetTree->RootWidget)) {
+        auto* Preview=WidgetTree->FindWidget<UMCHubWidget>(TEXT("HubV2CompactPreview"));
+        if(!Preview) {
+            UClass* Class=UMCGameplayUIFactory::ResolveClass(TEXT("Hub"),UMCHubWidget::StaticClass());
+            Preview=WidgetTree->ConstructWidget<UMCHubWidget>(Class,TEXT("HubV2CompactPreview"));
+            Preview->SetDesignerFlags(EWidgetDesignFlags::Designing);Preview->Initialize();
+            auto* Cell=Canvas->AddChildToCanvas(Preview);Cell->SetAnchors(FAnchors(0,0,1,1));Cell->SetOffsets(FMargin(0));
+        }
+        Preview->Theme=GetResolvedTheme();Preview->TranslationTable=GetResolvedTranslationTable();
+        Preview->PreviewScenario=PreviewScenario;Preview->PreviewState=PreviewState;Preview->PreviewCulture=PreviewCulture;
+        Preview->ApplyEditorPreview(Time);
+        if(auto* Coins=Cast<UTextBlock>(Preview->GetWidgetFromName(TEXT("HubWalletCount"))))
+            Coins->SetText(UMCUIDataLibrary::NumberForCulture(PreviewCoins,PreviewCulture));
+        if(auto* Fish=Cast<UTextBlock>(Preview->GetWidgetFromName(TEXT("HubBottomFishCount"))))
+            Fish->SetText(UMCUIDataLibrary::NumberForCulture(PreviewFish,PreviewCulture));
+    }
+#endif
     ShowMode(!Selecting);
     auto Set=[&](FName Name,const FText& Copy) {if(auto* Target=WidgetTree->FindWidget<UTextBlock>(Name)) if(!Target->GetText().EqualTo(Copy)) Target->SetText(Copy);};
     Set(TEXT("HubV2ReadinessCount"),UMCUIDataLibrary::FormatTextForCulture(Localized(TEXT("hub.ready.count"),LOCTEXT("Ready","ГОТОВЫ · {Ready} / {Total}")),{{TEXT("Ready"),Waiting?3:4},{TEXT("Total"),4}},PreviewCulture));
@@ -381,15 +458,17 @@ void UMCUnifiedHubWidget::ApplyEditorPreview(float Time)
     Set(TEXT("HubV2ProfileName"),FText::AsCultureInvariant(PreviewScenario==EMCGameplayUIPreviewScenario::LongText?TEXT("HASBULADO_WITH_A_VERY_LONG_PLAYER_NAME"):TEXT("HASBULADO")));
     Set(TEXT("HubV2WalletCount"),UMCUIDataLibrary::NumberForCulture(PreviewCoins,PreviewCulture));Set(TEXT("HubV2FishCount"),UMCUIDataLibrary::NumberForCulture(PreviewFish,PreviewCulture));
     Set(TEXT("HubV2PartyHint"),UMCUIDataLibrary::FormatTextForCulture(Localized(TEXT("hub.bottom.party"),LOCTEXT("Party","Команда {Count}/4 · {Key}")),{{TEXT("Count"),4},{TEXT("Key"),FText::AsCultureInvariant(TEXT("[Tab]"))}},PreviewCulture));
-    Set(TEXT("HubV2SelectionTitle"),Localized(TEXT("hub.selection.title"),LOCTEXT("Destination","ВЫБОР ЛОКАЦИИ")));
-    Set(TEXT("HubV2SelectionStatus"),Localized(Travelling?TEXT("hub.loading"):Waiting?TEXT("hub.loading.players"):Guest?TEXT("hub.guest.hint"):TEXT("hub.selection.hint"),
-        Travelling?LOCTEXT("Travelling","ЗАГРУЖАЕМ ДЕНЬ…"):Waiting?LOCTEXT("Waiting","Ждём загрузку остальных игроков…"):Guest?LOCTEXT("Guest","Хост выбирает день. ESC — меню."):LOCTEXT("Host","Выберите локацию. Вход — клик по выбранному рту или Enter. Назад — Esc.")));
+    const FText Detail=Travelling?Localized(TEXT("hub.loading"),LOCTEXT("Travelling","ЗАГРУЖАЕМ ДЕНЬ…")):
+        Waiting?Localized(TEXT("hub.loading.players"),LOCTEXT("Waiting","Ждём загрузку остальных игроков…")):
+        Guest?Localized(TEXT("hub.guest.hint"),LOCTEXT("Guest","Хост выбирает день. ESC — меню.")):FText::GetEmpty();
+    Set(TEXT("HubV2SelectionStatus"),Detail);
+    if(auto* Status=WidgetTree->FindWidget(TEXT("HubV2SelectionStatus")))
+        Status->SetVisibility(Detail.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
     const FName Names[]={TEXT("HubV2OpenSelection"),TEXT("HubV2Launch"),TEXT("HubV2Return")};
     for(int32 I=0;I<3;++I) if(auto* Button=WidgetTree->FindWidget<UMCUniversalUIWidget>(Names[I])) {
-        if(I==1) Button->Label=Localized(TEXT("hub.selection.start"),LOCTEXT("Launch","ENTER · НАЧАТЬ"));
-        else if(I==2) Button->Label=Localized(TEXT("hub.selection.cancel"),LOCTEXT("Return","ESC · ВЕРНУТЬСЯ В ХАБ"));
         Button->SetVisibility(Guest?ESlateVisibility::Collapsed:ESlateVisibility::Visible);Button->SetIsEnabled(!Travelling && (!Waiting || I==2));Button->ApplyTheme();
     }
-    RefreshViewportLayout();PresentControlsPreview();
+    if(!WidgetTree->FindWidget(TEXT("HubV2CompactPreview"))) RefreshViewportLayout();
+    PresentControlsPreview();
 }
 #undef LOCTEXT_NAMESPACE

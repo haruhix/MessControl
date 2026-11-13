@@ -527,10 +527,13 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     }
     const bool Hub=Map==TEXT("Hub") || Map==TEXT("L_HubSelection");
     if(Hub) {
+        AddPath(FSoftObjectPath(TEXT("/Game/Gameplay/UI/V2/WBP_UIRaidLoadout.WBP_UIRaidLoadout_C")),OutPaths);
+        AddPath(FSoftObjectPath(TEXT("/Game/Gameplay/UI/V2/WBP_UIRaidPerkRow.WBP_UIRaidPerkRow_C")),OutPaths);
         AddPath(MCVFXSourceContracts::HubLibraryPath(),OutPaths);
         AddAsset(TEXT("/Game/Gameplay/Hub/Economy/M_CaseHologramProjection"),OutPaths);
         AddAsset(TEXT("/Game/Gameplay/Hub/Economy/T_CaseRareToothReaction"),OutPaths);
         AddAsset(TEXT("/Game/Gameplay/Hub/Economy/SFX/SW_CaseRareFanfare"),OutPaths);
+        AddAsset(TEXT("/Game/Gameplay/Hub/Economy/SFX/SW_CaseHologramReset"),OutPaths);
         AddAsset(TEXT("/Engine/EngineMaterials/Widget3DPassThrough"),OutPaths);
         AddAsset(TEXT("/Engine/EngineMaterials/Widget3DPassThrough_Translucent_OneSided"),OutPaths);
         // Hub characters share their actual movement/hit tool source library.

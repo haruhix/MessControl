@@ -1,6 +1,5 @@
 #if WITH_DEV_AUTOMATION_TESTS && WITH_EDITOR
 #include "Misc/AutomationTest.h"
-#include "Algo/Count.h"
 #include "MCHubEconomyComponent.h"
 #include "MCHubGameState.h"
 #include "MCHubGrillStation.h"
@@ -234,15 +233,15 @@ bool FMCHubSuspendedCalciumTest::RunTest(const FString&)
 
     FMCHubCatalogRow Speed; Speed.PerkID=TEXT("P01"); Speed.Price=15;
     Fixture.Catalog->AddRow(TEXT("FixtureSpeed"),Speed);Fixture.Stock(Economy);
-    if(!TestTrue(TEXT("Another enabled booster can still be bought"),Economy->TryPurchase(TEXT("FixtureSpeed"),Error))) return false;
+    if(!TestTrue(TEXT("Another enabled perk can still be bought"),Economy->TryPurchase(TEXT("FixtureSpeed"),Error))) return false;
     Fixture.MakeRealRun(); const FGuid Run=FGuid::NewGuid();
-    if(!TestTrue(TEXT("A mixed queue applies the enabled booster"),Economy->ApplyPendingBoostersForRun(Run,Error))) return false;
-    TestEqual(TEXT("P01 is granted exactly once"),Player->Perks->GetStacks(TEXT("P01")),1);
+    if(!TestTrue(TEXT("An older run can still process its utility queue"),Economy->ApplyPendingBoostersForRun(Run,Error))) return false;
+    TestEqual(TEXT("P01 remains in the selectable raid stock"),Economy->GetRaidPerkCopies(TEXT("P01")),1);
     TestEqual(TEXT("Only the suspended entry remains queued"),Economy->PendingBoosters.Num(),1);
     TestEqual(TEXT("That retained entry is calcium"),Economy->QueuedStacks(TEXT("CalciumSelfGrenade")),1);
     TestFalse(TEXT("Stored run charges cannot be used while disabled"),Economy->TryConsumeCalciumCharge());
     TestTrue(TEXT("Repeated controller refresh is idempotent"),Economy->ApplyPendingBoostersForRun(Run,Error));
-    TestEqual(TEXT("Repeated refresh cannot duplicate P01"),Player->Perks->GetStacks(TEXT("P01")),1);
+    TestEqual(TEXT("An unselected purchase does not become a live passive"),Player->Perks->GetStacks(TEXT("P01")),0);
 
     auto Accepted=Legacy;
     Accepted.PendingGrillReward.RollID=FGuid::NewGuid();
@@ -304,7 +303,7 @@ bool FMCHubShopStableStockTest::RunTest(const FString&)
     TestTrue(TEXT("Reopening with another seed cannot reroll the same epoch"),Economy->EnsureShopStock(Rotation,999));
     TestTrue(TEXT("Actual selected stable IDs remain unchanged"),Economy->ShopStockIDs==Stock);
     auto Saved=Economy->ExportSave();auto* Restored=Fixture.Player()->Economy.Get();
-    TestTrue(TEXT("Stock is readable in economy save v2"),Restored->ImportSave(Saved,Error));
+    TestTrue(TEXT("Stock is readable in the current economy save"),Restored->ImportSave(Saved,Error));
     TestTrue(TEXT("Reconnect restores the original stock IDs"),Restored->ShopStockIDs==Stock);
     TestTrue(TEXT("Same-epoch ensure preserves restored stock"),Restored->EnsureShopStock(Rotation,123));
     TestTrue(TEXT("Restored stock never rerolls on ensure"),Restored->ShopStockIDs==Stock);
@@ -318,7 +317,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubPlannedSlotsTest,"MessControl.Hub.Economy
 bool FMCHubPlannedSlotsTest::RunTest(const FString&)
 {
     MCHubEconomyTestFixtures::FWorld Fixture;
-    for(int32 I=0;I<6;++I) Fixture.AddSkill(FName(*FString::Printf(TEXT("Active%d"),I)),EMCPerkKind::Active);
+    for(int32 I=0;I<6;++I) Fixture.AddSkill(FName(*FString::Printf(TEXT("Active%d"),I)),EMCPerkKind::Consumable);
     auto* Player=Fixture.Player();auto* Economy=Player->Economy.Get();Fixture.Stock(Economy);Economy->Coins=200;FText Error;
     for(int32 I=0;I<4;++I) TestTrue(TEXT("Each distinct active purchase fills one planned slot"),Economy->TryPurchase(FName(*FString::Printf(TEXT("Active%d"),I)),Error));
     TestEqual(TEXT("Four purchases debit exactly four authored prices"),Economy->Coins,160);
@@ -348,6 +347,73 @@ bool FMCHubPlannedSlotsTest::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubRaidStockTest,"MessControl.Hub.Economy.RaidSelectionSpendsOnlyAtApprovedStart",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCHubRaidStockTest::RunTest(const FString&)
+{
+    MCHubEconomyTestFixtures::FWorld Fixture;
+    for(int32 I=0;I<5;++I) Fixture.AddSkill(FName(*FString::Printf(TEXT("RaidActive%d"),I)),EMCPerkKind::Active);
+    const FName ChargedID=TEXT("RaidChargedActive");
+    Fixture.AddSkill(ChargedID,EMCPerkKind::Consumable,3);
+    auto* Charged=Fixture.Perks->FindRow<FMCPerkDefinition>(ChargedID,TEXT("Charged active fixture"));
+    Charged->Category=TEXT("ActiveSkills");
+    Charged->bConsumableBooster=true;
+    Fixture.AddSkill(TEXT("RaidPassive"),EMCPerkKind::Passive);
+    auto* Player=Fixture.Player();
+    auto* Economy=Player->Economy.Get();
+    Fixture.Stock(Economy);
+    Economy->Coins=200;
+    FText Error;
+    const TArray<FName> Actives={TEXT("RaidActive0"),TEXT("RaidActive1"),TEXT("RaidActive2"),TEXT("RaidActive3"),TEXT("RaidActive4")};
+    for(FName ID:Actives) TestTrue(TEXT("Buying an active deposits one copy"),Economy->TryPurchase(ID,Error));
+    TestTrue(TEXT("A second buy stacks a copy"),Economy->TryPurchase(Actives[0],Error));
+    TestTrue(TEXT("Buying a passive deposits one copy"),Economy->TryPurchase(TEXT("RaidPassive"),Error));
+    TestTrue(TEXT("Buying a charged active deposits one copy"),Economy->TryPurchase(ChargedID,Error));
+    TestEqual(TEXT("Each purchase spends its normal price"),Economy->Coins,120);
+    TestTrue(TEXT("Purchases do not select a raid kit"),Economy->RaidLoadout.ActivePerks.IsEmpty() && Economy->RaidLoadout.PassivePerks.IsEmpty());
+    Fixture.Hub->SetPhase(EMCHubPhase::Selecting);
+    FMCHubRaidLoadout Kit;Kit.ActivePerks=Actives;Kit.PassivePerks={TEXT("RaidPassive")};
+    TestFalse(TEXT("Five active perks are rejected"),Economy->TrySetRaidLoadout(Kit,Error));
+    Kit.ActivePerks.RemoveAt(4);
+    Kit.ActivePerks[3]=ChargedID;
+    TestTrue(TEXT("Four active perks and a passive fit independently"),Economy->TrySetRaidLoadout(Kit,Error));
+    const FGuid Ticket=FGuid::NewGuid();
+    TestTrue(TEXT("A prepared kit is bound to the raid ticket"),Economy->LockRaidLoadout(Ticket,Error));
+    TestEqual(TEXT("Ready and lock do not spend copies"),Economy->GetRaidPerkCopies(Actives[0]),2);
+    auto Transfer=Economy->ExportSave();
+    FMCHubPendingPurchase LegacyPack;
+    LegacyPack.InstanceID=FGuid::NewGuid();
+    LegacyPack.CatalogID=ChargedID;
+    LegacyPack.PerkID=ChargedID;
+    LegacyPack.DestinationSlot=1;
+    LegacyPack.Charges=7;
+    Transfer.PendingPurchases.Add(LegacyPack);
+    Transfer.PendingBoosters.Add(ChargedID);
+    Transfer.PendingBoosters.Add(ChargedID);
+    auto* Arrived=Fixture.Player();
+    TestTrue(TEXT("The pending raid survives player handoff"),Arrived->Economy->ImportSave(Transfer,Error));
+    Fixture.MakeRealRun();
+    Fixture.World->URL.AddOption(*FString::Printf(TEXT("MCRaidTicket=%s"),*Ticket.ToString(EGuidFormats::Digits)));
+    Fixture.World->SpawnActor<ADefaultPawn>()->SetPlayerState(Arrived);
+    auto* Arena=Fixture.World->GetGameState<AMCGameState>();
+    Arena->bLobbyWaiting=true;
+    const FGuid Run=FGuid::NewGuid();
+    TestFalse(TEXT("Travel alone is not a confirmed arena start"),Arrived->Economy->ApplyPendingBoostersForRun(Run,Error));
+    TestEqual(TEXT("Stock survives the loading barrier"),Arrived->Economy->GetRaidPerkCopies(Actives[0]),2);
+    Arena->bLobbyWaiting=false;
+    TestTrue(TEXT("The confirmed arena acquires the chosen kit"),Arrived->Economy->ApplyPendingBoostersForRun(Run,Error));
+    TestEqual(TEXT("The active slot follows selection order"),Arrived->Perks->ActiveSkillSlots[2].PerkID,Actives[2]);
+    TestEqual(TEXT("A charged skill uses the active slot"),Arrived->Perks->ActiveSkillSlots[3].PerkID,ChargedID);
+    TestEqual(TEXT("A migrated paid pack preserves its actual charges"),Arrived->Perks->ActiveSkillSlots[3].Charges,7);
+    TestEqual(TEXT("Only one of three charged packs was spent"),Arrived->Economy->GetRaidPerkCopies(ChargedID),2);
+    TestEqual(TEXT("The chosen passive is granted"),Arrived->Perks->GetStacks(TEXT("RaidPassive")),1);
+    TestEqual(TEXT("Only one chosen copy is spent"),Arrived->Economy->GetRaidPerkCopies(Actives[0]),1);
+    TestEqual(TEXT("The fifth active stays in stock"),Arrived->Economy->GetRaidPerkCopies(Actives[4]),1);
+    TestTrue(TEXT("A repeated entry callback is harmless"),Arrived->Economy->ApplyPendingBoostersForRun(Run,Error));
+    TestEqual(TEXT("The repeated callback does not spend another copy"),Arrived->Economy->GetRaidPerkCopies(Actives[0]),1);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubLegacyMigrationTest,"MessControl.Hub.Economy.LegacyPurchasesAndUnknownReceiptArePreserved",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCHubLegacyMigrationTest::RunTest(const FString&)
@@ -363,16 +429,19 @@ bool FMCHubLegacyMigrationTest::RunTest(const FString&)
     auto* Player=Fixture.Player();auto* Economy=Player->Economy.Get();FText Error;
     TestTrue(TEXT("Unknown paid IDs do not invalidate the whole readable profile"),Economy->ImportSave(Legacy,Error));
     TestEqual(TEXT("The wallet is restored intact"),Economy->Coins,333);
-    TestTrue(TEXT("No legacy entry is silently truncated on import"),Economy->PendingBoosters==Legacy.PendingBoosters);
+    const TArray<FName> RemainingLegacy={TEXT("ChargePack"),TEXT("ChargePack"),TEXT("UnknownPaidItem")};
+    TestTrue(TEXT("Consumables and unknown legacy IDs stay queued"),Economy->PendingBoosters==RemainingLegacy);
+    TestEqual(TEXT("Old duplicate passive receipts become separate copies"),Economy->GetRaidPerkCopies(TEXT("Passive")),2);
+    TestEqual(TEXT("Old active overflow enters selectable stock"),Economy->GetRaidPerkCopies(TEXT("Active4")),1);
     TestTrue(TEXT("An unknown accepted prize remains quarantined with its identity"),Economy->HasPendingGrillRoll());
     TestFalse(TEXT("Unknown compatibility data has a visible notice"),Economy->MigrationNotice.IsEmpty());
     const auto Saved=Economy->ExportSave();TestTrue(TEXT("Saving preserves the unknown receipt"),Saved.PendingGrillReward.RollID==Legacy.PendingGrillReward.RollID);
-    TestTrue(TEXT("Saving preserves every pending legacy entry"),Saved.PendingBoosters==Legacy.PendingBoosters);
+    TestTrue(TEXT("Saving preserves every remaining legacy entry"),Saved.PendingBoosters==RemainingLegacy);
     Fixture.MakeRealRun();const FGuid Run=FGuid::NewGuid();
     TestTrue(TEXT("Compatible purchases can apply without deleting unknown/overflow data"),Economy->ApplyPendingBoostersForRun(Run,Error));
     TestTrue(TEXT("Unknown paid items remain pending"),Economy->PendingBoosters.Contains(TEXT("UnknownPaidItem")));
-    TestEqual(TEXT("Only one passive copy is applied; the paid duplicate remains"),int32(Algo::Count(Economy->PendingBoosters,FName(TEXT("Passive")))),1);
-    TestTrue(TEXT("Legacy active overflow remains pending rather than disappearing"),Economy->PendingBoosters.Contains(TEXT("Active3")) && Economy->PendingBoosters.Contains(TEXT("Active4")));
+    TestEqual(TEXT("A migrated but unselected passive is not applied"),Player->Perks->GetStacks(TEXT("Passive")),0);
+    TestEqual(TEXT("A direct run does not spend migrated raid stock"),Economy->GetRaidPerkCopies(TEXT("Passive")),2);
     const auto* Pack=Player->Perks->ActiveSkillSlots.FindByPredicate([](const auto& Slot){return Slot.PerkID==TEXT("ChargePack");});
     if(TestNotNull(TEXT("A grouped legacy consumable reaches one active slot"),Pack)) TestEqual(TEXT("Old queue units mean one charge each, not two new packs of three"),Pack->Charges,2);
     const auto Remaining=Economy->PendingBoosters;
@@ -415,7 +484,7 @@ bool FMCHubGrillCatalogPrizeTest::RunTest(const FString&)
     Fixture.Rewards->EmptyTable();
     FMCGrillRewardRow Item;Item.Kind=EMCGrillRewardKind::CatalogItem;Item.CatalogItem=TEXT("ChargePack");
     Item.Quantity=2;Fixture.Rewards->AddRow(TEXT("FixedItem"),Item);
-    auto* Player=Fixture.Player();auto* Economy=Player->Economy.Get();Player->FishCaught=6;
+    auto* Player=Fixture.Player();auto* Economy=Player->Economy.Get();Player->FishCaught=7;
     FGuid Receipt;FMCGrillReward Preview;FText Error;
     if(!TestTrue(TEXT("A catalog reward is eligible without legacy symbols"),Economy->BeginGrillRoll(Receipt,Preview,Error))) return false;
     TestTrue(TEXT("The new receipt snapshots an item grant"),Preview.bCatalogGrant && !Preview.bConvertedDuplicate);
@@ -442,10 +511,11 @@ bool FMCHubGrillCatalogPrizeTest::RunTest(const FString&)
     Item.CatalogItem=TEXT("PassivePrize");Fixture.Rewards->AddRow(TEXT("FixedItem"),Item);
     if(!TestTrue(TEXT("A passive perk is eligible as a prize"),Economy->BeginGrillRoll(Receipt,Preview,Error))) return false;
     TestTrue(TEXT("The passive settles"),Economy->CompleteGrillRoll(Receipt));
-    const auto* Passive=Economy->PendingPurchases.FindByPredicate([](const FMCHubPendingPurchase& Purchase){
-        return Purchase.PerkID==TEXT("PassivePrize");
-    });
-    TestTrue(TEXT("The passive is prepared without an active slot"),Passive && Passive->DestinationSlot==INDEX_NONE);
+    TestEqual(TEXT("The passive prize is deposited in stock"),Economy->GetRaidPerkCopies(TEXT("PassivePrize")),1);
+    if(!TestTrue(TEXT("The same passive can roll again"),Economy->BeginGrillRoll(Receipt,Preview,Error))) return false;
+    TestFalse(TEXT("A duplicate passive remains a perk receipt"),Preview.bConvertedDuplicate);
+    TestTrue(TEXT("The repeated perk settles"),Economy->CompleteGrillRoll(Receipt));
+    TestEqual(TEXT("A repeated perk adds a copy instead of coins"),Economy->GetRaidPerkCopies(TEXT("PassivePrize")),2);
 
     const FName WorkCap(TEXT("Hat_WorkCap"));
     FMCHubEconomyCatalogEntry Clothing;
@@ -468,7 +538,8 @@ bool FMCHubGrillCatalogPrizeTest::RunTest(const FString&)
     TestTrue(TEXT("The loss receipt is identified as trash"),Preview.Kind==EMCGrillRewardKind::Trash);
     TestTrue(TEXT("Trash settles normally"),Economy->CompleteGrillRoll(Receipt));
     TestTrue(TEXT("Trash spends the fish and grants no inventory or coins"),Player->FishCaught==0
-        && Economy->Coins==4+ClothingCompensation && Economy->PendingPurchases.Num()==2 && Economy->OwnedCosmetics.Num()==1);
+        && Economy->Coins==4+ClothingCompensation && Economy->PendingPurchases.Num()==1
+        && Economy->GetRaidPerkCopies(TEXT("PassivePrize"))==2 && Economy->OwnedCosmetics.Num()==1);
     return true;
 }
 

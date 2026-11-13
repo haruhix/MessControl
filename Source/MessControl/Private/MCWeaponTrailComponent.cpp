@@ -6,6 +6,7 @@
 #include "MCWeaponImpact.h"
 #include "MCMeleeCombo.h"
 #include "MCKatanaSwing.h"
+#include "MCKatanaPlayback.h"
 #include "ProceduralMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Materials/MaterialInterface.h"
@@ -83,7 +84,7 @@ void UMCWeaponTrailComponent::PublishComposerState(bool Active,float PoseDelta,b
     Values.LocalStateAgeSeconds=FMath::Max(0.f,Hero->GetToolSwingElapsed());
     const bool Katana=PresentationSource==TEXT("Tool.Katana");
     const auto Variant=MCKatanaSwing::Decode(AcceptedStep);
-    Values.Duration=Katana?(MCKatanaSwing::ClipDuration(Variant)-MCKatanaSwing::StartOffset(Variant))
+    Values.Duration=Katana?(MCKatanaSwing::ClipDuration(Variant)-MCKatanaSwing::PlaybackStart(Variant))
         /Hero->GetKatanaSwingPlayRate():Hero->Inventory->SwingDuration();
     const bool Valid=HaveSpan && !Base.ContainsNaN() && !Tip.ContainsNaN();
     const float Travel=Valid&&bHasPreviousPose?float(FMath::Max(FVector::Dist(Base,PreviousBase),FVector::Dist(Tip,PreviousTip))):0.f;
@@ -149,9 +150,9 @@ void UMCWeaponTrailComponent::TickComponent(float Dt,ELevelTick TickType,FActorC
     int32 Stroke=INDEX_NONE;
     if(Katana) {
         Window=FVector2D(-1,-1);
-        const auto Cuts=MCKatanaSwing::Cuts(Variant);
+        const auto Cuts=MCKatanaSwing::PlaybackCuts(Variant);
         const float Rate=Hero->GetKatanaSwingPlayRate();
-        const float Offset=MCKatanaSwing::StartOffset(Variant);
+        const float Offset=MCKatanaSwing::PlaybackStart(Variant);
         for(int32 Index=0;Index<Cuts.Num();++Index) {
             // A short cosmetic lead/follow keeps fast cuts readable between
             // rendered frames. Neighboring cuts retain separate ribbon IDs.
@@ -188,7 +189,7 @@ void UMCWeaponTrailComponent::TickComponent(float Dt,ELevelTick TickType,FActorC
     Samples.RemoveAll([&](const FMCWeaponTrailSample& S){return Now-S.At>Life;});
     if(Samples.Num()>MaxSamples) Samples.RemoveAt(0,Samples.Num()-MaxSamples,EAllowShrinking::No);
     ActiveSamples=Samples.Num();
-    const float Duration=Katana?(MCKatanaSwing::ClipDuration(Variant)-MCKatanaSwing::StartOffset(Variant))
+    const float Duration=Katana?(MCKatanaSwing::ClipDuration(Variant)-MCKatanaSwing::PlaybackStart(Variant))
         /Hero->GetKatanaSwingPlayRate():Hero->Inventory->SwingDuration();
     const bool ScopeActive=bPublished && Hero->CanWork() && uint8(Hero->Inventory->Selected)==SwingTool
         && (Katana?Hero->GetKatanaSwingVariant()==Variant:true)

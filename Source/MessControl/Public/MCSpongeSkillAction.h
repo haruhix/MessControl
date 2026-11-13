@@ -28,12 +28,13 @@ public:
 protected:
     virtual void OnFinished(EMCActiveSkillEndReason Reason) override;
 private:
+    float RideSpeed() const;
     void UpdateRideVFX();
     void UpdateSoapTrail();
     void EndSoapTrail(bool bImmediate);
     FMCActiveSkillMotionLease Motion;
     FVector Heading=FVector::ForwardVector,PreviousFoot=FVector::ZeroVector;
-    double EndsAt=0,LastSampleAt=0;
+    double EndsAt=0,LastSampleAt=0,NextCleanCueAt=0;
     float PreviousSimulationTime=0;
     FVector LastSoapPoint=FVector::ZeroVector;
     double LastSoapAt=0;

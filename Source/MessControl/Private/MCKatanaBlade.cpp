@@ -14,6 +14,7 @@ const UAnimSequence* ClipFor(const UMCAnimationProfile& Profile,MCKatanaSwing::E
     case EVariant::DiagonalLeft:return Profile.KatanaDiagonalLeft.Get();
     case EVariant::Horizontal:return Profile.KatanaHorizontal.Get();
     case EVariant::Charged:return Profile.KatanaCharged.Get();
+    case EVariant::Overhead:return Profile.KatanaOverhead.Get();
     default:return nullptr;
     }
 }
@@ -33,7 +34,7 @@ bool ReadMount(const UAnimSequence& Clip,const FAnimExtractContext& Context,FTra
     return true;
 }
 
-FQuat BodyTilt(const UAnimSequence& Clip,const FAnimExtractContext& Context,int32 BodyBone)
+FQuat BodyTilt(const UAnimSequence& Clip,const FAnimExtractContext& Context,int32 BodyBone,float Weight)
 {
     if(BodyBone==INDEX_NONE) return FQuat::Identity;
     const auto& Reference=Clip.GetSkeleton()->GetReferenceSkeleton().GetRefBonePose();
@@ -41,7 +42,11 @@ FQuat BodyTilt(const UAnimSequence& Clip,const FAnimExtractContext& Context,int3
     Clip.GetBoneTransform(Sample,FSkeletonPoseBoneIndex(BodyBone),Context,false);
     Clip.GetBoneTransform(Base,FSkeletonPoseBoneIndex(BodyBone),FAnimExtractContext(0.,false),false);
     const FQuat Delta=(Sample.GetRotation()*Base.GetRotation().Inverse()).GetNormalized();
-    return FQuat::Slerp(FQuat::Identity,Delta,.65f).GetNormalized();
+    // Arms are authored relative to a posed guard, not the skeleton bind pose.
+    // Keep that shared guard in full for carry and attacks; only carry's
+    // changing sway is attenuated. At weight one this is Sample * Bind^-1.
+    const FQuat Guard=(Base.GetRotation()*Reference[BodyBone].GetRotation().Inverse()).GetNormalized();
+    return (FQuat::Slerp(FQuat::Identity,Delta,FMath::Clamp(Weight,0.f,1.f))*Guard).GetNormalized();
 }
 
 bool Sample(const UAnimSequence& Clip,float Time,FName BodyName,FName HandName,
@@ -63,7 +68,9 @@ bool Sample(const UAnimSequence& Clip,float Time,FName BodyName,FName HandName,
     }
     if(Bone!=Body) return false;
     FTransform BodyLocal=ProceduralBody;
-    BodyLocal.SetRotation((BodyTilt(Clip,Context,Body)*BodyLocal.GetRotation()).GetNormalized());
+    // Attack arms were baked relative to the complete authored body rotation.
+    // Attenuating only their parent would narrow and tilt the cutting arc.
+    BodyLocal.SetRotation((BodyTilt(Clip,Context,Body,1.f)*BodyLocal.GetRotation()).GetNormalized());
     // The procedural proxy leaves the root ancestry above the body at rest.
     FTransform ParentInMesh=FTransform::Identity;
     TArray<int32,TInlineAllocator<4>> BodyParents;

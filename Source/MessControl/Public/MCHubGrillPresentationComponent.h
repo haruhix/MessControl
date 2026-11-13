@@ -11,6 +11,7 @@ class UMCHubEconomyComponent;
 class UTextBlock;
 class UBorder;
 class UMaterialInterface;
+class USoundAttenuation;
 class USoundBase;
 class UTexture2D;
 class UWidgetComponent;
@@ -34,6 +35,7 @@ public:
     void UseFixedProjectionLayout();
     void TickPresentation(float DeltaSeconds);
     UFUNCTION(BlueprintPure,Category="Grill|Presentation") float GetRareReactionOpacity() const {return RareReactionOpacity;}
+    UFUNCTION(BlueprintPure,Category="Grill|Presentation") float GetResetProgress() const {return ResetProgress;}
     bool HasPreparedReelCatalog() const {return PreparedEconomy.IsValid();}
     /** New only: source text may grow the container beyond the base rail width. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Presentation|World|Grill",meta=(ClampMin="390",ClampMax="900")) float MaximumNewCaptionWidth=680.f;
@@ -70,7 +72,10 @@ private:
     FText GrillText(FName Key,const TCHAR* Russian,const TCHAR* English) const;
     FReelCard MakeCard(const FMCGrillReward& Reward,const UMCHubEconomyComponent* Economy) const;
     void PrepareCardText(FReelCard& Card) const;
-    void RefreshReel(const AMCHubGrillStation& Grill,const UMCHubEconomyComponent* Economy);
+    void RefreshReel(const AMCHubGrillStation& Grill,const UMCHubEconomyComponent* Economy,double Now);
+    void UpdateResetVisual(float Progress);
+    void UpdateRareReaction(float Arrival,float Opacity);
+    int32 PaintResetBeam(FSlateWindowElementList& Elements,int32 Layer,const FGeometry& Geometry,const FLinearColor& Tint) const;
     void DrawCardIcon(FSlateWindowElementList& Elements,int32 Layer,const FGeometry& IconGeometry,
         const FReelCard& Card,const FLinearColor& Tint) const;
     void DrawReelCard(FSlateWindowElementList& Elements,int32 Layer,const FGeometry& RailGeometry,
@@ -105,6 +110,8 @@ private:
     float RareReactionArrival=0.f;
     float RareReactionOpacity=0.f;
     TOptional<float> HiddenBaseOpacity;
+    TOptional<FWidgetTransform> BeforeResetTransform;
+    float ResetProgress=1.f;
     bool bResultCentered=false;
     bool bIdleReel=false;
     bool bFixedProjectionLayout=false;
@@ -121,6 +128,7 @@ public:
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick) override;
     UFUNCTION(BlueprintPure,Category="Grill|Presentation") FGuid GetLastFanfareRoll() const {return LastFanfareRoll;}
+    UFUNCTION(BlueprintPure,Category="Grill|Presentation") FGuid GetLastResetSoundRoll() const {return LastResetSoundRoll;}
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Grill|Hologram") FVector HologramLocalOffset=FVector(0,0,290);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Grill|Hologram") float VisibleDistance=2200.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Grill|Hologram") TSubclassOf<UMCHubGrillHologramWidget> WidgetClass;
@@ -129,10 +137,15 @@ private:
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> IntakeFish;
     UPROPERTY(Transient) TObjectPtr<USoundBase> RareFanfare;
     UPROPERTY(Transient) TObjectPtr<UAudioComponent> RareFanfarePlayback;
+    UPROPERTY(Transient) TObjectPtr<USoundBase> ResetSound;
+    UPROPERTY(Transient) TObjectPtr<USoundAttenuation> ResetSoundAttenuation;
+    UPROPERTY(Transient) TObjectPtr<UAudioComponent> ResetSoundPlayback;
     TWeakObjectPtr<AMCHubGrillStation> Station;
     float VisibilityAlpha=0;
     FGuid IntakeRoll;
     FGuid PresentedRareWinRoll;
+    FGuid PresentedResetRoll;
     FGuid LastFanfareRoll;
+    FGuid LastResetSoundRoll;
     FVector IntakeStart=FVector::ZeroVector;
 };

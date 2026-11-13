@@ -11,7 +11,7 @@ namespace MCKatanaBlade
 {
 const UAnimSequence* ClipFor(const UMCAnimationProfile& Profile,MCKatanaSwing::EVariant Variant);
 bool ReadMount(const UAnimSequence& Clip,const FAnimExtractContext& Context,FTransform& Out);
-FQuat BodyTilt(const UAnimSequence& Clip,const FAnimExtractContext& Context,int32 BodyBone);
+FQuat BodyTilt(const UAnimSequence& Clip,const FAnimExtractContext& Context,int32 BodyBone,float Weight=1.f);
 
 // +X is the cutting edge. Stations follow its curved outline in mesh-local cm.
 inline const FVector Edge[]={

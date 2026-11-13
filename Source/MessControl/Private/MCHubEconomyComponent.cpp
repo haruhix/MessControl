@@ -2,10 +2,13 @@
 
 #include "MCGameState.h"
 #include "MCHubGameState.h"
+#include "MCHubProfileSubsystem.h"
 #include "MCPerkComponent.h"
 #include "MCPerkEffect.h"
 #include "MCPlayerState.h"
 #include "Engine/World.h"
+#include "Engine/GameInstance.h"
+#include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Misc/SecureHash.h"
 #include "Templates/UnrealTemplate.h"
@@ -41,9 +44,11 @@ bool ValidGrillReceipt(const FMCGrillReward& Reward)
     if(Reward.bCatalogGrant) {
         if(Reward.Kind!=EMCGrillRewardKind::CatalogItem || Reward.CatalogItem.IsNone() || Reward.Quantity<1 || Reward.Quantity>32) return false;
         const auto& Purchase=Reward.GrantedPurchase;
-        if(Reward.bConvertedDuplicate) return Reward.GrantedCosmeticID.IsNone() && Purchase.PerkID.IsNone();
+        if(Reward.bConvertedDuplicate) return Reward.GrantedCosmeticID.IsNone() && Purchase.PerkID.IsNone() && Reward.GrantedRaidCopies==0;
         if(Reward.Coins!=0) return false;
-        if(!Reward.GrantedCosmeticID.IsNone()) return Reward.Quantity==1 && Purchase.PerkID.IsNone();
+        if(!Reward.GrantedCosmeticID.IsNone()) return Reward.Quantity==1 && Purchase.PerkID.IsNone() && Reward.GrantedRaidCopies==0;
+        if(Reward.GrantedRaidCopies<0 || Reward.GrantedRaidCopies>1024) return false;
+        if(Reward.GrantedRaidCopies>0 && (Purchase.DestinationSlot!=INDEX_NONE || Purchase.Charges!=INDEX_NONE)) return false;
         const bool bActiveSlot=Purchase.DestinationSlot>=0 && Purchase.DestinationSlot<4;
         return !Purchase.PerkID.IsNone() && Purchase.CatalogID==Reward.CatalogItem && Purchase.InstanceID==Reward.RollID
             && (Purchase.DestinationSlot==INDEX_NONE || bActiveSlot)
@@ -326,6 +331,7 @@ TArray<FMCHubPendingPurchase> UMCHubEconomyComponent::BuildPendingPlan(TArray<TA
         FMCPerkDefinition Row;
         if(!Purchase.InstanceID.IsValid() || AmbiguousInstances.Contains(Purchase.InstanceID) || IDs.Contains(Purchase.PerkID) || !ResolvePerk(Purchase.PerkID,Row)) continue;
         const auto Kind=UMCPerkComponent::ResolvePerkKind(Row,Purchase.PerkID);
+        if(IsRaidPerkKind(Row,Kind)) continue;
         if(UsesActiveSlot(Kind) && (Purchase.DestinationSlot<0 || Purchase.DestinationSlot>=4 || Occupied.Contains(Purchase.DestinationSlot))) continue;
         if(Kind==EMCPerkKind::Automatic || (Kind==EMCPerkKind::Consumable && (Purchase.Charges<=0 || Purchase.Charges>10000))) continue;
         if(UsesActiveSlot(Kind)) Occupied.Add(Purchase.DestinationSlot);
@@ -337,6 +343,7 @@ TArray<FMCHubPendingPurchase> UMCHubEconomyComponent::BuildPendingPlan(TArray<TA
         if(!Item || Item->PerkID.IsNone() || !IsCatalogUsable(*Item)) continue;
         FMCPerkDefinition Definition;if(!ResolvePerk(Item->PerkID,Definition)) continue;
         const auto Kind=UMCPerkComponent::ResolvePerkKind(Definition,Item->PerkID);
+        if(IsRaidPerkKind(Definition,Kind)) continue;
         if(const auto* Existing=LegacyPlan.Find(Item->PerkID)) {
             if(Kind==EMCPerkKind::Consumable && Plan[*Existing].Charges<10000) {
                 ++Plan[*Existing].Charges;if(LegacyIndices) (*LegacyIndices)[*Existing].Add(Index);
@@ -365,7 +372,7 @@ TArray<FMCActiveSkillSlot> UMCHubEconomyComponent::GetPendingActiveSlots() const
 int32 UMCHubEconomyComponent::QueuedStacks(FName ItemID) const
 {
     const auto* Item=FindCatalogItem(ItemID);
-    int32 Result=0;
+    int32 Result=Item?GetRaidPerkCopies(Item->PerkID):0;
     for(FName LegacyID:PendingBoosters) {
         const auto* Legacy=FindCatalogItem(LegacyID);
         if(LegacyID==ItemID || (Item && Legacy && !Item->PerkID.IsNone() && Legacy->PerkID==Item->PerkID)) ++Result;
@@ -385,11 +392,14 @@ bool UMCHubEconomyComponent::CanQueueItem(FName ItemID,const FMCHubCatalogRow& I
         return Units<=32 && int64(QueuedStacks(ItemID))+Units<=Item.MaximumQueuedStacks
             && int64(PendingBoosters.Num())+Units<=FMath::Clamp(Rules.MaximumPendingBoosters,1,256);
     }
+    FMCPerkDefinition NewDefinition;
+    if(!ResolvePerk(Item.PerkID,NewDefinition)) return false;
+    if(IsRaidPerkKind(NewDefinition,UMCPerkComponent::ResolvePerkKind(NewDefinition,Item.PerkID)))
+        return CanAddRaidPerkCopies(Item.PerkID,Stacks*Item.Quantity);
     // This is a serialization guard, not a cap on the number of passive skills.
     if(PendingPurchases.Num()>=4096 || Stacks!=1) return false;
     for(const auto& Purchase:PendingPurchases) if(Purchase.PerkID==Item.PerkID) return false;
     for(FName LegacyID:PendingBoosters) if(const auto* Legacy=FindCatalogItem(LegacyID);Legacy && Legacy->PerkID==Item.PerkID) return false;
-    FMCPerkDefinition NewDefinition;if(!ResolvePerk(Item.PerkID,NewDefinition)) return false;
     if(NewDefinition.ToolUpgrade!=EMCToolUpgrade::None) for(const auto& Purchase:BuildPendingPlan()) {
         FMCPerkDefinition Existing;
         if(ResolvePerk(Purchase.PerkID,Existing) && Existing.ToolUpgrade==NewDefinition.ToolUpgrade) return false;
@@ -416,7 +426,7 @@ bool UMCHubEconomyComponent::CanPurchaseForSlot(FName ItemID,int32 DestinationSl
     if(!CanPurchase(ItemID,Error)) return false;
     const auto* Item=FindCatalogItem(ItemID);FMCPerkDefinition Definition;
     const auto Kind=ResolvePerk(Item->PerkID,Definition)?UMCPerkComponent::ResolvePerkKind(Definition,Item->PerkID):EMCPerkKind::Automatic;
-    if(!UsesActiveSlot(Kind)) {
+    if(!UsesActiveSlot(Kind) || IsRaidPerkKind(Definition,Kind)) {
         if(DestinationSlot!=INDEX_NONE || !ExpectedReplacedID.IsNone() || ExpectedInstanceID.IsValid()) {
             Error=LOCTEXT("InvalidPassiveSlot","Этот предмет не занимает активный слот.");return false;
         }
@@ -444,11 +454,13 @@ bool UMCHubEconomyComponent::TryPurchaseForSlot(FName ItemID,int32 DestinationSl
     if(!IsAuthority() || bMutating || !CanPurchaseForSlot(ItemID,DestinationSlot,ExpectedReplacedID,ExpectedInstanceID,Error)) return false;
     const auto* Item=FindCatalogItem(ItemID);FMCPerkDefinition Definition;
     const auto Kind=ResolvePerk(Item->PerkID,Definition)?UMCPerkComponent::ResolvePerkKind(Definition,Item->PerkID):EMCPerkKind::Automatic;
-    if(UsesActiveSlot(Kind) && DestinationSlot==INDEX_NONE) {
+    const bool bRaidPerk=IsRaidPerkKind(Definition,Kind);
+    if(!bRaidPerk && UsesActiveSlot(Kind) && DestinationSlot==INDEX_NONE) {
         const auto Slots=GetPendingActiveSlots();for(int32 I=0;I<Slots.Num();++I) if(Slots[I].PerkID.IsNone()){DestinationSlot=I;break;}
     }
     TGuardValue<bool> Guard(bMutating,true);
     if(Item->Kind==EMCHubCatalogKind::Cosmetic) OwnedCosmetics.AddUnique(Item->CosmeticID);
+    else if(bRaidPerk) AddRaidPerkCopies(Item->PerkID,Item->Quantity);
     else if(Item->PerkID.IsNone()) for(int32 I=0;I<Item->Quantity;++I) PendingBoosters.Add(ItemID);
     else {
         if(UsesActiveSlot(Kind) && !ExpectedReplacedID.IsNone()) {
@@ -478,19 +490,21 @@ bool UMCHubEconomyComponent::BuildGrillCatalogGrant(const FMCGrillRewardRow& Row
     const auto& Item=Entry.Definition;
     const bool bCosmetic=Item.Kind==EMCHubCatalogKind::Cosmetic;
     if(!bCosmetic && Item.PerkID.IsNone()) return false; // Retired consumables use the legacy receipt path only.
+    FMCPerkDefinition RaidDefinition;
+    const bool bRaidPerk=!bCosmetic && GetRaidPerkDefinition(Item.PerkID,RaidDefinition);
     if(Row.Quantity!=1 && Entry.PerkKind!=EMCPerkKind::Consumable) return false;
 
     Reward.bCatalogGrant=true;
     Reward.CatalogItem=Row.CatalogItem;
     Reward.Rarity=Item.Rarity;
     Reward.Quantity=Row.Quantity;
-    Reward.bConvertedDuplicate=bCosmetic?OwnsCosmetic(Item.CosmeticID):QueuedStacks(Row.CatalogItem)>0;
+    Reward.bConvertedDuplicate=bCosmetic?OwnsCosmetic(Item.CosmeticID):!bRaidPerk && QueuedStacks(Row.CatalogItem)>0;
     if(Reward.bConvertedDuplicate) {
         const int32 UnitPrice=Entry.bCanonicalClothing?Entry.BasePrice:Item.Price;
         Reward.Coins=int32(FMath::Min<int64>(int64(UnitPrice)*Row.Quantity/10,MAX_int32));
         return true;
     }
-    if(!CanQueueItem(Row.CatalogItem,Item)) return false;
+    if(!CanQueueItem(Row.CatalogItem,Item,bRaidPerk?Row.Quantity:1)) return false;
     if(bCosmetic) {
         Reward.GrantedCosmeticID=Item.CosmeticID;
         return true;
@@ -499,6 +513,10 @@ bool UMCHubEconomyComponent::BuildGrillCatalogGrant(const FMCGrillRewardRow& Row
     auto& Purchase=Reward.GrantedPurchase;
     Purchase.CatalogID=Row.CatalogItem;
     Purchase.PerkID=Item.PerkID;
+    if(bRaidPerk) {
+        Reward.GrantedRaidCopies=Row.Quantity*Item.Quantity;
+        return true;
+    }
     if(UsesActiveSlot(Entry.PerkKind)) {
         // An unattended roll cannot replace an already prepared item.
         Purchase.DestinationSlot=GetPendingActiveSlots().IndexOfByPredicate([](const FMCActiveSkillSlot& Slot){return Slot.PerkID.IsNone();});
@@ -601,7 +619,16 @@ bool UMCHubEconomyComponent::CompleteGrillRoll(const FGuid& Receipt)
         } else if(!Reward.GrantedCosmeticID.IsNone()) {
             OwnedCosmetics.AddUnique(Reward.GrantedCosmeticID);
         } else {
-            PendingPurchases.Add(Reward.GrantedPurchase);
+            FMCPerkDefinition Definition;
+            const FName PerkID=Reward.GrantedPurchase.PerkID;
+            const int32 Charges=Reward.GrantedPurchase.Charges;
+            if(Reward.GrantedRaidCopies>0) {
+                if(!CanAddRaidPerkCopies(PerkID,Reward.GrantedRaidCopies)) return false;
+                AddRaidPerkCopies(PerkID,Reward.GrantedRaidCopies);
+            } else if(GetRaidPerkDefinition(PerkID,Definition) && CanAddRaidPerkCopies(PerkID,1)
+                && (Definition.Kind==EMCPerkKind::Consumable ? Charges>0 && Charges<=10000 : Charges==INDEX_NONE)) {
+                AddRaidPerkCopies(PerkID,1,Charges);
+            } else PendingPurchases.Add(Reward.GrantedPurchase);
         }
     } else if(Reward.Kind==EMCGrillRewardKind::CatalogItem) {
         const auto* Item=FindCatalogItem(Reward.CatalogItem);
@@ -631,24 +658,35 @@ void UMCHubEconomyComponent::RefreshMigrationNotice()
     const bool UnknownReceipt=PendingRoll.RollID.IsValid() && PendingRoll.Kind==EMCGrillRewardKind::CatalogItem
         && !PendingRoll.bCatalogGrant && !FindCatalogItem(PendingRoll.CatalogItem);
     if(UnknownReceipt) MigrationNotice=LOCTEXT("LegacyReceiptQuarantined","Старая награда сохранена, но её ID отсутствует в каталоге. Нужна проверка таблицы; монеты и покупки сохранены.");
-    else if(UnappliedLegacy>0 || InvalidNew>0) MigrationNotice=LOCTEXT("LegacyPurchasesRetained","Часть прежних покупок пока не применена. Они сохранены до проверки совместимости или свободного слота.");
+    else if(UnappliedLegacy>0 || InvalidNew>0) MigrationNotice=LOCTEXT("LegacyPurchasesRetained","Часть прежних покупок сохранена до проверки совместимости.");
     else MigrationNotice=FText::GetEmpty();
 }
 FMCHubEconomySaveData UMCHubEconomyComponent::ExportSave()
 {
     if(IsAuthority() && !bMutating && HasPendingGrillRoll()) CompleteGrillRoll(PendingRoll.RollID);
-    FMCHubEconomySaveData Data;Data.Coins=Coins;Data.OwnedCosmetics=OwnedCosmetics;Data.PendingBoosters=PendingBoosters;
+    FMCHubEconomySaveData Data;Data.Version=3;Data.Coins=Coins;Data.OwnedCosmetics=OwnedCosmetics;Data.PendingBoosters=PendingBoosters;
     Data.PendingPurchases=PendingPurchases;Data.ShopRotationId=ShopRotationId;Data.ShopRotationSeed=ShopRotationSeed;
     Data.bShopStockGenerated=bShopStockGenerated;Data.ShopStockIDs=ShopStockIDs;Data.EquippedLoadout=EquippedLoadout;
-    Data.LastAppliedRunId=LastAppliedRunId;Data.RunCalciumCharges=RunCalciumCharges;Data.PendingGrillReward=PendingRoll;return Data;
+    Data.LastAppliedRunId=LastAppliedRunId;Data.RunCalciumCharges=RunCalciumCharges;Data.PendingGrillReward=PendingRoll;
+    Data.RaidPerkStock=RaidPerkStock;Data.RaidLoadout=RaidLoadout;Data.RaidTravelTicket=RaidTravelTicket;
+    return Data;
 }
 bool UMCHubEconomyComponent::ImportSave(const FMCHubEconomySaveData& Data,FText& Error)
 {
     Error=FText::GetEmpty();
-    if(!IsAuthority() || bMutating || (Data.Version!=1 && Data.Version!=2) || !LoadTables()) return false;
+    if(!IsAuthority() || bMutating || Data.Version<1 || Data.Version>3 || !LoadTables()) return false;
     const auto Rules=GetRules();
     if(Data.OwnedCosmetics.Num()>FMath::Clamp(Rules.MaximumOwnedCosmetics,1,1024)
-        || Data.PendingBoosters.Num()>4096 || Data.PendingPurchases.Num()>4096 || Data.ShopStockIDs.Num()>256) return false;
+        || Data.PendingBoosters.Num()>4096 || Data.PendingPurchases.Num()>4096 || Data.ShopStockIDs.Num()>256
+        || Data.RaidPerkStock.Num()>MaximumRaidStockEntries || Data.RaidLoadout.ActivePerks.Num()>FMCHubRaidLoadout::SlotsPerKind
+        || Data.RaidLoadout.PassivePerks.Num()>FMCHubRaidLoadout::SlotsPerKind) return false;
+    TSet<FName> StockIDs;
+    for(const auto& Entry:Data.RaidPerkStock) {
+        if(Entry.PerkID.IsNone() || Entry.Copies<=0 || Entry.Copies>MaximumRaidStockCopies || StockIDs.Contains(Entry.PerkID)
+            || Entry.LegacyChargePacks.Num()>Entry.Copies
+            || Entry.LegacyChargePacks.ContainsByPredicate([](int32 Charges){return Charges<=0 || Charges>10000;})) return false;
+        StockIDs.Add(Entry.PerkID);
+    }
     if(!UMCCosmeticCatalog::ValidateLoadout(UMCCosmeticCatalog::GetDefaultCatalog(),Data.EquippedLoadout,Error)) return false;
     TArray<FName> ValidOwned;
     for(FName ID:Data.OwnedCosmetics) if(const auto* Item=UMCCosmeticCatalog::Find(UMCCosmeticCatalog::GetDefaultCatalog(),ID);Item && Item->bEnabled) ValidOwned.AddUnique(ID);
@@ -664,6 +702,15 @@ bool UMCHubEconomyComponent::ImportSave(const FMCHubEconomySaveData& Data,FText&
         PendingBoosters=Data.PendingBoosters;PendingPurchases=Data.PendingPurchases;EquippedLoadout=Data.EquippedLoadout;
         ShopRotationId=Data.ShopRotationId;ShopRotationSeed=Data.ShopRotationSeed;bShopStockGenerated=Data.bShopStockGenerated && ShopRotationId.IsValid();
         ShopStockIDs=Data.ShopStockIDs;LastAppliedRunId=Data.LastAppliedRunId;RunCalciumCharges=FMath::Clamp(Data.RunCalciumCharges,0,3);
+        RaidPerkStock=Data.RaidPerkStock;
+        RaidLoadout=Data.RaidLoadout;
+        RaidTravelTicket=Data.RaidTravelTicket;
+        MigrateRaidPerkStock();
+        FText RaidError;
+        if(!ValidateRaidLoadout(RaidLoadout,RaidError)) {
+            RaidLoadout=FMCHubRaidLoadout();
+            RaidTravelTicket.Invalidate();
+        }
         PendingRoll=Data.PendingGrillReward;RefreshMigrationNotice();
     }
     if(HasPendingGrillRoll()) CompleteGrillRoll(PendingRoll.RollID);
@@ -679,24 +726,56 @@ bool UMCHubEconomyComponent::ApplyPendingBoostersForRun(const FGuid& RunId,FText
     Error=FText::GetEmpty();auto* Player=Cast<AMCPlayerState>(GetOwner());
     if(!IsAuthority() || !Player || !Player->Perks || bMutating || !RunId.IsValid() || !IsRealRun() || !LoadTables()) return false;
     if(LastAppliedRunId==RunId) return true;
+    FGuid TravelTicket;
+    const bool bRaidTravel=FGuid::ParseExact(GetWorld()->URL.GetOption(TEXT("MCRaidTicket="),TEXT("")),EGuidFormats::Digits,TravelTicket)
+        && TravelTicket.IsValid();
+    const auto* Arena=GetWorld()->GetGameState<AMCGameState>();
+    // The arena lifts this barrier after the team acknowledges loading.
+    if(bRaidTravel && (!Arena || Arena->bLobbyWaiting || !Player->GetPawn())) return false;
+    const bool bUseRaidLoadout=bRaidTravel && RaidTravelTicket==TravelTicket;
     TArray<TArray<int32>> Sources;const auto Plan=BuildPendingPlan(&Sources);
-    TArray<FMCPerkGrant> Grants;TArray<FGuid> AppliedPurchases;TSet<int32> AppliedLegacy;
-    bool bDeferred=false;TArray<int32> Order;
-    for(int32 I=0;I<Plan.Num();++I) Order.Add(I);
-    // Validate purchased tool prerequisites together before dependent passive rows.
-    Order.StableSort([&](int32 A,int32 B){
-        return Player->Perks->GetPerkKind(Plan[A].PerkID)==EMCPerkKind::ToolUpgrade
-            && Player->Perks->GetPerkKind(Plan[B].PerkID)!=EMCPerkKind::ToolUpgrade;
-    });
-    for(int32 I:Order) {
+    TArray<FMCPerkGrant> Grants;
+    TArray<FGuid> AppliedPurchases;
+    TSet<int32> AppliedLegacy;
+    TSet<FName> AppliedRaidPerks;
+    bool bDeferred=false;
+    const auto TryPlanGrant=[&](const FMCPerkGrant& Grant) {
+        Grants.Add(Grant);
+        if(Player->Perks->CanAcquirePerkBatch(Grants)) return true;
+        Grants.Pop(EAllowShrinking::No);
+        bDeferred=true;
+        return false;
+    };
+    const auto AppendLegacyGrant=[&](int32 I) {
         const auto& Purchase=Plan[I];FMCPerkGrant Grant;Grant.PerkID=Purchase.PerkID;
         Grant.DestinationSlot=Purchase.DestinationSlot;Grant.Charges=Purchase.Charges;
-        auto Proposed=Grants;Proposed.Add(Grant);
-        if(!Player->Perks->CanAcquirePerkBatch(Proposed)) {bDeferred=true;continue;}
-        Grants.Add(Grant);
+        if(!TryPlanGrant(Grant)) return;
         if(Sources[I].IsEmpty()) AppliedPurchases.Add(Purchase.InstanceID);
         else for(int32 Index:Sources[I]) AppliedLegacy.Add(Index);
+    };
+    // Tool prerequisites go first. Chosen actives have first claim on their slots.
+    const auto IsToolGrant=[&](int32 I){return Player->Perks->GetPerkKind(Plan[I].PerkID)==EMCPerkKind::ToolUpgrade;};
+    for(int32 I=0;I<Plan.Num();++I) if(IsToolGrant(I)) AppendLegacyGrant(I);
+    if(bUseRaidLoadout) {
+        const auto AppendRaidGrant=[&](FName ID,EMCPerkKind Kind,int32 Destination) {
+            FMCPerkDefinition Definition;
+            const auto* Entry=RaidPerkStock.FindByPredicate([ID](const auto& Row){return Row.PerkID==ID;});
+            if(!Entry || Entry->Copies<=0 || !GetRaidPerkDefinition(ID,Definition)
+                || (Definition.Kind!=Kind && !(Kind==EMCPerkKind::Active && Definition.Kind==EMCPerkKind::Consumable))) {
+                bDeferred=true;
+                return;
+            }
+            FMCPerkGrant Grant;
+            Grant.PerkID=ID;
+            Grant.DestinationSlot=Destination;
+            if(Definition.Kind==EMCPerkKind::Consumable && !Entry->LegacyChargePacks.IsEmpty())
+                Grant.Charges=Entry->LegacyChargePacks[0];
+            if(TryPlanGrant(Grant)) AppliedRaidPerks.Add(ID);
+        };
+        for(int32 I=0;I<RaidLoadout.ActivePerks.Num();++I) AppendRaidGrant(RaidLoadout.ActivePerks[I],EMCPerkKind::Active,I);
+        for(FName ID:RaidLoadout.PassivePerks) AppendRaidGrant(ID,EMCPerkKind::Passive,INDEX_NONE);
     }
+    for(int32 I=0;I<Plan.Num();++I) if(!IsToolGrant(I)) AppendLegacyGrant(I);
     int32 Calcium=0;
     if(IsCalciumEnabled()) for(int32 I=0;I<PendingBoosters.Num();++I) {
         const auto* Item=FindCatalogItem(PendingBoosters[I]);
@@ -709,10 +788,25 @@ bool UMCHubEconomyComponent::ApplyPendingBoostersForRun(const FGuid& RunId,FText
     if(!Grants.IsEmpty() && !Player->Perks->TryAcquirePerkBatch(Grants)) {Error=LOCTEXT("GrantFailed","Бустеры не применены; покупки сохранены для следующего запуска.");return false;}
     PendingPurchases.RemoveAll([&](const auto& P){return AppliedPurchases.Contains(P.InstanceID);});
     for(int32 I=PendingBoosters.Num()-1;I>=0;--I) if(AppliedLegacy.Contains(I)) PendingBoosters.RemoveAt(I);
+    if(bUseRaidLoadout) {
+        for(auto& Entry:RaidPerkStock) if(AppliedRaidPerks.Contains(Entry.PerkID)) {
+            --Entry.Copies;
+            if(!Entry.LegacyChargePacks.IsEmpty()) Entry.LegacyChargePacks.RemoveAt(0,1,EAllowShrinking::No);
+        }
+        RaidPerkStock.RemoveAll([](const auto& Entry){return Entry.Copies<=0;});
+        RaidLoadout.ActivePerks.RemoveAll([this](FName ID){return GetRaidPerkCopies(ID)<=0;});
+        RaidLoadout.PassivePerks.RemoveAll([this](FName ID){return GetRaidPerkCopies(ID)<=0;});
+        RaidTravelTicket.Invalidate();
+    }
     LastAppliedRunId=RunId;if(IsCalciumEnabled()) RunCalciumCharges=Calcium;
     RefreshMigrationNotice();
     if(bDeferred && MigrationNotice.IsEmpty()) MigrationNotice=LOCTEXT("DeferredPurchases","Часть покупок не подошла текущему забегу и сохранена для следующего.");
-    Error=MigrationNotice;NotifyChanged();return true;
+    Error=MigrationNotice;
+    if(bUseRaidLoadout)
+        if(auto* PC=Cast<APlayerController>(Player->GetOwner()); PC && GetWorld()->GetGameInstance())
+            if(auto* Profiles=GetWorld()->GetGameInstance()->GetSubsystem<UMCHubProfileSubsystem>()) Profiles->Store(Player,PC);
+    NotifyChanged();
+    return true;
 }
 bool UMCHubEconomyComponent::TryConsumeCalciumCharge()
 {
@@ -741,6 +835,8 @@ void UMCHubEconomyComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
     DOREPLIFETIME_CONDITION(UMCHubEconomyComponent,EquippedLoadout,COND_OwnerOnly);
     DOREPLIFETIME_CONDITION(UMCHubEconomyComponent,RunCalciumCharges,COND_OwnerOnly);
     DOREPLIFETIME_CONDITION(UMCHubEconomyComponent,LastGrillReward,COND_OwnerOnly);
+    DOREPLIFETIME_CONDITION(UMCHubEconomyComponent,RaidPerkStock,COND_OwnerOnly);
+    DOREPLIFETIME_CONDITION(UMCHubEconomyComponent,RaidLoadout,COND_OwnerOnly);
 }
 
 #undef LOCTEXT_NAMESPACE

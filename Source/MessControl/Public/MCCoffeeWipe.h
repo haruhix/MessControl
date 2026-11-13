@@ -11,7 +11,8 @@ struct MESSCONTROL_API FMCCoffeeWipe
     static bool Stroke(TArray<uint8>& Mask,FVector2D From,FVector2D To,float Radius,float Seconds,TArray<float>* Fractional=nullptr,float Rate=1.f);
     // Sponge erases wet cells immediately and accumulates their distinct area across contacts.
     static bool WipeOnContact(TArray<uint8>& Mask,const TArray<uint8>& Deposited,TArray<float>& Fractional,
-        TBitArray<>& Swept,FVector2D Center,float Radius,int32 Seed,bool bTile,bool& bCompleted);
+        TBitArray<>& Swept,FVector2D Center,float Radius,int32 Seed,bool bTile,bool& bCompleted,
+        TArray<uint8>* CompletionRemainder=nullptr);
     static float Remaining(const TArray<uint8>& Mask);
     // Conservative wet interior, matching the puddle material's seeded outline.
     static bool WetAt(const TArray<uint8>& Mask,FVector2D UV,int32 Seed,bool bTile=false,uint8 Threshold=100);

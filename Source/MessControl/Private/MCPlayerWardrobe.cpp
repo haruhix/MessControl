@@ -118,7 +118,7 @@ void AMCPlayerController::RefreshWardrobe()
     }
     if(IsHubShopOpen() && (!Hero || !Hub || Hub->Phase!=EMCHubPhase::Gathering || bLoadingInputBlocked
         || !NearbyShop.IsValid() || !NearbyShop->ContainsPawn(Hero))) CloseHubShop();
-    const bool ShowPrompt=Hero && Hub && Hub->Phase==EMCHubPhase::Gathering && Hero->CanWork()
+    const bool ShowPrompt=Hero && Hub && Hub->Phase==EMCHubPhase::Gathering && Hero->CanWork() && !IsMoveInputIgnored()
         && !bLoadingInputBlocked && !bHubMenuInput && !bPauseMenuOpen && !bConnectionMenuOpen
         && !bLobbyUIOpen && !bBossIntroPlaying && !IsRewardInteractionActive() && !IsWardrobeOpen() && !IsHubShopOpen();
     if(NearbyWardrobe.IsValid()) NearbyWardrobe->SetLocalPromptVisible(this,ShowPrompt);

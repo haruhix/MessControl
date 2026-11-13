@@ -394,7 +394,7 @@ bool MCActiveSkillMotion::ContinuousPath(FVector From,FVector To,float Seconds,f
 }
 
 bool MCActiveSkillMotion::CleanSweep(AMCToothCharacter* Worker,const AActor* Action,FVector From,FVector To,
-    float Seconds,float Radius,float Rate,float Speed,bool bContactPass)
+    float Seconds,float Radius,float Rate,float Speed,bool bContactPass,FCleanContact* Contact)
 {
     if(!IsValid(Worker) || !Worker->HasAuthority() || !ContinuousPath(From,To,Seconds,Speed)
         || !FMath::IsFinite(Radius) || Radius<=0 || !FMath::IsFinite(Rate) || Rate<=0) return false;
@@ -463,14 +463,17 @@ bool MCActiveSkillMotion::CleanSweep(AMCToothCharacter* Worker,const AActor* Act
             }
         }
         if(ClearRadius<2.f) continue;
+        bool bSampleChanged=false;
         for(const auto& Weak:Surfaces) if(auto* Surface=Weak.Get()) {
             const FVector Local=Surface->GetActorTransform().InverseTransformPosition(Point);
             const bool OnPaintTongue=Surface->bPaintTile && Floor.GetActor()==Surface->GetTongue();
             if((!OnPaintTongue && FMath::Abs(Local.Z)>18.f) || FMath::Abs(Local.X)>Surface->LiquidHalfSize+ClearRadius || FMath::Abs(Local.Y)>Surface->LiquidHalfSize+ClearRadius) continue;
-            Changed|=Surface->CleanLiquidAt(Worker,Point,ClearRadius,Dose,ContactRate,EMCStainCleanReason::ActiveSkill,bContactPass);
+            bSampleChanged|=Surface->CleanLiquidAt(Worker,Point,ClearRadius,Dose,ContactRate,EMCStainCleanReason::ActiveSkill,bContactPass);
         }
         if(auto* Tooth=Cast<AMCArenaTooth>(Floor.GetActor()))
-            Changed|=Tooth->CleanGrimeAt(Worker,Point,ClearRadius,Dose,ContactRate,EMCStainCleanReason::ActiveSkill);
+            bSampleChanged|=Tooth->CleanGrimeAt(Worker,Point,ClearRadius,Dose,ContactRate,EMCStainCleanReason::ActiveSkill);
+        if(bSampleChanged && Contact) *Contact={Point,Floor.ImpactNormal.GetSafeNormal(),ClearRadius};
+        Changed|=bSampleChanged;
     }
     return Changed;
 }

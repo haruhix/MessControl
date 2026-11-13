@@ -25,6 +25,8 @@ public:
     EMCHubPhase Phase = EMCHubPhase::Gathering;
     /** A scene ACK belongs to one presentation transition, even without map travel. */
     UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub") int32 SceneGeneration = 1;
+    /** Changes when a new selector opens or the host changes the selected day. */
+    UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub|Raid") int32 RaidSelectionRevision = 1;
     UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub") int32 SelectedDay = 1;
     UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub") TArray<FMCHubPlayerReadiness> Players;
     UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub") FText Notice;
@@ -42,6 +44,7 @@ public:
     UFUNCTION(BlueprintPure, Category="Hub") int32 GetParticipantCount() const;
     UFUNCTION(BlueprintPure, Category="Hub") int32 GetLoadedCount() const;
     UFUNCTION(BlueprintPure, Category="Hub") bool HasLoadedScene(const APlayerState* Player) const;
+    UFUNCTION(BlueprintPure, Category="Hub|Raid") bool IsPlayerReady(const APlayerState* Player) const;
     UFUNCTION(BlueprintPure, Category="Hub") bool AreAllReady() const;
     UFUNCTION(BlueprintPure, Category="Hub") bool AreAllLoaded() const;
     UFUNCTION(BlueprintPure, Category="Hub") bool IsHost(const APlayerController* Player) const;

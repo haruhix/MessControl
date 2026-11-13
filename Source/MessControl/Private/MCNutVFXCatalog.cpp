@@ -98,7 +98,7 @@ TConstArrayView<FMCNutVFXAction> Actions()
         Add(TEXT("Boss.NutKnight.Shield"),TEXT("Ореховый рыцарь · щит"),{TEXT("Hit"),TEXT("Break"),TEXT("Durability")},TEXT("TankShieldHit"));
         Add(TEXT("Boss.NutKnight.Melee"),TEXT("Ореховый рыцарь · ближний бой"),{TEXT("Tell"),TEXT("Slash"),TEXT("Slam")},TEXT("TankMelee"));
         Add(TEXT("Boss.NutKnight.Charge"),TEXT("Ореховый рыцарь · разбег"),{TEXT("Tell"),TEXT("Move")},TEXT("TankCharge"));
-        Add(TEXT("Boss.NutKnight.Roll"),TEXT("Ореховый рыцарь · перекат"),{TEXT("Transform"),TEXT("TransformBurst"),TEXT("Tell"),TEXT("Move")},TEXT("TankRoll"));
+        Add(TEXT("Boss.NutKnight.Roll"),TEXT("Ореховый рыцарь · перекат"),{TEXT("Transform"),TEXT("TransformBurst"),TEXT("Tell"),TEXT("Move"),TEXT("JumpTell"),TEXT("JumpImpact")},TEXT("TankRoll"));
         Add(TEXT("Boss.NutKnight.Jump"),TEXT("Ореховый рыцарь · прыжок"),{TEXT("Tell"),TEXT("Impact")},TEXT("TankJump"));
         Add(TEXT("Boss.NutKnight.CounterShove"),TEXT("Ореховый рыцарь · контрудар"),{TEXT("Tell"),TEXT("Impact")},TEXT("TankCounterShove"));
         Add(TEXT("Boss.NutKnight.Chain"),TEXT("Ореховый рыцарь · цепь"),{TEXT("Tell"),TEXT("Spin"),TEXT("Release"),TEXT("Flight"),TEXT("CatchPlayer"),TEXT("CatchNut"),TEXT("Reel"),TEXT("Impact"),TEXT("End"),TEXT("Fracture")},TEXT("TankChain"));

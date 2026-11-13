@@ -14,7 +14,7 @@
     "CooldownSeconds": 16,
     "Parameters": {
       "RideSeconds": 12,
-      "RideSpeed": 620,
+      "RideSpeed": 1240,
       "TurnRate": 220,
       "RideHalfLength": 80,
       "RideHalfWidth": 42,
