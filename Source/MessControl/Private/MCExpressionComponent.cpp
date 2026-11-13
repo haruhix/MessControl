@@ -151,6 +151,19 @@ void UMCExpressionComponent::StopHookReaction(const FGuid& ActionId)
         || HookFaceState.StoppedAt>=0) return;
     HookFaceState.StoppedAt=Now(); Tooth->ForceNetUpdate();
 }
+void UMCExpressionComponent::StartRebirthReaction(double ServerTime)
+{
+    // A replacement receives this once when its arena tooth is consumed.
+    if(Tooth && Tooth->HasAuthority() && RebirthStartedAt<0. && FMath::IsFinite(ServerTime)) RebirthStartedAt=ServerTime;
+}
+float UMCExpressionComponent::RebirthReactionAge() const
+{
+    if(RebirthStartedAt<0.) return -1.f;
+    const float Age=float(Now()-RebirthStartedAt);
+    if(Age<0.f || Age>=.80f || !CanReactSocially() || !Tooth->ToothPhysics->CanAct()
+        || Tooth->Status->State.DamageAt>RebirthStartedAt || (ActiveEntry() && State.StartedAt>=RebirthStartedAt)) return -1.f;
+    return Age;
+}
 float UMCExpressionComponent::HookFaceAlpha() const
 {
     if(!HookFaceState.ActionId.IsValid() || !FMath::IsFinite(HookFaceState.StartedAt)
@@ -275,7 +288,8 @@ bool UMCExpressionComponent::UpdateEyeShapes(float Dt,float EmotionStrength,bool
     }
     return !Shape.IsNone();
 }
-bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain,bool bEyeOnly,float HookAlpha)
+bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain,bool bEyeOnly,float HookAlpha,
+    float RebirthAlpha,float RebirthStartle,float RebirthRelief)
 {
     auto* Mesh=Tooth->GetMesh();
     if (!Mesh->GetSkeletalMeshAsset() || !Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Mouth_A"))) return false;
@@ -292,7 +306,7 @@ bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bo
     const float MoodWeight=FMath::Clamp(EmotionStrength,0.f,1.f)*(1-HookAlpha)*(1-SpeechWeight)*(1-Suction-Social);
     const FName HookMood=Moods[int32(HookReactionEmotion())];
     const float HookWeight=HookAlpha*(1-SpeechWeight)*(1-Suction-Social);
-    const float Alpha=1-FMath::Exp(-18.f*FMath::Max(0.f,Dt));
+    const float Alpha=1-FMath::Exp(-(RebirthAlpha>0.f?48.f:18.f)*FMath::Max(0.f,Dt));
     // These are complete poses, so convex blending preserves the shared mouth contour.
     // A common smoothing factor preserves sum(weights) <= 1 during every transition.
     for (FName Name:MouthShapes())
@@ -300,9 +314,11 @@ bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bo
         const float Reaction=Name==TEXT("Mouth_Surprise")?FoodSuctionFlinch:Name==TEXT("Mouth_Effort")?1-FoodSuctionFlinch:0.f;
         const float BaseTarget=(Name==Speech?SpeechWeight:0.f)+(Name==Mood?MoodWeight:0.f)+(Name==HookMood?HookWeight:0.f)
             +(Reaction*Suction+(Name==TEXT("Mouth_Angry")?Social:0.f))*(1-SpeechWeight);
+        const float RebirthWeight=Name==TEXT("Mouth_Surprise")?RebirthStartle:Name==TEXT("Mouth_Smile")?RebirthRelief:0.f;
+        const float RebirthTarget=(Name==Speech?SpeechWeight:0.f)+RebirthWeight*(1-SpeechWeight);
         // Glide clips own the body; both glide phases use the ordinary menu
         // Surprise mouth rather than replacing it with MCSlide_Mouth curves.
-        float& Weight=MouthWeights.FindOrAdd(Name); Weight=FMath::Lerp(Weight,BaseTarget,Alpha);
+        float& Weight=MouthWeights.FindOrAdd(Name); Weight=FMath::Lerp(Weight,FMath::Lerp(BaseTarget,RebirthTarget,RebirthAlpha),Alpha);
         if (Weight<.0001f) Weight=0;
         if (Mesh->GetSkeletalMeshAsset()->FindMorphTarget(Name)) Mesh->SetMorphTarget(Name,Weight);
     }
@@ -313,7 +329,7 @@ bool UMCExpressionComponent::ApplyMorphBlink(float Closure)
     if (!Tooth) return false;
     auto* Mesh=Tooth->GetMesh();
     if (!Mesh->GetSkeletalMeshAsset() || !Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Eyes_Blink"))) return false;
-    Closure=FMath::Clamp(Closure,0.f,1.f);
+    Closure=FMath::Clamp(FMath::Max(Closure,RebirthBlink),0.f,1.f);
     Mesh->SetMorphTarget(TEXT("Eyes_Blink"),Closure);
     // Standalone eye poses yield to the authored blink instead of adding eyelid deltas.
     for (const auto& Pair:EyeWeights) Mesh->SetMorphTarget(Pair.Key,Pair.Value*(1-Closure));
@@ -412,6 +428,14 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     const bool Water=Tooth->Inventory && Tooth->Inventory->IsUsingWatergun();
     const bool ToolFace=Saw || Water;
     const bool FaceLocked=ToolFace || Pain>.01f;
+    const float RebirthAge=FaceLocked?-1.f:RebirthReactionAge();
+    const float RebirthAlpha=RebirthAge>=0.f?1-FMath::SmoothStep(.63f,.80f,RebirthAge):0.f;
+    // Open before the live pawn has cleared the crown. The blink separates
+    // the initial startle from the relieved expression after it lands.
+    const float RebirthStartle=FMath::Lerp(.72f,1.f,FMath::SmoothStep(0.f,.055f,RebirthAge))
+        *(1-FMath::SmoothStep(.16f,.255f,RebirthAge));
+    const float RebirthRelief=.85f*FMath::SmoothStep(.29f,.42f,RebirthAge)*(1-FMath::SmoothStep(.57f,.75f,RebirthAge));
+    RebirthBlink=FMath::SmoothStep(.195f,.245f,RebirthAge)*(1-FMath::SmoothStep(.27f,.325f,RebirthAge));
     float Strength=1; CurrentEmotion=EMCEmotion::Neutral;
     if(Saw) {CurrentEmotion=EMCEmotion::Pain;Strength=1.f;}
     else if(Water) {CurrentEmotion=EMCEmotion::Effort;Strength=1.f;}
@@ -438,7 +462,7 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     else if (S.Health<S.MaxHealth*.35f) { CurrentEmotion=EMCEmotion::Sad; Strength=.6f; }
     if (Pain>.01f && !ToolFace) { CurrentEmotion=EMCEmotion::Pain; Strength=Pain; }
     const float SwordEffort=FMath::IsFinite(KatanaEffort)?FMath::Clamp(KatanaEffort,0.f,1.f):0.f;
-    const bool KatanaFace=CurrentEmotion==EMCEmotion::Neutral && !FaceLocked && SwordEffort>.001f;
+    const bool KatanaFace=CurrentEmotion==EMCEmotion::Neutral && !FaceLocked && RebirthAlpha<=.001f && SwordEffort>.001f;
     if(KatanaFace) {CurrentEmotion=EMCEmotion::Effort;Strength=SwordEffort;}
     float J=0,Sml=0,B=0,Tilt=0,Squ=0,Rnd=0;
     switch (CurrentEmotion)
@@ -503,6 +527,15 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
         if (VoiceViseme==MCViseme::Wide) Sml=FMath::Max(Sml,Voice*.65f);
         if (VoiceViseme==MCViseme::Round) Rnd=FMath::Max(Rnd,Voice);
     }
+    if(RebirthAlpha>0.f)
+    {
+        J=FMath::Lerp(J,.78f*RebirthStartle,RebirthAlpha);
+        Sml=FMath::Lerp(Sml,RebirthRelief,RebirthAlpha);
+        B=FMath::Lerp(B,RebirthStartle+.25f*RebirthRelief,RebirthAlpha);
+        Tilt=FMath::Lerp(Tilt,0.f,RebirthAlpha);
+        Squ=FMath::Lerp(Squ,.18f*RebirthRelief,RebirthAlpha);
+        Rnd=FMath::Lerp(Rnd,.55f*RebirthStartle,RebirthAlpha);
+    }
     auto Smooth=[&](float& V,float Target){V=FMath::FInterpTo(V,Target,Dt,14.f);};
     Smooth(Jaw,J); Smooth(Smile,Sml); Smooth(Brows,B); Smooth(BrowTilt,Tilt); Smooth(EyeSquint,Squ); Smooth(Round,Rnd);
     // Keep the gaze visible while the authored effort mouth supplies the clench.
@@ -517,7 +550,7 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
         Pose[I].AddToTranslation(Parent>=0?RestCS[Parent].InverseTransformVectorNoScale(Delta):Delta);
     };
     const bool EyeOnly=UpdateEyeShapes(Dt,Strength,FaceLocked);
-    const bool MorphMouth=UpdateMouthShapes(Dt,Strength,FaceLocked,EyeOnly,HookAlpha);
+    const bool MorphMouth=UpdateMouthShapes(Dt,Strength,FaceLocked,EyeOnly,HookAlpha,RebirthAlpha,RebirthStartle,RebirthRelief);
     // Artist brow poses coexist with the runtime morph mouth, blink and gaze.
     const bool AuthoredFace=Tooth->GetMesh()->GetSkeletalMeshAsset()
         && Tooth->GetMesh()->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Eyes_Blink"));
@@ -561,10 +594,13 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     }
     // Gaze can read this cosmetic mood for pupils; it never controls gameplay.
     if(HookAlpha>.15f) CurrentEmotion=HookReactionEmotion();
+    if(RebirthAlpha>.15f) CurrentEmotion=RebirthStartle>.20f?EMCEmotion::Surprise
+        :RebirthRelief>.20f?EMCEmotion::Happy:EMCEmotion::Neutral;
 }
 void UMCExpressionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(UMCExpressionComponent,State);
     DOREPLIFETIME(UMCExpressionComponent,SprayState);
     DOREPLIFETIME(UMCExpressionComponent,HookFaceState);
+    DOREPLIFETIME(UMCExpressionComponent,RebirthStartedAt);
 }

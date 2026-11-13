@@ -149,6 +149,7 @@ bool FMCPlayerBoundaryShiftAndReserveTest::RunTest(const FString&)
     F.Step(.2);TestEqual(TEXT("Repeated samples do not reschedule or duplicate death"),F.Hero->RespawnAt,Deadline);
     F.Mode->ProcessRespawns();TestTrue(TEXT("The normal wait keeps the original body possessed"),F.Controller->GetPawn()==F.Hero);
     F.Hero->RespawnAt=-1;F.Mode->ProcessRespawns();
+    F.Step(1.4);F.Mode->ProcessRespawns();
     auto* Replacement=Cast<AMCToothCharacter>(F.Controller->GetPawn());
     if(!TestTrue(TEXT("The normal reserve flow supplies a different player body"),Replacement && Replacement!=F.Hero)) return false;
     TestEqual(TEXT("Exactly one reserve is consumed"),F.State->AvailableArenaTeeth(),Reserves-1);

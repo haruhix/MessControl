@@ -30,6 +30,9 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         Add(TEXT("Tool.Watergun"),TEXT("Водяной пистолет"),TEXT("Tools"),TEXT("UMCInventoryComponent / AMCReactionVFX"),Tool,{TEXT("Shot"),TEXT("Impact")});
         Add(TEXT("Character.Movement"),TEXT("Зубик · движение и физическое восстановление"),TEXT("Character"),TEXT("AMCToothCharacter / UMCToothPhysicsComponent"),Tool,{TEXT("Step"),TEXT("Land"),TEXT("Jump"),TEXT("Fall"),TEXT("StandUp"),TEXT("Pull")});
         Add(TEXT("Character.FreezeDeath"),TEXT("Зубик · ледяная смерть"),TEXT("Character"),TEXT("AMCToothCharacter::OnRep_FreezeDeath / AMCFreezeDeathVFX"),World,{TEXT("Hold"),TEXT("Shatter")});
+        auto& DeathSpirit=Add(TEXT("Character.DeathSpirit"),TEXT("Зубик · дух и возрождение"),TEXT("Character"),
+            TEXT("UMCDeathSpiritComponent / AMCArenaTooth / AMCGameMode::ProcessRespawns"),World,{TEXT("Rise"),TEXT("Merge"),TEXT("Release")});
+        DeathSpirit.Description=TEXT("Rise получает место гибели и точку подъёма. Merge начинается в конце принятого притягивания. Дух и коронка белеют, коронка сжимается к общей точке контакта. Release запускает вспышку у выхода из зуба при смене персонажа. Дополнительные Niagara и звук читаются из общей библиотеки. Изолированный сценарий Composer пока недоступен. Проверка полного респавна проходит в L_Mouth.");
         Add(TEXT("Character.Hurt"),TEXT("Зубик · полученный удар"),TEXT("Character"),TEXT("UMCCombatFeedbackComponent / AMCToothCharacter"),Tool,{TEXT("Hit")});
         Add(TEXT("Enemy.Generic.Hurt"),TEXT("Противник · полученный удар"),TEXT("Enemies"),TEXT("UMCCombatFeedbackComponent"),World,{TEXT("Hit")});
         Add(TEXT("Boss.Generic.Hurt"),TEXT("Босс · полученный удар"),TEXT("Bosses"),TEXT("UMCCombatFeedbackComponent / AMCBossCharacter"),World,{TEXT("Hit")});

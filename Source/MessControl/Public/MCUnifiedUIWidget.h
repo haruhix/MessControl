@@ -6,6 +6,7 @@
 #include "MCUnifiedUIWidget.generated.h"
 
 class UMCGameplayHUD;
+class UMCHUDIcon;
 class UMCScoreboardWidget;
 class UMCHubWardrobeWidget;
 class UMCHubShopWidget;
@@ -18,6 +19,8 @@ class UMCGameplayAlertWidget;
 class UWidgetSwitcher;
 class UMCTutorialWidget;
 class UMCEmoteWidget;
+class AMCGameState;
+class UTextBlock;
 
 UENUM(BlueprintType)
 enum class EMCUnifiedUIScreen : uint8
@@ -126,9 +129,22 @@ private:
     void RefreshAdaptiveLayout();
     void RefreshHUDReferenceScale(FVector2D AvailableSize);
     void RefreshRuntimePresentation();
+    void RefreshReserveCounter();
+    void FinishReserveLoss();
+    UMCHUDIcon* FindReserveIcon() const;
     TMap<FName,TWeakObjectPtr<UWidget>> HUDControls;
     TWeakObjectPtr<UMCMainMenuWidget> MenuBackend;
     TWeakObjectPtr<UMCGameplayHUD> HUDBackend;
+    TWeakObjectPtr<const AMCGameState> ReserveCounterState;
+    TWeakObjectPtr<UTextBlock> ReserveNumber;
+    TWeakObjectPtr<UMCHUDIcon> ReserveIcon;
+    FWidgetTransform ReserveNumberTransform;
+    FWidgetTransform ReserveIconTransform;
+    FSlateColor ReserveNumberColor;
+    float ReserveNumberOpacity=1.f;
+    double ReserveLossStartedAt=-1.0;
+    int32 LastReserveCount=INDEX_NONE;
+    int32 DisplayedReserveCount=INDEX_NONE;
     TWeakObjectPtr<UMCScoreboardWidget> TeamBackend;
     TWeakObjectPtr<UMCHubWardrobeWidget> WardrobeBackend;
     TWeakObjectPtr<UMCHubShopWidget> ShopBackend;

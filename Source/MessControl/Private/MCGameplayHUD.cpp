@@ -218,6 +218,53 @@ struct FHUDPainter
         Line({{X-6*Size,Y+(Sad?12:6)*Size},{X,Y+(Sad?8:Happy?14:10)*Size},{X+6*Size,Y+(Sad?12:6)*Size}},Eye,2.4f*Size);
     }
 };
+
+void PaintReserveFracture(const FGeometry& Geometry,FSlateWindowElementList& Elements,int32 Layer,
+    const FSlateBrush& Brush,float Age)
+{
+    // Both pieces sample the original tooth UVs. The shared zigzag cuts through
+    // the crown and gives each moving piece a matching broken edge.
+    const FVector2f Seam[]={{.52f,0.f},{.52f,.25f},{.43f,.42f},{.55f,.54f},{.48f,.68f},{.49f,1.f}};
+    const FVector2f Size(Geometry.GetLocalSize());
+    const float Scale=FMath::Min(Size.X,Size.Y)/66.f;
+    const float Travel=FMath::SmoothStep(.065f,.22f,Age);
+    const float Fall=FMath::SmoothStep(.16f,.46f,Age);
+    TArray<FSlateVertex> Vertices;
+    TArray<SlateIndex> Indices;
+    Vertices.Reserve(4*UE_ARRAY_COUNT(Seam));
+    Indices.Reserve(12*(UE_ARRAY_COUNT(Seam)-1));
+
+    for(const bool bRight:{false,true})
+    {
+        const float Direction=bRight?1.f:-1.f;
+        const FVector2f Pivot(Size.X*(bRight?.70f:.30f),Size.Y*.44f);
+        const FVector2f Offset=Scale*FVector2f(Direction*(.6f+13.f*Travel),
+            (bRight?24.f:17.f)*Fall-(bRight?3.f:5.f)*Travel);
+        float SinAngle=0.f,CosAngle=1.f;
+        FMath::SinCos(&SinAngle,&CosAngle,FMath::DegreesToRadians(Direction*(14.f*Travel+8.f*Fall)));
+        const SlateIndex Base=SlateIndex(Vertices.Num());
+        const auto AddVertex=[&](FVector2f UV)
+        {
+            const FVector2f Point(UV.X*Size.X-Pivot.X,UV.Y*Size.Y-Pivot.Y);
+            const FVector2f Rotated(Point.X*CosAngle-Point.Y*SinAngle,Point.X*SinAngle+Point.Y*CosAngle);
+            Vertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(Geometry.GetAccumulatedRenderTransform(),
+                Pivot+Offset+Rotated,FVector4f(UV.X,UV.Y,1.f,1.f),UV,FColor::White));
+        };
+        for(const FVector2f Point:Seam)
+        {
+            AddVertex(bRight?Point:FVector2f(0.f,Point.Y));
+            AddVertex(bRight?FVector2f(1.f,Point.Y):Point);
+        }
+        for(int32 Row=0;Row<UE_ARRAY_COUNT(Seam)-1;++Row)
+        {
+            const SlateIndex TopLeft=SlateIndex(Base+2*Row);
+            Indices.Append({TopLeft,SlateIndex(TopLeft+1),SlateIndex(TopLeft+2),
+                SlateIndex(TopLeft+2),SlateIndex(TopLeft+1),SlateIndex(TopLeft+3)});
+        }
+    }
+    const auto Resource=FSlateApplication::Get().GetRenderer()->GetResourceHandle(Brush);
+    FSlateDrawElement::MakeCustomVerts(Elements,Layer,Resource,Vertices,Indices,nullptr,0,0);
+}
 }
 void UMCHUDIcon::NativePreConstruct()
 {
@@ -231,7 +278,20 @@ void UMCHUDIcon::NativePreConstruct()
     {
         GlyphBrush.SetResourceObject(GlyphMaterial);GlyphBrush.DrawAs=ESlateBrushDrawType::Image;
         GlyphBrush.ImageSize=FVector2D(80);GlyphBrush.TintColor=FLinearColor::White;
+        if(bReserveTooth && !FractureGlyphMaterial)
+        {
+            FractureGlyphMaterial=UMaterialInstanceDynamic::Create(GlyphMaterial->Parent,this);
+            FractureGlyphBrush=GlyphBrush;
+            FractureGlyphBrush.SetResourceObject(FractureGlyphMaterial);
+        }
     }
+}
+
+void UMCHUDIcon::SetReserveFractureAge(float Seconds)
+{
+    if(ReserveFractureAge==Seconds) return;
+    ReserveFractureAge=Seconds;
+    if(const TSharedPtr<SWidget> Icon=GetCachedWidget()) Icon->Invalidate(EInvalidateWidgetReason::Paint);
 }
 
 int32 UMCHUDIcon::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
@@ -239,6 +299,21 @@ int32 UMCHUDIcon::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,c
     if(GlyphMaterial)
     {
         const auto Size=Geometry.GetLocalSize();
+        const float StyleOpacity=Style.GetColorAndOpacityTint().A;
+        const bool bFracturing=bReserveTooth && FractureGlyphMaterial && ReserveFractureAge>=.065f && FSlateApplication::IsInitialized();
+        const float GlyphOpacity=bFracturing?FMath::SmoothStep(.36f,.58f,ReserveFractureAge):1.f;
+        if(bFracturing && ReserveFractureAge<.46f)
+        {
+            const float Fade=(1.f-FMath::SmoothStep(.24f,.46f,ReserveFractureAge))*StyleOpacity;
+            FractureGlyphMaterial->SetVectorParameterValue(TEXT("PanelSize"),FLinearColor(Size.X,Size.Y,0,0));
+            FractureGlyphMaterial->SetVectorParameterValue(TEXT("SurfaceColor"),Tint.CopyWithNewOpacity(Tint.A*Fade));
+            FractureGlyphMaterial->SetVectorParameterValue(TEXT("InkColor"),InkTint.CopyWithNewOpacity(InkTint.A*Fade));
+            FractureGlyphMaterial->SetVectorParameterValue(TEXT("HighlightColor"),FLinearColor(1.f,1.f,.95f,Tint.A*.7f));
+            FractureGlyphMaterial->SetScalarParameterValue(TEXT("GlyphKind"),1.f);
+            FractureGlyphMaterial->SetScalarParameterValue(TEXT("HealthFraction"),1.f);
+            MCGameplayHUDPrivate::PaintReserveFracture(Geometry,Elements,Layer+1,FractureGlyphBrush,ReserveFractureAge);
+        }
+        if(GlyphOpacity<=0.f) return Layer+2;
         GlyphMaterial->SetVectorParameterValue(TEXT("PanelSize"),FLinearColor(Size.X,Size.Y,0,0));
         GlyphMaterial->SetVectorParameterValue(TEXT("SurfaceColor"),Tint);
         GlyphMaterial->SetVectorParameterValue(TEXT("InkColor"),InkTint);
@@ -252,8 +327,8 @@ int32 UMCHUDIcon::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,c
         GlyphMaterial->SetScalarParameterValue(TEXT("IsHost"),bHost?1.f:0.f);
         GlyphMaterial->SetScalarParameterValue(TEXT("IsSad"),bSad?1.f:0.f);
         GlyphMaterial->SetScalarParameterValue(TEXT("IsHappy"),bHappy?1.f:0.f);
-        FSlateDrawElement::MakeBox(Elements,Layer,Geometry.ToPaintGeometry(),&GlyphBrush,ESlateDrawEffect::None,FLinearColor(1,1,1,Style.GetColorAndOpacityTint().A));
-        return Layer+1;
+        FSlateDrawElement::MakeBox(Elements,Layer,Geometry.ToPaintGeometry(),&GlyphBrush,ESlateDrawEffect::None,FLinearColor(1,1,1,StyleOpacity*GlyphOpacity));
+        return Layer+(bFracturing?2:1);
     }
     const float S=FMath::Min(Geometry.GetLocalSize().X/80,Geometry.GetLocalSize().Y/80);
     MCGameplayHUDPrivate::FHUDPainter P{Geometry,Elements,Layer,S};
@@ -1769,7 +1844,7 @@ void UMCGameplayHUD::RefreshState()
                 {{TEXT("Target"),Cast<AMCToothCharacter>(Hero->Grip->BraceTarget())?Copy(TEXT("UI.HUD.Hint.BracePlayer"),LOCTEXT("HintBracePlayer","ТЯНЕШЬ ИГРОКА")):Hero->Grip->IsWorldAnchored()?Copy(TEXT("UI.HUD.Hint.BraceWorld"),LOCTEXT("HintBraceWorld","ОПОРА")):Copy(TEXT("UI.HUD.Hint.BraceFood"),LOCTEXT("HintBraceFood","ДЕРЖИШЬСЯ ЗА ЕДУ"))},{TEXT("Mass"),Whole(Hero->Grip->TotalChainMass())}});
         else if(Hero->Grip && Hero->Grip->IncomingChainMass()>0)
             Hint=Format(TEXT("UI.HUD.Hint.IncomingLoad"),LOCTEXT("HintIncomingLoad","ТЕБЯ ДЕРЖАТ · ДОПОЛНИТЕЛЬНЫЙ ВЕС {Mass} КГ"),{{TEXT("Mass"),Whole(Hero->Grip->IncomingChainMass())}});
-        if(const auto* PC=Cast<AMCPlayerController>(GetOwningPlayer());PC && PC->IsSpectating())
+        if(const auto* PC=Cast<AMCPlayerController>(GetOwningPlayer());PC && PC->IsSpectating() && PC->GetSpectatorTarget())
         {
             const auto* Target=PC->GetSpectatorTarget();
             const auto* Player=Target?Target->GetPlayerState():nullptr;
@@ -1778,7 +1853,11 @@ void UMCGameplayHUD::RefreshState()
             Hint=Respawn>0?Format(TEXT("UI.HUD.Hint.SpectatingRespawn"),LOCTEXT("HintSpectatingRespawn","НАБЛЮДАЕШЬ: {Name} · ЛКМ / → СЛЕДУЮЩИЙ · ПКМ / ← ПРЕДЫДУЩИЙ · ВОЗРОЖДЕНИЕ {Seconds} С"),{{TEXT("Name"),Name},{TEXT("Seconds"),Whole(FMath::CeilToFloat(Respawn))}})
                 :Format(TEXT("UI.HUD.Hint.Spectating"),LOCTEXT("HintSpectating","НАБЛЮДАЕШЬ: {Name} · ЛКМ / → СЛЕДУЮЩИЙ · ПКМ / ← ПРЕДЫДУЩИЙ"),{{TEXT("Name"),Name}});
         }
-        else if(!Hero->Status->IsAlive()) Hint=GS->AvailableArenaTeeth()>0?Format(TEXT("UI.HUD.Hint.Respawn"),LOCTEXT("HintRespawn","ВОЗРОЖДЕНИЕ ЧЕРЕЗ {Seconds} С"),{{TEXT("Seconds"),Whole(FMath::Max(0.,Hero->RespawnAt-Now))}}):Copy(TEXT("UI.HUD.Hint.NoReserve"),LOCTEXT("HintNoReserve","НЕТ ЗАПАСНЫХ ЗУБОВ"));
+        else if(!Hero->Status->IsAlive()) {
+            if(GS->AvailableRespawnTeeth()==0) Hint=Copy(TEXT("UI.HUD.Hint.NoReserve"),LOCTEXT("HintNoReserve","НЕТ ЗАПАСНЫХ ЗУБОВ"));
+            else if(Hero->RespawnAt>Now) Hint=Format(TEXT("UI.HUD.Hint.Respawn"),LOCTEXT("HintRespawn","ВОЗРОЖДЕНИЕ ЧЕРЕЗ {Seconds} С"),{{TEXT("Seconds"),Whole(FMath::CeilToDouble(Hero->RespawnAt-Now))}});
+            else Hint=FText::GetEmpty();
+        }
         float Contact=Hero->ContactProgress;
         if (const auto* Mimic=Hero->MimicCaptor.Get(); IsValid(Mimic))
         {

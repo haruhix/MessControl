@@ -45,9 +45,17 @@ bool UMCToothMovementComponent::CanAttemptJump() const
 bool UMCToothMovementComponent::DoJump(bool bReplayingMoves,float DeltaTime)
 {
     if(IsClimbing()) { JumpFromWall(); return true; }
-    const float Base=JumpZVelocity;
-    if(const auto* Perks=UMCPerkComponent::ForActor(CharacterOwner)) JumpZVelocity*=FMath::Sqrt(Perks->RogueValue(EMCRogueStat::JumpHeight));
-    const bool Jumped=Super::DoJump(bReplayingMoves,DeltaTime);JumpZVelocity=Base;return Jumped;
+    float JumpSpeed=JumpZVelocity;
+    if(const auto* Perks=UMCPerkComponent::ForActor(CharacterOwner))
+        JumpSpeed*=FMath::Sqrt(Perks->RogueValue(EMCRogueStat::JumpHeight));
+    if(IsFalling()) {
+        // Add the same rise for an early press and a press at the apex.
+        const double UpwardSpeed=FMath::Max(0.0,double(GetGravitySpaceZ(Velocity)));
+        const double AirJumpSpeed=JumpSpeed*.8;
+        JumpSpeed=float(FMath::Sqrt(FMath::Square(UpwardSpeed)+FMath::Square(AirJumpSpeed)));
+    }
+    const TGuardValue<float> ApplyJumpSpeed(JumpZVelocity,JumpSpeed);
+    return Super::DoJump(bReplayingMoves,DeltaTime);
 }
 void UMCToothMovementComponent::JumpFromWall()
 {

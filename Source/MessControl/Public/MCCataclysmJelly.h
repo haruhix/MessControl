@@ -78,6 +78,7 @@ protected:
 private:
     static constexpr float HopSeconds=.90f;
     static constexpr float RuptureWarningSeconds=.60f;
+    static constexpr float HitStunSeconds=.18f;
     static constexpr float PaintInterval=.10f;
     static constexpr float MoveInterval=.05f;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> GroundBurst;

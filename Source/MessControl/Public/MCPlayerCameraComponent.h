@@ -31,7 +31,9 @@ public:
     void AddGroundImpact(float Strength,const FVector& Source);
     void AddCombatConfirm(float Strength);
     static void GetSpectatorView(const AMCToothCharacter* Target,const AActor* ViewerPawn,
-        FRotator Orbit,float Distance,float DeltaTime,FMCSpectatorCameraViewState& State,FMinimalViewInfo& View);
+        FRotator Orbit,float Distance,float DeltaTime,FMCSpectatorCameraViewState& State,FMinimalViewInfo& View,
+        const FVector* SubjectPosition=nullptr);
+    static void ApplyDeathFilter(float Strength,FMinimalViewInfo& View);
     static void ClearSpectatorView(FMCSpectatorCameraViewState& State);
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera|Depth of Field") bool bAutoFocusPlayer=true;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera|Impact",meta=(ClampMin="0",ClampMax="2")) float ImpactShakeScale=1.f;

@@ -50,6 +50,7 @@
 #include "MCTaskActor.h"
 #include "MCGameState.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCDeathSpiritComponent.h"
 #include "MCToothAnimInstance.h"
 #include "MCToothMovementComponent.h"
 #include "MCSpongeSkillAction.h"
@@ -172,6 +173,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     // collision recreates those bodies, instead of keeping dead control handles.
     Muscles->bAttemptToRecreateDisabledControls=true;
     ToothPhysics=CreateDefaultSubobject<UMCToothPhysicsComponent>(TEXT("ToothPhysics"));
+    DeathSpirit=CreateDefaultSubobject<UMCDeathSpiritComponent>(TEXT("DeathSpirit"));
     Status=CreateDefaultSubobject<UMCToothStatusComponent>(TEXT("ToothStatus"));
     Feedback=CreateDefaultSubobject<UMCCombatFeedbackComponent>(TEXT("CombatFeedback"));
     Feedback->PresentationSources={TEXT("Character.Hurt")};
@@ -286,11 +288,14 @@ void AMCToothCharacter::ApplyAppearance()
 }
 void AMCToothCharacter::BeginPlay()
 {
+    JumpMaxCount=2;
     bNetworkPresentationStarted=true;
     if(HasAuthority()) RefreshNetworkMotionAuthority();
     // Component BeginPlay can apply an already replicated body-state onset.
     // Prepare its exact resident channel before that existing local boundary.
     MCWorldPresentation::PrepareOwner(this,{TEXT("Tool.Knife"),TEXT("Tool.Pickaxe"),TEXT("Tool.Brush"),TEXT("Tool.Spray"),TEXT("Tool.Watergun"),TEXT("Character.Movement")});
+    if(GetWorld()->GetGameState<AMCGameState>())
+        MCWorldPresentation::PrepareOwner(this,{TEXT("Character.DeathSpirit")});
     Super::BeginPlay();
     bPeerMovementCollisionStarted=true;
     RefreshPeerMovementCollision(true);
@@ -680,8 +685,24 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(ForwardAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::MoveForward);
     Input->BindAction(RightAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::MoveRight);
 }
-void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { LocalPaddle.X=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>(); if(IsSeatedOnRaft()) return; const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::UpVector:CameraMoveDirection(false), LocalPaddle.X); }
-void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { LocalPaddle.Y=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>(); if(IsSeatedOnRaft()) return; const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::CrossProduct(FVector(Move->ClimbNormal),FVector::UpVector).GetSafeNormal():CameraMoveDirection(true), LocalPaddle.Y); }
+void AMCToothCharacter::MoveForward(const FInputActionValue& Value)
+{
+    if(DeathSpirit && DeathSpirit->IsSpiritActive()) {DeathSpirit->SetSteeringAxis(false,Value.Get<float>());return;}
+    LocalPaddle.X=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>();
+    if(IsSeatedOnRaft()) return;
+    const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
+    if(!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget)
+        AddMovementInput(Move->IsClimbing()?FVector::UpVector:CameraMoveDirection(false),LocalPaddle.X);
+}
+void AMCToothCharacter::MoveRight(const FInputActionValue& Value)
+{
+    if(DeathSpirit && DeathSpirit->IsSpiritActive()) {DeathSpirit->SetSteeringAxis(true,Value.Get<float>());return;}
+    LocalPaddle.Y=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>();
+    if(IsSeatedOnRaft()) return;
+    const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
+    if(!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget)
+        AddMovementInput(Move->IsClimbing()?FVector::CrossProduct(FVector(Move->ClimbNormal),FVector::UpVector).GetSafeNormal():CameraMoveDirection(true),LocalPaddle.Y);
+}
 void AMCToothCharacter::OrbitMouseX(const FInputActionValue& Value)
 {
     FVector2D Delta(Value.Get<float>(),0);
@@ -2227,16 +2248,23 @@ void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* Othe
     }
     if(HasAuthority() && HitComponent && OtherComponent && OtherActor!=this) {
         const bool bOwnSimulating=HitComponent->IsSimulatingPhysics(Hit.MyBoneName);
-        const FVector OwnVelocity=bOwnSimulating
-            ?HitComponent->GetPhysicsLinearVelocity(Hit.MyBoneName):GetVelocity();
-        const FVector OtherVelocity=OtherComponent->IsSimulatingPhysics(Hit.BoneName)
-            ?OtherComponent->GetPhysicsLinearVelocity(Hit.BoneName):OtherComponent->GetComponentVelocity();
-        const float ClosingSpeed=float(FMath::Max(0.,-FVector::DotProduct(OwnVelocity-OtherVelocity,Hit.ImpactNormal)));
-        // Walking capsules use CharacterMovement mass; GetMass is only valid
-        // for a simulated body and otherwise emits a warning on every contact.
-        const float OwnMass=bOwnSimulating?HitComponent->GetMass():GetCharacterMovement()->Mass;
-        const float ImpulseSpeed=float(NormalImpulse.Size())/FMath::Max(1.f,OwnMass);
-        NotifyCameraImpact(FMath::Max(ClosingSpeed,ImpulseSpeed),Hit.ImpactNormal);
+        const bool bOtherSimulating=OtherComponent->IsSimulatingPhysics(Hit.BoneName);
+        const auto* ArenaTooth=Cast<AMCArenaTooth>(OtherActor);
+        const bool bRootedToothContact=ArenaTooth && OtherComponent==ArenaTooth->Body && !bOtherSimulating && !bOwnSimulating;
+        // Movement can report the same blocking tooth contact every frame. A
+        // real landing on its crown supplies feedback through Landed instead.
+        if(!bRootedToothContact) {
+            const FVector OwnVelocity=bOwnSimulating
+                ?HitComponent->GetPhysicsLinearVelocity(Hit.MyBoneName):GetVelocity();
+            const FVector OtherVelocity=bOtherSimulating
+                ?OtherComponent->GetPhysicsLinearVelocity(Hit.BoneName):OtherComponent->GetComponentVelocity();
+            const float ClosingSpeed=float(FMath::Max(0.,-FVector::DotProduct(OwnVelocity-OtherVelocity,Hit.ImpactNormal)));
+            // Walking capsules use CharacterMovement mass; GetMass is only valid
+            // for a simulated body and otherwise emits a warning on every contact.
+            const float OwnMass=bOwnSimulating?HitComponent->GetMass():GetCharacterMovement()->Mass;
+            const float ImpulseSpeed=float(NormalImpulse.Size())/FMath::Max(1.f,OwnMass);
+            NotifyCameraImpact(FMath::Max(ClosingSpeed,ImpulseSpeed),Hit.ImpactNormal);
+        }
     }
     if(Inventory) Inventory->HandleChainsawCollision(OtherActor,Hit);
     if(HasAuthority()) FoodCollection->HandleCarrierCollision(OtherActor,OtherComponent,NormalImpulse,Hit);

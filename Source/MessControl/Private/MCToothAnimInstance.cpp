@@ -1614,6 +1614,20 @@ public:
         }
         ArtistGlidePose(Tooth,Ref);
         if (Tooth->Expression) Tooth->Expression->BuildBodyPose(Pose,Ref);
+        const float RebirthAge=Tooth->Expression?Tooth->Expression->RebirthReactionAge():-1.f;
+        if(RebirthAge>=0.f && !Tooth->HeldFood && !Tooth->bHandling && !Tooth->bBrushing
+            && !Tooth->IsPrimaryHeld() && !Tooth->GetActiveSkillPresentation() && !Tooth->IsRowing()) {
+            // The launch throws the torso back. Recover through a soft forward
+            // catch before the head settles, with normal hand and foot IK below.
+            const float Kick=1-FMath::SmoothStep(.045f,.25f,RebirthAge);
+            const float Catch=FMath::SmoothStep(.14f,.27f,RebirthAge)*(1-FMath::SmoothStep(.29f,.49f,RebirthAge));
+            const float Release=FMath::SmoothStep(.31f,.46f,RebirthAge)*(1-FMath::SmoothStep(.49f,.65f,RebirthAge));
+            Rotate(TEXT("body"),FRotator(15*Kick-10*Catch+3*Release,0,-4*Kick+2*Catch));
+            Translate(TEXT("body"),FVector(0,0,3*Kick-5*Catch));
+            Rotate(TEXT("gaze_head"),FRotator(-6*Kick+5*Catch,3*Release,0));
+            for(const FName Leg:{FName(TEXT("leg_l")),FName(TEXT("leg_r"))}) Rotate(Leg,FRotator(11*Kick+7*Catch,0,0));
+            for(const FName Knee:{FName(TEXT("knee_l")),FName(TEXT("knee_r"))}) Rotate(Knee,FRotator(-16*Kick-9*Catch,0,0));
+        }
         ArtistWorkPose(Tooth,Ref,Dt);
         if(Tooth->AnimationClimb>.001f) {
             const float Alpha=Tooth->AnimationClimb,Phase=Tooth->AnimationClimbPhase;

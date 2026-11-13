@@ -1272,6 +1272,17 @@ bool AMCFoodActor::ReceiveActiveSkillImpact(float Damage,FVector Direction,AMCPl
 {
     return ApplyFoodDamage(Damage,Direction,nullptr,SourcePS,false);
 }
+bool AMCFoodActor::ReceiveActiveSkillImpact(float Damage,FVector Direction,AMCPlayerState* SourcePS,bool bExplosive)
+{
+    if(!bExplosive || FoodData.Kind!=EMCFoodKind::Food) return ReceiveActiveSkillImpact(Damage,Direction,SourcePS);
+    if(!HasAuthority() || bBrushTool || bProcessingAutomaticCutDamage || !FMath::IsFinite(Damage) || Damage<=0.f) return false;
+    TGuardValue<bool> ImpactGuard(bProcessingAutomaticCutDamage,true);
+    const auto PreviousHandler=LastHandledBy;
+    if(IsValid(SourcePS) && SourcePS->GetWorld()==GetWorld()) LastHandledBy=SourcePS;
+    if(CompleteAutomaticIntake(Direction,true)) return true;
+    LastHandledBy=PreviousHandler;
+    return false;
+}
 bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,AMCPlayerState* SourcePS,bool bWeaponPassives,bool bExactCut)
 {
     if(IsCutTransactionPending() || IsCutTransactionStaged())return false;
@@ -1436,11 +1447,25 @@ bool AMCFoodActor::IsHardFood() const
 }
 bool AMCFoodActor::BeginSwallow()
 {
-    if (!HasAuthority() || bBrushTool || UsesAutomaticCutIntake() || !Holders.IsEmpty() || (StackCarrier && UsesLegacyGrip()) || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling)) return false;
+    return BeginSwallow(false);
+}
+bool AMCFoodActor::BeginSwallow(bool bExplosive)
+{
+    if(!HasAuthority() || bBrushTool) return false;
+    if(bExplosive) {
+        if(FoodData.Kind!=EMCFoodKind::Food || IsCutTransactionStaged()
+            || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling && Phase!=EMCFoodPhase::Stuck && Phase!=EMCFoodPhase::Carried)) return false;
+    } else if(UsesAutomaticCutIntake() || !Holders.IsEmpty() || (StackCarrier && UsesLegacyGrip())
+        || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling)) return false;
     auto* Collection=StackCarrier?StackCarrier->FoodCollection.Get():nullptr;
-    if(Collection && !Collection->Contains(this)) return false;
+    if((bExplosive && StackCarrier && !Collection) || (Collection && !Collection->Contains(this))) return false;
     // Change phase before detaching so delivery never wakes a dense hand load.
     Phase=EMCFoodPhase::Swallowing;
+    if(bExplosive) {
+        CancelPendingCut(false);
+        StuckTooth=nullptr;
+        for(int32 Index=Holders.Num()-1;Index>=0;--Index) Release(Holders[Index]);
+    }
     if(Collection) Collection->DetachForDelivery(this);
     OnRep_Phase(); ForceNetUpdate(); return true;
 }

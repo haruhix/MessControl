@@ -2,6 +2,7 @@
 
 #include "MCGameplayUIFactory.h"
 #include "MCGameplayHUD.h"
+#include "MCGameState.h"
 #include "MCUnifiedSettingsWidget.h"
 #include "MCUnifiedTeamWidget.h"
 #include "MCUnifiedWardrobeWidget.h"
@@ -50,6 +51,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "Components/WidgetSwitcher.h"
 #include "Engine/Texture2D.h"
+#include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "MCStaminaWidget.h"
@@ -291,6 +293,7 @@ void UMCUnifiedUIWidget::SetHUDBackend(UMCGameplayHUD* Backend)
 {
     if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) View->SetBackend(Backend);
     if(HUDBackend.Get()==Backend) return;
+    FinishReserveLoss();ReserveCounterState.Reset();DisplayedReserveCount=INDEX_NONE;
     HUDBackend=Backend;HUDControls.Reset();
     if(Backend && Backend->WidgetTree) {
         // ForEachWidgetAndDescendants replaces user widgets with their inner
@@ -360,9 +363,119 @@ void UMCUnifiedUIWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     Super::NativeTick(Geometry,DeltaSeconds);
     if(IsDesignTime()) {RefreshAdaptiveLayout();return;}
     RefreshDelay-=DeltaSeconds;if(RefreshDelay<=0) {RefreshDelay=.05f;RefreshRuntimePresentation();RefreshAdaptiveLayout();}
+    RefreshReserveCounter();
 }
+
+namespace
+{
+constexpr float ReserveLossDuration=.72f;
+constexpr float ReserveNumberSwap=.20f;
+}
+
+UMCHUDIcon* UMCUnifiedUIWidget::FindReserveIcon() const
+{
+    if(!WidgetTree) return nullptr;
+    if(auto* NamedIcon=WidgetTree->FindWidget<UMCHUDIcon>(TEXT("V2ReserveIcon"))) return NamedIcon;
+    if(auto* Panel=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("ReserveBlock")))
+        if(auto* Content=Cast<UCanvasPanel>(Panel->GetContentForSlot(TEXT("Content"))))
+            for(UWidget* Child:Content->GetAllChildren()) if(auto* Icon=Cast<UMCHUDIcon>(Child)) return Icon;
+    return nullptr;
+}
+
+void UMCUnifiedUIWidget::FinishReserveLoss()
+{
+    if(ReserveLossStartedAt<0.0) return;
+    if(auto* Number=ReserveNumber.Get()) {
+        Number->SetRenderTransform(ReserveNumberTransform);
+        Number->SetRenderOpacity(ReserveNumberOpacity);
+        Number->SetColorAndOpacity(ReserveNumberColor);
+    }
+    if(auto* Icon=ReserveIcon.Get()) {
+        Icon->SetRenderTransform(ReserveIconTransform);
+        Icon->SetReserveFractureAge(-1.f);
+    }
+    ReserveLossStartedAt=-1.0;
+}
+
+void UMCUnifiedUIWidget::RefreshReserveCounter()
+{
+    const auto* World=GetWorld();
+    const auto* State=ActiveScreen==EMCUnifiedUIScreen::Gameplay && HUDBackend.IsValid() && World
+        ?World->GetGameState<AMCGameState>():nullptr;
+    if(!State || !WidgetTree) {
+        FinishReserveLoss();
+        ReserveCounterState.Reset();
+        return;
+    }
+    if(!ReserveNumber.IsValid()) ReserveNumber=WidgetTree->FindWidget<UTextBlock>(TEXT("V2ReserveCount"));
+    auto* Number=ReserveNumber.Get();
+    if(!Number) return;
+
+    const int32 Count=State->AvailableArenaTeeth();
+    // Read the arena clock so repeated paints in the same game frame cannot speed up the beat.
+    const double Now=World->GetTimeSeconds();
+    if(ReserveCounterState.Get()!=State || State->ArenaTeeth.IsEmpty() || Count>LastReserveCount) {
+        FinishReserveLoss();
+        ReserveCounterState=State;
+    } else if(Count<LastReserveCount) {
+        // Coalesce losses before the displayed digit rolls over. Once it does,
+        // the next loss gets its own beat from the currently displayed value.
+        if(ReserveLossStartedAt<0.0 || DisplayedReserveCount==LastReserveCount) {
+            FinishReserveLoss();
+            ReserveNumberTransform=Number->GetRenderTransform();
+            ReserveNumberOpacity=Number->GetRenderOpacity();
+            ReserveNumberColor=Number->GetColorAndOpacity();
+            ReserveIcon=FindReserveIcon();
+            if(auto* Icon=ReserveIcon.Get()) ReserveIconTransform=Icon->GetRenderTransform();
+            ReserveLossStartedAt=Now;
+        }
+    }
+    LastReserveCount=Count;
+
+    const float Age=ReserveLossStartedAt<0.0?-1.f:float(Now-ReserveLossStartedAt);
+    if(Age>=ReserveLossDuration) FinishReserveLoss();
+    if((ReserveLossStartedAt<0.0 || Age>=ReserveNumberSwap) && DisplayedReserveCount!=Count) {
+        Number->SetText(FText::AsNumber(Count));
+        DisplayedReserveCount=Count;
+    }
+    if(ReserveLossStartedAt<0.0) return;
+
+    FWidgetTransform NumberMotion=ReserveNumberTransform;
+    FSlateColor NumberColor=ReserveNumberColor;
+    float Opacity=1.f;
+    if(Age<ReserveNumberSwap) {
+        const float Out=FMath::SmoothStep(.07f,ReserveNumberSwap,Age);
+        NumberMotion.Translation.Y-=20.f*Out;
+        NumberMotion.Scale*=FMath::Lerp(1.f,.86f,Out);
+        Opacity=1.f-Out;
+    } else {
+        const float In=FMath::SmoothStep(ReserveNumberSwap,.32f,Age);
+        const float Land=1.f-FMath::SmoothStep(.31f,.58f,Age);
+        const float Recoil=FMath::SmoothStep(.34f,.40f,Age)*(1.f-FMath::SmoothStep(.42f,.56f,Age));
+        NumberMotion.Translation.Y+=17.f*(1.f-In)-4.f*Recoil;
+        NumberMotion.Scale*=1.f+.22f*In*Land-.035f*Recoil;
+        Opacity=FMath::SmoothStep(ReserveNumberSwap,.25f,Age);
+        if(Land>0.f && ReserveNumberColor.IsColorSpecified())
+            NumberColor=FSlateColor(FMath::Lerp(ReserveNumberColor.GetSpecifiedColor(),UnifiedRootColor(TEXT("FFD294")),Land));
+    }
+    Number->SetRenderTransform(NumberMotion);
+    Number->SetRenderOpacity(ReserveNumberOpacity*Opacity);
+    Number->SetColorAndOpacity(NumberColor);
+
+    if(auto* Icon=ReserveIcon.Get()) {
+        const float Windup=FMath::SmoothStep(0.f,.045f,Age)*(1.f-FMath::SmoothStep(.045f,.085f,Age));
+        FWidgetTransform Motion=ReserveIconTransform;
+        Motion.Scale.X*=1.f+.11f*Windup;
+        Motion.Scale.Y*=1.f-.19f*Windup;
+        Motion.Translation.Y+=3.f*Windup;
+        Icon->SetRenderTransform(Motion);
+        Icon->SetReserveFractureAge(Age);
+    }
+}
+
 void UMCUnifiedUIWidget::NativeDestruct()
 {
+    FinishReserveLoss();ReserveCounterState.Reset();DisplayedReserveCount=INDEX_NONE;
     SetEmoteFocusLease(false);
     if(auto* Source=BossBackend.Get()) Source->SetUnifiedViewActive(false);
     if(auto* Source=AlertBackend.Get()) Source->SetUnifiedViewActive(false);
@@ -795,7 +908,7 @@ void UMCUnifiedUIWidget::ApplyPSDGameplayLayout(bool bApplyStyleDefaults)
         // The PSD role aliases identify existing unnamed procedural portraits;
         // retain those authored objects and their Blueprint identities.
         FName PanelName;
-        if(Name==TEXT("V2ReserveIcon")) PanelName=TEXT("ReserveBlock");
+        if(Name==TEXT("V2ReserveIcon")) return FindReserveIcon();
         else for(int32 I=1;I<=4;++I) if(Name==FName(*FString::Printf(TEXT("V2PlayerFace%d"),I))) {PanelName=FName(*FString::Printf(TEXT("V2Player%d"),I));break;}
         if(auto* Panel=WidgetTree->FindWidget<UMCUniversalUIWidget>(PanelName))
             if(auto* Body=Cast<UCanvasPanel>(Panel->GetContentForSlot(TEXT("Content"))))
@@ -825,6 +938,10 @@ void UMCUnifiedUIWidget::ApplyPSDGameplayLayout(bool bApplyStyleDefaults)
                 Shape->ApplyTheme();
             }
     }
+    static const TSet<FName> ShadowlessCards{
+        TEXT("ReserveBlock"),TEXT("ToolResourceBlock"),TEXT("NextEventBlock"),
+        TEXT("V2Player1"),TEXT("V2Player2"),TEXT("V2Player3"),TEXT("V2Player4"),
+        TEXT("V2Skill1"),TEXT("V2Skill2"),TEXT("V2Skill3"),TEXT("V2Skill4")};
     for(const auto& Entry:HUDLayoutMetrics) if(auto* Widget=Find(Entry.Key)) {
         const auto& Metric=Entry.Value;
         if(auto* Cell=Cast<UCanvasPanelSlot>(Widget->Slot)) {
@@ -836,7 +953,9 @@ void UMCUnifiedUIWidget::ApplyPSDGameplayLayout(bool bApplyStyleDefaults)
             for(auto& Binding:StyleBindings) if(Binding.WidgetName==Entry.Key) Binding.FontSize=Metric.FontSize;
         }
         if(auto* Shape=Cast<UMCUniversalUIWidget>(Widget);Shape && Metric.bOverrideShapeMetrics) {
-            Shape->CornerRadius=Metric.CornerRadius;Shape->OutlineWidth=Metric.OutlineWidth;Shape->ShadowOffset=Metric.ShadowOffset;
+            Shape->CornerRadius=Metric.CornerRadius;Shape->OutlineWidth=Metric.OutlineWidth;
+            // A zero offset removes the exterior plate while keeping the same contour, border and fill.
+            Shape->ShadowOffset=ShadowlessCards.Contains(Entry.Key)?FVector2D::ZeroVector:Metric.ShadowOffset;
             Shape->ContourPoints=Metric.ContourPoints;
             Shape->ApplyTheme();
         }
@@ -997,7 +1116,7 @@ void UMCUnifiedUIWidget::RefreshRuntimePresentation()
     auto CopyBar=[&](FName Target,FName Name) {
         auto* To=WidgetTree->FindWidget<UMCUniversalUIWidget>(Target);auto* From=Cast<UProgressBar>(Find(Name));if(To && From) To->SetProgressValue(From->GetPercent());
     };
-    Set(TEXT("V2ReserveCount"),Text(TEXT("ReserveValue")));CopyBar(TEXT("V2CleanBar"),TEXT("CleanProgress"));
+    CopyBar(TEXT("V2CleanBar"),TEXT("CleanProgress"));
     // The existing presenter owns timeline selection, including the legacy DayPlan path.
     Set(TEXT("V2NextEvent"),Source->GetUnifiedNextEventTitle());
     Set(TEXT("V2NextEventLabel"),Localized(TEXT("UI.V2.HUD.NextEvent"),LOCTEXT("NextEvent","СЛЕДУЮЩЕЕ СОБЫТИЕ")));
@@ -1005,9 +1124,6 @@ void UMCUnifiedUIWidget::RefreshRuntimePresentation()
     Set(TEXT("V2CurrentEvent"),FText::Format(FText::AsCultureInvariant(TEXT("{0}: {1}")),Localized(TEXT("UI.HUD.Timeline.Now"),LOCTEXT("Now","СЕЙЧАС")),Source->GetUnifiedCurrentEventTitle()));
     Set(TEXT("V2RunSummary"),FText::Format(FText::AsCultureInvariant(TEXT("{0} {1} · {2} {3}")),Text(TEXT("TimerLabel")),Text(TEXT("TimerValue")),Text(TEXT("TaskLabel")),Text(TEXT("TaskValue"))));
     Set(TEXT("V2ToolName"),Source->GetUnifiedToolName());
-    if(auto* Count=WidgetTree->FindWidget<UTextBlock>(TEXT("V2ReserveCount"))) {
-        FString Left,Right;if(Count->GetText().ToString().Split(TEXT("/"),&Left,&Right)) Count->SetText(FText::FromString(Left.TrimStartAndEnd()));
-    }
     for(int32 I=1;I<=4;++I) {
         auto* Card=WidgetTree->FindWidget<UMCUniversalUIWidget>(FName(*FString::Printf(TEXT("V2Player%d"),I)));
         auto* Original=Find(FName(*FString::Printf(TEXT("Player%d"),I)));

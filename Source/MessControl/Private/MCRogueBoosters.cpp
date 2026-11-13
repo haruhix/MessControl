@@ -89,8 +89,11 @@ void UMCPerkComponent::RogueBurst(bool Grenade,const TArray<AMCToothCharacter*>&
     for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) if(Visible(*It)) It->ReceiveToolDamage(Damage,Hero);
     for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) if(Visible(*It)) It->ReceiveBossDamage(Damage,Hero);
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(Visible(*It) && !It->bBrushTool
-        && (TeamOrigins.IsEmpty() || (!It->StackCarrier && It->Holders.IsEmpty() && It->Phase!=EMCFoodPhase::Carried)))
-        It->HitFood(Damage,(It->GetActorLocation()-Center).GetSafeNormal2D(),Hero);
+        && (TeamOrigins.IsEmpty() || (!It->StackCarrier && It->Holders.IsEmpty() && It->Phase!=EMCFoodPhase::Carried))) {
+        const FVector Direction=(It->GetActorLocation()-Center).GetSafeNormal2D();
+        if(Grenade) It->ReceiveActiveSkillImpact(Damage,Direction,Hero->GetPlayerState<AMCPlayerState>(),true);
+        else It->HitFood(Damage,Direction,Hero);
+    }
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->Status->IsAlive() && Visible(*It)) {
         const FVector Direction=(It->GetActorLocation()-Center).GetSafeNormal2D(UE_SMALL_NUMBER,Hero->GetActorForwardVector());
         if(Grenade) It->Status->Damage(60,Direction,GetOwner());

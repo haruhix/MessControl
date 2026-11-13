@@ -10,6 +10,7 @@
 #include "MCFoodActor.h"
 #include "MCToothCharacter.h"
 #include "MCGameState.h"
+#include "MCDeathRespawnPresentation.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -23,6 +24,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "Sound/SoundAttenuation.h"
+
+namespace
+{
+const FName CrownWhiteout(TEXT("Whiteout"));
+}
 
 void FMCArenaToothSettings::Sanitize()
 {
@@ -212,6 +218,19 @@ void AMCArenaTooth::ApplyAppearance()
         Material->SetVectorParameterValue(TEXT("GrimeSize"),FLinearColor(Bounds.BoxExtent*2));
         Material->SetVectorParameterValue(TEXT("GrimeScale"),FLinearColor(MeshBaseScale));
     }
+    if (GetNetMode()!=NM_DedicatedServer && !RespawnWhiteMaterial)
+    {
+        auto* WhiteBase=LoadObject<UMaterialInterface>(nullptr,
+            TEXT("/Game/Gameplay/VFX/DeathSpirit/M_DeathSpirit_CrownWhite.M_DeathSpirit_CrownWhite"));
+        if (WhiteBase)
+        {
+            RespawnWhiteMaterial=UMaterialInstanceDynamic::Create(WhiteBase,this,TEXT("RespawnCrownWhite"));
+            RespawnWhiteMaterial->SetScalarParameterValue(CrownWhiteout,0.f);
+            // The hidden query mesh uses the same static mesh factory and lets the location
+            // prepare this variant without rendering a second enamel pass during play.
+            BrushSurface->SetOverlayMaterial(RespawnWhiteMaterial);
+        }
+    }
     if (Calculus) Calculus->RebuildForSurface();
     LoadedDamageProfile=DamageProfile.LoadSynchronous();
     UpdateDamageVisual();
@@ -297,6 +316,7 @@ void AMCArenaTooth::StatusChanged()
     // Compatibility snapshot for the original arena demo; Status owns all gameplay values.
     State.Health=Status->State.Health; State.Coffee=Status->CoffeeAmount();
     State.bLost=State.Health<=0;
+    if (State.RespawnSpitAt>=0. && DamageStage()!=EMCArenaToothDamageStage::Intact) ClearRespawnSpit();
     if (Status->State.bCareReaction) { ForceNetUpdate(); return; }
     State.HitDirection=Status->LastDamageDirection.GetSafeNormal2D();
     if (State.HitDirection.IsNearlyZero()) State.HitDirection=FVector(0,1,0);
@@ -304,11 +324,112 @@ void AMCArenaTooth::StatusChanged()
     State.HitTime=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds(); ++State.HitSerial;
     ForceNetUpdate();
 }
-bool AMCArenaTooth::ConsumeForRespawn()
+bool AMCArenaTooth::TryBeginRespawn(AMCToothCharacter* Player,FVector Inward,double SpitAt)
 {
-    if (!HasAuthority() || !IsAvailable()) return false;
-    State.bConsumed=true; SetActorHiddenInGame(true); Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    ForceNetUpdate(); return true;
+    if (!HasAuthority() || IsActorBeingDestroyed() || DamageStage()!=EMCArenaToothDamageStage::Intact
+        || IsRespawnReserved() || !IsValid(Player) || Player->GetWorld()!=GetWorld() || Inward.ContainsNaN()) return false;
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    if (!FMath::IsFinite(SpitAt) || SpitAt<=Now) return false;
+
+    ReservedRespawnPlayer=Player;
+    State.RespawnInward=Inward.GetSafeNormal2D();
+    if (State.RespawnInward.IsNearlyZero()) State.RespawnInward=FVector::ForwardVector;
+    State.RespawnPullStartedAt=Now;
+    State.RespawnSpitAt=SpitAt;
+    ForceNetUpdate();
+    return true;
+}
+bool AMCArenaTooth::IsRespawnReserved() const
+{
+    return !IsActorBeingDestroyed() && DamageStage()==EMCArenaToothDamageStage::Intact
+        && State.RespawnSpitAt>State.RespawnPullStartedAt && (!HasAuthority() || ReservedRespawnPlayer.IsValid());
+}
+void AMCArenaTooth::ClearRespawnSpit()
+{
+    ReservedRespawnPlayer.Reset();
+    State.RespawnPullStartedAt=-1.;
+    State.RespawnSpitAt=-1.;
+    State.RespawnInward=FVector::ForwardVector;
+}
+void AMCArenaTooth::CancelRespawn(const AMCToothCharacter* Player)
+{
+    if (!HasAuthority() || !Player || ReservedRespawnPlayer.Get()!=Player) return;
+    ClearRespawnSpit();
+    ForceNetUpdate();
+}
+FVector AMCArenaTooth::RespawnSpiritAnchor() const
+{
+    const FVector Extent=Visual->Bounds.BoxExtent;
+    const double Front=FVector::DotProduct(State.RespawnInward.GetAbs(),Extent);
+    return Visual->Bounds.Origin+State.RespawnInward*(Front*.70)+GetActorUpVector()*(Extent.Z*.20);
+}
+FVector AMCArenaTooth::RespawnMergeCenterLocal() const
+{
+    // The full mesh bounds include the buried roots. Aim into the exposed crown.
+    return FVector(0.,0.,Body->GetUnscaledBoxExtent().Z*.48);
+}
+FVector AMCArenaTooth::RespawnMergeCenter() const
+{
+    return GetActorTransform().TransformPosition(RespawnMergeCenterLocal());
+}
+void AMCArenaTooth::ApplyRespawnSpitPose(double Now)
+{
+    const double WindupEnd=FMath::Max(State.RespawnPullStartedAt,State.RespawnSpitAt-MCDeathRespawnPresentation::MergeLead);
+    const double Windup=FMath::SmoothStep(State.RespawnPullStartedAt,WindupEnd,Now);
+    const double Collapse=MCDeathRespawnPresentation::CollapseAlpha(Now,State.RespawnSpitAt);
+    const FVector Inward=GetActorQuat().UnrotateVector(State.RespawnInward).GetSafeNormal2D();
+    const FVector TiltAxis=FVector::CrossProduct(FVector::UpVector,Inward).GetSafeNormal();
+    const FQuat Tilt(TiltAxis,FMath::DegreesToRadians(-11.*Windup*(1.-Collapse)));
+    const double Width=1.+.13*Windup;
+    const FVector WindupShape(Width,Width,1.-.22*Windup);
+    const FVector WindupCenter=Inward*(-9.*Windup)+FVector(0.,0.,-7.*Windup);
+    const FVector Shape=FMath::Lerp(WindupShape,FVector(.04),Collapse);
+    const FVector Center=FMath::Lerp(WindupCenter,RespawnMergeCenterLocal(),Collapse);
+    Visual->SetRelativeScale3D(MeshBaseScale*Shape);
+    Visual->SetRelativeLocationAndRotation(Tilt.RotateVector(MeshBaseLocation*Shape)+Center,Tilt);
+}
+void AMCArenaTooth::SetRespawnWhiteout(float Alpha)
+{
+    if (!RespawnWhiteMaterial) return;
+    if (Alpha>0.f)
+    {
+        RespawnWhiteMaterial->SetScalarParameterValue(CrownWhiteout,Alpha);
+        if (!RespawnPreviousSlotOverlays.IsEmpty()) return;
+        RespawnPreviousSlotOverlays=Visual->GetComponentMaterialSlotsOverlayMaterial();
+        RespawnPreviousSlotOverlays.SetNum(Visual->GetNumMaterials());
+        // Keep unrelated global care and impact overlays under their existing owners.
+        for (int32 Slot=0;Slot<RespawnPreviousSlotOverlays.Num();++Slot)
+            Visual->SetOverlayMaterial(RespawnWhiteMaterial,true,Slot);
+    }
+    else if (!RespawnPreviousSlotOverlays.IsEmpty())
+    {
+        for (int32 Slot=0;Slot<RespawnPreviousSlotOverlays.Num();++Slot)
+            if (Visual->GetOverlayMaterial(true,Slot)==RespawnWhiteMaterial)
+                Visual->SetOverlayMaterial(RespawnPreviousSlotOverlays[Slot],true,Slot);
+        RespawnPreviousSlotOverlays.Reset();
+        RespawnWhiteMaterial->SetScalarParameterValue(CrownWhiteout,0.f);
+    }
+}
+bool AMCArenaTooth::ConsumeForRespawn(const AMCToothCharacter* Player)
+{
+    if (!HasAuthority() || IsActorBeingDestroyed() || !IsAvailable()) return false;
+    if (Player)
+    {
+        if (!IsRespawnReserved() || ReservedRespawnPlayer.Get()!=Player) return false;
+        const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+        const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+        if (Now<State.RespawnSpitAt) return false;
+    }
+    else if (IsRespawnReserved()) return false;
+
+    ClearRespawnSpit();
+    State.bConsumed=true;
+    SetActorHiddenInGame(true);
+    Body->SetSimulatePhysics(false);
+    Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    ForceNetUpdate();
+    return true;
 }
 void AMCArenaTooth::SetCoffee(float Amount)
 {
@@ -320,17 +441,26 @@ void AMCArenaTooth::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
     if (State.bConsumed)
     {
+        SetRespawnWhiteout(0.f);
         SetActorHiddenInGame(true); Body->SetSimulatePhysics(false); Body->SetCollisionEnabled(ECollisionEnabled::NoCollision); return;
     }
     UpdateDamageVisual();
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    const bool bRespawnSpit=IsRespawnReserved();
+    SetRespawnWhiteout(bRespawnSpit?MCDeathRespawnPresentation::WhiteAlpha(Now,State.RespawnSpitAt):0.f);
+    if (HasAuthority() && State.RespawnSpitAt>=0. && !bRespawnSpit)
+    {
+        ClearRespawnSpit();
+        ForceNetUpdate();
+    }
     const float Since=FMath::Max(0.,Now-State.HitTime);
     const float T=Since/Settings.ReactionSeconds;
     const float Envelope=T<1?FMath::Exp(-T*5):0;
     const float Squash=Settings.HitSquash*Envelope*FMath::Cos(T*PI*4);
     const float Wobble=IsLoose()?Settings.WobbleDegrees*FMath::Sin(Now*5.5):0;
-    if (!bFallStarted)
+    if (bRespawnSpit) ApplyRespawnSpitPose(Now);
+    else if (!bFallStarted)
     {
         Visual->SetRelativeScale3D(MeshBaseScale*FVector(1+Squash*0.5,1+Squash*0.5,1-Squash));
         const FVector KeyDown=GetActorQuat().UnrotateVector(FVector(0,0,-PianoOffset()));

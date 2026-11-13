@@ -1,4 +1,4 @@
-"""Owned solo video: two large painters, Large -> Medium -> Small, real pops.
+"""Owned solo video: two large painters, Large -> Small, real hit pauses and pops.
 
 Run only in an idle L_Mouth after the matching Editor build. Inherits the real
 F3/input/capture harness; no packages are saved and no health/AI/clocks are tuned.
@@ -36,18 +36,20 @@ class JellySplitSolo(Paint):
         self.pre_kill_paths = set()
         self.pop_before = None
         self.pop_snapshot = None
+        self.hit_pauses = []
+        self.current_hit_pause = None
         self.wave_observer_held = False
         self.next_melee_press_at = self.melee_release_at = -100.
         self.report.update(mode='jelly_split', checks={}, clips={}, frames=[], samples=[],
             tier_checkpoints=[], game_time_limit_seconds=120,
             tuning_reason='Jelly health, wave, rupture timing and native paint remain unchanged; only the unrelated owned-PIE day scheduler is paused.',
-            scope='One standalone authority PIE; real F3, native three-tier painter and normal Pickaxe input',
+            scope='One standalone authority PIE; real F3, two-tier jelly and normal Pickaxe input',
             limitations=[
                 'Position-only melee observer follows a moving native jelly until lethal warning, then remains free for the push.',
                 'Combat uses ordinary repeated LMB press/release edges every .90 s; the native combo still decides swing acceptance, recovery and damage.',
                 'The observer holds a real fixed tooth with normal RMB during the opening wave, then releases before jelly input.',
                 'The unrelated day scheduler is temporarily paused; actual Cataclysm/hero/jelly/paint ticks and health remain native.',
-                'This PIE checks the native initial pair, then kills one lineage through Large -> Medium -> Small. The focused native regression exercises one 1 -> 3 -> 9 branch; a full simultaneous 2 -> 6 -> 18 population is not runtime-tested here.',
+                'This PIE checks the native initial pair and follows one Large -> Small lineage through real Pickaxe hits and rupture.',
                 'No network clients, package saves, health edits, clock jumps or broad test suite.',
                 'Camera frames establish visible behavior only after human/lead visual review; GPU cost and final balance are unmeasured.'])
         for name in ('Tools/Unreal/probe_jelly_split_solo.py', 'Tools/Unreal/probe_wave_observer_support.py',
@@ -89,6 +91,21 @@ class JellySplitSolo(Paint):
         self.begin_clip('jelly_'+self.tier.lower()+'_trail', 6.2)
         self.stage('paint_trail')
 
+    def observe_hit_pause(self, now, health):
+        travel = float(prop(self.kill_target, 'wander_distance'))
+        if 0. < health < self.last_jelly_health-.001:
+            self.current_hit_pause = dict(size=self.tier, hit=float(prop(self.kill_target, 'hit_at')),
+                initial_travel_cm=travel, frozen_through_seconds=0., resumed_at_seconds=None)
+            self.hit_pauses.append(self.current_hit_pause)
+        pause = self.current_hit_pause
+        if pause is None or health <= 0. or pause['resumed_at_seconds'] is not None:
+            return
+        age = now-pause['hit']
+        if travel-pause['initial_travel_cm'] <= .01:
+            pause['frozen_through_seconds'] = age
+        else:
+            pause['resumed_at_seconds'] = age
+
     def update_jellies(self, now, elapsed):
         if self.phase == 'wait_branch':
             self.require(elapsed < 45., 'Natural wave did not reach the jelly branch')
@@ -126,6 +143,7 @@ class JellySplitSolo(Paint):
                 body_state=enum_name(self.hero.tooth_physics.get_body_state()),
                 hero_cm=vec(self.hero.get_actor_location()))
             self.pop_snapshot = None
+            self.current_hit_pause = None
             self.last_jelly_health = float(prop(self.kill_target, 'health'))
             self.health_changes = []
             self.hero.inventory.server_select(u.MCToolSlot.PICKAXE)
@@ -141,6 +159,7 @@ class JellySplitSolo(Paint):
             health = float(prop(self.kill_target, 'health'))
             if health < self.last_jelly_health-.001:
                 self.health_changes.append(dict(time=now, health=health))
+            self.observe_hit_pause(now, health)
             self.last_jelly_health = health
             if bool(prop(self.kill_target, 'pending_rupture')):
                 self.primary_input(False)
@@ -169,6 +188,8 @@ class JellySplitSolo(Paint):
                 metric = self.jelly_metrics(self.kill_target)
                 self.require(metric['rupture_count'] == 1 and metric['children_spawned'] == expected and len(children) == expected,
                              self.tier+' pop did not produce the exact child count')
+                self.require(all(enum_name(prop(jelly, 'jelly_size')) == 'SMALL' for jelly in children),
+                             'A large jelly must split directly into small ones')
                 self.require(metric['players_pushed'] > 0, self.tier+' pop did not push the nearby observer')
                 body = enum_name(self.hero.tooth_physics.get_body_state())
                 self.require(body == 'STANDING' and self.pop_before['body_at_warning'] == 'STANDING',
@@ -187,7 +208,13 @@ class JellySplitSolo(Paint):
                     self.clip = None
                     self.stage('split_capture_flush')
         elif self.phase == 'split_capture_flush' and elapsed >= 1.:
-            required = ['jelly_'+tier+'_'+part for tier in ('large', 'medium', 'small') for part in ('trail', 'split_pop')]
+            self.report['observed_hit_pauses'] = self.hit_pauses
+            observed_pause = any(pause['frozen_through_seconds'] >= .12
+                and pause['resumed_at_seconds'] is not None and .17 <= pause['resumed_at_seconds'] < .5
+                for pause in self.hit_pauses)
+            self.require(observed_pause, 'No real Pickaxe hit showed a brief pause followed by resumed movement')
+            self.report['checks']['real_pickaxe_hit_stops_then_releases_wandering'] = True
+            required = ['jelly_'+tier+'_'+part for tier in ('large', 'small') for part in ('trail', 'split_pop')]
             if self.capture_hz:
                 self.require(all(len(self.report['clips'].get(name, [])) >= 8 for name in required), 'A required native clip is incomplete')
             for entry in self.report['frames']:
@@ -201,7 +228,26 @@ class JellySplitSolo(Paint):
         if self.done:
             return
         try:
-            Cataclysm.tick(self, delta)
+            # Some L_Mouth entry paths offer a starting perk and others are
+            # playable after loading without one. Keep the normal menu handling.
+            if self.phase == 'first_perk' and valid(self.pc) and self.pc.is_world_presentation_ready():
+                now = float(u.GameplayStatics.get_time_seconds(self.world))
+                pawn = self.pc.get_controlled_pawn()
+                if (now-self.phase_at >= 2. and isinstance(pawn, u.MCToothCharacter)
+                        and prop(pawn.get_movement_component(), 'movement_mode') != u.MovementMode.MOVE_NONE
+                        and not self.pc.is_reward_menu_open()):
+                    self.report['starting_perk_menu'] = 'Absent at playable L_Mouth entry'
+                    self.stage('perk_resolution')
+            # The parent sends the ordinary F3 request while leaving this stage.
+            old_dev_ui = (u.SystemLibrary.get_console_variable_int_value('MC.DevUI')
+                          if self.phase == 'perk_resolution' else None)
+            if old_dev_ui == 0:
+                self.console('MC.DevUI 1')
+            try:
+                Cataclysm.tick(self, delta)
+            finally:
+                if old_dev_ui == 0:
+                    self.console('MC.DevUI 0')
             if not self.done and self.phase == 'wait_branch' and not self.wave_observer_held:
                 wave_support['brace_observer_for_wave'](self)
                 self.wave_observer_held = True

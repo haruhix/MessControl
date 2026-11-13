@@ -17,6 +17,7 @@ class UInputAction;
 class UInputMappingContext;
 class UMCWorldPreloadSubsystem;
 class UMCToothPhysicsComponent;
+class UMCDeathSpiritComponent;
 class UPhysicsControlComponent;
 class UMCToothStatusComponent;
 class UMCCombatFeedbackComponent;
@@ -115,6 +116,7 @@ public:
     void SetArenaArrivalHeld(bool bHeld);
     bool IsArenaArrivalHeld() const { return bArenaArrivalHeld; }
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physics") TObjectPtr<UMCToothPhysicsComponent> ToothPhysics;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Life") TObjectPtr<UMCDeathSpiritComponent> DeathSpirit;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<UMCToothStatusComponent> Status;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat|Feedback") TObjectPtr<UMCCombatFeedbackComponent> Feedback;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<class UMCBrushContactComponent> BrushContact;

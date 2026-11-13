@@ -618,6 +618,8 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
         TEXT("/Game/Gameplay/Food/CutMaterials/MI_FoodCut_Green"),
         TEXT("/Game/Gameplay/VFX/M_Reaction"),TEXT("/Game/Gameplay/VFX/M_ReactionSoft"),
         TEXT("/Game/Gameplay/VFX/MI_PassiveGhost"),TEXT("/Game/Gameplay/VFX/MI_PassiveLightning"),
+        TEXT("/Game/Gameplay/VFX/DeathSpirit/M_DeathSpirit_Translucent"),
+        TEXT("/Game/Gameplay/VFX/DeathSpirit/M_DeathSpirit_CrownWhite"),
         TEXT("/Game/Gameplay/VFX/MI_PassiveFeedbackSoft"),TEXT("/Game/Gameplay/VFX/MI_PassiveFeedbackGlow"),
         TEXT("/Game/Gameplay/VFX/M_CartoonReceiptSolid"),
         TEXT("/Engine/EngineMaterials/DefaultTextMaterialOpaque"),

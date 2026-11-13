@@ -500,13 +500,31 @@ void MCWorldActionPreviewAdapters::Register()
     // Editing that real binding is independent of a contextual scenario factory.
     // Keep scenarios unavailable until their actual-owner adapter is registered.
     for(const FName ID:{FName(TEXT("Food.Break")),FName(TEXT("Food.Spicy")),
-        FName(TEXT("Food.Spoiled")),FName(TEXT("World.FirePatch")),FName(TEXT("Reward.TaskCoins"))})
+        FName(TEXT("Food.Spoiled")),FName(TEXT("World.FirePatch")),FName(TEXT("Reward.TaskCoins")),
+        FName(TEXT("Character.DeathSpirit"))})
     {
         if(MCPerkPreviewAdapters::Find(ID))continue;
         const auto* Contract=MCVFXSourceContracts::Find(ID);if(!Contract)continue;
         FMCPerkPreviewAdapterEntry Entry;Entry.PerkID=ID;Entry.SourceRowID=NAME_None;
         Entry.Label=Contract->Label;Entry.Kind=EMCPerkPreviewAdapterKind::Context;
         Entry.Stages=Contract->Events;Entry.bSupportsProfileOverride=true;
+        if(ID==TEXT("Character.DeathSpirit")) {
+            Entry.StageLabels.Add(TEXT("Merge"),FText::FromString(TEXT("Соединение · белое свечение")));
+            Entry.DescribeNativeSources=[](FName Event) {
+                TArray<FMCVFXNativeSourcePart> Resources;
+                if(Event!=TEXT("Merge")) return Resources;
+                const auto AddMaterial=[&Resources](FName MaterialID,const TCHAR* Label,const TCHAR* Path) {
+                    auto& Material=Resources.AddDefaulted_GetRef();
+                    Material.ID=MaterialID;Material.Label=FText::FromString(Label);
+                    Material.Kind=EMCVFXNativeSourceKind::Material;Material.Asset=FSoftObjectPath(Path);
+                };
+                AddMaterial(TEXT("Merge.Spirit"),TEXT("Свечение духа"),
+                    TEXT("/Game/Gameplay/VFX/DeathSpirit/M_DeathSpirit_Translucent.M_DeathSpirit_Translucent"));
+                AddMaterial(TEXT("Merge.Crown"),TEXT("Свечение коронки"),
+                    TEXT("/Game/Gameplay/VFX/DeathSpirit/M_DeathSpirit_CrownWhite.M_DeathSpirit_CrownWhite"));
+                return Resources;
+            };
+        }
         MCPerkPreviewAdapters::Register(MoveTemp(Entry));
     }
     MCFrostActionPreviewAdapters::Register();

@@ -1,5 +1,6 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
+#include "MCArenaTooth.h"
 #include "MCGameMode.h"
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
@@ -9,6 +10,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCGroundImpactSubsystem.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/Engine.h"
@@ -89,11 +91,38 @@ bool FMCPhysicalImpactCamera::RunTest(const FString&)
     TestTrue(TEXT("Another pawn's camera stays steady"),OtherView.Rotation.Equals(Other->Camera->GetComponentRotation()));
     for(int32 I=0;I<24;++I) {++GFrameCounter;World->Tick(LEVELTICK_All,1.f/60);}
     TestTrue(TEXT("Impact feedback settles completely after 0.28 seconds"),ReadView().Rotation.Equals(Hero->Camera->GetComponentRotation(),.001f));
+
+    auto* ArenaTooth=World->SpawnActor<AMCArenaTooth>(FVector(2500,0,2000),FRotator::ZeroRotator);
+    if(TestNotNull(TEXT("Arena tooth spawns"),ArenaTooth)) {
+        TestTrue(TEXT("A native hit leaves a broken, rooted crown"),ArenaTooth->ReceiveArenaHit(70.f,FVector::ForwardVector)
+            && ArenaTooth->DamageStage()==EMCArenaToothDamageStage::Broken && !ArenaTooth->Body->IsSimulatingPhysics());
+        auto* Capsule=Hero->GetCapsuleComponent();
+        auto* Movement=Hero->GetCharacterMovement();
+        const FVector SideNormal=-FVector::ForwardVector;
+        FHitResult SideContact(ArenaTooth,ArenaTooth->Body,ArenaTooth->GetActorLocation(),SideNormal);
+        SideContact.bBlockingHit=true;
+        const FVector ContactImpulse=SideNormal*(400.f*FMath::Max(1.f,Movement->Mass));
+        TestFalse(TEXT("The player capsule uses ordinary movement collision"),Capsule->IsSimulatingPhysics());
+        for(int32 Contact=0;Contact<3;++Contact) {
+            // Space contacts beyond the impact deduplication window, as when pushing into a crown.
+            for(int32 Frame=0;Frame<8;++Frame) {++GFrameCounter;World->Tick(LEVELTICK_All,1.f/60);}
+            const FRotator BeforeContact=ReadView().Rotation;
+            Capsule->OnComponentHit.Broadcast(Capsule,ArenaTooth,ArenaTooth->Body,ContactImpulse,SideContact);
+            const FRotator AfterContact=ReadView().Rotation;
+            TestTrue(FString::Printf(TEXT("Rooted crown contact %d adds no camera shake (%s -> %s)"),
+                Contact+1,*BeforeContact.ToCompactString(),*AfterContact.ToCompactString()),AfterContact.Equals(BeforeContact,.001f));
+        }
+
+        FHitResult CrownTop(ArenaTooth,ArenaTooth->Body,
+            ArenaTooth->GetActorLocation()+FVector::UpVector*ArenaTooth->Body->GetScaledBoxExtent().Z,FVector::UpVector);
+        CrownTop.bBlockingHit=true;
+        const FRotator BeforeLanding=ReadView().Rotation;
+        Movement->Velocity=FVector(0,0,-650);
+        Hero->Landed(CrownTop);
+        TestTrue(TEXT("A hard landing on the same crown still shakes the camera"),!ReadView().Rotation.Equals(BeforeLanding,.001f));
+    }
     Hero->Status->Damage(1,FVector::ForwardVector);Hero->UpdateMouthCamera(0);
     TestEqual(TEXT("Damage no longer produces a zoom pulse"),Hero->Camera->FieldOfView,StableFOV);
-    FHitResult Floor;Floor.ImpactNormal=FVector::UpVector;
-    Hero->GetCharacterMovement()->Velocity=FVector(0,0,-650);Hero->Landed(Floor);
-    TestTrue(TEXT("A physical landing also triggers feedback"),!ReadView().Rotation.Equals(Hero->Camera->GetComponentRotation(),.001f));
     World->EndPlay(EEndPlayReason::Quit);GEngine->DestroyWorldContext(World);World->DestroyWorld(false);
     return true;
 }

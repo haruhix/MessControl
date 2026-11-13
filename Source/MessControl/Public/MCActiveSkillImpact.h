@@ -17,6 +17,7 @@ struct MESSCONTROL_API FMCActiveSkillBlastSettings
     float PushSpeed=500.f;
     float ArenaDamage=0.f;
     bool bDamageArenaTeeth=false;
+    bool bExplosive=false;
 };
 
 struct MESSCONTROL_API FMCActiveSkillBlastResult

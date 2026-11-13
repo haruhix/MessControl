@@ -78,6 +78,17 @@ bool FMCCataclysmJellySplitTest::RunTest(const FString&)
     Advance(30);
     TestEqual(TEXT("Cleanup still counts both wave and trail tiles"),Event->PaintTileCount,Event->MaxPaintTiles*2);
     TestTrue(TEXT("A live large jelly deposits connected paint"),Large->PaintStrokeRequests>0 && Event->PaintStrokesAccepted>0);
+
+    const float BeforeHitTravel=Large->WanderDistance;
+    TestTrue(TEXT("A nonlethal tool hit is accepted"),Large->ReceiveToolDamage(1.f,nullptr)>0.f);
+    Advance(3);
+    TestEqual(TEXT("A tool hit briefly stops wandering"),Large->WanderDistance,BeforeHitTravel);
+    TestTrue(TEXT("A nonlethal external impact is accepted"),Large->ReceiveExternalImpact(1.f,Event,nullptr,Large->GetActorLocation())>0.f);
+    Advance(3);
+    TestEqual(TEXT("A later impact refreshes the brief stun"),Large->WanderDistance,BeforeHitTravel);
+    Advance(16);
+    TestTrue(TEXT("The jelly resumes wandering after the stun"),Large->WanderDistance>BeforeHitTravel);
+
     const auto KillAndSplit=[&](AMCCataclysmJelly* Jelly,int32 ExpectedChildren)
     {
         const int32 Before=Event->Jellies.Num();
@@ -89,19 +100,9 @@ bool FMCCataclysmJellySplitTest::RunTest(const FString&)
         TestEqual(TEXT("Every child joins the event ledger"),Event->Jellies.Num()-Before,ExpectedChildren);
     };
     KillAndSplit(Large,3);
-    TArray<AMCCataclysmJelly*> Medium;
-    for(const auto& Entry:Event->Jellies) if(IsValid(Entry) && Entry->JellySize==EMCCataclysmJellySize::Medium) Medium.Add(Entry);
-    TestEqual(TEXT("One large creates three medium"),Medium.Num(),3);
-    Advance(24);
-    for(auto* Jelly:Medium)
-    {
-        TestTrue(TEXT("Medium painters retain real trails"),Jelly->PaintStrokeRequests>0);
-        TestTrue(TEXT("Medium body is smaller than large"),Jelly->Settings.BodyRadius<90.f);
-        KillAndSplit(Jelly,3);
-    }
     TArray<AMCCataclysmJelly*> Small;
     for(const auto& Entry:Event->Jellies) if(IsValid(Entry) && Entry->JellySize==EMCCataclysmJellySize::Small) Small.Add(Entry);
-    TestEqual(TEXT("Three medium create nine small"),Small.Num(),9);
+    TestEqual(TEXT("One large creates three small directly"),Small.Num(),3);
     Advance(24);
     if(!Small.IsEmpty())
     {
@@ -119,10 +120,11 @@ bool FMCCataclysmJellySplitTest::RunTest(const FString&)
         Hero->SetActorLocation(Jelly->GetActorLocation()+FVector(85,0,44),false);
         Advance(14);
         TestEqual(TEXT("Small rupture creates no children"),Jelly->ChildrenSpawned,0);
+        TestEqual(TEXT("A small rupture adds no generation to the event"),Event->Jellies.Num(),4);
         TestTrue(TEXT("Small rupture pushes the nearby identified player"),Jelly->RupturePlayersPushed>0);
         TestEqual(TEXT("The pop never starts a knockdown"),Hero->ToothPhysics->KnockdownCount,KnockdownsBefore);
         TestEqual(TEXT("The pop preserves body state"),Hero->ToothPhysics->GetBodyState(),BodyBefore);
-        TestTrue(TEXT("All tier deaths request a persistent coffee splash"),Event->DeathPaintBursts>=5);
+        TestTrue(TEXT("Both tier deaths request a persistent coffee splash"),Event->DeathPaintBursts>=2);
     }
     World->EndPlay(EEndPlayReason::Quit);GEngine->DestroyWorldContext(World);World->DestroyWorld(false);
     return true;

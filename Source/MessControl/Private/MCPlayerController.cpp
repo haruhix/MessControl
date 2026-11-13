@@ -10,6 +10,8 @@
 #include "MCWorldPresentationComponent.h"
 #include "MCVFXPresentationComponent.h"
 #include "MCToothCharacter.h"
+#include "MCDeathSpiritComponent.h"
+#include "Camera/PlayerCameraManager.h"
 #include "MCGrenadeSkillAction.h"
 #include "MCInventoryComponent.h"
 #include "MCPerkComponent.h"
@@ -318,14 +320,14 @@ void AMCPlayerController::Tick(float DeltaSeconds)
         && ((!IsInputKeyDown(EKeys::Tab) && !IsInputKeyDown(EKeys::Gamepad_Special_Left))
             || !ScoreboardOwnsInputFocus(this,ScoreboardWidget))) HideScoreboard();
     const double Now=GetWorld()->GetTimeSeconds();
-    if (Now>=NextSpectatorCheck) { NextSpectatorCheck=Now+.1; UpdateDeathSpectating(); }
-    if(bDeathSpectating && SpectatorTarget.IsValid() && !bShowMouseCursor && !IsLookInputIgnored()) {
+    if (PreviousPawn.Get()!=GetPawn() || Now>=NextSpectatorCheck) { NextSpectatorCheck=Now+.1; UpdateDeathSpectating(); }
+    const auto* DeathViewPawn=SpectatorTarget.IsValid()?SpectatorTarget.Get():Cast<AMCToothCharacter>(GetPawn());
+    if(bDeathSpectating && DeathViewPawn && !bShowMouseCursor && !IsLookInputIgnored()) {
         float X=0,Y=0; GetInputMouseDelta(X,Y);
         const auto* Settings=UMCGameUserSettings::Get();
         const FVector2D MouseDelta(X,Y);
         ApplySpectatorOrbitInput(Settings?Settings->ScaleLookInput(MouseDelta,false):MouseDelta);
-        const auto* Target=SpectatorTarget.Get();
-        const float Scale=FMath::Clamp(Target->GamepadCameraTurnRate,30.f,360.f)*DeltaSeconds/FMath::Clamp(Target->CameraOrbitSensitivity,.02f,1.f);
+        const float Scale=FMath::Clamp(DeathViewPawn->GamepadCameraTurnRate,30.f,360.f)*DeltaSeconds/FMath::Clamp(DeathViewPawn->CameraOrbitSensitivity,.02f,1.f);
         auto Stick=[](float Value){return FMath::Sign(Value)*FMath::Clamp((FMath::Abs(Value)-.2f)/.8f,0.f,1.f);};
         const FVector2D StickDelta=FVector2D(Stick(GetInputAnalogKeyState(EKeys::Gamepad_RightX)),Stick(GetInputAnalogKeyState(EKeys::Gamepad_RightY)))*Scale;
         ApplySpectatorOrbitInput(Settings?Settings->ScaleLookInput(StickDelta,true):StickDelta);
@@ -374,10 +376,23 @@ void AMCPlayerController::CalcCamera(float DeltaTime,FMinimalViewInfo& OutResult
     if(IsLocalController() && IsHubWorld() && HubSceneCamera.IsValid()) {
         HubSceneCamera->CalcCamera(DeltaTime,OutResult); return;
     }
-    if(IsLocalController() && bDeathSpectating && SpectatorTarget.IsValid()) {
-        UMCPlayerCameraComponent::GetSpectatorView(SpectatorTarget.Get(),GetPawn(),SpectatorOrbit,
-            SpectatorDistance,DeltaTime,SpectatorCameraView,OutResult);
-        return;
+    if(IsLocalController() && bDeathSpectating) {
+        if(const auto* Hero=Cast<AMCToothCharacter>(GetPawn());Hero && Hero->Status && !Hero->Status->IsAlive()) {
+            const auto* Spirit=Hero->DeathSpirit.Get();
+            const auto* Target=SpectatorTarget.Get();
+            const bool bOwnSpiritView=!IsValid(Target) || (Spirit && Spirit->IsPulling());
+            const FVector Focus=Spirit?Spirit->GetSpiritLocation():Hero->GetActorLocation();
+            UMCPlayerCameraComponent::GetSpectatorView(bOwnSpiritView?Hero:Target,Hero,SpectatorOrbit,
+                SpectatorDistance,DeltaTime,SpectatorCameraView,OutResult,bOwnSpiritView?&Focus:nullptr);
+            if(Spirit) UMCPlayerCameraComponent::ApplyDeathFilter(Spirit->GetDeathFilterStrength(),OutResult);
+            return;
+        }
+        // Possession can precede the controller's camera handoff by one view update.
+        // Keep the last spirit POV until the new pawn's orbit is initialized.
+        if(PlayerCameraManager) {
+            OutResult=PlayerCameraManager->GetCameraCacheView();
+            return;
+        }
     }
     if(GetPawn()) {
         GetPawn()->CalcCamera(DeltaTime,OutResult);
@@ -449,8 +464,8 @@ void AMCPlayerController::ResetWorldPresentation()
 }
 void AMCPlayerController::ApplySpectatorOrbitInput(FVector2D Delta)
 {
-    const auto* Target=SpectatorTarget.Get();
-    if(!IsLocalController() || !bDeathSpectating || !Target || bShowMouseCursor || IsLookInputIgnored()
+    const auto* Target=SpectatorTarget.IsValid()?SpectatorTarget.Get():Cast<AMCToothCharacter>(GetPawn());
+    if(!IsLocalController() || !bDeathSpectating || !bSpectatorOrbitInitialized || !Target || bShowMouseCursor || IsLookInputIgnored()
         || Delta.ContainsNaN() || Delta.IsNearlyZero()) return;
     const float Sensitivity=FMath::Clamp(Target->CameraOrbitSensitivity,.02f,1.f);
     SpectatorOrbit.Yaw=FRotator::NormalizeAxis(SpectatorOrbit.Yaw+Delta.X*Sensitivity);
@@ -458,8 +473,8 @@ void AMCPlayerController::ApplySpectatorOrbitInput(FVector2D Delta)
 }
 void AMCPlayerController::ZoomSpectatorCamera(float ScrollDelta)
 {
-    const auto* Target=SpectatorTarget.Get();
-    if(!IsLocalController() || !bDeathSpectating || !Target || bShowMouseCursor || IsLookInputIgnored()
+    const auto* Target=SpectatorTarget.IsValid()?SpectatorTarget.Get():Cast<AMCToothCharacter>(GetPawn());
+    if(!IsLocalController() || !bDeathSpectating || !bSpectatorOrbitInitialized || !Target || bShowMouseCursor || IsLookInputIgnored()
         || !FMath::IsFinite(ScrollDelta) || FMath::IsNearlyZero(ScrollDelta)) return;
     SpectatorDistance=FMath::Clamp(SpectatorDistance-ScrollDelta*FMath::Clamp(Target->CameraZoomStep,10.f,300.f),250.f,1600.f);
 }
@@ -479,10 +494,14 @@ void AMCPlayerController::UpdateDeathSpectating()
     {
         if (bDeathSpectating || PreviousPawn!=GetPawn())
         {
+            const bool bLeavingDeath=bDeathSpectating;
             if (auto* Previous=Cast<AMCToothCharacter>(GetViewTarget())) Previous->ClearCameraWallReveal();
+            if(bDeathSpectating && Hero && bSpectatorOrbitInitialized)
+                Hero->SetCameraOrbitView(float(SpectatorOrbit.Yaw),float(SpectatorOrbit.Pitch),SpectatorDistance);
             bDeathSpectating=false; SpectatorTarget.Reset(); bAutoManageActiveCameraTarget=true;
             bSpectatorOrbitInitialized=false; UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
-            if (GetPawn()) SetViewTargetWithBlend(GetPawn(),.2f);
+            if (GetPawn()) SetViewTargetWithBlend(GetPawn(),.24f,VTBlend_Cubic,0.f,true);
+            if(bLeavingDeath) UpdateInputMode();
         }
         PreviousPawn=GetPawn(); return;
     }
@@ -492,36 +511,37 @@ void AMCPlayerController::UpdateDeathSpectating()
         bDeathSpectating=true; bAutoManageActiveCameraTarget=false;
         if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
         UpdateInputMode();
+        SpectatorTarget.Reset();
+        Hero->ClearCameraWallReveal();
+        SpectatorOrbit=Hero->Camera?Hero->Camera->GetComponentRotation():FRotator(-30,0,0);
+        SpectatorOrbit.Pitch=FMath::Clamp(SpectatorOrbit.Pitch,-85.,85.); SpectatorOrbit.Roll=0;
+        SpectatorDistance=Hero->Camera?FMath::Clamp(float(FVector::Dist(Hero->Camera->GetComponentLocation(),
+            Hero->GetCameraFocusLocation())),420.f,820.f):720.f;
+        bSpectatorOrbitInitialized=true;
+        UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
+        SetViewTargetWithBlend(this,.18f,VTBlend_Cubic,0.f,true);
     }
-    auto* Target=SpectatorTarget.Get();
-    if (!IsValid(Target) || !Target->Status->IsAlive() || Target==Hero) CycleSpectator(1);
+    if(auto* Target=SpectatorTarget.Get();Target && (!Target->Status->IsAlive() || (Hero->DeathSpirit && Hero->DeathSpirit->IsPulling()))) {
+        SpectatorTarget.Reset();
+        UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
+    }
 }
 void AMCPlayerController::CycleSpectator(int32 Direction)
 {
     if (!IsLocalController() || !bDeathSpectating) return;
+    const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    if(!Hero || (Hero->DeathSpirit && Hero->DeathSpirit->IsPulling())) return;
     TArray<AMCToothCharacter*> Living;
     for (TActorIterator<AMCToothCharacter> It(GetWorld()); It; ++It)
         if (It->GetPlayerState() && It->Status && It->Status->IsAlive() && *It!=GetPawn()) Living.Add(*It);
     Living.Sort([](const AMCToothCharacter& A,const AMCToothCharacter& B)
     { return (A.GetPlayerState()?A.GetPlayerState()->GetPlayerId():0)<(B.GetPlayerState()?B.GetPlayerState()->GetPlayerId():0); });
-    if (Living.IsEmpty())
-    {
-        SpectatorTarget.Reset(); UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
-        if (GetPawn() && GetViewTarget()!=GetPawn()) SetViewTargetWithBlend(GetPawn(),.2f);
-        return;
-    }
-    const int32 Current=Living.IndexOfByKey(SpectatorTarget.Get());
-    const int32 Next=Current==INDEX_NONE?0:(Current+Direction+Living.Num())%Living.Num();
+    if (Living.IsEmpty()) return;
+    const int32 ViewCount=Living.Num()+1;
+    const int32 Current=Living.IndexOfByKey(SpectatorTarget.Get())+1;
+    const int32 Next=(Current+Direction+ViewCount)%ViewCount;
     if (auto* Previous=Cast<AMCToothCharacter>(GetViewTarget())) Previous->ClearCameraWallReveal();
-    SpectatorTarget=Living[Next];
-    if(!bSpectatorOrbitInitialized) {
-        const auto* Target=SpectatorTarget.Get();
-        SpectatorOrbit=Target->Camera?Target->Camera->GetComponentRotation():FRotator(-30,0,0);
-        SpectatorOrbit.Pitch=FMath::Clamp(SpectatorOrbit.Pitch,-85.,85.); SpectatorOrbit.Roll=0;
-        SpectatorDistance=Target->Camera?FMath::Clamp(float(FVector::Dist(Target->Camera->GetComponentLocation(),
-            Target->GetCameraFocusLocation())),250.f,1600.f):1000.f;
-        bSpectatorOrbitInitialized=true;
-    }
+    SpectatorTarget=Next>0?Living[Next-1]:nullptr;
     UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
     // This controller computes a local view without changing the teammate's camera or control rotation.
     SetViewTargetWithBlend(this,.2f);
@@ -615,9 +635,14 @@ void AMCPlayerController::RequestDevAction(EMCDevAction Action,int32 StepIndex)
     if(!MCDeveloperUIEnabled(GetWorld()) && !(DevPanel && DevPanel->IsVisible())) return;
     if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>())
     {
+        const auto* Hero=Action==EMCDevAction::KillSelf?Cast<AMCToothCharacter>(GetPawn()):nullptr;
+        const bool bWasAlive=Hero && Hero->Status && Hero->Status->IsAlive();
         const FText Result=Mode->ExecuteDevAction(this,Action,StepIndex);
         if (DevPanel && Action==EMCDevAction::OneHitKill) DevPanel->RefreshActions();
-        if (DevPanel) DevPanel->SetFeedback(Result);
+        if (DevPanel) {
+            DevPanel->SetFeedback(Result);
+            if(bWasAlive && IsValid(Hero) && !Hero->Status->IsAlive()) DevPanel->SetVisibility(ESlateVisibility::Collapsed);
+        }
     }
     else if (DevPanel) DevPanel->SetFeedback(FText::FromString(TEXT("События запускает хост. Его изменения появятся у всех игроков.")));
     UpdateInputMode();

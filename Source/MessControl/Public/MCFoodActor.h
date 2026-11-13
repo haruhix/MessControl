@@ -241,6 +241,7 @@ public:
     AMCToothCharacter* GetActiveContainerCarrier() const;
     /** External blast preserves source PlayerState attribution without primary-tool procs. */
     bool ReceiveActiveSkillImpact(float Damage,FVector Direction,class AMCPlayerState* SourcePS);
+    bool ReceiveActiveSkillImpact(float Damage,FVector Direction,class AMCPlayerState* SourcePS,bool bExplosive);
     FVector IntakeSweepStart() const { return PreviousPhysicsLocation; }
     bool BeginSwallow();
     void CancelSwallow();
@@ -427,6 +428,8 @@ private:
     bool FitsAutomaticIntakeMetrics(double LocalVolume) const;
     double AutomaticIntakeVolume() const;
     bool ResolveAutomaticCutDestination(FVector Start,FVector& OutTarget,class AMCThroat*& OutThroat) const;
+    bool CompleteAutomaticIntake(FVector Direction,bool bExplosive);
+    bool BeginSwallow(bool bExplosive);
     /** Actual selected geometry in actor-local cubic cm; negative means not measured. */
     double MeasuredPortionLocalVolume=-1;
     FVector PendingCutPoint=FVector::ZeroVector,PendingCutNormal=FVector::ZeroVector;

@@ -756,6 +756,8 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
             TEXT("/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS"),
             TEXT("/Game/Gameplay/VFX/M_Reaction.M_Reaction"),
             TEXT("/Game/Gameplay/VFX/M_ReactionSoft.M_ReactionSoft"),
+            TEXT("/Game/Gameplay/VFX/DeathSpirit/M_DeathSpirit_Translucent.M_DeathSpirit_Translucent"),
+            TEXT("/Game/Gameplay/VFX/DeathSpirit/M_DeathSpirit_CrownWhite.M_DeathSpirit_CrownWhite"),
             TEXT("/Engine/EngineMaterials/DefaultTextMaterialOpaque.DefaultTextMaterialOpaque"),
             TEXT("/Game/Gameplay/VFX/MI_PassiveGhost.MI_PassiveGhost"),
             TEXT("/Game/Gameplay/VFX/MI_PassiveLightning.MI_PassiveLightning"),
