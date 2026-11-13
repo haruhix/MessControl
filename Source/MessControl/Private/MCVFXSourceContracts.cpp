@@ -24,6 +24,8 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         const auto World=MCVFXSourceContracts::WorldLibraryPath(),Tool=MCVFXSourceContracts::ToolLibraryPath();
         const auto Hub=MCVFXSourceContracts::HubLibraryPath(),UI=MCVFXSourceContracts::InterfaceLibraryPath();
         Add(TEXT("Tool.Knife"),TEXT("Нож · взмах и попадание"),TEXT("Tools"),TEXT("AMCToothCharacter / UMCInventoryComponent / MCMeleeCombo"),Tool,{TEXT("Swing"),TEXT("Hit"),TEXT("FoodCut")});
+        auto& Katana=Add(TEXT("Tool.Katana"),TEXT("Катана · режущие взмахи"),TEXT("Tools"),TEXT("AMCToothCharacter / UMCInventoryComponent / UMCWeaponTrailComponent"),Tool,{TEXT("Swing"),TEXT("Hit"),TEXT("FoodCut")});
+        Katana.Description=TEXT("Три обычных реза и заряженная серия через настоящий основной ввод. Лента следует оценённым краям клинка и открывается в активной фазе каждого реза. Попадание и разрез еды приходят из авторитетного контакта.");
         Add(TEXT("Tool.Pickaxe"),TEXT("Кирка · взмах и попадание"),TEXT("Tools"),TEXT("AMCToothCharacter / UMCInventoryComponent / MCMeleeCombo"),Tool,{TEXT("Swing"),TEXT("Hit")});
         Add(TEXT("Tool.Brush"),TEXT("Щётка · контакт"),TEXT("Cleaning"),TEXT("UMCBrushContactComponent / AMCToothCharacter"),Tool,{TEXT("Contact")});
         Add(TEXT("Tool.Spray"),TEXT("Распылитель · обработка"),TEXT("Tools"),TEXT("UMCInventoryComponent"),Tool,{TEXT("Start"),TEXT("WaterCare"),TEXT("Contact"),TEXT("End")});
@@ -128,6 +130,8 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         };
         Palette(TEXT("Tool.Knife"),TEXT("Swing"),TEXT("KnifeSwing"));
         Palette(TEXT("Tool.Knife"),TEXT("Hit"),TEXT("KnifeHit"));
+        Palette(TEXT("Tool.Katana"),TEXT("Swing"),TEXT("KnifeSwing"));
+        Palette(TEXT("Tool.Katana"),TEXT("Hit"),TEXT("KnifeHit"));
         Palette(TEXT("Tool.Pickaxe"),TEXT("Swing"),TEXT("PickaxeSwing"));
         Palette(TEXT("Tool.Pickaxe"),TEXT("Hit"),TEXT("PickaxeHit"));
         Palette(TEXT("Tool.Brush"),TEXT("Contact"),TEXT("Brush"));

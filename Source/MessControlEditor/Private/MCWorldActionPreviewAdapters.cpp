@@ -43,6 +43,7 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "UObject/Package.h"
+#include "UObject/UnrealType.h"
 
 namespace
 {
@@ -50,12 +51,20 @@ namespace
 class FOrdinaryToolSwingAdapter final : public IMCPerkPreviewAdapter
 {
 public:
-    explicit FOrdinaryToolSwingAdapter(EMCToolSlot InSlot):Slot(InSlot){}
+    explicit FOrdinaryToolSwingAdapter(EMCToolSlot InSlot,bool InKatana=false):Slot(InSlot),bKatana(InKatana){}
     bool Prepare(FMCPerkPreviewContext& C,FString& Error) override
     {
         if(!C.World||!IsValid(C.Hero)||!C.Hero->HasAuthority()||!C.Hero->Inventory)
         {Error=TEXT("Нужен настоящий персонаж изолированной песочницы с обычным инвентарём.");return false;}
-        ID=Slot==EMCToolSlot::Knife?TEXT("Tool.Knife"):TEXT("Tool.Pickaxe");
+        ID=bKatana?TEXT("Tool.Katana"):Slot==EMCToolSlot::Knife?TEXT("Tool.Knife"):TEXT("Tool.Pickaxe");
+        PreviousSlot=C.Hero->Inventory->Selected;
+        if(bKatana) {
+            const auto* Mask=FindFProperty<FByteProperty>(UMCInventoryComponent::StaticClass(),TEXT("DevToolUpgradeMask"));
+            if(!Mask){Error=TEXT("Нет временного разрешения катаны для песочницы.");return false;}
+            PreviousUpgradeMask=Mask->GetPropertyValue_InContainer(C.Hero->Inventory);
+        }
+        if(bKatana && !C.Hero->Inventory->HasUpgrade(EMCToolUpgrade::Chainsaw))
+            C.Hero->Inventory->GrantDevToolUpgrade(EMCToolUpgrade::Chainsaw);
         C.Hero->SetPrimaryInputHeld(false);C.Hero->Inventory->ServerSelect(Slot);
         if(C.Hero->Inventory->Selected!=Slot){Error=TEXT("Штатный выбор инструмента отклонён.");return false;}
         Before=C.Hero->ValidatedSwingCount;HitsBefore=C.Hero->ConfirmedHitCount;FoodCutsBefore=C.Hero->ConfirmedFoodCutCount;Age=0;bAccepted=bHit=bCut=bReleased=bDone=false;
@@ -95,12 +104,13 @@ public:
             if(C.RecordEvent)C.RecordEvent(TEXT("FoodCut"));
         }
         const bool bKnifeTarget=bContactScenario&&Slot==EMCToolSlot::Knife;
-        if(!bReleased&&(bKnifeTarget?(bCut||Age>.2f):Age>.08f)) Release(C);
-        if(bAccepted&&Age>C.Hero->Inventory->SwingDuration()+.2f) {
+        if(!bReleased&&(bKatana?Age>(bContactScenario?.65f:.08f):bKnifeTarget?(bCut||Age>.2f):Age>.08f)) Release(C);
+        const float End=bKatana?(bContactScenario?2.f:1.2f):C.Hero->Inventory->SwingDuration()+.2f;
+        if(bAccepted&&Age>End) {
             if(!bContactScenario||bHit)bDone=true;
             else if(Age>2.f){bDone=true;if(C.RecordEvent)C.RecordEvent(TEXT("NativeToolContactNotAccepted"));}
         }
-        else if(!bAccepted&&Age>2.f){bDone=true;if(C.RecordEvent)C.RecordEvent(TEXT("NativeToolSwingNotAccepted"));}
+        else if(!bAccepted&&Age>2.5f){bDone=true;if(C.RecordEvent)C.RecordEvent(TEXT("NativeToolSwingNotAccepted"));}
     }
     void Release(FMCPerkPreviewContext& C) override
     {if(IsValid(C.Hero))C.Hero->SetPrimaryInputHeld(false);bReleased=true;}
@@ -116,6 +126,13 @@ public:
             for(auto* Food:Spawned)if(IsValid(Food))Food->Destroy();
         }
         if(auto* Throat=ContactThroat.Get())Throat->Destroy();
+        if(bKatana && IsValid(C.Hero) && C.Hero->Inventory) {
+            C.Hero->Inventory->ServerSelect(EMCToolSlot::Brush);
+            // Restore only this sandbox pawn's reflected nonpersistent grant.
+            if(const auto* Mask=FindFProperty<FByteProperty>(UMCInventoryComponent::StaticClass(),TEXT("DevToolUpgradeMask")))
+                Mask->SetPropertyValue_InContainer(C.Hero->Inventory,PreviousUpgradeMask);
+            C.Hero->Inventory->ServerSelect(PreviousSlot);
+        }
         FoodBefore.Reset();ContactFood.Reset();ContactThroat.Reset();Presentation.Reset();
     }
     bool IsComplete(const FMCPerkPreviewContext&) const override{return bDone;}
@@ -184,7 +201,7 @@ private:
         if(!ActualMesh||!FromSavedRow||!C.Hero->Inventory->CanBreak(Food))
         {Error=TEXT("Штатный инструмент не подтвердил настоящую сохранённую пищевую цель.");return false;}
         FHitResult Contact;
-        if(bKnife&&!Food->FindToolContact(C.Hero,C.Hero->Inventory->MeleeReach(),Contact))
+        if(bKnife&&!bKatana&&!Food->FindToolContact(C.Hero,C.Hero->Inventory->MeleeReach(),Contact))
         {Error=TEXT("Сохранённый кусок не находится на линии контакта настоящего ножа.");return false;}
         if(bKnife&&Food->UsesAutomaticCutIntake()) {
             // Accepted automatic portions still need the same real destination
@@ -204,6 +221,9 @@ private:
     int32 HitsBefore=0,FoodCutsBefore=0;
     bool bContactScenario=false,bHit=false,bCut=false;
     EMCToolSlot Slot;
+    EMCToolSlot PreviousSlot=EMCToolSlot::Brush;
+    uint8 PreviousUpgradeMask=0;
+    bool bKatana=false;
     FName ID;
     TWeakObjectPtr<UMCWorldPresentationComponent> Presentation;
     int32 Before=0;float Age=0;
@@ -464,6 +484,20 @@ void MCWorldActionPreviewAdapters::Register()
             Geometry.Kind=EMCVFXNativeSourceKind::Geometry;Geometry.SourceFile=TEXT("Source/MessControl/Private/MCWeaponTrailComponent.cpp");Out.Add(Geometry);return Out;
         };
         Entry.Create=[Slot]()->TUniquePtr<IMCPerkPreviewAdapter>{return MakeUnique<FOrdinaryToolSwingAdapter>(Slot);};
+        MCPerkPreviewAdapters::Register(MoveTemp(Entry));
+    }
+    {
+        const FName ID(TEXT("Tool.Katana"));const auto* Contract=MCVFXSourceContracts::Find(ID);
+        FMCPerkPreviewAdapterEntry Entry;Entry.PerkID=ID;Entry.Label=Contract->Label;Entry.Kind=EMCPerkPreviewAdapterKind::Context;
+        Entry.Stages=Contract->Events;Entry.bSupportsProfileOverride=true;
+        Entry.Scenarios={EMCPerkPreviewScenario::Target,EMCPerkPreviewScenario::Timeout};
+        Entry.StageLabels.Add(TEXT("Swing"),FText::FromString(TEXT("Режущая кромка · след взмаха")));
+        Entry.StageLabels.Add(TEXT("Hit"),FText::FromString(TEXT("Настоящее попадание")));
+        Entry.StageLabels.Add(TEXT("FoodCut"),FText::FromString(TEXT("Разрез еды · всплеск")));
+        Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Target,FText::FromString(TEXT("Заряженная серия · настоящая еда")));
+        Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Timeout,FText::FromString(TEXT("Одиночный режущий взмах")));
+        Entry.DefaultSystems.Add(TEXT("Swing"),TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/VFX/WeaponTrail/NS_KatanaSwingTrail.NS_KatanaSwingTrail"))));
+        Entry.Create=[]()->TUniquePtr<IMCPerkPreviewAdapter>{return MakeUnique<FOrdinaryToolSwingAdapter>(EMCToolSlot::Knife,true);};
         MCPerkPreviewAdapters::Register(MoveTemp(Entry));
     }
     for(const FName ID:{FName(TEXT("Tool.Brush")),FName(TEXT("EditorOnly.CleanArenaTooth")),FName(TEXT("EditorOnly.RepairArenaTooth"))})

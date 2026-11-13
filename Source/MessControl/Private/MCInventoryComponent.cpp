@@ -8,6 +8,7 @@
 #include "MCHubBasketball.h"
 #include "MCFishingRodComponent.h"
 #include "MCMeleeCombo.h"
+#include "MCKatanaBlade.h"
 #include "MCWeaponTrailComponent.h"
 #include "MCToothMovementComponent.h"
 #include "MCToothStatusComponent.h"
@@ -351,7 +352,15 @@ void UMCInventoryComponent::ReleaseKatanaPose()
 }
 bool UMCInventoryComponent::MeleeTrailSpan(FVector& Base,FVector& Tip) const
 {
-    if(!Tool || !Tool->GetStaticMesh() || !ShouldPresentTool() || SelectedUpgrade()!=EMCToolUpgrade::None) return false;
+    if(!Tool || !Tool->GetStaticMesh() || !ShouldPresentTool()) return false;
+    if(Hero && Hero->IsKatanaEquipped()) {
+        if(!bKatanaPoseApplied) return false;
+        const FTransform& Pose=Tool->GetComponentTransform();
+        Base=Pose.TransformPosition(MCKatanaBlade::Edge[0]);
+        Tip=Pose.TransformPosition(MCKatanaBlade::Edge[UE_ARRAY_COUNT(MCKatanaBlade::Edge)-1]);
+        return !Base.ContainsNaN() && !Tip.ContainsNaN();
+    }
+    if(SelectedUpgrade()!=EMCToolUpgrade::None) return false;
     const FBox Bounds=Tool->GetStaticMesh()->GetBoundingBox();
     const float Y=Bounds.GetCenter().Y;
     FVector A,B;

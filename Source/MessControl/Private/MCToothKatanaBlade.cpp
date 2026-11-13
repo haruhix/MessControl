@@ -12,7 +12,8 @@
 
 namespace
 {
-constexpr float MaxSampleStep=1.f/120.f;
+constexpr float MaxSampleStep=1.f/240.f;
+constexpr float MaxEdgeSpacing=2.25f;
 constexpr float BodyContactRadius=2.f;
 
 #if !UE_BUILD_SHIPPING
@@ -92,7 +93,7 @@ void AMCToothCharacter::TickKatanaAction()
 
 void AMCToothCharacter::TraceKatanaStroke(int32 Stroke,const FTransform& From,const FTransform& To)
 {
-    TArray<FVector,TInlineAllocator<48>> Previous,Current;
+    TArray<FVector,TInlineAllocator<128>> Previous,Current;
     FBox Bounds(ForceInit);
     auto AddStation=[&](const FVector& Local) {
         Previous.Add(From.TransformPosition(Local));
@@ -100,10 +101,14 @@ void AMCToothCharacter::TraceKatanaStroke(int32 Stroke,const FTransform& From,co
         Bounds+=Previous.Last();
         Bounds+=Current.Last();
     };
-    for(int32 Index=0;Index<UE_ARRAY_COUNT(MCKatanaBlade::Edge);++Index) {
-        AddStation(MCKatanaBlade::Edge[Index]);
-        if(Index+1<UE_ARRAY_COUNT(MCKatanaBlade::Edge))
-            AddStation((MCKatanaBlade::Edge[Index]+MCKatanaBlade::Edge[Index+1])*.5);
+    AddStation(MCKatanaBlade::Edge[0]);
+    const float Scale=FMath::Max(From.GetScale3D().GetAbsMax(),To.GetScale3D().GetAbsMax());
+    for(int32 Index=1;Index<UE_ARRAY_COUNT(MCKatanaBlade::Edge);++Index) {
+        const FVector& Start=MCKatanaBlade::Edge[Index-1];
+        const FVector& End=MCKatanaBlade::Edge[Index];
+        const int32 Stations=FMath::Max(1,FMath::CeilToInt(FVector::Dist(Start,End)*Scale/MaxEdgeSpacing));
+        for(int32 Station=1;Station<=Stations;++Station)
+            AddStation(FMath::Lerp(Start,End,float(Station)/Stations));
     }
 #if !UE_BUILD_SHIPPING
     if(KatanaTraceDebug.GetValueOnGameThread()>1)

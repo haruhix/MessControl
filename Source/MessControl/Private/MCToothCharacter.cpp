@@ -293,7 +293,7 @@ void AMCToothCharacter::BeginPlay()
     if(HasAuthority()) RefreshNetworkMotionAuthority();
     // Component BeginPlay can apply an already replicated body-state onset.
     // Prepare its exact resident channel before that existing local boundary.
-    MCWorldPresentation::PrepareOwner(this,{TEXT("Tool.Knife"),TEXT("Tool.Pickaxe"),TEXT("Tool.Brush"),TEXT("Tool.Spray"),TEXT("Tool.Watergun"),TEXT("Character.Movement")});
+    MCWorldPresentation::PrepareOwner(this,{TEXT("Tool.Knife"),TEXT("Tool.Katana"),TEXT("Tool.Pickaxe"),TEXT("Tool.Brush"),TEXT("Tool.Spray"),TEXT("Tool.Watergun"),TEXT("Character.Movement")});
     if(GetWorld()->GetGameState<AMCGameState>())
         MCWorldPresentation::PrepareOwner(this,{TEXT("Character.DeathSpirit")});
     Super::BeginPlay();
@@ -1788,8 +1788,8 @@ void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaT
     MCWeaponImpact::BeginSwing(this);
     SwingStartedAt=StartedAt; CalculusTarget=AimTooth; CalculusContactLocal=LocalPoint; CalculusNormalLocal=LocalNormal;
     const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeSwing")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeSwing")):FName(TEXT("Whoosh"));
-    const FName SourceID=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("Tool.Knife")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("Tool.Pickaxe")):NAME_None;
-    if(!SourceID.IsNone() && KatanaSwingID==0) {
+    const FName SourceID=KatanaSwingID?FName(TEXT("Tool.Katana")):ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("Tool.Knife")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("Tool.Pickaxe")):NAME_None;
+    if(!SourceID.IsNone()) {
         if(auto* Trail=FindComponentByClass<UMCWeaponTrailComponent>())
             Trail->PublishAcceptedSwing(SourceID,StartedAt,AcceptedVisualStep);
     }
@@ -1822,7 +1822,7 @@ void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location,uint8 
     ToolSlot &= ~(KnifeFoodHitFlag|KnifeFoodAudioOnlyFlag|KnifeFoodAudioPlayedFlag);
     const bool bHasFoodHit=bFoodKnifeHit && SoundPalette && SoundPalette->Events.Contains(TEXT("KnifeFoodHit"));
     const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(bHasFoodHit?TEXT("KnifeFoodHit"):TEXT("KnifeHit")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeHit")):FName(TEXT("Hit"));
-    const FName SourceID=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("Tool.Knife")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("Tool.Pickaxe")):NAME_None;
+    const FName SourceID=ToolSlot==uint8(EMCToolSlot::Knife)?FName(KatanaSwingID?TEXT("Tool.Katana"):TEXT("Tool.Knife")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("Tool.Pickaxe")):NAME_None;
     if(bAudioOnly) {
         if(SoundPalette) SoundPalette->PlayWithParameters(this,Event,Location,Intensity,.5f,SourceID,TEXT("Hit"));
         return;
@@ -1842,7 +1842,7 @@ void AMCToothCharacter::MulticastFoodCutSplash_Implementation(FVector Location,F
     FMCPerkVFXGameplayValues Values;Values.VisualSubject=GetMesh();Values.Color=FoodColor;Values.bHasColor=true;
     Values.Direction=(CutNormal.GetSafeNormal()*.55f+FVector::UpVector*.85f).GetSafeNormal();
     if(Values.Direction.IsNearlyZero())Values.Direction=FVector::UpVector;
-    MCWorldPresentation::Pulse(this,TEXT("Tool.Knife"),TEXT("FoodCut"),
+    MCWorldPresentation::Pulse(this,KatanaSwingID?TEXT("Tool.Katana"):TEXT("Tool.Knife"),TEXT("FoodCut"),
         FTransform(Values.Direction.Rotation(),Location),Values,.6f);
 }
 bool AMCToothCharacter::ApplyKatanaFoodContact(AMCFoodActor* Food,const FHitResult& Contact,

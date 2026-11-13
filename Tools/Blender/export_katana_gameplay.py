@@ -23,7 +23,6 @@ MORPHS = {
     "Eyes_Scary": "MCKatanaEyesScary",
 }
 FLIP_Y = Matrix.Diagonal((1, -1, 1, 1))
-PROP_SAMPLES = ((0, 0, 0), (0, 0, 11), (-10, 0, 95.8))
 
 
 def cm(matrix):
@@ -95,7 +94,7 @@ def local_weapon(hand, weapon, previous):
     return rotation, [1.0, *location[:3], rotation.x, rotation.y, rotation.z, rotation.w, *scale]
 
 
-def bake(scene, target, name, output):
+def bake(scene, target, name, output, prop_samples):
     bpy.context.window.scene = scene
     source = next(o for o in scene.objects if o.type == "ARMATURE" and o != target)
     skin = next(o for o in scene.objects if o.name.startswith("SM_Character") and o.type == "MESH")
@@ -167,7 +166,7 @@ def bake(scene, target, name, output):
         for source_name, field in MORPHS.items():
             curves[field].append(shape_keys.key_blocks[source_name].value)
         reference.append({"prop": [list((FLIP_Y @ weapon @ Vector((*point, 1)))[:3])
-                                   for point in PROP_SAMPLES],
+                                   for point in prop_samples],
                           "right_hand": [list(row) for row in FLIP_Y @ actual["hand_r"] @ FLIP_Y],
                           "left_hand": [list(row) for row in FLIP_Y @ actual["hand_l"] @ FLIP_Y]})
 
@@ -271,11 +270,14 @@ def main():
     bpy.context.window.scene = carry
     target = load_target(carry)
     result = {"prop": bake_prop(carry, output), "clips": []}
+    # Calibration markers follow the actual prop geometry, including its length.
+    tip = result["prop"]["tip_ue_cm"]
+    prop_samples = ((0, 0, 0), result["prop"]["base_ue_cm"], (tip[0], -tip[1], tip[2]))
     for label, name in CLIPS.items():
         scene = bpy.data.scenes["Katana | " + label]
         if target.name not in scene.objects:
             scene.collection.objects.link(target)
-        result["clips"].append(bake(scene, target, "A_Katana_" + name, output))
+        result["clips"].append(bake(scene, target, "A_Katana_" + name, output, prop_samples))
     (output / "KatanaBake.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
 
 
