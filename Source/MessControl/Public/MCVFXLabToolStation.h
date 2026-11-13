@@ -24,7 +24,7 @@ enum class EMCVFXLabToolCase : uint8
     SelfBrush, SelfRepair, ToothRepair, SprayUlcer, SprayFire,
     WatergunCare, WatergunPressure, PickaxeCalculus, BufferCalculus,
     PickaxeIce, FrozenLegs, BufferAoE, BufferWall,
-    KnifeFood, ChainsawFood, ChainsawWall, CoffeeWave
+    KnifeFood, ChainsawFood UMETA(Hidden), ChainsawWall UMETA(Hidden), CoffeeWave
 };
 
 /** Repeating real pawn inputs and ordinary gameplay fixtures; no cosmetic-only damage or cleaning. */
@@ -57,6 +57,7 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Lab") TObjectPtr<AMCToothCharacter> Worker;
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Lab") void Reset();
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Lab") void SetRunning(bool bEnabled);
+    bool IsRetiredCase() const { return StationKind==EMCVFXLabToolCase::ChainsawFood || StationKind==EMCVFXLabToolCase::ChainsawWall; }
 private:
     UFUNCTION() void OnRep_Status();
     bool SpawnWorker();

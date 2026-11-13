@@ -543,6 +543,10 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     const bool Arena=Map==TEXT("L_Mouth") || Map==TEXT("L_Tutorial");
     // The procedural weapon ribbon uses this material instance in Hub and arena.
     if(Hub || Arena) AddAsset(TEXT("/Game/Gameplay/VFX/WeaponTrail/MI_WeaponSwingTrail"),OutPaths);
+    if(Hub || Arena) {
+        AddAsset(TEXT("/Game/Gameplay/CharacterCurrent/Tools/SM_Katana"),OutPaths);
+        AddAsset(TEXT("/Game/Gameplay/UI/V2/Art/Tools/T_UI_PSD_Katana"),OutPaths);
+    }
     if(!Arena) return;
     if(Map==TEXT("L_Tutorial"))AddAsset(TEXT("/Game/Audio/S_Win"),OutPaths); // Actual native FoamParty producer.
     // This location's finite event/profile root; reflected load waves expand

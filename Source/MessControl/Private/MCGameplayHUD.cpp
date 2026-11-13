@@ -1684,7 +1684,7 @@ void UMCGameplayHUD::RefreshState()
         FText ToolName;
         switch(Inv->Selected) {
         case EMCToolSlot::Pickaxe: ToolName=Inv->HasUpgrade(EMCToolUpgrade::Buffer)?Copy(TEXT("UI.HUD.Tool.Buffer"),LOCTEXT("ToolBuffer","ПЕРФОРАТОР")):Copy(TEXT("UI.HUD.Tool.Pickaxe"),LOCTEXT("Pickaxe","КИРКА"));break;
-        case EMCToolSlot::Knife: ToolName=Inv->HasUpgrade(EMCToolUpgrade::Chainsaw)?Copy(TEXT("UI.HUD.Tool.Chainsaw"),LOCTEXT("ToolChainsaw","БЕНЗОПИЛА")):Copy(TEXT("UI.HUD.Tool.Knife"),LOCTEXT("Knife","НОЖ"));break;
+        case EMCToolSlot::Knife: ToolName=Inv->HasUpgrade(EMCToolUpgrade::Chainsaw)?Copy(TEXT("UI.HUD.Tool.Katana"),LOCTEXT("ToolKatana","КАТАНА")):Copy(TEXT("UI.HUD.Tool.Knife"),LOCTEXT("Knife","НОЖ"));break;
         case EMCToolSlot::Spray: ToolName=Inv->HasUpgrade(EMCToolUpgrade::Watergun)?(Inv->bPressureMode?Copy(TEXT("UI.HUD.Tool.WatergunShoot"),LOCTEXT("ToolWatergunShoot","ВОДЯНОЙ ПИСТОЛЕТ · ВЫСТРЕЛ")):Copy(TEXT("UI.HUD.Tool.WatergunHeal"),LOCTEXT("ToolWatergunHeal","ВОДЯНОЙ ПИСТОЛЕТ · ЛЕЧЕНИЕ"))):Copy(TEXT("UI.HUD.Tool.Spray"),LOCTEXT("Spray","СПРЕЙ"));break;
         default: ToolName=Inv->HasUpgrade(EMCToolUpgrade::MeshaBrush)?Copy(TEXT("UI.HUD.Tool.MegaBrush"),LOCTEXT("ToolMegaBrush","МЕГАЩЁТКА")):Inv->bWaterJetUnlocked?Copy(TEXT("UI.HUD.Tool.WaterJet"),LOCTEXT("ToolWaterJet","ВОДОМЁТ")):Copy(TEXT("UI.HUD.Tool.Brush"),LOCTEXT("Brush","ЩЁТКА"));break;
         }
@@ -1720,7 +1720,8 @@ void UMCGameplayHUD::RefreshState()
                 }
             }
         }
-        if(Inv->Selected==EMCToolSlot::Knife && Inv->HasUpgrade(EMCToolUpgrade::Chainsaw)) Hint=Inv->IsChainsawRunning()?Copy(TEXT("UI.HUD.Hint.ChainsawRunning"),LOCTEXT("HintChainsawRunning","БЕНЗОПИЛА ТЯНЕТ ВПЕРЁД · СТЕНА ОСТАНОВИТ")):Copy(TEXT("UI.HUD.Hint.ChainsawStart"),LOCTEXT("HintChainsawStart","ЛКМ · ЗАПУСТИТЬ · ОСТАНОВКА ТОЛЬКО ОБ СТЕНУ"));
+        if(Inv->Selected==EMCToolSlot::Knife && Inv->HasUpgrade(EMCToolUpgrade::Chainsaw))
+            Hint=Copy(TEXT("UI.HUD.Hint.Katana"),LOCTEXT("HintKatana","ЛКМ · РЕЗ     УДЕРЖИВАЙ И ОТПУСТИ · СЕРИЯ"));
         if(Inv->Selected==EMCToolSlot::Spray && Inv->HasUpgrade(EMCToolUpgrade::Watergun)) Hint=Inv->bPressureMode?(Inv->bWaterReloading?Copy(TEXT("UI.HUD.Hint.WatergunReload"),LOCTEXT("HintWatergunReload","ПЕРЕЗАРЯДКА · УДЕРЖИВАЙ ЛКМ ДЛЯ ПРОДОЛЖЕНИЯ     4 · РЕЖИМ")):Copy(TEXT("UI.HUD.Hint.WatergunShoot"),LOCTEXT("HintWatergunShoot","УДЕРЖИВАЙ ЛКМ · АВТОМАТИЧЕСКАЯ СТРЕЛЬБА     4 · РЕЖИМ"))):Copy(TEXT("UI.HUD.Hint.WatergunHeal"),LOCTEXT("HintWatergunHeal","УДЕРЖИВАЙ ЛКМ · ТУШИТЬ И ЛЕЧИТЬ     4 · РЕЖИМ"));
         if(!Hint.IsEmpty() && !Inv->IsChainsawRunning()) Hint=Format(TEXT("UI.HUD.Hint.WithBrace"),LOCTEXT("HintWithBrace","{Action}     ПКМ · ДЕРЖАТЬСЯ"),{{TEXT("Action"),Hint}});
         const auto IsFreshOrdinaryFood=[](const AMCFoodActor* Food) {

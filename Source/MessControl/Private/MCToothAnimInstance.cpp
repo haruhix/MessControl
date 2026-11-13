@@ -12,6 +12,8 @@
 #include "MCAnimationComparisonSubsystem.h"
 #include "MCWeaponImpact.h"
 #include "MCMeleeCombo.h"
+#include "MCKatanaSwing.h"
+#include "MCKatanaBlade.h"
 #include "MCInventoryComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
@@ -68,6 +70,7 @@ public:
     FVector PreviousMeshLocation=FVector::ZeroVector;
     float ArtistHandAlpha[2]={0,0};
     float OrdinaryToolFingerAlpha=0;
+    float KatanaCarryPhase=0;
     bool bOrdinaryToolSprayGrip=false;
     float ArtistPushAlpha=0,ArtistTiredAlpha=0;
     FMCGlideAnimationState Glide;
@@ -111,6 +114,73 @@ public:
     FVector RowingForward=FVector::ForwardVector,RowingRight=FVector::RightVector,RowingUp=FVector::UpVector;
     float RowingLean=0,RowingTwist=0,RowingSideDip=0,RowingCrouch=0,RowingReach=0;
 private:
+    float ApplyKatanaAnimation(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
+    {
+        auto* Inventory=Tooth->Inventory.Get();
+        const auto* Profile=Tooth->AnimationProfile.Get();
+        if(!Inventory || !Profile || !Tooth->IsKatanaEquipped() || !Tooth->CanWork()
+            || !Inventory->ShouldPresentTool() || !Tooth->ToothPhysics || !Tooth->ToothPhysics->CanAct()) {
+            KatanaCarryPhase=0;
+            return -1.f;
+        }
+
+        using MCKatanaSwing::EVariant;
+        const auto Variant=Tooth->GetKatanaSwingVariant();
+        const float SwingTime=Tooth->GetKatanaSwingElapsed();
+        const float ChargeTime=Tooth->GetKatanaChargeElapsed();
+        const auto* Carry=Profile->KatanaCarry.Get();
+        const UAnimSequence* Clip=Carry;
+        float Time=0;
+        if(SwingTime>=0) {
+            KatanaCarryPhase=0;
+            Clip=MCKatanaBlade::ClipFor(*Profile,Variant);
+            Time=SwingTime*Tooth->GetKatanaSwingPlayRate();
+            if(Variant==EVariant::Charged) Time+=MCKatanaSwing::ChargeHoldTime;
+        } else if(ChargeTime>=.10f) {
+            KatanaCarryPhase=0;
+            Clip=Profile->KatanaCharged.Get();
+            Time=MCKatanaSwing::ChargeHoldTime*FMath::SmoothStep(.10f,MCKatanaSwing::ChargeThreshold,ChargeTime);
+        } else if(Carry) {
+            const float Length=Carry->GetPlayLength();
+            const float Speed=Tooth->GetCharacterMovement()->IsMovingOnGround()?Tooth->AnimationSpeed:0.f;
+            if(Length>0 && Speed>.06f) {
+                KatanaCarryPhase=FMath::Fmod(KatanaCarryPhase+Dt*(.65f+.55f*Speed),Length);
+            } else {
+                KatanaCarryPhase=FMath::FInterpConstantTo(KatanaCarryPhase,0.f,Dt,2.5f);
+            }
+            Time=KatanaCarryPhase;
+        }
+        if(!Clip || !Clip->GetSkeleton()) return -1.f;
+        const FAnimExtractContext Context(FMath::Clamp(double(Time),0.,double(Clip->GetPlayLength())),false);
+        auto Curve=[&](FName Name){return Clip->EvaluateCurveData(Name,Context);};
+        FTransform Mount;
+        if(!MCKatanaBlade::ReadMount(*Clip,Context,Mount)) return -1.f;
+
+        const FReferenceSkeleton& Source=Clip->GetSkeleton()->GetReferenceSkeleton();
+        const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r")));
+        const int32 Shoulders[]={Ref.FindBoneIndex(Tooth->RigBone(TEXT("shoulder_l"))),
+            Ref.FindBoneIndex(Tooth->RigBone(TEXT("shoulder_r")))};
+        if(Hand==INDEX_NONE || Shoulders[0]==INDEX_NONE || Shoulders[1]==INDEX_NONE) return -1.f;
+        if(!Inventory->ApplyKatanaPose(Mount)) return -1.f;
+        const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
+        const int32 BodySource=Body==INDEX_NONE?INDEX_NONE:Source.FindBoneIndex(Ref.GetBoneName(Body));
+        if(BodySource!=INDEX_NONE) {
+            if(Tooth->HasAuthority()) Tooth->CacheKatanaBodyPose(Pose[Body]);
+            Pose[Body].SetRotation((MCKatanaBlade::BodyTilt(*Clip,Context,BodySource)*Pose[Body].GetRotation()).GetNormalized());
+        }
+        for(int32 Bone=0;Bone<Pose.Num();++Bone) {
+            bool Arm=false;
+            for(int32 Parent=Bone;Parent>=0;Parent=Ref.GetParentIndex(Parent)) {
+                if(Parent==Shoulders[0] || Parent==Shoulders[1]) { Arm=true; break; }
+            }
+            if(!Arm) continue;
+            const int32 Index=Source.FindBoneIndex(Ref.GetBoneName(Bone));
+            if(Index!=INDEX_NONE)
+                Clip->GetBoneTransform(Pose[Bone],FSkeletonPoseBoneIndex(Index),Context,false);
+        }
+        return FMath::Clamp(Curve(TEXT("MCKatanaMouthEffort"))/.68f,0.f,1.f);
+    }
+
     void UpdateGlide(UMCToothAnimInstance* Instance,const AMCToothCharacter* Tooth,float Dt)
     {
         float FallTime=0,FallAlpha=0;
@@ -1401,7 +1471,7 @@ public:
                 SecondaryMotion.GetEvaluationCount(),SecondaryMotion.GetLastMaxAngleDegrees(),SecondaryMotion.GetLastMaxTranslation());
         // Hold the impact pose when stationary. During movement the authored
         // attack clock still holds, but gait and foot contacts must keep updating.
-        if(!StableSponge && Pose.Num()==Ref.GetNum() && Tooth->ToothPhysics->CanAct()
+        if(!StableSponge && !Tooth->IsKatanaEquipped() && Pose.Num()==Ref.GetNum() && Tooth->ToothPhysics->CanAct()
             && Tooth->Inventory->ShouldPresentTool() && MCWeaponImpact::IsPoseHeld(Tooth)
             && !(MCMeleeCombo::Supports(Tooth) && Tooth->AnimationSpeed>.05f)) return;
         Pose=Ref.GetRefBonePose();
@@ -1423,6 +1493,8 @@ public:
             Pose[I].AddToTranslation(Parent>=0?ReferenceCS[Parent].InverseTransformVectorNoScale(Delta):Delta);
         };
         bool KnifeGripActive=false;
+        bool KatanaPoseActive=false;
+        float KatanaEffort=0;
         if(StableSponge) {
             // Build the ride from a clean, stationary crouch. Running gait,
             // world-locked walking feet, social gestures and secondary
@@ -1460,7 +1532,8 @@ public:
         Rotate(TEXT("arm_l"),FRotator(-FMath::Sin(G-.25f)*24*Speed-Tooth->AnimationInertia.X*8,0,-10-Tooth->AnimationSlip*18));
         // Chopping tools move the wrist through an overhead arc below.
         const bool BufferTool=Tooth->Inventory && Tooth->Inventory->SelectedUpgrade()==EMCToolUpgrade::Buffer && Tooth->Inventory->ShouldPresentTool();
-        const bool WideSwing=Tooth->Inventory && !BufferTool && (Tooth->Inventory->Selected==EMCToolSlot::Pickaxe || Tooth->Inventory->Selected==EMCToolSlot::Knife) && Tooth->Inventory->ShouldPresentTool();
+        const bool WideSwing=Tooth->Inventory && !BufferTool && !Tooth->IsKatanaEquipped()
+            && (Tooth->Inventory->Selected==EMCToolSlot::Pickaxe || Tooth->Inventory->Selected==EMCToolSlot::Knife) && Tooth->Inventory->ShouldPresentTool();
         FTransform CalculusHand; float CalculusBlend=0;
         const bool CalculusAllowed=(WideSwing || BufferTool) && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe && Tooth->ToothPhysics->CanAct();
         const bool CalculusContact=CalculusAllowed
@@ -1584,7 +1657,7 @@ public:
         const float WalkingAlpha=Tooth->GetCharacterMovement()->IsMovingOnGround()?FMath::SmoothStep(.05f,.20f,Speed):0.f;
         // Solve contacts against the final attack body pose, but only once per
         // frame; the stationary and non-melee paths keep their existing order.
-        const bool DeferWalkingFeet=AuthoredStrike && WalkingAlpha>.001f;
+        const bool DeferWalkingFeet=(AuthoredStrike || Tooth->IsKatanaEquipped()) && WalkingAlpha>.001f;
         if(!DeferWalkingFeet) PlaceFeet(Tooth,Ref,Dt);
         if (Tooth->ToothPhysics && !Tooth->ToothPhysics->IsSlipping()) Tooth->ToothPhysics->BuildPresentationPose(Pose);
         TraversalContacts(Tooth,Ref,Dt);
@@ -1676,6 +1749,11 @@ public:
                 Blended.Blend(Pose[I],Sample,BoneAlpha);Pose[I]=Blended;
             }
         }
+        const float AuthoredKatanaEffort=ApplyKatanaAnimation(Tooth,Ref,Dt);
+        if(AuthoredKatanaEffort>=0.f) {
+            KatanaPoseActive=true;
+            KatanaEffort=AuthoredKatanaEffort;
+        }
         if(DeferWalkingFeet) PlaceFeet(Tooth,Ref,Dt);
         if(AuthoredStrike) {
             const float GripAlpha=FMath::SmoothStep(0.f,MCMeleeCombo::VisualBlendInSpan,StrikeT)
@@ -1684,6 +1762,7 @@ public:
         }
         }
         if(!KnifeGripActive && Tooth->Inventory) Tooth->Inventory->ReleaseMeleeKnifeAnchor();
+        if(!KatanaPoseActive && Tooth->Inventory) Tooth->Inventory->ReleaseKatanaPose();
         // Local bone rotations baked from tools_position1.blend on the player
         // skeleton. Apply only to the ordinary held tools; other interactions
         // and upgraded tools retain ownership of their own hand poses.
@@ -1694,7 +1773,7 @@ public:
             && (!Tooth->Grip || !Tooth->Grip->HandOccupied(false));
         if(OrdinaryGrip) bOrdinaryToolSprayGrip=Tooth->Inventory->Selected==EMCToolSlot::Spray;
         OrdinaryToolFingerAlpha=FMath::FInterpConstantTo(OrdinaryToolFingerAlpha,OrdinaryGrip?1.f:0.f,Dt,8.f);
-        if(OrdinaryToolFingerAlpha>.001f) {
+        if(!KatanaPoseActive && OrdinaryToolFingerAlpha>.001f) {
             const FName Names[]={TEXT("index1_base_r"),TEXT("index1_r"),TEXT("index2_r"),TEXT("index3_r"),TEXT("thumb1_r"),TEXT("thumb2_r"),TEXT("thumb3_r")};
             FQuat Rotations[]={FQuat(-.06499014,.00898884,.05174762,-.99650270),FQuat(.35715151,.04477657,-.03226214,.93241459),
                 FQuat(.01956592,-.00690271,-.00416460,-.99977607),FQuat(-.05084695,.05084472,.00096043,-.99741089),
@@ -1707,7 +1786,7 @@ public:
         }
         ActiveSkillPose(Tooth,Ref,Dt);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->SubmitAnimationTargets(Pose,Ref,Dt);
-        if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);
+        if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt,KatanaEffort);
         if (Tooth->Gaze) Tooth->Gaze->BuildPose(Pose,Ref,Dt);
         if(Tooth->ToothPhysics && Tooth->ToothPhysics->IsSlipping()) Tooth->ToothPhysics->BuildPresentationPose(Pose);
         if (auto* Diagnostics=Cast<UMCToothAnimInstance>(Instance); Diagnostics && Diagnostics->bRecordMotion)

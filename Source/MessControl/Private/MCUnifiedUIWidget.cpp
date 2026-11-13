@@ -724,6 +724,11 @@ void UMCUnifiedUIWidget::EnsureAdditionalScreens()
 }
 UTexture2D* UMCUnifiedUIWidget::ResolveToolArt(FName Key) const
 {
+    if(Key==TEXT("ToolUpgrade.Chainsaw")) {
+        static const TSoftObjectPtr<UTexture2D> KatanaIcon(
+            FSoftObjectPath(TEXT("/Game/Gameplay/UI/V2/Art/Tools/T_UI_PSD_Katana.T_UI_PSD_Katana")));
+        return IsDesignTime()?KatanaIcon.LoadSynchronous():KatanaIcon.Get();
+    }
     const auto* Asset=ToolIconArt.Find(Key);return Asset?(IsDesignTime()?Asset->LoadSynchronous():Asset->Get()):nullptr;
 }
 

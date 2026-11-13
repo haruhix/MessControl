@@ -601,7 +601,9 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
             }
             if(bPrimaryMouseGesture?PC->RouteSkillFireInput(bPressed):PC->RouteSkillAimInput(bPressed)) return;
         }
-        if(bPressed) StartPrimary();else StopPrimary();
+        if(bPressed) StartPrimary();
+        else if(Event==ETriggerEvent::Completed) ReleasePrimary();
+        else StopPrimary();
     };
     for(const auto Event:{ETriggerEvent::Started,ETriggerEvent::Completed,ETriggerEvent::Canceled})
         Input->BindActionValueLambda(BrushAction,Event,[PrimaryInput,Event](const FInputActionValue&) {PrimaryInput(Event);});
@@ -1050,6 +1052,10 @@ void AMCToothCharacter::ReleasePrimary()
         FishingRod->PrimaryReleased();
         return;
     }
+    if(IsKatanaEquipped() && !AMCHubBasketball::HeldBy(this)) {
+        ServerReleaseKatanaPrimary();
+        return;
+    }
     StopPrimary();
 }
 void AMCToothCharacter::StopPrimary() {
@@ -1317,13 +1323,28 @@ void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
     const bool NewPrimaryPress=bActive && !bPrimaryHeld;
     if(bActive && IsMimicCaptured()) return;
     if(bActive) Grip->ReleaseBrace();
+    if(IsKatanaEquipped() && !bInCoffee) {
+        if(!bActive) {
+            bPrimaryHeld=false;
+            KatanaChargeStartedAt=-1.;
+            ForceNetUpdate();
+        } else if(NewPrimaryPress && CanOwnKatanaAction() && GetWorld()->GetTimeSeconds()>=NextSwingTime) {
+            bPrimaryHeld=true;
+            bWantsCling=false;
+            bBrushing=false;
+            bHandling=false;
+            const auto* GS=GetWorld()->GetGameState();
+            KatanaChargeStartedAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+            ForceNetUpdate();
+        }
+        return;
+    }
     // E explicitly enters the retained collection mode. Default brush input must
     // keep cleaning beside food in the destruction loop instead of starting a stack.
     if(bActive && CanWork() && !bInCoffee && !bSelfCare && Inventory->IsCleaningTool() && FoodCollection->bCollecting) {
         bPrimaryHeld=false;bBrushing=false;bHandling=false;DropFood();ResetContact();FoodCollection->Toggle();ForceNetUpdate();return;
     }
     bPrimaryHeld=bActive && Status->IsAlive();
-    if(NewPrimaryPress && bPrimaryHeld) Inventory->StartChainsaw();
     bWantsCling=bPrimaryHeld;
     if (!bPrimaryHeld)
     {
@@ -1348,6 +1369,7 @@ void AMCToothCharacter::ResolvePrimaryAction(bool bNewPress)
     }
     const bool Mining=Inventory->Selected==EMCToolSlot::Pickaxe && IsValid(CalculusTarget)
         && CalculusTarget->Calculus && CalculusTarget->Calculus->HasCalculus();
+    if(!bInCoffee && IsKatanaEquipped()) return; // The release RPC owns katana attacks.
     if(!bInCoffee && MCMeleeCombo::Supports(this) && !Mining) {
         // Combat consumes press edges. Food chopping and the advertised held
         // pickaxe self-rescue repeat only after the current swing has recovered.
@@ -1434,6 +1456,7 @@ void AMCToothCharacter::CancelGameplayInput()
     if(HasAuthority()) if(auto* Perks=UMCPerkComponent::ForActor(this)) Perks->CancelSkillPreparations();
     StopRowing();
     StopThrowItem();
+    CancelKatanaAction();
     if(Inventory) Inventory->CancelUpgradeUse();
     bSharedPrimaryInputHeld=false; bSharedHandleInputHeld=false; bSharedJumpInputHeld=false;
     if(FishingRod && FishingRod->bEquipped && !bFishingPrimaryInputHeld) FishingRod->CancelPrimaryInput();
@@ -1522,6 +1545,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     UpdateSkillAimPresentation();
     UpdateArenaBoundary();
     UpdateThrowInput(DeltaSeconds);
+    TickKatanaAction();
     if(MCMeleeCombo::ConsumeBufferedPress(this)) ServerSwingBrush();
     UpdateRowing(DeltaSeconds);
     if(IsFreezingToDeath())
@@ -1638,9 +1662,10 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     // Once the faster melee presentation ends, wait in the resting pose
     // until the unchanged authoritative cooldown permits the next swing.
     const bool MeleePresentation=MCMeleeCombo::VisualStep(this)>0 && MCMeleeCombo::Supports(this);
-    AnimationToolOffset=GetActorRotation().RotateVector(ComboPose.bActive?ComboPose.HandOffset
+    const bool Katana=IsKatanaEquipped();
+    AnimationToolOffset=Katana?FVector::ZeroVector:GetActorRotation().RotateVector(ComboPose.bActive?ComboPose.HandOffset
         :MeleePresentation?FVector::ZeroVector:UMCInventoryComponent::SwingOffset(Inventory->Selected,AttackTime));
-    const float AttackAngle=ComboPose.bActive?ComboPose.Wrist.Pitch
+    const float AttackAngle=Katana?-12.f:ComboPose.bActive?ComboPose.Wrist.Pitch
         :MeleePresentation?-12.f:UMCInventoryComponent::SwingAngle(Inventory->Selected,AttackTime);
     const float Swing = AttackTime<Inventory->SwingDuration()?AttackAngle:bVisualBrush ? -35.f + FMath::Sin(WorkTime*18.f*A.Tempo)*65.f*(1.f-Anticipation) : bHandling ? 35.f : -12.f;
     const bool ChoppingTool=Inventory->Selected==EMCToolSlot::Pickaxe || Inventory->Selected==EMCToolSlot::Knife;
@@ -1702,7 +1727,10 @@ void AMCToothCharacter::ServerSwingBrush_Implementation()
     const float Now=GetWorld()->GetTimeSeconds();
     if (IsSeatedOnRaft() || bRowing || !CanWork()) return;
     if(Now<NextSwingTime) {MCMeleeCombo::QueuePress(this);return;}
-    if(Inventory->Selected==EMCToolSlot::Knife && Inventory->HasUpgrade(EMCToolUpgrade::Chainsaw)) return;
+    if(IsKatanaEquipped()) {
+        BeginKatanaSwing(false);
+        return;
+    }
     Grip->ReleaseBrace();
     if(Inventory->Selected==EMCToolSlot::Spray) { Inventory->ServerSpray(); return; }
     FVector Point=FVector::ZeroVector,Normal=FVector::UpVector;
@@ -1717,24 +1745,30 @@ void AMCToothCharacter::ServerSwingBrush_Implementation()
     NextSwingTime=Now+Inventory->SwingDuration(); ++ValidatedSwingCount;
     bBrushing=false; bHandling=false; DropFood(); ForceNetUpdate();
     // Lower nibble keeps the tool identity; upper nibble carries 0..3 for combat
-    // or 4 for food's repeatable overhead chop,
-    // through the existing reliable event without changing its reflected signature.
-    MulticastSwing(SwingStartedAt,CalculusTarget,CalculusContactLocal,CalculusNormalLocal,uint8(Inventory->Selected)|(ComboStep<<4));
+    // or 4 for food's repeatable overhead chop in the reliable swing event.
+    MulticastSwing(SwingStartedAt,CalculusTarget,CalculusContactLocal,CalculusNormalLocal,uint8(Inventory->Selected)|(ComboStep<<4),1.f);
     ResetContact();
     SwingContactEndsAt=Now+Inventory->SwingContactTime()+.12f;
     GetWorldTimerManager().SetTimer(SwingTimer,this,&AMCToothCharacter::ResolveSwing,Inventory->SwingContactTime(),false);
 }
-void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal,uint8 ToolSlot)
+void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal,uint8 ToolSlot,float AcceptedPlayRate)
 {
     if(Inventory && Inventory->IsSelectionPresentationFenced()) return;
     const uint8 AcceptedVisualStep=ToolSlot>>4;
     MCMeleeCombo::PresentSwing(this,ToolSlot&15,ToolSlot>>4);
     ToolSlot&=15;
+    if(ToolSlot==uint8(EMCToolSlot::Knife) && MCKatanaSwing::Decode(AcceptedVisualStep)!=MCKatanaSwing::EVariant::None) {
+        KatanaSwingID=AcceptedVisualStep;
+        KatanaSwingPlayRate=AcceptedPlayRate;
+        KatanaChargeStartedAt=-1.;
+    } else {
+        KatanaSwingID=0;
+    }
     MCWeaponImpact::BeginSwing(this);
     SwingStartedAt=StartedAt; CalculusTarget=AimTooth; CalculusContactLocal=LocalPoint; CalculusNormalLocal=LocalNormal;
     const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeSwing")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeSwing")):FName(TEXT("Whoosh"));
     const FName SourceID=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("Tool.Knife")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("Tool.Pickaxe")):NAME_None;
-    if(!SourceID.IsNone()) {
+    if(!SourceID.IsNone() && KatanaSwingID==0) {
         if(auto* Trail=FindComponentByClass<UMCWeaponTrailComponent>())
             Trail->PublishAcceptedSwing(SourceID,StartedAt,AcceptedVisualStep);
     }
@@ -1790,11 +1824,121 @@ void AMCToothCharacter::MulticastFoodCutSplash_Implementation(FVector Location,F
     MCWorldPresentation::Pulse(this,TEXT("Tool.Knife"),TEXT("FoodCut"),
         FTransform(Values.Direction.Rotation(),Location),Values,.6f);
 }
+bool AMCToothCharacter::ApplyKatanaFoodContact(AMCFoodActor* Food,const FHitResult& Contact,
+    const FVector& CutNormal,const FVector& StrokeDirection,float Damage)
+{
+    if(!HasAuthority() || !Inventory || !IsValid(Food) || Contact.GetActor()!=Food || !Inventory->CanBreak(Food)) return false;
+    const FVector Point=Contact.ImpactPoint;
+    const FLinearColor FoodColor=Food->FoodData.CrumbColor;
+    if(!Food->HitFoodWithKatana(Damage,StrokeDirection,this,Point,CutNormal)) return false;
+
+    ++ConfirmedHitCount;
+    ++ConfirmedFoodCutCount;
+    MulticastHitSound(Point,uint8(EMCToolSlot::Knife)|KnifeFoodHitFlag,FMath::Clamp(Damage/60.f,.25f,1.f));
+    MulticastFoodCutSplash(Point,CutNormal,FoodColor);
+    if(Food->IsDisposed())
+        if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyAction(this,EMCTutorialAction::FoodCut,Food);
+    return true;
+}
 float AMCToothCharacter::GetToolSwingElapsed() const
 {
     const auto* GS=GetWorld()?GetWorld()->GetGameState():nullptr;
     const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()?GetWorld()->GetTimeSeconds():0;
     return float(Now-SwingStartedAt);
+}
+bool AMCToothCharacter::IsKatanaEquipped() const
+{
+    return Inventory && Inventory->Selected==EMCToolSlot::Knife && Inventory->HasUpgrade(EMCToolUpgrade::Chainsaw);
+}
+
+bool AMCToothCharacter::CanOwnKatanaAction() const
+{
+    if(!IsKatanaEquipped() || !GetWorld() || !CanWork() || bInCoffee || bSelfCare || IsSeatedOnRaft()
+        || bRowing || IsArenaArrivalHeld() || !Inventory->ShouldPresentTool() || Inventory->IsSelectionPresentationFenced())
+        return false;
+    const auto* Move=Cast<UMCToothMovementComponent>(GetCharacterMovement());
+    return !Move || !Move->IsDashing();
+}
+
+float AMCToothCharacter::GetKatanaChargeElapsed() const
+{
+    if(KatanaChargeStartedAt<0 || !CanOwnKatanaAction()) return -1.f;
+    const auto* GS=GetWorld()->GetGameState();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    return FMath::Max(0.f,float(Now-KatanaChargeStartedAt));
+}
+
+MCKatanaSwing::EVariant AMCToothCharacter::GetKatanaSwingVariant() const
+{
+    const auto Variant=MCKatanaSwing::Decode(KatanaSwingID);
+    if(Variant==MCKatanaSwing::EVariant::None || !CanOwnKatanaAction()) return MCKatanaSwing::EVariant::None;
+    const float Age=GetToolSwingElapsed();
+    const float Time=FMath::Max(0.f,Age)*KatanaSwingPlayRate+MCKatanaSwing::StartOffset(Variant);
+    return Time<MCKatanaSwing::ClipDuration(Variant)?Variant:MCKatanaSwing::EVariant::None;
+}
+
+float AMCToothCharacter::GetKatanaSwingElapsed() const
+{
+    return GetKatanaSwingVariant()==MCKatanaSwing::EVariant::None?-1.f:FMath::Max(0.f,GetToolSwingElapsed());
+}
+
+void AMCToothCharacter::ServerReleaseKatanaPrimary_Implementation()
+{
+    const float ChargeAge=GetKatanaChargeElapsed();
+    const bool bHadCharge=KatanaChargeStartedAt>=0.;
+    if(!bHadCharge) {
+        if(bPrimaryHeld) ServerSetPrimary_Implementation(false);
+        return;
+    }
+    const bool bShouldSwing=bPrimaryHeld && ChargeAge>=0.f;
+    bPrimaryHeld=false;
+    KatanaChargeStartedAt=-1.;
+    if(bShouldSwing) BeginKatanaSwing(ChargeAge>=MCKatanaSwing::ChargeThreshold);
+    ForceNetUpdate();
+}
+
+void AMCToothCharacter::BeginKatanaSwing(bool bCharged)
+{
+    if(!HasAuthority() || !CanOwnKatanaAction() || KatanaChargeStartedAt>=0.) return;
+    const double Now=GetWorld()->GetTimeSeconds();
+    if(Now<NextSwingTime) return;
+    const auto Variant=bCharged?MCKatanaSwing::EVariant::Charged:
+        MCKatanaSwing::EVariant(FMath::RandRange(int32(MCKatanaSwing::EVariant::DiagonalRight),int32(MCKatanaSwing::EVariant::Horizontal)));
+    const auto* GS=GetWorld()->GetGameState();
+    SwingStartedAt=GS?GS->GetServerWorldTimeSeconds():Now;
+    KatanaSwingID=uint8(Variant);
+    KatanaSwingPlayRate=FMath::Clamp(Inventory->RogueAttackRate(),.2f,3.f);
+    KatanaContactDamage=Inventory->Damage()/FMath::Sqrt(float(MCKatanaSwing::Cuts(Variant).Num()));
+    NextSwingTime=Now+(MCKatanaSwing::ClipDuration(Variant)-MCKatanaSwing::StartOffset(Variant))/KatanaSwingPlayRate;
+    KatanaTracedTime=MCKatanaSwing::StartOffset(Variant);
+    KatanaTracedStroke=INDEX_NONE;
+    KatanaHitTargets.Reset();
+    const auto Frame=GetPresentationFrame();
+    KatanaBladeResetRevision=Frame.ResetRevision;
+    KatanaLastMeshWorld=Frame.ToCanonicalWorld(GetMesh()->GetComponentTransform());
+    KatanaLastBodyPose=KatanaBodyPose;
+    KatanaChargeStartedAt=-1.;
+    Grip->ReleaseBrace();
+    bBrushing=false;
+    bHandling=false;
+    bPrimaryHeld=false;
+    CalculusTarget=nullptr;
+    SwingContactEndsAt=0.f;
+    ++ValidatedSwingCount;
+    ResetContact();
+    MCMeleeCombo::Reset(this);
+    MulticastSwing(SwingStartedAt,nullptr,FVector::ZeroVector,FVector::UpVector,
+        uint8(EMCToolSlot::Knife)|(KatanaSwingID<<4),KatanaSwingPlayRate);
+    ForceNetUpdate();
+}
+
+void AMCToothCharacter::CancelKatanaAction()
+{
+    if(KatanaChargeStartedAt>=0.) bPrimaryHeld=false;
+    KatanaChargeStartedAt=-1.;
+    KatanaSwingID=0;
+    KatanaTracedStroke=INDEX_NONE;
+    KatanaHitTargets.Reset();
 }
 bool AMCToothCharacter::GetCalculusSwingContact(FVector& Point,FVector& Normal) const
 {
@@ -2141,6 +2285,9 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     DOREPLIFETIME(AMCToothCharacter,FreezeDeathStartedAt);
     DOREPLIFETIME(AMCToothCharacter,CalculusTarget); DOREPLIFETIME(AMCToothCharacter,CalculusContactLocal);
     DOREPLIFETIME(AMCToothCharacter,CalculusNormalLocal); DOREPLIFETIME(AMCToothCharacter,SwingStartedAt);
+    DOREPLIFETIME(AMCToothCharacter,KatanaChargeStartedAt);
+    DOREPLIFETIME(AMCToothCharacter,KatanaSwingID);
+    DOREPLIFETIME(AMCToothCharacter,KatanaSwingPlayRate);
     DOREPLIFETIME(AMCToothCharacter,BagColor);
     DOREPLIFETIME(AMCToothCharacter,bSelfCare); DOREPLIFETIME(AMCToothCharacter,CareTarget); DOREPLIFETIME(AMCToothCharacter,ContactProgress);
     DOREPLIFETIME(AMCToothCharacter,HeldFood); DOREPLIFETIME(AMCToothCharacter,RespawnAt); DOREPLIFETIME(AMCToothCharacter,RespawnSourceId);

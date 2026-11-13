@@ -327,9 +327,9 @@ bool UMCExpressionComponent::ApplyMorphBlink(float Closure)
             // The artist's effort mouth also closes the eyelids. Inhaling and
             // rowing need an alert grip: remove that lid delta during the
             // brace, while Eyes_Blink above still owns genuine blinks.
-            const float Brace=Name==TEXT("Mouth_Effort")?FMath::Max3(FoodSuctionReaction,
+            const float Brace=Name==TEXT("Mouth_Effort")?FMath::Max(KatanaBrace,FMath::Max3(FoodSuctionReaction,
                 Tooth->IsYawning() && CurrentEmotion==EMCEmotion::Effort?Tooth->YawnPoseAlpha():0.f,
-                Tooth->IsRowing()?1.f:0.f):0.f;
+                Tooth->IsRowing()?1.f:0.f)):0.f;
             Mesh->SetMorphTarget(Correction,MouthWeights.FindRef(Name)*FMath::Max(Closure,Brace));
         }
     }
@@ -402,7 +402,7 @@ void UMCExpressionComponent::BuildSocialPose(TArray<FTransform>& Pose,const FRef
     const int32 Parent=Ref.GetParentIndex(Lower);
     Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]); Pose[Hand]=Ref.GetRefBonePose()[Hand];
 }
-void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt)
+void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt,float KatanaEffort)
 {
     // Keep the incoming neutral pose for worldless construction/asset previews.
     if (!Tooth || !GetWorld()) return;
@@ -437,6 +437,9 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     else if (Tooth->AnimationSwim>.5f && Tooth->AnimationSwimEffort>.1f) { CurrentEmotion=EMCEmotion::Effort; Strength=.3f+.5f*Tooth->AnimationSwimEffort; }
     else if (S.Health<S.MaxHealth*.35f) { CurrentEmotion=EMCEmotion::Sad; Strength=.6f; }
     if (Pain>.01f && !ToolFace) { CurrentEmotion=EMCEmotion::Pain; Strength=Pain; }
+    const float SwordEffort=FMath::IsFinite(KatanaEffort)?FMath::Clamp(KatanaEffort,0.f,1.f):0.f;
+    const bool KatanaFace=CurrentEmotion==EMCEmotion::Neutral && !FaceLocked && SwordEffort>.001f;
+    if(KatanaFace) {CurrentEmotion=EMCEmotion::Effort;Strength=SwordEffort;}
     float J=0,Sml=0,B=0,Tilt=0,Squ=0,Rnd=0;
     switch (CurrentEmotion)
     {
@@ -452,6 +455,7 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     // yawning sleepily. Keep an alert, clenched expression during the brace.
     const bool YawnStrain=Tooth->IsYawning() && CurrentEmotion==EMCEmotion::Effort && Pain<.01f;
     if(YawnStrain) {J=0;Sml=-.12f;B=.12f;Tilt=.9f;Squ=.18f;}
+    if(KatanaFace) {J=.04f;Sml=-.18f;Tilt=.75f;Squ=.16f;}
     J*=Strength; Sml*=Strength; B*=Strength; Tilt*=Strength; Squ*=Strength; Rnd*=Strength;
     if(const auto* Hook=Cast<AMCHookSkillAction>(Tooth->GetActiveSkillPresentation());
         Hook && !FaceLocked && Hook->GetCastPhase()==EMCHookCastPhase::Windup) {
@@ -501,6 +505,8 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     }
     auto Smooth=[&](float& V,float Target){V=FMath::FInterpTo(V,Target,Dt,14.f);};
     Smooth(Jaw,J); Smooth(Smile,Sml); Smooth(Brows,B); Smooth(BrowTilt,Tilt); Smooth(EyeSquint,Squ); Smooth(Round,Rnd);
+    // Keep the gaze visible while the authored effort mouth supplies the clench.
+    Smooth(KatanaBrace,KatanaFace?.85f:0.f);
     Smooth(LipClosure,!ToolFace && Pain<.1f && Voice>0 && VoiceViseme==MCViseme::Closed?Voice:0.f);
     TArray<FTransform> RestCS; RestCS.SetNum(Pose.Num());
     for (int32 I=0;I<Pose.Num();++I) RestCS[I]=Ref.GetParentIndex(I)>=0?Ref.GetRefBonePose()[I]*RestCS[Ref.GetParentIndex(I)]:Ref.GetRefBonePose()[I];
@@ -541,9 +547,9 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     {
         const float Sign=Side==TEXT("l")?1.f:-1.f;
         if (!MorphMouth) Offset(FName(*(TEXT("c_lips_smile_")+Side)),FVector(Sign*(Smile*3.f-Round*1.6f),0,Smile*3.5f));
-        if (!AuthoredFace || YawnStrain || Suction>.001f || Social>.001f || HookAlpha>.001f)
+        if (!AuthoredFace || YawnStrain || KatanaBrace>.001f || Suction>.001f || Social>.001f || HookAlpha>.001f)
         {
-            const float BrowAlpha=AuthoredFace && !YawnStrain?FMath::Max3(Suction,Social,HookAlpha):1.f;
+            const float BrowAlpha=AuthoredFace && !YawnStrain?FMath::Max(KatanaBrace,FMath::Max3(Suction,Social,HookAlpha)):1.f;
             Offset(FName(*(TEXT("c_eyebrow_full_")+Side)),FVector(0,0,Brows*1.7f*(1-ArtistAlpha)*BrowAlpha));
             Offset(FName(*(TEXT("c_eyebrow_01_")+Side)),FVector(0,0,-BrowTilt*2.5f*(1-ArtistAlpha)*BrowAlpha));
             Offset(FName(*(TEXT("c_eyebrow_03_")+Side)),FVector(0,0,BrowTilt*1.2f*(1-ArtistAlpha)*BrowAlpha));

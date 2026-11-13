@@ -211,7 +211,7 @@ bool FMCToolSelectionLateSwingTest::RunTest(const FString&)
     const uint32 First=I->SelectionPrediction.Request(EMCToolSlot::Pickaxe);
     I->Selected=EMCToolSlot::Pickaxe;I->CancelPreviousSwingForSelection();
     const double OldAt=W.World->GetTimeSeconds();
-    auto LateKnife=[&]() {W.Hero->MulticastSwing_Implementation(OldAt,nullptr,FVector::ZeroVector,FVector::UpVector,uint8(EMCToolSlot::Knife)|(1<<4));};
+    auto LateKnife=[&]() {W.Hero->MulticastSwing_Implementation(OldAt,nullptr,FVector::ZeroVector,FVector::UpVector,uint8(EMCToolSlot::Knife)|(1<<4),1.f);};
     LateKnife();
     TestTrue(TEXT("An old multicast cannot revive the cancelled tool pose"),W.Hero->GetToolSwingElapsed()>50.f);
     I->SelectionReceipt=Receipt(EMCToolSlot::Pickaxe,First,2);I->OnRep_SelectionReceipt();
@@ -221,7 +221,7 @@ bool FMCToolSelectionLateSwingTest::RunTest(const FString&)
     I->ClientConfirmSelection_Implementation(I->SelectionReceipt);
     TestFalse(TEXT("Matching reliable ACK finally retires the fence"),I->IsSelectionPresentationFenced());
     const double NextAt=OldAt+.1;
-    W.Hero->MulticastSwing_Implementation(NextAt,nullptr,FVector::ZeroVector,FVector::UpVector,uint8(EMCToolSlot::Pickaxe)|(1<<4));
+    W.Hero->MulticastSwing_Implementation(NextAt,nullptr,FVector::ZeroVector,FVector::UpVector,uint8(EMCToolSlot::Pickaxe)|(1<<4),1.f);
     TestEqual(TEXT("A real next swing after the ordered ACK still plays"),W.Hero->SwingStartedAt,NextAt);
 
     const uint32 Middle=I->SelectionPrediction.Request(EMCToolSlot::Brush);
@@ -236,7 +236,7 @@ bool FMCToolSelectionLateSwingTest::RunTest(const FString&)
     TestTrue(TEXT("Final same-slot property ACK cannot resurrect an old same-tool swing"),W.Hero->GetToolSwingElapsed()>50.f);
     I->ClientConfirmSelection_Implementation(I->SelectionReceipt);
     const double FinalAt=NextAt+.1;
-    W.Hero->MulticastSwing_Implementation(FinalAt,nullptr,FVector::ZeroVector,FVector::UpVector,uint8(EMCToolSlot::Knife)|(1<<4));
+    W.Hero->MulticastSwing_Implementation(FinalAt,nullptr,FVector::ZeroVector,FVector::UpVector,uint8(EMCToolSlot::Knife)|(1<<4),1.f);
     TestEqual(TEXT("The following same-tool swing remains visible after the final reliable ACK"),W.Hero->SwingStartedAt,FinalAt);
 
     I->SelectionPrediction.Request(EMCToolSlot::Spray);

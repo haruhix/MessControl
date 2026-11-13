@@ -115,7 +115,6 @@ bool UMCInventoryComponent::UpgradeIdleGrip(FTransform& RightHandWorld) const
     FTransform Attachment,Idle;
     switch(SelectedUpgrade()) {
     case EMCToolUpgrade::MeshaBrush:Attachment=Settings->MeshaBrushTransform;Idle=Settings->MeshaBrushIdlePose;break;
-    case EMCToolUpgrade::Chainsaw:Attachment=Settings->ChainsawTransform;Idle=Settings->ChainsawIdlePose;break;
     case EMCToolUpgrade::Buffer:Attachment=Settings->BufferTransform;Idle=Settings->BufferIdlePose;break;
     case EMCToolUpgrade::Watergun:Attachment=Settings->WatergunTransform;Idle=Settings->WatergunIdlePose;break;
     default:return false;
@@ -172,7 +171,6 @@ bool UMCInventoryComponent::UpgradeSupportGrip(const FTransform& RightHandWorld,
     FTransform Attachment;FVector Point;FRotator Rotation;const UStaticMesh* Mesh=nullptr;
     switch(SelectedUpgrade()) {
     case EMCToolUpgrade::MeshaBrush:Attachment=Settings->MeshaBrushTransform;Point=Settings->MeshaBrushSupportGrip;Rotation=Settings->MeshaBrushSupportRotation;Mesh=Settings->MeshaBrushMesh.Get();break;
-    case EMCToolUpgrade::Chainsaw:Attachment=Settings->ChainsawTransform;Point=Settings->ChainsawSupportGrip;Rotation=Settings->ChainsawSupportRotation;Mesh=Settings->ChainsawMesh.Get();break;
     case EMCToolUpgrade::Buffer:Attachment=Settings->BufferTransform;Point=Settings->BufferSupportGrip;Rotation=Settings->BufferSupportRotation;Mesh=Settings->BufferMesh.Get();break;
     case EMCToolUpgrade::Watergun:Attachment=Settings->WatergunTransform;Point=Settings->WatergunSupportGrip;Rotation=Settings->WatergunSupportRotation;Mesh=Settings->WatergunMesh.Get();break;
     default:return false;

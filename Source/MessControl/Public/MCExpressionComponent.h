@@ -111,7 +111,7 @@ public:
     float BodyAlpha() const;
     void BuildBodyPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref) const;
     void BuildSocialPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref) const;
-    void BuildFacePose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt);
+    void BuildFacePose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt,float KatanaEffort=0.f);
     bool ApplyMorphBlink(float Closure);
     float Squint() const { return EyeSquint; }
     float SocialEyeClosure() const { return FMath::Max3(SocialDisgust*.13f,StinkReaction*.3f,SprayReaction*.82f); }
@@ -141,6 +141,7 @@ private:
     FGuid SuppressedHookActionId;
     double SuppressedHookStartedAt=-100;
     float Voice=0,EyeSquint=0,Jaw=0,Smile=0,Brows=0,BrowTilt=0,Round=0,LipClosure=0;
+    float KatanaBrace=0.f;
     MCViseme VoiceViseme=MCViseme::Rest;
     TMap<FName,float> MouthWeights;
     TMap<FName,float> EyeWeights;
