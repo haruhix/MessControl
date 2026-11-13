@@ -67,6 +67,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> MeleeHit2;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> MeleeFoodHit;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> MeleeCombo;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Katana") TObjectPtr<UAnimSequence> KatanaCarry;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Katana") TObjectPtr<UAnimSequence> KatanaDiagonalRight;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Katana") TObjectPtr<UAnimSequence> KatanaDiagonalLeft;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Katana") TObjectPtr<UAnimSequence> KatanaHorizontal;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Katana") TObjectPtr<UAnimSequence> KatanaOverhead;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Katana") TObjectPtr<UAnimSequence> KatanaCharged;
 };
 
 USTRUCT(BlueprintType)

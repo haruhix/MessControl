@@ -2,6 +2,7 @@
 #include "MCToothCharacter.h"
 #include "MCGameplayHUD.h"
 #include "MCGameplayUIFactory.h"
+#include "MCPlayerController.h"
 #include "MCPlayerState.h"
 #include "MCUIVisualStyle.h"
 #include "MCWorldUIShapes.h"
@@ -236,6 +237,8 @@ void UMCPlayerNameComponent::RefreshName()
 {
     const auto* Hero=Cast<AMCToothCharacter>(GetOwner());
     const auto* State=Hero?Hero->GetPlayerState():nullptr;
+    const auto* Controller=Hero?Cast<AMCPlayerController>(Hero->GetController()):nullptr;
+    const bool bHideLocalHubName=Controller && Controller->IsLocalPlayerController() && Controller->IsHubWorld();
     // A corpse may retain its PlayerState after that player respawns.
     const FString Name=State && State->GetPawn()==Hero?State->GetPlayerName():FString();
     DisplayedName=Name;
@@ -248,7 +251,7 @@ void UMCPlayerNameComponent::RefreshName()
         const EMCPlayerAlarm Alarm=Player && !Name.IsEmpty() && Now<Player->AlarmUntil?Player->Alarm:EMCPlayerAlarm::None;
         Label->SetPresentation(Player?Player->PlayerColor:Hero?Hero->GetPlayerColor():FLinearColor::White,Player && Player->bSessionHost,Alarm);
     }
-    SetVisibility(!Name.IsEmpty());
+    SetVisibility(!Name.IsEmpty() && !bHideLocalHubName);
     if(!Hero) return;
     const auto* Mesh=Hero->GetMesh();
     FName Head=Hero->RigBone(TEXT("gaze_head"));

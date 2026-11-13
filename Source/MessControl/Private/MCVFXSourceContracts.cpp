@@ -24,12 +24,17 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         const auto World=MCVFXSourceContracts::WorldLibraryPath(),Tool=MCVFXSourceContracts::ToolLibraryPath();
         const auto Hub=MCVFXSourceContracts::HubLibraryPath(),UI=MCVFXSourceContracts::InterfaceLibraryPath();
         Add(TEXT("Tool.Knife"),TEXT("Нож · взмах и попадание"),TEXT("Tools"),TEXT("AMCToothCharacter / UMCInventoryComponent / MCMeleeCombo"),Tool,{TEXT("Swing"),TEXT("Hit"),TEXT("FoodCut")});
+        auto& Katana=Add(TEXT("Tool.Katana"),TEXT("Катана · режущие взмахи"),TEXT("Tools"),TEXT("AMCToothCharacter / UMCInventoryComponent / UMCWeaponTrailComponent"),Tool,{TEXT("Swing"),TEXT("Hit"),TEXT("FoodCut")});
+        Katana.Description=TEXT("Четыре обычных реза без повторов подряд: нажатие сразу запускает удар, ранние нажатия сохраняются в очереди. Удержание автоматически добавляет заряженную серию. Лента следует оценённым краям клинка и открывается в активной фазе каждого реза. Попадание и разрез еды приходят из авторитетного контакта.");
         Add(TEXT("Tool.Pickaxe"),TEXT("Кирка · взмах и попадание"),TEXT("Tools"),TEXT("AMCToothCharacter / UMCInventoryComponent / MCMeleeCombo"),Tool,{TEXT("Swing"),TEXT("Hit")});
         Add(TEXT("Tool.Brush"),TEXT("Щётка · контакт"),TEXT("Cleaning"),TEXT("UMCBrushContactComponent / AMCToothCharacter"),Tool,{TEXT("Contact")});
         Add(TEXT("Tool.Spray"),TEXT("Распылитель · обработка"),TEXT("Tools"),TEXT("UMCInventoryComponent"),Tool,{TEXT("Start"),TEXT("WaterCare"),TEXT("Contact"),TEXT("End")});
         Add(TEXT("Tool.Watergun"),TEXT("Водяной пистолет"),TEXT("Tools"),TEXT("UMCInventoryComponent / AMCReactionVFX"),Tool,{TEXT("Shot"),TEXT("Impact")});
         Add(TEXT("Character.Movement"),TEXT("Зубик · движение и физическое восстановление"),TEXT("Character"),TEXT("AMCToothCharacter / UMCToothPhysicsComponent"),Tool,{TEXT("Step"),TEXT("Land"),TEXT("Jump"),TEXT("Fall"),TEXT("StandUp"),TEXT("Pull")});
         Add(TEXT("Character.FreezeDeath"),TEXT("Зубик · ледяная смерть"),TEXT("Character"),TEXT("AMCToothCharacter::OnRep_FreezeDeath / AMCFreezeDeathVFX"),World,{TEXT("Hold"),TEXT("Shatter")});
+        auto& DeathSpirit=Add(TEXT("Character.DeathSpirit"),TEXT("Зубик · дух и возрождение"),TEXT("Character"),
+            TEXT("UMCDeathSpiritComponent / AMCArenaTooth / AMCGameMode::ProcessRespawns"),World,{TEXT("Rise"),TEXT("Merge"),TEXT("Release")});
+        DeathSpirit.Description=TEXT("Rise получает место гибели и точку подъёма. Merge начинается в конце принятого притягивания. Дух и коронка белеют, коронка сжимается к общей точке контакта. Release запускает вспышку у выхода из зуба при смене персонажа. Дополнительные Niagara и звук читаются из общей библиотеки. Изолированный сценарий Composer пока недоступен. Проверка полного респавна проходит в L_Mouth.");
         Add(TEXT("Character.Hurt"),TEXT("Зубик · полученный удар"),TEXT("Character"),TEXT("UMCCombatFeedbackComponent / AMCToothCharacter"),Tool,{TEXT("Hit")});
         Add(TEXT("Enemy.Generic.Hurt"),TEXT("Противник · полученный удар"),TEXT("Enemies"),TEXT("UMCCombatFeedbackComponent"),World,{TEXT("Hit")});
         Add(TEXT("Boss.Generic.Hurt"),TEXT("Босс · полученный удар"),TEXT("Bosses"),TEXT("UMCCombatFeedbackComponent / AMCBossCharacter"),World,{TEXT("Hit")});
@@ -96,9 +101,10 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         Add(TEXT("EditorOnly.FishingCatch"),TEXT("Награда · улов рыбы"),TEXT("Hub"),TEXT("UMCFishingRewardWidget / MCPlayerFishingFeedback"),Hub,{TEXT("Catch")});
         auto& Grill=Add(TEXT("Hub.Grill"),TEXT("Слот-машина · рыба, прокрутка и приз"),TEXT("Hub"),
             TEXT("AMCHubGrillStation / UMCHubGrillPresentationComponent / UMCHubGrillHologramWidget"),Hub,
-            {TEXT("Intake"),TEXT("Spin"),TEXT("Result"),TEXT("RareWin")});
+            {TEXT("Intake"),TEXT("Spin"),TEXT("Result"),TEXT("RareWin"),TEXT("Reset")});
         Grill.Description=TEXT("В ожидании проекция показывает зацикленную ленту каталога и зубика справа. Intake показывает приём рыбы. Spin и Result отображают принятый бросок на неподвижной проекции над корпусом автомата. Лента рисуется в Slate из данных реального броска.\n")
             TEXT("RareWin показывает принятый эпический или легендарный предмет. Зубики выезжают с двух сторон поверх карточки на проекции Slate. По бокам корпуса автомата вспыхивают звёзды в цвете редкости и разлетается конфетти. Празднование запускается вместе с фанфарой и выездом у получателя.\n")
+            TEXT("Reset запускается при возврате в ожидание после принятого броска. Проекция сжимается в строку, на мгновение гаснет и раскрывается с зацикленной лентой. Ценный приз с зубиками остаётся на экране до схлопывания. Пространственный звук автомата содержит щелчок реле и короткий звук включения. Переходы доступны в UMG Designer.\n")
             TEXT("Виджет /Game/Gameplay/UI/WBP_GrillHologram\n")
             TEXT("Материал проекции /Game/Gameplay/Hub/Economy/M_CaseHologramProjection\n")
             TEXT("Атлас реакции /Game/Gameplay/Hub/Economy/T_CaseRareToothReaction\n")
@@ -111,6 +117,11 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         GrillFanfare.Resource=FSoftObjectPath(TEXT("/Game/Gameplay/Hub/Economy/SFX/SW_CaseRareFanfare.SW_CaseRareFanfare"));
         GrillFanfare.bSuppressionWired=true;
         Grill.OriginalAudio.Add(TEXT("RareWin"),MoveTemp(GrillFanfare));
+        FMCVFXOriginalSFXContract GrillReset;
+        GrillReset.ID=TEXT("Reset.Original");GrillReset.Label=FText::FromString(TEXT("Исходный звук · перезагрузка голограммы"));
+        GrillReset.Resource=FSoftObjectPath(TEXT("/Game/Gameplay/Hub/Economy/SFX/SW_CaseHologramReset.SW_CaseHologramReset"));
+        GrillReset.bSuppressionWired=true;
+        Grill.OriginalAudio.Add(TEXT("Reset"),MoveTemp(GrillReset));
         Add(TEXT("Hub.ReadyZone"),TEXT("Хаб · зона готовности"),TEXT("Hub"),TEXT("AMCHubReadyZone"),Hub,{TEXT("Active"),TEXT("Ready")});
         Add(TEXT("Hub.DeliveryZone"),TEXT("Хаб · зона доставки"),TEXT("Hub"),TEXT("UMCDeliveryZoneVisualComponent"),Hub,{TEXT("Active"),TEXT("Complete")});
         Add(TEXT("Hub.Basketball"),TEXT("Хаб · баскетбол"),TEXT("Hub"),TEXT("AMCHubBasketball"),Hub,{TEXT("Contact"),TEXT("Score")});
@@ -125,6 +136,8 @@ TMap<FName,FMCVFXSourceContract>& Definitions()
         };
         Palette(TEXT("Tool.Knife"),TEXT("Swing"),TEXT("KnifeSwing"));
         Palette(TEXT("Tool.Knife"),TEXT("Hit"),TEXT("KnifeHit"));
+        Palette(TEXT("Tool.Katana"),TEXT("Swing"),TEXT("KnifeSwing"));
+        Palette(TEXT("Tool.Katana"),TEXT("Hit"),TEXT("KnifeHit"));
         Palette(TEXT("Tool.Pickaxe"),TEXT("Swing"),TEXT("PickaxeSwing"));
         Palette(TEXT("Tool.Pickaxe"),TEXT("Hit"),TEXT("PickaxeHit"));
         Palette(TEXT("Tool.Brush"),TEXT("Contact"),TEXT("Brush"));

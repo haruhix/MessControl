@@ -8,6 +8,8 @@
 #include "MCMotionAuthorityState.h"
 #include "MCNetworkPresentation.h"
 #include "MCMovementContactPolicy.h"
+#include "MCKatanaSwing.h"
+#include "UObject/ObjectKey.h"
 #include "MCToothCharacter.generated.h"
 class UCameraComponent;
 class USpringArmComponent;
@@ -15,6 +17,7 @@ class UInputAction;
 class UInputMappingContext;
 class UMCWorldPreloadSubsystem;
 class UMCToothPhysicsComponent;
+class UMCDeathSpiritComponent;
 class UPhysicsControlComponent;
 class UMCToothStatusComponent;
 class UMCCombatFeedbackComponent;
@@ -113,6 +116,7 @@ public:
     void SetArenaArrivalHeld(bool bHeld);
     bool IsArenaArrivalHeld() const { return bArenaArrivalHeld; }
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physics") TObjectPtr<UMCToothPhysicsComponent> ToothPhysics;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Life") TObjectPtr<UMCDeathSpiritComponent> DeathSpirit;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<UMCToothStatusComponent> Status;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat|Feedback") TObjectPtr<UMCCombatFeedbackComponent> Feedback;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<class UMCBrushContactComponent> BrushContact;
@@ -267,8 +271,17 @@ public:
     UFUNCTION(BlueprintPure, Category="Locomotion|Stamina") bool IsStaminaExhausted() const;
     bool FindPlayerBrushContact(const AMCToothCharacter* Worker,FVector& Point,FVector& Normal) const;
     float GetToolSwingElapsed() const;
+    UFUNCTION(BlueprintPure,Category="Action|Katana") bool IsKatanaEquipped() const;
+    UFUNCTION(BlueprintPure,Category="Action|Katana") uint8 GetKatanaAttackID() const { return uint8(GetKatanaSwingVariant()); }
+    MCKatanaSwing::EVariant GetKatanaSwingVariant() const;
+    float GetKatanaSwingElapsed() const;
+    float GetKatanaSwingPlayRate() const { return KatanaSwingPlayRate; }
+    float GetKatanaChargeElapsed() const;
+    bool IsKatanaCharging() const { return GetKatanaChargeElapsed()>=0.f; }
+    void CacheKatanaBodyPose(const FTransform& Pose) const;
     bool GetCalculusSwingContact(FVector& Point,FVector& Normal) const;
     bool WantsCalculusFacing(FVector& Direction) const;
+    bool WantsKatanaFacing(FVector& Direction) const;
     /** Ground waves test the capsule sole, independently of animated body-bone bobbing. */
     bool ClearsGroundWave(float Clearance=12.f) const;
     // A pickaxe swing owns one patch until recovery; the contact follows the
@@ -451,7 +464,8 @@ private:
     TArray<TWeakObjectPtr<AActor>> OrderJumpIgnoredActors;
     void FindWork(float DeltaSeconds);
     UFUNCTION(Server,Reliable) void ServerSwingBrush();
-    UFUNCTION(NetMulticast,Reliable) void MulticastSwing(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal,uint8 ToolSlot);
+    UFUNCTION(Server,Reliable) void ServerReleaseKatanaPrimary();
+    UFUNCTION(NetMulticast,Reliable) void MulticastSwing(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal,uint8 ToolSlot,float AcceptedPlayRate);
     UFUNCTION(NetMulticast,Unreliable) void MulticastHitSound(FVector Location,uint8 ToolSlot,float Intensity);
     UFUNCTION(NetMulticast,Unreliable) void MulticastFoodCutSplash(FVector Location,FVector CutNormal,FLinearColor FoodColor);
     UFUNCTION(Client,Unreliable) void ClientCameraImpact(float ImpactSpeed,FVector_NetQuantizeNormal Direction);
@@ -460,6 +474,16 @@ private:
     UFUNCTION() void OnRep_ArenaArrivalHeld();
     UPROPERTY(ReplicatedUsing=OnRep_ArenaArrivalHeld) bool bArenaArrivalHeld=false;
     void ResolveSwing();
+    void ResolveSwingContact(float Damage);
+    bool ApplyKatanaFoodContact(AMCFoodActor* Food,const FHitResult& Contact,const FVector& CutNormal,
+        const FVector& StrokeDirection,float Damage);
+    bool CanOwnKatanaAction() const;
+    void BeginKatanaSwing(bool bCharged);
+    void TickKatanaAction();
+    void TickKatanaInput();
+    void CancelKatanaAction(bool bInterrupted=true);
+    void PrepareKatanaFacing();
+    void TraceKatanaStroke(int32 Stroke,const FTransform& From,const FTransform& To);
     AMCArenaTooth* FindCalculusTarget(FVector& Point,FVector& Normal) const;
     UPROPERTY() TObjectPtr<UInputMappingContext> InputMap;
     UPROPERTY() TWeakObjectPtr<UEnhancedInputLocalPlayerSubsystem> AppliedInputSubsystem;
@@ -498,6 +522,17 @@ private:
     UPROPERTY() TObjectPtr<AMCToothCharacter> PracticeTooth;
     float NextSwingTime=0.f;
     UPROPERTY(Replicated) double SwingStartedAt=-100;
+    UPROPERTY(Replicated) double KatanaChargeStartedAt=-1.;
+    UPROPERTY(Replicated) uint8 KatanaSwingID=0;
+    UPROPERTY(Replicated) float KatanaSwingPlayRate=1.f;
+    float KatanaContactDamage=0.f;
+    float KatanaTracedTime=0.f;
+    uint32 KatanaBladeResetRevision=0;
+    int32 KatanaTracedStroke=INDEX_NONE;
+    TSet<FObjectKey> KatanaHitTargets;
+    mutable FTransform KatanaBodyPose=FTransform::Identity;
+    FTransform KatanaLastBodyPose=FTransform::Identity;
+    FTransform KatanaLastMeshWorld=FTransform::Identity;
     float SwingContactEndsAt=0.f;
     float LastEnvironmentHit=-10.f;
     double LastCameraImpactAt=-10.;

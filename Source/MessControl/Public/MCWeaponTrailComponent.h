@@ -48,6 +48,7 @@ private:
     FGuid PresentationEpisode;
     double AcceptedAt=-100.;
     uint8 AcceptedStep=0;
+    int32 KatanaStroke=INDEX_NONE;
     int32 PoseBreakSerial=0;
     bool bPublished=false,bHasPreviousPose=false,bNativeTrail=true;
     FVector PreviousBase=FVector::ZeroVector,PreviousTip=FVector::ZeroVector;

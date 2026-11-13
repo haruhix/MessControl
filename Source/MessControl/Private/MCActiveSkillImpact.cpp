@@ -77,8 +77,7 @@ FMCActiveSkillBlastResult MCActiveSkillImpact::ApplyRadial(AActor* Causer,AMCPla
         FCollisionShape::MakeSphere(Radius),Query);
     TSet<TWeakObjectPtr<AActor>> Seen;
     TArray<FBlastTarget> Targets;
-    // Freeze cover for ALL original candidates before HitFood can replace a
-    // whole ingredient with fragments or a tooth/enemy removes its collision.
+    // Freeze cover for every candidate before an impact changes food or removes collision.
     for(const FOverlapResult& Overlap:Overlaps) {
         AActor* Actor=Overlap.GetActor();
         if(!IsValid(Actor) || Actor==Causer || Actor->IsActorBeingDestroyed() || Seen.Contains(Actor)) continue;
@@ -99,7 +98,7 @@ FMCActiveSkillBlastResult MCActiveSkillImpact::ApplyRadial(AActor* Causer,AMCPla
         if(!Target.bVisible) {++Result.Occluded;continue;}
         const FVector Away=(Actor->GetActorLocation()-Origin).GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
         if(auto* Food=Cast<AMCFoodActor>(Actor)) {
-            if(FoodDamage>0.f && Food->ReceiveActiveSkillImpact(FoodDamage,Away,SourcePS)) ++Result.FoodHits;
+            if(FoodDamage>0.f && Food->ReceiveActiveSkillImpact(FoodDamage,Away,SourcePS,In.bExplosive)) ++Result.FoodHits;
         } else if(auto* Enemy=Cast<AMCNutEnemy>(Actor)) {
             const auto* Knight=Cast<AMCNutBoss>(Enemy);const float Before=Knight?Knight->ShieldHealth:0.f;
             if(EnemyDamage>0.f) {

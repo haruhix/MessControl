@@ -26,12 +26,12 @@ void AMCSpongeSkillAction::UpdateSoapTrail()
     const double At=Now();
     if(bHasSoapPoint && At<=LastSoapAt) return;
     const bool Continuous=!bHasSoapPoint || MCActiveSkillMotion::ContinuousPath(
-        LastSoapPoint,Ground,float(At-LastSoapAt),FMath::Clamp(Param(TEXT("RideSpeed"),620.f),100.f,1200.f));
+        LastSoapPoint,Ground,float(At-LastSoapAt),RideSpeed());
     // A discontinuity starts a fresh emitter at the new support. Its previous
     // particles keep fading independently, with no interpolated bridge.
     if(!Continuous) EndSoapTrail(false);
     const FVector Direction=FVector::VectorPlaneProject(GetActorForwardVector(),Normal).GetSafeNormal();
-    FVector Velocity=FVector::VectorPlaneProject(Hero()->GetVelocity(),Normal).GetClampedToMaxSize(1200.f);
+    FVector Velocity=FVector::VectorPlaneProject(Hero()->GetVelocity(),Normal).GetClampedToMaxSize(2000.f);
     if(Direction.IsNearlyZero() || Velocity.ContainsNaN()) Velocity=FVector::ZeroVector;
     LastSoapPoint=Ground;LastSoapAt=At;bHasSoapPoint=true;
     const FVector Position=Ground+Normal*2.2f;

@@ -92,6 +92,7 @@ public:
     // Concrete teeth, not a separately decremented lives counter. Starting players are excluded.
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Arena") TArray<TObjectPtr<AMCArenaTooth>> ArenaTeeth;
     UFUNCTION(BlueprintPure, Category="Arena") int32 AvailableArenaTeeth() const;
+    int32 AvailableRespawnTeeth() const;
     UFUNCTION(BlueprintPure, Category="Shift") float SecondsLeft() const;
     void NotifyFrontFoodIngress(const AMCFoodActor& Food,const FVector& LaunchVelocity);
     void NotifyFrontDrinkIngress(const AMCCoffeeFlood& Drink);

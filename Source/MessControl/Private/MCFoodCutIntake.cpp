@@ -79,11 +79,17 @@ bool AMCFoodActor::ResolveAutomaticCutDestination(FVector Start,FVector& OutTarg
 
 bool AMCFoodActor::TryConsumeCutPortion(FVector Direction)
 {
-    if(IsCutTransactionPending() || IsCutTransactionStaged())return false;
-    if(!HasAuthority() || !UsesAutomaticCutIntake() || !FitsAutomaticIntakePortion()
-        || IsDisposed() || bAutomaticallyConsumed || bAutomaticallyDiscarded || bDeliveryScored || IsInActiveContainer()
+    return CompleteAutomaticIntake(Direction,false);
+}
+
+bool AMCFoodActor::CompleteAutomaticIntake(FVector Direction,bool bExplosive)
+{
+    if(IsCutTransactionStaged()) return false;
+    if(!HasAuthority() || IsDisposed() || bAutomaticallyConsumed || bAutomaticallyDiscarded || bDeliveryScored || IsInActiveContainer()
         || Phase==EMCFoodPhase::Swallowing || Phase==EMCFoodPhase::Absorbing
-        || StackCarrier || EquippedBy || !Holders.IsEmpty() || Direction.ContainsNaN()) return false;
+        || EquippedBy || Direction.ContainsNaN()) return false;
+    if(!bExplosive && (IsCutTransactionPending() || !UsesAutomaticCutIntake() || (!bCutIntakeReceipt&&!FitsAutomaticIntakePortion())
+        || StackCarrier || !Holders.IsEmpty())) return false;
 
     // Use the remaining cut geometry, whose origin may lie outside its visible half.
     const FBox Bounds=bCutVisualReady && CutStackLocalBounds.IsValid
@@ -96,12 +102,14 @@ bool AMCFoodActor::TryConsumeCutPortion(FVector Direction)
     AMCThroat* Destination=nullptr;
     FVector Target=FVector::ZeroVector;
     // Missing food/disposal endpoints cannot silently delete a ready piece.
-    if(!ResolveAutomaticCutDestination(Start,Target,Destination)) {
+    if(!ResolveAutomaticCutDestination(Start,Target,Destination) || (!bSpoiled && !IsValid(Destination))) {
         UMCFoodProcessingRecoverySubsystem::ReportFailure(this,EMCFoodProcessingFailure::MissingDestination);
         return false;
     }
+    if(bExplosive && !BeginSwallow(true)) return false;
 
     const bool Discard=bSpoiled;
+    if(bExplosive) Health=0.f;
     bAutomaticallyDiscarded=Discard;bAutomaticallyConsumed=!Discard;
     if(!bFragment) {
         Health=0;
@@ -109,8 +117,7 @@ bool AMCFoodActor::TryConsumeCutPortion(FVector Direction)
         if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld());Tutorial && LastHandledBy)
             Tutorial->NotifyAction(Cast<AMCToothCharacter>(LastHandledBy->GetPawn()),EMCTutorialAction::FoodCut,this);
     }
-    // The stable presentation bridge captures this event before the source actor
-    // disappears; newly spawned halves need no actor channel or particle bodies.
+    // The stable presentation bridge captures the crumbs before the source disappears.
     const FTransform Source(GetActorQuat(),Start);
     MCFoodCutIntakePresentation::Play(this,Source,Target,
         Discard?(Target-Start).GetSafeNormal():Direction.GetSafeNormal(),float(Bounds.GetExtent().GetMax()));

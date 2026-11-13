@@ -195,7 +195,9 @@ void AMCNutBoss::ExecuteChain(float Dt)
         if(auto* Nut=Cast<AMCFoodActor>(Hit.GetActor());IsChainNut(Nut)) {
             ChainCargo=Nut;PreviousChainNutCenter=Nut->Body->GetCenterOfMass();
             ChainCargoLocalContact=Nut->GetActorTransform().InverseTransformPosition(ChainTip);
-            SetChainPhase(EMCNutBossChainPhase::PullNut,2.f);
+            // A far bait still needs time to accelerate and reach the boss.
+            const float PullSeconds=FMath::Max(2.f,float(FVector::Dist2D(PreviousChainNutCenter,GetActorLocation()))/ChainNutSpeed+.45f);
+            SetChainPhase(EMCNutBossChainPhase::PullNut,PullSeconds);
             PresentChainEvent(TEXT("CatchNut"),Origin,ChainTip);
             return;
         }
@@ -204,12 +206,14 @@ void AMCNutBoss::ExecuteChain(float Dt)
             const FVector Goal(GetActorLocation().X,GetActorLocation().Y,Pawn->GetActorLocation().Z);
             const FVector Velocity=(Goal-Pawn->GetActorLocation()).GetSafeNormal2D()*ChainPlayerSpeed;
             const float Stop=FMath::Min(300.f,Settings.BodyRadius+Pawn->GetCapsuleComponent()->GetScaledCapsuleRadius()+20.f);
+            const float Travel=FMath::Max(0.f,float(FVector::Dist2D(Goal,Pawn->GetActorLocation()))-Stop);
+            const float PullSeconds=FMath::Max(1.4f,Travel/ChainPlayerSpeed+.30f);
             const FGuid Operation=FGuid::NewGuid();
             if(Move && MCActiveSkillMotion::ClearPullStep(Pawn,this,this,Velocity,.04f)
-                && Move->BeginAcceptedHookPull(Operation,Goal,ChainPlayerSpeed,Stop,1.45f,false)) {
+                && Move->BeginAcceptedHookPull(Operation,Goal,ChainPlayerSpeed,Stop,PullSeconds+.05f,false)) {
                 ChainMotionID=Operation;ChainCargo=Pawn;
                 ChainCargoLocalContact=Pawn->GetActorTransform().InverseTransformPosition(ChainTip);
-                SetChainPhase(EMCNutBossChainPhase::PullPlayer,1.4f);
+                SetChainPhase(EMCNutBossChainPhase::PullPlayer,PullSeconds);
                 UMCDefenseSprayPassives::NotifyIncomingHit(Pawn,this);
                 PresentChainEvent(TEXT("CatchPlayer"),Origin,ChainTip);
                 return;

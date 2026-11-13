@@ -15,6 +15,7 @@ class UMCToothStatusComponent;
 class USoundBase;
 class USoundAttenuation;
 class UMCToothCalculusComponent;
+class AMCToothCharacter;
 
 UENUM(BlueprintType)
 enum class EMCArenaToothDamageStage : uint8 { Intact, Chipped, Broken, Lost };
@@ -92,6 +93,9 @@ struct FMCArenaToothState
     UPROPERTY() double HitTime=-100;
     UPROPERTY() FVector HitDirection=FVector(0,1,0);
     UPROPERTY() int32 HitSerial=0;
+    UPROPERTY(BlueprintReadOnly) double RespawnPullStartedAt=-1.;
+    UPROPERTY(BlueprintReadOnly) double RespawnSpitAt=-1.;
+    UPROPERTY(BlueprintReadOnly) FVector RespawnInward=FVector::ForwardVector;
 };
 
 /** Timestamped key press; clients animate against the server clock. */
@@ -136,7 +140,13 @@ public:
     UPROPERTY(ReplicatedUsing=OnRep_Grime,BlueprintReadOnly,Category="Care") TArray<uint8> GrimeMask;
     void ClearGrimeForBooster();
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Care") bool bShowCareLabel=false;
-    bool ConsumeForRespawn();
+    /** Reserve an available crown and replicate its animation timeline to peers. */
+    bool TryBeginRespawn(AMCToothCharacter* Player,FVector Inward,double SpitAt);
+    void CancelRespawn(const AMCToothCharacter* Player);
+    UFUNCTION(BlueprintPure, Category="Arena Tooth|Respawn") bool IsRespawnReserved() const;
+    UFUNCTION(BlueprintPure, Category="Arena Tooth|Respawn") FVector RespawnSpiritAnchor() const;
+    UFUNCTION(BlueprintPure, Category="Arena Tooth|Respawn") FVector RespawnMergeCenter() const;
+    bool ConsumeForRespawn(const AMCToothCharacter* Player=nullptr);
     bool NotifyPianoLanding(class AMCToothCharacter* Worker,const FHitResult& Hit,float DownSpeed);
     UFUNCTION(BlueprintPure, Category="Piano") int32 PianoMidiNote() const;
     UFUNCTION(BlueprintPure, Category="Piano") float PianoPitchScale() const;
@@ -170,6 +180,8 @@ private:
     UPROPERTY(ReplicatedUsing=ApplyAppearance) FMCArenaToothAppearance Appearance;
     UFUNCTION() void OnBodyHit(UPrimitiveComponent* Component,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> RespawnWhiteMaterial;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInterface>> RespawnPreviousSlotOverlays;
     UPROPERTY() TObjectPtr<UMCToothDamageProfile> LoadedDamageProfile;
     void ApplyDamageStageEnamel(UStaticMeshComponent& Target) const;
     void UpdateDamageVisual();
@@ -196,6 +208,11 @@ private:
     bool bGrimeRewardEligible=true;
     FVector MeshBaseLocation=FVector::ZeroVector;
     FVector MeshBaseScale=FVector::OneVector;
+    TWeakObjectPtr<AMCToothCharacter> ReservedRespawnPlayer;
+    FVector RespawnMergeCenterLocal() const;
+    void ClearRespawnSpit();
+    void ApplyRespawnSpitPose(double Now);
+    void SetRespawnWhiteout(float Alpha);
     double LastPhysicsHit=-100;
     bool bFallStarted=false;
     bool bInitialCalculusSeeded=false;

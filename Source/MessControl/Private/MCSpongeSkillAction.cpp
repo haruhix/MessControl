@@ -65,10 +65,16 @@ AMCSpongeSkillAction::AMCSpongeSkillAction()
     LoopComponent->SetRelativeScale3D(PropTransform.GetScale3D());
     StartVFX=FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/VFX/NS_Sponge_Start.NS_Sponge_Start"));
     LoopVFX=FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/VFX/NS_Sponge_Loop.NS_Sponge_Loop"));
+    ImpactVFX=FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/VFX/NS_Sponge_Impact.NS_Sponge_Impact"));
     EndVFX=FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/VFX/NS_Sponge_End.NS_Sponge_End"));
     SoapTrailVFX=FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/VFX/NS_Sponge_Trail.NS_Sponge_Trail"));
 }
 UMCSpongeSkillEffect::UMCSpongeSkillEffect() {ActionClass=AMCSpongeSkillAction::StaticClass();}
+
+float AMCSpongeSkillAction::RideSpeed() const
+{
+    return FMath::Clamp(Param(TEXT("RideSpeed"),1240.f),100.f,2000.f);
+}
 
 FTransform AMCSpongeSkillAction::GetRideFrame() const
 {
@@ -98,7 +104,7 @@ void AMCSpongeSkillAction::StartCommitted()
     Super::StartCommitted();
     Heading=Hero()->GetActorForwardVector().GetSafeNormal2D();PreviousFoot=MCActiveSkillMotion::FootPoint(Hero());
     const float Duration=FMath::Clamp(Param(TEXT("RideSeconds"),8.f),.2f,30.f);
-    const float Speed=FMath::Clamp(Param(TEXT("RideSpeed"),620.f),100.f,1200.f);
+    const float Speed=RideSpeed();
     EndsAt=Now()+Duration;LastSampleAt=Now();
     UpdateSpongeDeckPose(this,Heading);
     if(!Motion.BeginSteered(Hero(),GetActionID(),Heading*Speed,FMath::Clamp(Param(TEXT("TurnRate"),220.f),20.f,720.f),Duration)) Finish(EMCActiveSkillEndReason::InputCanceled);
@@ -122,7 +128,7 @@ void AMCSpongeSkillAction::Tick(float DeltaSeconds)
     // certifies buffered movement instead of guessing it from actor tick time.
     if(!Motion.SampleStep(float(Now()-LastSampleAt),PreviousSimulationTime,Seconds,ConsumedHeading,1.f)) {Finish(EMCActiveSkillEndReason::InputCanceled);return;}
     if(!ConsumedHeading.IsNearlyZero()) Heading=ConsumedHeading;
-    const float Speed=FMath::Clamp(Param(TEXT("RideSpeed"),620.f),100.f,1200.f);
+    const float Speed=RideSpeed();
     const FVector Foot=MCActiveSkillMotion::FootPoint(Hero());
     if(Seconds>0 && !MCActiveSkillMotion::ContinuousPath(PreviousFoot,Foot,Seconds,Speed)) {
         FVector Ground,Normal;const auto* Move=Hero()->GetCharacterMovement();
@@ -151,8 +157,14 @@ void AMCSpongeSkillAction::Tick(float DeltaSeconds)
         }
         // A legacy tuning row can request a wider radius than the visible deck.
         const float CleanRadius=FMath::Clamp(Param(TEXT("CleanRadius"),HalfWidth),5.f,HalfWidth);
-        MCActiveSkillMotion::CleanSweep(Hero(),this,PreviousFoot,Foot,Seconds,CleanRadius,
-            FMath::Clamp(Param(TEXT("CleanRate"),1.4f),.01f,20.f),Speed,Param(TEXT("CleanOnContact"),1.f)>=.5f);
+        MCActiveSkillMotion::FCleanContact Contact;
+        const bool bRemoved=MCActiveSkillMotion::CleanSweep(Hero(),this,PreviousFoot,Foot,Seconds,CleanRadius,
+            FMath::Clamp(Param(TEXT("CleanRate"),1.4f),.01f,20.f),Speed,Param(TEXT("CleanOnContact"),1.f)>=.5f,&Contact);
+        const double At=Now();
+        if(bRemoved && At>=NextCleanCueAt) {
+            PlaySkillCue(TEXT("Impact"),Contact.Point+Contact.Normal*3.f,Contact.Normal,Contact.Radius);
+            NextCleanCueAt=At+.11;
+        }
     }
     PreviousFoot=Foot;LastSampleAt=Now();
     const FVector Half=SpongeRideFootprint(this);

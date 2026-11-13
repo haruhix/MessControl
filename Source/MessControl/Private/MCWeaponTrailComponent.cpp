@@ -5,6 +5,8 @@
 #include "MCVFXNativeInputs.h"
 #include "MCWeaponImpact.h"
 #include "MCMeleeCombo.h"
+#include "MCKatanaSwing.h"
+#include "MCKatanaPlayback.h"
 #include "ProceduralMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Materials/MaterialInterface.h"
@@ -37,7 +39,7 @@ void UMCWeaponTrailComponent::BeginPlay()
     Super::BeginPlay();Hero=Cast<AMCToothCharacter>(GetOwner());
     if(!Hero || GetNetMode()==NM_DedicatedServer) return;
     PrimaryComponentTick.AddPrerequisite(Hero->GetMesh(),Hero->GetMesh()->PrimaryComponentTick);
-    Composer=MCWorldPresentation::PrepareOwner(Hero,{TEXT("Tool.Knife"),TEXT("Tool.Pickaxe")});
+    Composer=MCWorldPresentation::PrepareOwner(Hero,{TEXT("Tool.Knife"),TEXT("Tool.Pickaxe"),TEXT("Tool.Katana")});
     Ribbon=NewObject<UProceduralMeshComponent>(Hero,TEXT("WeaponSwingRibbon"));
     Ribbon->SetupAttachment(Hero->GetRootComponent());
     Ribbon->SetAbsolute(true,true,true);
@@ -61,12 +63,13 @@ void UMCWeaponTrailComponent::EndPlay(const EEndPlayReason::Type Reason)
 }
 void UMCWeaponTrailComponent::PublishAcceptedSwing(FName SourceID,double StartedAt,uint8 VisualStep)
 {
-    if(!Hero || !Composer || (SourceID!=TEXT("Tool.Knife") && SourceID!=TEXT("Tool.Pickaxe"))
+    if(!Hero || !Composer || (SourceID!=TEXT("Tool.Knife") && SourceID!=TEXT("Tool.Pickaxe") && SourceID!=TEXT("Tool.Katana"))
         || !FMath::IsFinite(StartedAt))return;
     if(bPublished && PresentationSource==SourceID && AcceptedAt==StartedAt)return;
     if(bPublished)StopComposerState();
     PresentationSource=SourceID;AcceptedAt=StartedAt;AcceptedStep=VisualStep;
-    SwingTool=uint8(SourceID==TEXT("Tool.Knife")?EMCToolSlot::Knife:EMCToolSlot::Pickaxe);
+    SwingTool=uint8(SourceID==TEXT("Tool.Pickaxe")?EMCToolSlot::Pickaxe:EMCToolSlot::Knife);
+    KatanaStroke=INDEX_NONE;
     PresentationEpisode=FGuid::NewGuid();PoseBreakSerial=0;bHasPreviousPose=false;bPublished=true;
     FVector Base=Hero->GetActorLocation(),Tip=Base;
     const bool HaveSpan=Hero->Inventory && uint8(Hero->Inventory->Selected)==SwingTool && Hero->Inventory->MeleeTrailSpan(Base,Tip);
@@ -79,7 +82,10 @@ void UMCWeaponTrailComponent::PublishComposerState(bool Active,float PoseDelta,b
     if(!bPublished || !Composer || !Hero || !Hero->Inventory)return;
     FMCPerkVFXGameplayValues Values;Values.VisualSubject=Hero->GetMesh();Values.EpisodeID=PresentationEpisode;
     Values.LocalStateAgeSeconds=FMath::Max(0.f,Hero->GetToolSwingElapsed());
-    Values.Duration=Hero->Inventory->SwingDuration();
+    const bool Katana=PresentationSource==TEXT("Tool.Katana");
+    const auto Variant=MCKatanaSwing::Decode(AcceptedStep);
+    Values.Duration=Katana?(MCKatanaSwing::ClipDuration(Variant)-MCKatanaSwing::PlaybackStart(Variant))
+        /Hero->GetKatanaSwingPlayRate():Hero->Inventory->SwingDuration();
     const bool Valid=HaveSpan && !Base.ContainsNaN() && !Tip.ContainsNaN();
     const float Travel=Valid&&bHasPreviousPose?float(FMath::Max(FVector::Dist(Base,PreviousBase),FVector::Dist(Tip,PreviousTip))):0.f;
     FVector TipDelta=Valid&&bHasPreviousPose?Tip-PreviousTip:FVector::ZeroVector;
@@ -101,19 +107,20 @@ void UMCWeaponTrailComponent::PublishComposerState(bool Active,float PoseDelta,b
     Add(TEXT("User.Native.BladePoseValid"),EMCVFXNativeInputType::Bool).BoolValue=Valid;
     Add(TEXT("User.Native.BladeBreakSerial"),EMCVFXNativeInputType::Int).IntValue=PoseBreakSerial;
     Add(TEXT("User.Native.SwingAge"),EMCVFXNativeInputType::Float).FloatValue=Values.LocalStateAgeSeconds;
-    Add(TEXT("User.Native.SwingVisualAge"),EMCVFXNativeInputType::Float).FloatValue=FMath::Max(0.f,MCWeaponImpact::VisualSwingElapsed(Hero));
+    Add(TEXT("User.Native.SwingVisualAge"),EMCVFXNativeInputType::Float).FloatValue=Katana
+        ?FMath::Max(0.f,Hero->GetKatanaSwingElapsed()):FMath::Max(0.f,MCWeaponImpact::VisualSwingElapsed(Hero));
     Add(TEXT("User.Native.SwingDuration"),EMCVFXNativeInputType::Float).FloatValue=Values.Duration;
     Add(TEXT("User.Native.SwingContactTime"),EMCVFXNativeInputType::Float).FloatValue=Hero->Inventory->SwingContactTime();
     const FVector2D NativeTrailWindow=MCMeleeCombo::TrailWindow(Hero);
     const bool HasComboWindow=NativeTrailWindow.X>=0.f&&NativeTrailWindow.Y>NativeTrailWindow.X;
     Add(TEXT("User.Native.SwingRate"),EMCVFXNativeInputType::Float).FloatValue=
-        HasComboWindow?MCMeleeCombo::AnimationRate(Hero):Hero->Inventory->RogueAttackRate();
+        Katana?Hero->GetKatanaSwingPlayRate():HasComboWindow?MCMeleeCombo::AnimationRate(Hero):Hero->Inventory->RogueAttackRate();
     Add(TEXT("User.Native.SwingStep"),EMCVFXNativeInputType::Int).IntValue=AcceptedStep;
     Add(TEXT("User.Native.TrailRenderAllowed"),EMCVFXNativeInputType::Bool).BoolValue=RenderAllowed&&Valid;
     Add(TEXT("User.Native.TrailViewPosition"),EMCVFXNativeInputType::Position).PositionValue=Eye;
     Add(TEXT("User.Native.PoseDeltaSeconds"),EMCVFXNativeInputType::Float).FloatValue=FMath::Max(0.f,PoseDelta);
     FString Error;const bool Updated=Composer->UpdateState(PresentationSource,TEXT("Swing"),Active,Hero->GetActorTransform(),Values,this,Error);
-    bNativeTrail=!Updated||Composer->UsesNativeVisuals(PresentationSource,TEXT("Swing"));
+    bNativeTrail=!Katana && (!Updated||Composer->UsesNativeVisuals(PresentationSource,TEXT("Swing")));
     if(Valid){PreviousBase=Base;PreviousTip=Tip;}bHasPreviousPose=Valid;
     if(!Active)bPublished=false;
 }
@@ -136,16 +143,40 @@ void UMCWeaponTrailComponent::TickComponent(float Dt,ELevelTick TickType,FActorC
     Super::TickComponent(Dt,TickType,ThisTickFunction);
     if(!Hero || !Ribbon || !Hero->Inventory) {StopComposerState();SetComponentTickEnabled(false);return;}
     const double Now=GetWorld()->GetTimeSeconds();
-    const float Visual=MCWeaponImpact::VisualSwingElapsed(Hero);
+    const bool Katana=PresentationSource==TEXT("Tool.Katana");
+    const auto Variant=MCKatanaSwing::Decode(AcceptedStep);
+    const float Visual=Katana?Hero->GetKatanaSwingElapsed():MCWeaponImpact::VisualSwingElapsed(Hero);
     FVector2D Window=MCMeleeCombo::TrailWindow(Hero);
-    if(Window.X<0) {
+    int32 Stroke=INDEX_NONE;
+    if(Katana) {
+        Window=FVector2D(-1,-1);
+        const auto Cuts=MCKatanaSwing::PlaybackCuts(Variant);
+        const float Rate=Hero->GetKatanaSwingPlayRate();
+        const float Offset=MCKatanaSwing::PlaybackStart(Variant);
+        for(int32 Index=0;Index<Cuts.Num();++Index) {
+            // A short cosmetic lead/follow keeps fast cuts readable between
+            // rendered frames. Neighboring cuts retain separate ribbon IDs.
+            const float Start=(Cuts[Index].Start-Offset)/Rate;
+            const float End=(Cuts[Index].End-Offset)/Rate;
+            const float PreviousEnd=Index>0?((Cuts[Index-1].End+Cuts[Index].Start)*.5f-Offset)/Rate:0.f;
+            const float NextStart=Index+1<Cuts.Num()?((Cuts[Index].End+Cuts[Index+1].Start)*.5f-Offset)/Rate:
+                (MCKatanaSwing::ClipDuration(Variant)-Offset)/Rate;
+            const FVector2D Cut(FMath::Max(Start-.03f,PreviousEnd),FMath::Min(End+.03f,NextStart));
+            if(Visual>=Cut.X && Visual<=Cut.Y) {Window=Cut;Stroke=Index;break;}
+        }
+        if(Stroke!=INDEX_NONE && Stroke!=KatanaStroke) {
+            ++PoseBreakSerial;
+            KatanaStroke=Stroke;
+            Samples.Reset();
+        }
+    } else if(Window.X<0) {
         const float Rate=Hero->Inventory->RogueAttackRate(),Contact=Hero->Inventory->SwingContactTime();
         Window=FVector2D(FMath::Max(0.f,Contact-.10f/Rate),Contact+.10f/Rate);
     }
     const bool Eligible=Enabled().GetValueOnGameThread() && Hero->CanWork()
-        && MCMeleeCombo::Supports(Hero) && uint8(Hero->Inventory->Selected)==SwingTool
+        && (Katana?Hero->GetKatanaSwingVariant()==Variant:MCMeleeCombo::Supports(Hero)) && uint8(Hero->Inventory->Selected)==SwingTool
         && Hero->Inventory->ShouldPresentTool() && !Hero->ActorHasTag(TEXT("MC.LegacyCombatFeedback"));
-    bEmitting=Eligible && Visual>=Window.X && Visual<=Window.Y;
+    bEmitting=Eligible && Window.X>=0.f && Visual>=Window.X && Visual<=Window.Y;
     FVector Base=Hero->GetActorLocation(),Tip=Base;
     const bool HaveSpan=Eligible && Hero->Inventory->MeleeTrailSpan(Base,Tip);
     if(bEmitting && HaveSpan) {
@@ -158,9 +189,12 @@ void UMCWeaponTrailComponent::TickComponent(float Dt,ELevelTick TickType,FActorC
     Samples.RemoveAll([&](const FMCWeaponTrailSample& S){return Now-S.At>Life;});
     if(Samples.Num()>MaxSamples) Samples.RemoveAt(0,Samples.Num()-MaxSamples,EAllowShrinking::No);
     ActiveSamples=Samples.Num();
+    const float Duration=Katana?(MCKatanaSwing::ClipDuration(Variant)-MCKatanaSwing::PlaybackStart(Variant))
+        /Hero->GetKatanaSwingPlayRate():Hero->Inventory->SwingDuration();
     const bool ScopeActive=bPublished && Hero->CanWork() && uint8(Hero->Inventory->Selected)==SwingTool
-        && Hero->GetToolSwingElapsed()>=0.f && Hero->GetToolSwingElapsed()<Hero->Inventory->SwingDuration();
-    if(bPublished)PublishComposerState(ScopeActive,Dt,HaveSpan,Base,Tip,Eligible);
+        && (Katana?Hero->GetKatanaSwingVariant()==Variant:true)
+        && Hero->GetToolSwingElapsed()>=0.f && Hero->GetToolSwingElapsed()<Duration;
+    if(bPublished)PublishComposerState(ScopeActive,Dt,HaveSpan,Base,Tip,Katana?bEmitting:Eligible);
     Upload(Now);
     if(Samples.IsEmpty() && (!Eligible || Visual>Window.Y)) {bEmitting=false;if(!bPublished)SetComponentTickEnabled(false);}
 }

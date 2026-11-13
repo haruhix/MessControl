@@ -7,6 +7,7 @@
 #include "MCNutBossAnimInstance.h"
 #include "MCCombatFeedbackComponent.h"
 #include "MCVFXPresentationComponent.h"
+#include "MCVFXLabBossStation.h"
 #include "MCDevCommands.h"
 
 #include "MCNutCombatEffect.h"
@@ -15,6 +16,7 @@
 #include "MCNutKamikaze.h"
 #include "MCFoodActor.h"
 #include "MCGameState.h"
+#include "MCDayPlan.h"
 #include "GameFramework/PlayerState.h"
 #include "MCArenaTooth.h"
 #include "MCTongue.h"
@@ -44,6 +46,40 @@ namespace
 // ChainCowboy contains Blender frames 1–57 at 24 fps. Frame 42 is release.
 constexpr float ChainCowboyReleaseSeconds=41.f/24.f;
 constexpr float ChainCowboyFollowThroughSeconds=15.f/24.f;
+constexpr float RollJumpDelay=3.f;
+constexpr float RollJumpFlightSeconds=.65f;
+constexpr float RollJumpHeight=180.f;
+constexpr float RollJumpApex=.57f;
+constexpr float RollJumpSpinScale=.8f;
+constexpr int32 RollJumpSweepSteps=8;
+
+constexpr float GravityWindupSeconds=.45f;
+constexpr float GravityRiseSeconds=.7f;
+constexpr float GravityHoldSeconds=.3f;
+constexpr float GravityBetweenReleases=2.05f;
+constexpr float GravityGestureRecovery=.32f;
+constexpr float GravityLiftHeight=480.f;
+constexpr float GravityAirborneSeconds=GravityRiseSeconds+GravityHoldSeconds;
+constexpr float GravityGestureSeconds=GravityWindupSeconds+GravityAirborneSeconds+GravityGestureRecovery;
+constexpr float GravityFallTimeout=3.f;
+constexpr float MageHoverHeight=34.f;
+constexpr float MageFlashCooldown=4.5f;
+constexpr float MageFlashPoseSeconds=.22f;
+constexpr float MageSphereGatherSeconds=1.05f;
+constexpr float MageSphereHeight=245.f;
+constexpr float MageSphereAimSeconds=.34f;
+constexpr float MageSphereShotInterval=.64f;
+
+FVector RollJumpPoint(const FVector& Start,const FVector& Landing,float Alpha)
+{
+    // Keep the takeoff and touchdown speed matched to the ground roll.
+    const float Blend=Alpha*(1.f-Alpha);
+    const float Travel=Alpha+2.f*FMath::Square(Blend)*(1.f-2.f*Alpha);
+    // A longer rise and a steeper drop give the ball a heavier landing.
+    const float FromApex=(Alpha-RollJumpApex)/(Alpha<RollJumpApex?RollJumpApex:1.f-RollJumpApex);
+    const float Lift=RollJumpHeight*(1.f-FMath::Square(FromApex));
+    return FMath::Lerp(Start,Landing,Travel)+FVector(0,0,Lift);
+}
 
 FMCNutCuePresentation NutVFXContext(EMCNutBossRole Role,const TCHAR* Action,FName Event,FName AfterWindup=NAME_None)
 {
@@ -324,7 +360,8 @@ void AMCNutBoss::UpdatePlayerBlocking()
     // contacts here would snag the active-ragdoll limbs and physical food;
     // attacks already apply their authoritative impulses explicitly.
     const bool Airborne=State==EMCNutBossState::Falling
-        || (State==EMCNutBossState::Executing && Attack==EMCNutBossAttack::Jump);
+        || (State==EMCNutBossState::Executing && (Attack==EMCNutBossAttack::Jump
+            || (Attack==EMCNutBossAttack::Roll && bRollJumpAirborne)));
     Body->SetCollisionObjectType(ECC_WorldDynamic);
     Body->SetCollisionResponseToChannel(ECC_Pawn,IsEncounterAlive() && !Airborne?ECR_Block:ECR_Ignore);
     Body->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Ignore);
@@ -443,6 +480,20 @@ FVector AMCNutBoss::GetSpellFocusOrigin() const
     return Palm(BossSettings.LeftHandBone,Left) && Palm(BossSettings.RightHandBone,Right)?(Left+Right)*.5:GetCastOrigin();
 }
 
+FVector AMCNutBoss::GetGravityHandOrigin(bool bRight) const
+{
+    if(MageModel && MageModel->GetSkeletalMeshAsset()) {
+        FName Bone=bRight?BossSettings.RightHandBone:BossSettings.LeftHandBone;
+        if(MageModel->GetBoneIndex(Bone)==INDEX_NONE)
+            Bone=FName(*Bone.ToString().Replace(TEXT("."),TEXT("_")));
+        if(MageModel->GetBoneIndex(Bone)!=INDEX_NONE) {
+            const FVector Palm=MageModel->GetSocketTransform(Bone,RTS_World).TransformPosition(FVector(0,-8,-1));
+            if(!Palm.ContainsNaN()) return Palm;
+        }
+    }
+    return GetCastOrigin()+GetActorRightVector()*(bRight?55.f:-55.f);
+}
+
 void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCNutBossAnimationSnapshot& Out) const
 {
     if(!Model || !Model->GetSkeletalMeshAsset()) return;
@@ -480,6 +531,7 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
     Out.Guard=!Out.bMage && ShieldHealth>0 && !bDefeated && State==EMCNutBossState::Idle?1.f:0.f;
     if(IsCounterShoving()) {Out.Hit=0;Out.ShieldHit=0;}
     const bool Active=State==EMCNutBossState::Telegraph || State==EMCNutBossState::Executing || State==EMCNutBossState::Recovery;
+    const bool bGravityCasting=Active && Out.bMage && Attack==EMCNutBossAttack::GravityWaves;
     Out.bAllowTankScale=!Out.bMage && Active && Attack==EMCNutBossAttack::Roll;
     const bool Telegraph=State==EMCNutBossState::Telegraph,Recovery=State==EMCNutBossState::Recovery;
     // These phases advance one continuous clip. A gameplay state change must
@@ -567,6 +619,22 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
         } else {
             AttackClip=WalkClip; AttackLoop=true; AttackRate=2.f;
         }
+    } else if(bGravityCasting) {
+        const auto Gesture=[&](double LiftAt) {
+            const float Age=float(Time-LiftAt)+GravityWindupSeconds;
+            return LiftAt>0 && Age>=0 && Age<GravityGestureSeconds ? Age/GravityGestureSeconds : -1.f;
+        };
+        Out.GravityLeftGesture=Gesture(ResolveAt);
+        Out.GravityRightGesture=Gesture(GravityRightLiftAt);
+        Out.VisualKey=1000+int32(Attack);
+        AttackWeight=0.f;
+    } else if(Active && Out.bMage && Attack==EMCNutBossAttack::NutSphere) {
+        AttackClip=Has(EMCNutBossClip::HeavyCast)?EMCNutBossClip::HeavyCast:EMCNutBossClip::Summon;
+        // Existing two-handed cast. Read the gather, hold the merged pose, then settle.
+        Phase=Telegraph?.66f*Progress(Time-AttackStartedAt,MageSphereGatherSeconds):
+            Recovery?FMath::Lerp(.72f,1.f,RecoveryProgress):.72f;
+        Out.VisualKey=1000+int32(Attack);
+        Out.bAuthoredSpellGestures=true;
     } else if(Active && Out.bMage) {
         const bool Teleporting=Attack==EMCNutBossAttack::Teleport;
         AttackClip=Teleporting?(Has(EMCNutBossClip::Teleport)?EMCNutBossClip::Teleport:EMCNutBossClip::HeavyCast):MageMelee?EMCNutBossClip::Melee:Attack==EMCNutBossAttack::Summon?EMCNutBossClip::Summon:
@@ -660,15 +728,8 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
         Out.Samples.Add(Sample);
     };
     const float Living=bDefeated?0.f:1.f,Locomotion=Living*(1-AttackWeight);
-    if(Out.bMage) {
-        const float Moving=FMath::SmoothStep(10.f,65.f,float(TankPresentationMotion.Size2D()));
-        Add(IdleClip,0,Locomotion*(1-Moving),true);Add(EMCNutBossClip::Walk,0,Locomotion*Moving,true);
-        if(Has(IdleClip) && Has(EMCNutBossClip::Walk)) {
-            Out.MageWalkIdleArms=BossAnimations[int32(IdleClip)];
-            Out.MageWalkIdleArmsSeconds=float(FMath::Fmod(FMath::Max(0.,Time),double(Out.MageWalkIdleArms->GetPlayLength())));
-            Out.MageWalkIdleArmsWeight=Locomotion*Moving;
-        }
-    } else {
+    if(Out.bMage) Add(IdleClip,0,Locomotion,true);
+    else {
         Add(IdleClip,0,Locomotion,true,1.f,0,1);
         if(WalkClip==EMCNutBossClip::UnshieldedWalk) Add(WalkClip,0,Locomotion,true,1.f,0,2);
         else {
@@ -678,12 +739,18 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
         }
     }
     Add(AttackClip,Phase,Living*AttackWeight,AttackLoop,AttackRate,AttackLoopStartedAt);
+    const float FlashAge=float(Time-MageFlashAt);
+    if(Out.bMage && !bDefeated && FlashAge>=0.f && FlashAge<MageFlashPoseSeconds && Has(EMCNutBossClip::Teleport)) {
+        const float Weight=1.f-FMath::SmoothStep(.04f,MageFlashPoseSeconds,FlashAge);
+        for(auto& Sample:Out.Samples) Sample.Weight*=1.f-Weight;
+        Add(EMCNutBossClip::Teleport,.38f+.24f*Progress(FlashAge,MageFlashPoseSeconds),Weight);
+        Out.VisualKey=6100;
+    }
     const float MageReactionSeconds=BossSettings.MageHitAnimationSeconds;
     if(Out.bMage && !bDefeated && !Active && Has(EMCNutBossClip::Hit) && HitAge>=0 && HitAge<MageReactionSeconds+Out.BlendSeconds) {
         const float Weight=1-FMath::SmoothStep(MageReactionSeconds,MageReactionSeconds+Out.BlendSeconds,HitAge);
         for(auto& Sample:Out.Samples) Sample.Weight*=1-Weight;
         Add(EMCNutBossClip::Hit,Progress(HitAge,MageReactionSeconds),Weight);
-        Out.MageWalkIdleArmsWeight*=1-Weight;
         Out.AuthoredTankHitWeight=Weight;
         Out.VisualKey=int32(HashCombine(GetTypeHash(5100),GetTypeHash(VisualHitAt)));
     }
@@ -778,7 +845,8 @@ void AMCNutBoss::PresentTankModel(double Time)
     if(HasMage) {
         const FVector Scale=MageModelScale*DeathScale*MageReveal*FMath::Max(.001f,TeleportVisibility);
         const FRotator ModelRotation(0,BossSettings.MageModelYaw,0);
-        MageModel->SetRelativeScale3D(Scale); MageModel->SetRelativeLocation(-ModelRotation.RotateVector(MageModelCenter*Scale)+FVector(0,0,BossSettings.MageHeight*.5f-Settings.BodyRadius));
+        const float Bob=bDefeated || Transforming || State==EMCNutBossState::Falling?0.f:5.f*FMath::Sin(float(Time*3.4));
+        MageModel->SetRelativeScale3D(Scale); MageModel->SetRelativeLocation(-ModelRotation.RotateVector(MageModelCenter*Scale)+FVector(0,0,BossSettings.MageHeight*.5f-Settings.BodyRadius+Bob));
         MageModel->SetRelativeRotation(ModelRotation); Visual->SetVisibility(false);
     }
     if(BossRole!=EMCNutBossRole::Tank) {
@@ -819,12 +887,12 @@ void AMCNutBoss::PresentTankModel(double Time)
             FVector Travel=Position-LastTankRollLocation; Travel.Z=0;
             const float Distance=Travel.Size();
             if(Distance>KINDA_SMALL_NUMBER && Distance<200.f) {
-                // Physical rolling: top of the ball moves with travel, while
-                // its contact point moves against it. World-space accumulation
-                // also keeps orientation continuous through turns and bounces.
+                // Keep the orientation continuous through turns, bounces and
+                // the jump. Airborne spin is looser than ground contact.
                 const FVector Axis=FVector::CrossProduct(FVector::UpVector,Travel/Distance);
                 const float Radius=FMath::Max(1.f,(TankBall->GetStaticMesh()?BossSettings.TankBallHeight:BossSettings.TankHeight)*.5f);
-                TankRollWorldRotation=(FQuat(Axis,Distance/Radius)*TankRollWorldRotation).GetNormalized();
+                const float SpinScale=bRollJumpAirborne?RollJumpSpinScale:1.f;
+                TankRollWorldRotation=(FQuat(Axis,Distance/Radius*SpinScale)*TankRollWorldRotation).GetNormalized();
             }
         }
         LastTankRollLocation=Position;
@@ -945,6 +1013,7 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
         || (Source && (Source->GetWorld()!=GetWorld() || !IsLiveTarget(Source)))) return 0;
     FVector HitOrigin=Source?Source->GetActorLocation():GetActorLocation(),HitForward=FVector::ForwardVector;float HitReach=0;
     UMCCombatPassiveSubsystem::GetSnapshotContact(Source,HitOrigin,HitForward,HitReach);
+    if(TryMageFlash(Source,HitOrigin)) return 0.f;
     const bool Shielded=IsShieldProtectingFrom(HitOrigin);
     bLastToolHitBlocked=Shielded;
     auto* Perks=UMCPerkComponent::ForActor(Source);
@@ -1181,7 +1250,7 @@ bool AMCNutBoss::FindTeleportPoint(FVector& Result)
         const FVector Candidate=Origin+FVector(FMath::Cos(Angle),FMath::Sin(Angle),0)*Distance;
         FHitResult Floor;
         if(!Tongue->GameplaySpawnFootprint(Candidate,Settings.BodyRadius+20,Floor)) continue;
-        const FVector Point=Floor.ImpactPoint+FVector(0,0,Settings.BodyRadius+4);
+        const FVector Point=Floor.ImpactPoint+FVector(0,0,Settings.BodyRadius+4+MageHoverHeight);
         if(!IsTeleportPointFree(Point)) continue;
         float Clearance=BossSettings.MageTeleportMaxDistance*2;
         for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
@@ -1206,6 +1275,48 @@ void AMCNutBoss::BeginTeleport()
     bResolved=false; Enter(EMCNutBossState::Telegraph,BossSettings.MageTeleportWindup);
     TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Teleport"),TEXT("Tell")),this,Tongue,EMCNutCombatCue::TeleportTell,LockedStart,LockedTarget,
         Settings.BodyRadius+35,BossSettings.MageTeleportWindup,.12f,AttackSeed));
+}
+
+bool AMCNutBoss::TryMageFlash(const AMCToothCharacter* Source,FVector StrikeOrigin)
+{
+    const double Time=Now();
+    if(BossRole!=EMCNutBossRole::Mage || !IsValid(Source) || !IsValid(Tongue)
+        || (LabStation.IsValid() && LabStation->Kind!=EMCVFXLabBossKind::MageFlash)
+        || (State!=EMCNutBossState::Idle && State!=EMCNutBossState::Recovery)
+        || Time-MageFlashAt<MageFlashCooldown) return false;
+
+    const FVector Origin=GetActorLocation();
+    if(FVector::DistSquared2D(Source->GetActorLocation(),Origin)>FMath::Square(520.f)) return false;
+    const FVector Away=(Origin-StrikeOrigin).GetSafeNormal2D(SMALL_NUMBER,-GetActorForwardVector());
+    const FVector Across=FVector::CrossProduct(FVector::UpVector,Away);
+    const float FirstSide=Random.RandRange(0,1)?1.f:-1.f;
+    const auto Shape=FCollisionShape::MakeSphere(Settings.BodyRadius+5);
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCNutMageFlash),false,this);
+    Query.AddIgnoredActor(Tongue);
+    for(const float Distance:{320.f,245.f}) for(const float Side:{FirstSide,-FirstSide}) {
+        const FVector Candidate=Origin+(Across*Side+Away*.28f)*Distance;
+        FHitResult Floor;
+        if(!Tongue->GameplaySpawnFootprint(Candidate,Settings.BodyRadius+12,Floor)) continue;
+        const FVector Destination=Floor.ImpactPoint+FVector(0,0,Settings.BodyRadius+4+MageHoverHeight);
+        if(FVector::DistSquared2D(Destination,Source->GetActorLocation())<=FMath::Square(Settings.BodyRadius+Source->GetCapsuleComponent()->GetScaledCapsuleRadius()+10.f)) continue;
+        FCollisionQueryParams PathQuery=Query;
+        PathQuery.AddIgnoredActor(Source);
+        if(GetWorld()->OverlapBlockingTestByProfile(Destination,FQuat::Identity,TEXT("BlockAll"),Shape,Query)
+            || GetWorld()->SweepTestByProfile(Origin,Destination,FQuat::Identity,TEXT("BlockAll"),Shape,PathQuery)) continue;
+        MageFlashAt=Time;
+        bLastToolHitBlocked=false;
+        NextSpecialAt=FMath::Max(NextSpecialAt,Time+MageFlashPoseSeconds);
+        const int32 Seed=Random.RandRange(1,MAX_int32);
+        TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Flash"),TEXT("Departure")),
+            this,Tongue,EMCNutCombatCue::WizardSpell,Origin,Destination,Settings.BodyRadius,.0f,.30f,Seed));
+        SetActorLocation(Destination,false,nullptr,ETeleportType::TeleportPhysics);
+        ResetClientPresentation();
+        TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Flash"),TEXT("Arrival")),
+            this,Tongue,EMCNutCombatCue::WizardSpell,Destination,Origin,Settings.BodyRadius,.0f,.30f,Seed));
+        ForceNetUpdate();
+        return true;
+    }
+    return false;
 }
 
 void AMCNutBoss::PushPlayer(AMCToothCharacter* Hero,FVector Direction,float Speed)
@@ -1248,6 +1359,8 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next,bool bChainFollowUp)
 {
     if(!HasAuthority() || !IsLiveTarget(Target)) return;
     if(Next==EMCNutBossAttack::Chain) {BeginChain(Target);return;}
+    if(Next==EMCNutBossAttack::GravityWaves) {BeginGravityWaves();return;}
+    if(Next==EMCNutBossAttack::NutSphere) {BeginMageNutSphere();return;}
     const double Time=Now();
     if(Next==EMCNutBossAttack::Charge || Next==EMCNutBossAttack::Jump || Next==EMCNutBossAttack::NutRain || Next==EMCNutBossAttack::Roll) SelectTarget(true);
     if(!IsLiveTarget(Target)) return;
@@ -1487,11 +1600,123 @@ void AMCNutBoss::DamageRollSegment(FVector Start,FVector End)
     }
 }
 
+bool AMCNutBoss::FindRollJumpSupport(FVector Candidate,FVector& Center,FVector& Floor) const
+{
+    FHitResult Ground;
+    if(!Tongue->InteriorSurfacePoint(Candidate,Settings.BodyRadius+5,Ground)) return false;
+    Floor=Ground.ImpactPoint;
+    // Allow the whole sphere to clear sloped support on the final swept step.
+    Center=Floor+FVector(0,0,Body->GetScaledSphereRadius()/Ground.ImpactNormal.Z+4);
+    return true;
+}
+
+bool AMCNutBoss::TryBeginRollJump(double Time)
+{
+    if(!IsValid(Tongue) || Tongue->IsMotionActive()) return false;
+
+    const FVector Start=GetActorLocation();
+    const float Travel=BossSettings.RollSpeed*RollJumpFlightSeconds;
+    const FCollisionShape Shape=FCollisionShape::MakeSphere(Body->GetScaledSphereRadius());
+    const FCollisionQueryParams Query(SCENE_QUERY_STAT(MCNutRollJump),false,this);
+    FCollisionResponseParams Response(Body->GetCollisionResponseToChannels());
+    Response.CollisionResponse.SetResponse(ECC_Pawn,ECR_Ignore);
+
+    for(const float Scale:{1.f,.7f}) {
+        FVector Landing,Floor;
+        if(!FindRollJumpSupport(Start+AttackForward*Travel*Scale,Landing,Floor)) continue;
+        FVector Previous=Start;
+        bool bClear=true;
+        for(int32 Step=1;Step<=RollJumpSweepSteps;++Step) {
+            const FVector Goal=RollJumpPoint(Start,Landing,float(Step)/RollJumpSweepSteps);
+            if(GetWorld()->SweepTestByChannel(Previous,Goal,FQuat::Identity,Body->GetCollisionObjectType(),Shape,Query,Response)) {
+                bClear=false;
+                break;
+            }
+            Previous=Goal;
+        }
+        if(!bClear) continue;
+
+        NextRollJumpAt=0;
+        RollJumpStart=Start;
+        RollJumpLanding=Landing;
+        RollJumpStartedAt=Time;
+        RollJumpProgress=0;
+        bRollJumpAirborne=true;
+        UpdatePlayerBlocking();
+        ForceNetUpdate();
+
+        auto* Tell=AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Roll"),TEXT("JumpTell")),
+            this,Tongue,EMCNutCombatCue::JumpTell,Floor,Floor,AMCTongue::RollLandingPainRadius,RollJumpFlightSeconds,0,AttackSeed);
+        RollJumpTell=Tell;
+        TrackAttackActor(Tell);
+        return true;
+    }
+    return false;
+}
+
+void AMCNutBoss::ExecuteRollJump(double Time)
+{
+    const float Progress=FMath::Clamp(float(Time-RollJumpStartedAt)/RollJumpFlightSeconds,0.f,1.f);
+    if(Progress<=RollJumpProgress) return;
+
+    const bool bTouchdown=Progress>=1;
+    FVector Landing,Floor;
+    if(bTouchdown && !FindRollJumpSupport(RollJumpLanding,Landing,Floor)) {
+        FinishRollJump(false);
+        return;
+    }
+    // Sweep the arc in small pieces even when a frame spans most of the jump.
+    const int32 Steps=FMath::CeilToInt((Progress-RollJumpProgress)*RollJumpSweepSteps);
+    for(int32 Step=1;Step<=Steps;++Step) {
+        const float Alpha=FMath::Lerp(RollJumpProgress,Progress,float(Step)/Steps);
+        const FVector Goal=bTouchdown && Step==Steps ? Landing : RollJumpPoint(RollJumpStart,RollJumpLanding,Alpha);
+        FHitResult Hit;
+        MoveAttackBody(Goal,Hit);
+        if(Hit.bBlockingHit) {
+            FinishRollJump(false);
+            return;
+        }
+    }
+    RollJumpProgress=Progress;
+    if(!bTouchdown) return;
+
+    FinishRollJump(true);
+    if(Tongue->TriggerRollLandingPain(Floor))
+        TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Roll"),TEXT("JumpImpact")),
+            this,Tongue,EMCNutCombatCue::SlamImpact,Floor,Floor,AMCTongue::RollLandingPainRadius,0,.55f,AttackSeed));
+}
+
+void AMCNutBoss::FinishRollJump(bool bLanded)
+{
+    if(!bRollJumpAirborne) return;
+    if(auto* Tell=RollJumpTell.Get()) Tell->Cancel();
+    RollJumpTell.Reset();
+
+    if(!bLanded && GetWorld() && !GetWorld()->bIsTearingDown && !IsActorBeingDestroyed()
+        && IsValid(Tongue) && !Tongue->IsActorBeingDestroyed()) {
+        FVector Support,Floor;
+        FHitResult Hit;
+        const bool bHasSupport=FindRollJumpSupport(GetActorLocation(),Support,Floor);
+        if(bHasSupport) MoveAttackBody(Support,Hit);
+        if((!bHasSupport || Hit.bBlockingHit) && FindRollJumpSupport(RollJumpStart,Support,Floor))
+            SetActorLocation(Support,false,nullptr,ETeleportType::TeleportPhysics);
+    }
+
+    bRollJumpAirborne=false;
+    UpdatePlayerBlocking();
+    ForceNetUpdate();
+}
+
 void AMCNutBoss::ExecuteRoll(float Dt)
 {
     if(!HasAuthority() || !FMath::IsFinite(Dt) || Dt<=0) return;
     const double Time=Now();
+    if(bRollJumpAirborne) {ExecuteRollJump(Time);return;}
     if(Time>=AttackEndAt) {Recover(1.4f);return;}
+    if(NextRollJumpAt>0 && Time>=NextRollJumpAt && Time+RollJumpFlightSeconds<AttackEndAt) {
+        if(TryBeginRollJump(Time)) return;
+        NextRollJumpAt=Time+.25;
+    }
     if(!IsLiveTarget(Target) || Time>=NextTargetAt) SelectTarget(false);
     const float FrameSeconds=FMath::Min(Dt,.25f);
     {
@@ -1542,6 +1767,166 @@ void AMCNutBoss::ExecuteRoll(float Dt)
     SetActorRotation(AttackForward.Rotation());
     // Rebase the rolling sphere against the final parent yaw in this frame.
     PresentTankModel(Time);
+}
+
+bool AMCNutBoss::BeginGravityWaves()
+{
+    if(!HasAuthority() || BossRole!=EMCNutBossRole::Mage || !IsLiveTarget(Target)
+        || !IsValid(EncounterOwner) || !IsValid(Tongue)) return false;
+
+    const FVector Facing=(Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(KINDA_SMALL_NUMBER,GetActorForwardVector());
+    const FVector Right=FVector::CrossProduct(FVector::UpVector,Facing);
+    if(EncounterOwner->BeginWizardGravityWaves(GetActorLocation(),Right,VFXContext)<2) return false;
+
+    Attack=EMCNutBossAttack::GravityWaves;
+    AttackSeed=Random.RandRange(1,MAX_int32);
+    LockedStart=GetActorLocation();
+    LockedTarget=Target->GetActorLocation();
+    AttackForward=Facing;
+    AttackStartedAt=Now();
+    ResolveAt=AttackStartedAt+GravityWindupSeconds;
+    GravityWaveStep=0;
+    GravityStepAt=ResolveAt;
+    GravityRightLiftAt=0;
+    StartAttackCooldown(ResolveAt+GravityBetweenReleases+GravityAirborneSeconds+1.f+GravityGestureRecovery);
+    Enter(EMCNutBossState::Telegraph,GravityWindupSeconds);
+    return true;
+}
+
+void AMCNutBoss::PresentGravityHand(int32 WaveIndex,bool bDrop)
+{
+    const bool bRight=WaveIndex==1;
+    const FName Event=bDrop?(bRight?TEXT("DropRight"):TEXT("DropLeft")):
+        (bRight?TEXT("LiftRight"):TEXT("LiftLeft"));
+    const FVector Hand=GetGravityHandOrigin(bRight);
+    TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("GravityWaves"),Event),
+        this,Tongue,EMCNutCombatCue::GravityHand,Hand,Hand+FVector::UpVector*(bDrop?-100.f:100.f),
+        65.f,0.f,bDrop?.35f:GravityAirborneSeconds,AttackSeed));
+}
+
+void AMCNutBoss::ExecuteGravityWaves(double Time)
+{
+    if(!IsValid(EncounterOwner)) {Recover(GravityGestureRecovery);return;}
+    if(Time<GravityStepAt) return;
+
+    // Each step uses the actual transition time so a hitch cannot combine the drops.
+    if(GravityWaveStep==4) {
+        if(EncounterOwner->HasWizardGravityDropsInFlight()) {
+            if(Time<AttackEndAt) return;
+            EncounterOwner->CancelWizardGravityWaves();
+        }
+        Recover(GravityGestureRecovery);
+        return;
+    }
+
+    const int32 WaveIndex=GravityWaveStep/2;
+    if(GravityWaveStep%2==0) {
+        if(WaveIndex==0) ResolveAt=Time;
+        else GravityRightLiftAt=Time;
+        if(EncounterOwner->StartWizardGravityWave(WaveIndex,GravityRiseSeconds,GravityHoldSeconds,GravityLiftHeight)>0)
+            PresentGravityHand(WaveIndex,false);
+        GravityStepAt=Time+GravityAirborneSeconds;
+    } else {
+        if(EncounterOwner->DropWizardGravityWave(WaveIndex)>0) PresentGravityHand(WaveIndex,true);
+        if(WaveIndex==0) {
+            GravityRightLiftAt=Time+GravityBetweenReleases-GravityAirborneSeconds;
+            GravityStepAt=GravityRightLiftAt;
+        } else {
+            GravityStepAt=Time+GravityGestureRecovery;
+            AttackEndAt=Time+GravityFallTimeout;
+        }
+    }
+    ++GravityWaveStep;
+    ForceNetUpdate();
+}
+
+bool AMCNutBoss::BeginMageNutSphere()
+{
+    if(!HasAuthority() || BossRole!=EMCNutBossRole::Mage || !IsLiveTarget(Target)
+        || !IsValid(Tongue) || !IsValid(EncounterOwner)) return false;
+    const auto* Game=GetWorld()->GetGameState<AMCGameState>();
+    const FVector ArenaCenter=Game && Game->DayPlan?Game->DayPlan->ArenaCenter:Tongue->GetActorLocation();
+    const int32 Count=EncounterOwner->BeginWizardNutSphere(ArenaCenter,MageSphereGatherSeconds,MageSphereHeight);
+    if(Count<=0) return false;
+
+    Attack=EMCNutBossAttack::NutSphere;
+    AttackSeed=Random.RandRange(1,MAX_int32);
+    AttackStartedAt=Now();
+    ResolveAt=AttackStartedAt+MageSphereGatherSeconds;
+    LockedStart=GetActorLocation();
+    LockedTarget=EncounterOwner->GetWizardNutSphereLocation();
+    AttackForward=(LockedTarget-LockedStart).GetSafeNormal2D(SMALL_NUMBER,GetActorForwardVector());
+    MageSphereShotsRemaining=Count;
+    MageSphereShotAt=ResolveAt;
+    bMageSphereAimLocked=false;
+    bResolved=false;
+    StartAttackCooldown(ResolveAt+Count*MageSphereShotInterval+1.5f);
+    Enter(EMCNutBossState::Telegraph,MageSphereGatherSeconds);
+    for(const bool bRight:{false,true}) {
+        const FName Event=bRight?TEXT("ChargeRight"):TEXT("ChargeLeft");
+        TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("NutSphere"),Event),this,Tongue,
+            EMCNutCombatCue::WizardSpell,GetGravityHandOrigin(bRight),LockedTarget,58.f,0.f,MageSphereGatherSeconds,AttackSeed));
+    }
+    return true;
+}
+
+void AMCNutBoss::ExecuteMageNutSphere(double Time)
+{
+    if(!IsValid(EncounterOwner)) {Recover(.6f);return;}
+    const bool bCanFire=MageSphereShotsRemaining>0 && EncounterOwner->HasWizardNutSphereAmmo();
+    if(!bCanFire || Time>=AttackEndAt) {
+        if(Time<AttackEndAt && EncounterOwner->HasWizardNutSphereShotsInFlight()) return;
+        EncounterOwner->CancelWizardNutSphere();
+        Recover(.6f);
+        return;
+    }
+    if(!bResolved) {
+        bResolved=true;
+        const FVector Center=EncounterOwner->GetWizardNutSphereLocation();
+        TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("NutSphere"),TEXT("Merge")),this,Tongue,
+            EMCNutCombatCue::WizardSpell,Center,Center+FVector::UpVector,150.f,0.f,MageSphereShotsRemaining*MageSphereShotInterval+.45f,AttackSeed));
+    }
+    if(Time<MageSphereShotAt) return;
+    if(!bMageSphereAimLocked) {
+        if(!IsLiveTarget(Target)) SelectTarget(false);
+        if(!IsLiveTarget(Target)) {
+            EncounterOwner->CancelWizardNutSphere();
+            Recover(.6f);
+            return;
+        }
+        LockedTarget=Target->GetActorLocation();
+        bMageSphereAimLocked=true;
+        MageSphereShotAt=Time+MageSphereAimSeconds;
+        return;
+    }
+    FVector ShotOrigin,ShotTarget;
+    if(EncounterOwner->FireWizardNutSphereShot(LockedTarget,ShotOrigin,ShotTarget))
+        TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("NutSphere"),TEXT("Shot")),this,Tongue,
+            EMCNutCombatCue::WizardSpell,ShotOrigin,ShotTarget,65.f,0.f,.25f,AttackSeed-MageSphereShotsRemaining));
+    --MageSphereShotsRemaining;
+    bMageSphereAimLocked=false;
+    MageSphereShotAt=Time+(MageSphereShotInterval-MageSphereAimSeconds);
+}
+
+bool AMCNutBoss::TryAdvanceMageNutCycle(double Time)
+{
+    if(MageNutFollowup==EMageNutFollowup::None || Time<NextSpecialAt || !IsValid(EncounterOwner)) return false;
+    if(MageNutFollowup==EMageNutFollowup::Gravity) {
+        MageNutFollowup=EMageNutFollowup::Summon;
+        if(BeginGravityWaves()) return true;
+    }
+    if(MageNutFollowup==EMageNutFollowup::Sphere) {
+        MageNutFollowup=EMageNutFollowup::Summon;
+        if(BeginMageNutSphere()) return true;
+    }
+    if(Time<NextSummonAt) return false;
+
+    MageNutFollowup=EMageNutFollowup::None;
+    TArray<AMCFoodActor*> Available;
+    EncounterOwner->GetAvailableRainNuts(Available);
+    if(Available.IsEmpty()) return false;
+    BeginAttack(EMCNutBossAttack::Summon);
+    return State==EMCNutBossState::Telegraph;
 }
 
 void AMCNutBoss::SummonCreeps()
@@ -1646,6 +2031,8 @@ void AMCNutBoss::StartAttackCooldown(double RecoveryEndsAt)
     case EMCNutBossAttack::Fireball: NextFireballAt=RecoveryEndsAt+BossSettings.FireballCooldown;break;
     case EMCNutBossAttack::Summon: NextSummonAt=RecoveryEndsAt+BossSettings.SummonCooldown;break;
     case EMCNutBossAttack::NutRain: NextRainAt=RecoveryEndsAt+BossSettings.RainCooldown;break;
+    case EMCNutBossAttack::GravityWaves:
+    case EMCNutBossAttack::NutSphere: break;
     case EMCNutBossAttack::Teleport: NextTeleportAt=RecoveryEndsAt+BossSettings.MageTeleportCooldown;break;
     case EMCNutBossAttack::Chain: NextChainAt=RecoveryEndsAt+BossSettings.TankChainCooldown;break;
     default: return;
@@ -1672,8 +2059,11 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         const float Duration=Attack==EMCNutBossAttack::Charge?float(FVector::Dist2D(LockedStart,LockedTarget))/BossSettings.ChargeSpeed
             :Attack==EMCNutBossAttack::Jump?BossSettings.JumpFlightSeconds:Attack==EMCNutBossAttack::NutRain?BossSettings.RainActiveSeconds
             :Attack==EMCNutBossAttack::Roll?PlannedRollSeconds:
+            Attack==EMCNutBossAttack::GravityWaves?GravityBetweenReleases+GravityAirborneSeconds+GravityFallTimeout:
+            Attack==EMCNutBossAttack::NutSphere?MageSphereShotsRemaining*MageSphereShotInterval+2.f:
             Attack==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank?TankMeleeActiveSeconds():.1f;
         Enter(EMCNutBossState::Executing,Duration);
+        if(Attack==EMCNutBossAttack::Roll) NextRollJumpAt=Time+RollJumpDelay;
     }
     if(Attack==EMCNutBossAttack::CounterShove) {
         if(!bResolved) {
@@ -1690,7 +2080,9 @@ void AMCNutBoss::ExecuteAttack(float Dt)
             FVector Landing;
             // The tongue and the workers can move during the warning. Never
             // substitute a new unannounced destination when the lock is occupied.
-            if(LockSurfacePoint(LockedTarget,Settings.BodyRadius+20,Landing) && IsTeleportPointFree(Landing)) {
+            const bool bHasSupport=LockSurfacePoint(LockedTarget,Settings.BodyRadius+20,Landing);
+            if(bHasSupport) Landing.Z+=MageHoverHeight;
+            if(bHasSupport && IsTeleportPointFree(Landing)) {
                 SetActorLocation(Landing,false,nullptr,ETeleportType::TeleportPhysics);
                 LastTankPresentationAt=-1; TankPresentationMotion=FVector::ZeroVector;
                 FocusHits=0; FocusWindowStartedAt=-100;
@@ -1721,6 +2113,10 @@ void AMCNutBoss::ExecuteAttack(float Dt)
             TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Jump"),TEXT("Impact")),this,Tongue,EMCNutCombatCue::SlamImpact,LockedTarget,LockedTarget,BossSettings.JumpRadius,0,.6f,AttackSeed));
             Recover(1.7f);
         }
+    } else if(Attack==EMCNutBossAttack::GravityWaves) {
+        ExecuteGravityWaves(Time);
+    } else if(Attack==EMCNutBossAttack::NutSphere) {
+        ExecuteMageNutSphere(Time);
     } else if(Attack==EMCNutBossAttack::NutRain) {
         const int32 DropCount=IsValid(EncounterOwner)
             ?EncounterOwner->Settings.PatternA.Num()+EncounterOwner->Settings.PatternB.Num():BossSettings.RainDrops;
@@ -1731,7 +2127,13 @@ void AMCNutBoss::ExecuteAttack(float Dt)
             if(IsValid(EncounterOwner)) EncounterOwner->SpawnSpellNut(
                 LockedTarget,int32(uint32(AttackSeed)+uint32(RainDropsResolved)),RainDropsResolved,VFXContext);
         }
-        if(Time>=AttackEndAt && RainDropsResolved>=DropCount) Recover(1.4f);
+        if(Time>=AttackEndAt && RainDropsResolved>=DropCount) {
+            if(BossRole==EMCNutBossRole::Mage && IsValid(EncounterOwner) && !LabStation.IsValid()) {
+                MageNutFollowup=bMageSphereNext?EMageNutFollowup::Sphere:EMageNutFollowup::Gravity;
+                bMageSphereNext=!bMageSphereNext;
+            }
+            Recover(1.4f);
+        }
     } else if(Attack==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank) {
         const int32 ContactCount=TankMeleeVariant==2?3:1;
         while(MeleeHitsResolved<ContactCount && Time>=ResolveAt+TankMeleeContactOffset(MeleeHitsResolved)) {
@@ -1797,7 +2199,7 @@ void AMCNutBoss::Tick(float Dt)
         if(BossRole==EMCNutBossRole::Tank && Time>=StateStartedAt+MageRevealAt) RevealMagePhase();
         if(Time>=AttackEndAt) {
             Enter(EMCNutBossState::Idle,0);
-            NextTargetAt=Time;NextFireballAt=Time+1.25;NextSummonAt=Time+3;NextRainAt=Time+6;
+            NextTargetAt=Time;NextFireballAt=Time+1.25;NextSummonAt=Time+3;NextRainAt=Time+1.25;
             NextMeleeAt=Time+1.5;NextTeleportAt=Time+4;NextSpecialAt=Time+1.25;
             if(IsValid(EncounterOwner)) if(auto* GS=GetWorld()->GetGameState<AMCGameState>())
                 GS->RecordDirectorDecision(TEXT("Орехи: скорлупа Рыцаря раскололась — победите Орехового Колдуна"));
@@ -1812,6 +2214,16 @@ void AMCNutBoss::Tick(float Dt)
             Enter(EMCNutBossState::Idle,0);
         }
         return;
+    }
+    if(BossRole==EMCNutBossRole::Mage) {
+        const FVector Position=GetActorLocation();
+        FHitResult Floor;
+        if(Tongue->SurfacePoint(Position,Floor)) {
+            const double Height=Floor.ImpactPoint.Z+Settings.BodyRadius+4+MageHoverHeight;
+            const double NextHeight=FMath::FInterpTo(Position.Z,Height,Dt,9.);
+            if(!FMath::IsNearlyEqual(Position.Z,NextHeight,.1)) SetActorLocation(FVector(Position.X,Position.Y,NextHeight),true);
+        }
+        if(Time-MageFlashAt<MageFlashPoseSeconds) return;
     }
     if(State==EMCNutBossState::Stunned) {
         // Further hits play Damage2 but never restart or extend this window.
@@ -1861,6 +2273,7 @@ void AMCNutBoss::Tick(float Dt)
         if(IsLiveTarget(Target)) TurnTowards((Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(),Dt);
         return;
     }
+    if(BossRole==EMCNutBossRole::Mage && TryAdvanceMageNutCycle(Time)) return;
     if(BossRole==EMCNutBossRole::Mage && Time>=NextSpecialAt && Time>=NextTeleportAt && IsMageFocused()) {
         BeginTeleport();
         if(State==EMCNutBossState::Telegraph) return;
@@ -1885,10 +2298,13 @@ void AMCNutBoss::Tick(float Dt)
         if(Time>=NextRollAt) {BeginAttack(EMCNutBossAttack::Roll);return;}
         if(Time>=NextJumpAt) {BeginAttack(EMCNutBossAttack::Jump);return;}
     } else if(Time>=NextSpecialAt && BossRole==EMCNutBossRole::Mage) {
-        if(Time>=NextRainAt) {BeginAttack(EMCNutBossAttack::NutRain);return;}
-        if(Time>=NextSummonAt && IsValid(EncounterOwner)) {
-            TArray<AMCFoodActor*> Available; EncounterOwner->GetAvailableRainNuts(Available);
-            if(!Available.IsEmpty()) {BeginAttack(EMCNutBossAttack::Summon);return;}
+        if(MageNutFollowup==EMageNutFollowup::None) {
+            if(Time>=NextRainAt) {BeginAttack(EMCNutBossAttack::NutRain);return;}
+            if(Time>=NextSummonAt && IsValid(EncounterOwner)) {
+                TArray<AMCFoodActor*> Available;
+                EncounterOwner->GetAvailableRainNuts(Available);
+                if(!Available.IsEmpty()) {BeginAttack(EMCNutBossAttack::Summon);return;}
+            }
         }
         if(Time>=NextFireballAt && Time>=NextTeleportAt) {
             // Scheduled fire-nuts use the same blink -> complete cast chain
@@ -1899,8 +2315,8 @@ void AMCNutBoss::Tick(float Dt)
     }
     const FVector Previous=GetActorLocation();
     if(BossRole==EMCNutBossRole::Tank && Distance>BossSettings.MeleeRange*.8f) MoveOnTongue(Direction,Dt);
-    else if(BossRole==EMCNutBossRole::Mage && Distance<BossSettings.MageFocusRadius) MoveOnTongue(-Direction,Dt);
-    else if(BossRole==EMCNutBossRole::Mage && Distance>720+Settings.BodyRadius) MoveOnTongue(Direction,Dt);
+    else if(BossRole==EMCNutBossRole::Mage && Distance<BossSettings.MageFocusRadius) MoveOnTongue(-Direction,Dt,MageHoverHeight);
+    else if(BossRole==EMCNutBossRole::Mage && Distance>720+Settings.BodyRadius) MoveOnTongue(Direction,Dt,MageHoverHeight);
     PushNutsAlongSegment(Previous,GetActorLocation(),FMath::Max(.001f,Dt));
 }
 
@@ -1920,6 +2336,12 @@ bool AMCNutBoss::IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeD
         if(FVector::DistSquared(Point,Closest)>FMath::Square(HeroRadius+35.f)) return false;
         EscapeDirection=(Point-Closest).GetSafeNormal2D();
         if(EscapeDirection.IsNearlyZero()) EscapeDirection=FVector::CrossProduct(FVector::UpVector,(ChainFlightEnd-Start).GetSafeNormal2D());
+    }
+    else if(Attack==EMCNutBossAttack::Roll && bRollJumpAirborne && HasAuthority()) {
+        const FVector Delta=Point-RollJumpLanding;
+        if(Delta.SizeSquared2D()>FMath::Square(AMCTongue::RollLandingPainRadius+HeroRadius)
+            || FMath::Abs(Delta.Z)>180) return false;
+        EscapeDirection=Delta.GetSafeNormal2D();
     }
     else if(Attack==EMCNutBossAttack::Roll) {
         const FVector Start=State==EMCNutBossState::Telegraph?LockedStart:GetActorLocation();
@@ -1957,6 +2379,11 @@ bool AMCNutBoss::IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeD
 void AMCNutBoss::CancelAttacks()
 {
     if(!HasAuthority()) return;
+    if(Attack==EMCNutBossAttack::GravityWaves && IsValid(EncounterOwner)) EncounterOwner->CancelWizardGravityWaves();
+    if(Attack==EMCNutBossAttack::NutSphere && IsValid(EncounterOwner)) EncounterOwner->CancelWizardNutSphere();
+    MageNutFollowup=EMageNutFollowup::None;
+    FinishRollJump(false);
+    NextRollJumpAt=0;
     CancelChain();
     if(ShieldPresentation)ShieldPresentation->StopPresentation(true);
     if(FireballPresentation)FireballPresentation->StopPresentation(true);
@@ -2027,6 +2454,9 @@ void AMCNutBoss::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
     DOREPLIFETIME(AMCNutBoss,EncounterOwner); DOREPLIFETIME(AMCNutBoss,BossSettings); DOREPLIFETIME(AMCNutBoss,BossRole);
     DOREPLIFETIME(AMCNutBoss,bHasMagePhase);
     DOREPLIFETIME(AMCNutBoss,State); DOREPLIFETIME(AMCNutBoss,Attack); DOREPLIFETIME(AMCNutBoss,StateStartedAt);
+    DOREPLIFETIME(AMCNutBoss,bRollJumpAirborne);
+    DOREPLIFETIME(AMCNutBoss,GravityRightLiftAt);
+    DOREPLIFETIME(AMCNutBoss,MageFlashAt);
     DOREPLIFETIME(AMCNutBoss,ResolveAt); DOREPLIFETIME(AMCNutBoss,AttackEndAt); DOREPLIFETIME(AMCNutBoss,LockedStart);
     DOREPLIFETIME(AMCNutBoss,LockedTarget); DOREPLIFETIME(AMCNutBoss,AttackForward); DOREPLIFETIME(AMCNutBoss,AttackSeed);
     DOREPLIFETIME(AMCNutBoss,VisualHitAt); DOREPLIFETIME(AMCNutBoss,ShieldHitAt); DOREPLIFETIME(AMCNutBoss,VisualHitDirection);

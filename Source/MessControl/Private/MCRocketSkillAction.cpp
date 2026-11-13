@@ -336,6 +336,7 @@ void AMCRocketSkillAction::Detonate(FVector Point,FVector Normal)
     Blast.EnemyDamage=Param(TEXT("EnemyDamage"),100.f);Blast.PlayerDamage=Param(TEXT("PlayerDamage"),40.f);
     Blast.PushSpeed=Param(TEXT("PushSpeed"),650.f);Blast.ArenaDamage=Param(TEXT("ArenaDamage"),120.f);
     Blast.bDamageArenaTeeth=true;
+    Blast.bExplosive=true;
     PlaySkillCue(TEXT("Impact"),Point,Normal,Blast.Radius);
     MCActiveSkillImpact::ApplyRadial(this,SourceState(),Point+Normal*2.f,Blast);ForceNetUpdate();
 }

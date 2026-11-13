@@ -259,9 +259,12 @@ void UMCUnifiedGameplayMenuWidget::Present(const FMCGameplayMenuPresentationSnap
     auto Copy=[this](FName Name,const FText& Text) {if(auto* Label=WidgetTree->FindWidget<UTextBlock>(Name)) {Label->SetText(Text);Label->SetVisibility(Text.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);}};
     Copy(TEXT("GameplayMenuV2NetworkNote"),Snapshot.NetworkNote);Copy(TEXT("GameplayMenuV2Status"),Snapshot.Status);Copy(TEXT("GameplayMenuV2Hint"),Snapshot.Hint);
     TSet<FName> Visible;
+    bool bHasBodyRows=false;
     for(const auto& Source:Snapshot.Controls) {
+        if(Source.Kind==MCUnifiedGameplayMenuPrivate_K::Text && Source.Text.IsEmptyOrWhitespace()) continue;
         auto& Row=EnsureControl(ActivePageIndex,Source);Visible.Add(Source.Name);if(Row.Host) Row.Host->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
         BindControl(Row,Source,Snapshot.PageName);if(!Row.Control) continue;Row.Control->SetIsEnabled(Source.bEnabled && !Snapshot.bClosing);
+        if(Row.Host && !Source.bFooter) bHasBodyRows=true;
         if(Row.Kind==MCUnifiedGameplayMenuPrivate_K::Text) {if(auto* Label=Cast<UTextBlock>(Row.Control)) Label->SetText(Source.Text);}
         else if(Row.Surface) {
             Row.Surface->SetLabel(NAME_None,Source.Text);
@@ -280,6 +283,8 @@ void UMCUnifiedGameplayMenuWidget::Present(const FMCGameplayMenuPresentationSnap
     for(auto& Row:Controls) if(Row.PageIndex==ActivePageIndex && !Visible.Contains(Row.Name)) {
         if(Row.Host) Row.Host->SetVisibility(ESlateVisibility::Collapsed);if(Row.Binding) Row.Binding->Source.Reset();
     }
+    if(auto* Interior=WidgetTree->FindWidget(MCUnifiedGameplayMenuPrivate_PagePart(TEXT("Inner"),ActivePageIndex)))
+        Interior->SetVisibility(bHasBodyRows?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
     // Every text label held by Slate has a reflected GC owner for the view lifetime.
     for(auto& Generated:GeneratedPickerLabels) if(Generated.Label && Generated.Picker.IsValid()) {
         const float Width=Generated.Picker->GetPaintSpaceGeometry().GetLocalSize().X;if(Width>1) Generated.Label->SetWrapTextAt(FMath::Max(200.f,Width-48));

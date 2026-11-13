@@ -16,6 +16,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hub|Prompt")
     FText KeyLabel=FText::FromString(TEXT("E"));
 
+    static constexpr int32 ShopPromptFontSize=16;
+    static FText ShopPromptCopy(UDataTable* CopyTable,const FString& Culture=FString());
+    void SetShopPrompt();
     virtual void BuildPresentationTree() override;
     virtual void ApplyTheme() override;
     virtual void ApplyEditorPreview(float Time) override;

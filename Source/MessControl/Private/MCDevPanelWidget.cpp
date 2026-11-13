@@ -251,10 +251,10 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Spine VFX — тест ×16"),TEXT("Сетка из 16 копий приложенного экспорта Spine для оценки вида и нагрузки. Показывается только на экране хоста."),EMCDevAction::SpineVFXTest,16);
     AddAction(Actions,TEXT("Spine VFX — убрать тест"),TEXT("Удаляет только свои эффекты, созданные этими кнопками F3."),EMCDevAction::SpineVFXTestStop);
     AddText(Actions,TEXT("НОВЫЕ ИНСТРУМЕНТЫ"),18);
-    AddAction(Actions,TEXT("Все новые инструменты — себе"),TEXT("Включить мегащётку, бензопилу и водяной пистолет до возрождения. Каталог наград и профиль не изменяются."),EMCDevAction::GrantAllToolBoosters,0);
+    AddAction(Actions,TEXT("Все новые инструменты — себе"),TEXT("Включить мегащётку, катану и водяной пистолет до возрождения. Каталог наград и профиль не изменяются."),EMCDevAction::GrantAllToolBoosters,0);
     AddAction(Actions,TEXT("Все новые инструменты — всей команде"),TEXT("Включить три тестовых инструмента текущим живым игрокам команды до их возрождения. Будущие игроки и обычные награды не изменяются."),EMCDevAction::GrantAllToolBoosters,1);
     AddAction(Actions,TEXT("Мегащётка — себе"),TEXT("Только тест F3 до возрождения; обычная выдача выключенных перков остаётся запрещена."),EMCDevAction::GrantToolBooster,int32(EMCToolUpgrade::MeshaBrush));
-    AddAction(Actions,TEXT("Бензопила — себе"),TEXT("Только тест F3 до возрождения; обычная выдача выключенных перков остаётся запрещена."),EMCDevAction::GrantToolBooster,int32(EMCToolUpgrade::Chainsaw));
+    AddAction(Actions,TEXT("Катана — себе"),TEXT("Заменяет нож до возрождения. Нажми ЛКМ для реза или удерживай для автоматической серии."),EMCDevAction::GrantToolBooster,int32(EMCToolUpgrade::Chainsaw));
     AddAction(Actions,TEXT("Водяной пистолет — себе"),TEXT("Только тест F3 до возрождения; обычная выдача выключенных перков остаётся запрещена."),EMCDevAction::GrantToolBooster,int32(EMCToolUpgrade::Watergun));
     AddText(Actions,TEXT("ФИЗИКА И ОТЛАДКА"),18);
     AddAction(Actions,TEXT("Active Ragdoll — мягкий (основной)"),TEXT("Основной профиль при старте и возрождении: стабилизированный корпус, физические руки и ноги, мягкие мышцы. Применить ко всем текущим игрокам."),EMCDevAction::ActiveRagdoll,1);

@@ -259,8 +259,13 @@ bool FMCStageRewardTimeoutTest::RunTest(const FString&)
         auto* A=W.Player(FVector(160,0,10060));auto* B=W.Player(FVector(-160,0,10060));
         auto* StateA=A->GetPlayerState<AMCPlayerState>();auto* StateB=B->GetPlayerState<AMCPlayerState>();
         StateA->SetPlayerId(101);StateB->SetPlayerId(102);auto* Chest=W.Chest();
-        Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;Chest->StageStartedAt=100.;
-        Chest->PublishStageChoiceFor(A);Chest->PublishStageChoiceFor(B);
+        Chest->SetStage(EMCRewardChestStage::Landed);
+        if(!TestTrue(TEXT("A landed stage chest accepts the first interaction"),Chest->BeginLockpicking(A))) return false;
+        TestEqual(TEXT("The stage chest opens immediately"),Chest->Stage,EMCRewardChestStage::Open);
+        TestEqual(TEXT("The reward still identifies the player who opened it"),Chest->GetOpener(),A);
+        TestTrue(TEXT("The lid opens while the arrival bounce is still active"),Chest->IsActorTickEnabled()
+            && Chest->LidPivot->GetRelativeRotation().Quaternion().Equals(FRotator(105,0,0).Quaternion()));
+        TestTrue(TEXT("Both personal offers are published in the opening call"),Chest->HasStageChoiceFor(A) && Chest->HasStageChoiceFor(B));
         const auto Issued=Chest->GetStageOfferIDs(StateB);const auto Token=Chest->GetChoiceOfferID(StateB);
         const double Deadline=Chest->GetStageChoiceDeadline(StateB);
         TestEqual(TEXT("The window is Open plus forty server seconds"),Deadline,140.);

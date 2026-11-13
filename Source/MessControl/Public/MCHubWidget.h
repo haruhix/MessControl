@@ -16,6 +16,7 @@ class UTextBlock;
 class UVerticalBox;
 class UMCHubWidget;
 class UMCHUDIcon;
+class UMCRaidLoadoutWidget;
 
 /** Small editable vector glyph; no material/texture load or font-dependent symbols. */
 UCLASS(Blueprintable)
@@ -32,7 +33,7 @@ protected:
 };
 
 UENUM()
-enum class EMCHubMenuAction : uint8 { OpenSelection, SelectDay, Launch, Return, InviteFriends, EnterDestination };
+enum class EMCHubMenuAction : uint8 { OpenSelection, SelectDay, Launch, Return, InviteFriends, EnterDestination, ToggleTeam };
 
 /** Native controls are the only interactive part of the shared mouth selector. */
 UCLASS()
@@ -80,6 +81,7 @@ public:
     /** Read-only and input bridges for the alternate view; no second scene or readiness owner. */
     AMCHubGameState* GetUnifiedState() const {return State();}
     bool CanLaunchUnifiedDestination() const {return CanLaunchSelectedDestination();}
+    bool HasRaidLoadoutPresentation() const {return RaidLoadoutView!=nullptr;}
     void NavigateUnifiedSelection(int32 Direction) {SelectRelative(Direction);}
     void RequestUnifiedBack();
     bool RouteUnifiedKey(const FKeyEvent& Event);
@@ -101,6 +103,8 @@ public:
 
     UPROPERTY(EditDefaultsOnly, Category="Hub|Presentation")
     TSoftClassPtr<UUserWidget> SelectionPresentationClass;
+    UPROPERTY(EditDefaultsOnly, Category="Hub|Presentation")
+    TSoftClassPtr<UMCRaidLoadoutWidget> RaidLoadoutClass;
     /** Soft native defaults can be disabled when the complete bar is styled in Designer. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub|Bottom Bar") bool bUseSoftBottomBar=true;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub|Bottom Bar",meta=(ClampMin="0",ClampMax="64")) float BottomBarCornerRadius=28.f;
@@ -145,6 +149,7 @@ private:
     double InteractionFeedbackUntil=0;
     AMCHubGameState* State() const;
     bool EnsureSelectionPresentation();
+    void EnsureRaidLoadoutPresentation();
     void ResetSelectionPresentation();
     void AdvanceSelectionPresentation();
     void UpdateMouthHitAreas();
@@ -161,6 +166,7 @@ private:
     UMCHubActionButton* AddAction(UVerticalBox* Parent,FName Name,EMCHubMenuAction Action,int32 Day=0);
 
     UPROPERTY(Transient) TObjectPtr<UCanvasPanel> RootCanvas;
+    UPROPERTY(Transient) TObjectPtr<UMCRaidLoadoutWidget> RaidLoadoutView;
     UPROPERTY(Transient) TObjectPtr<UOverlay> PresentationHost;
     UPROPERTY(Transient) TObjectPtr<UBorder> ReadinessPanel;
     UPROPERTY(Transient) TObjectPtr<UBorder> SelectionPanel;

@@ -66,7 +66,7 @@ protected:
     bool HasAttackContact(const AMCToothCharacter* Hero) const;
     void Retarget();
     virtual void Defeat();
-    void MoveOnTongue(FVector Direction,float Dt);
+    void MoveOnTongue(FVector Direction,float Dt,float SurfaceClearance=0.f);
     void TickPresentation(double Now);
 private:
     float RogueSlowMultiplier=1;

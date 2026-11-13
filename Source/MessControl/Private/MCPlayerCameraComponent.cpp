@@ -91,10 +91,11 @@ UMCPlayerCameraComponent::UMCPlayerCameraComponent()
 }
 
 void UMCPlayerCameraComponent::GetSpectatorView(const AMCToothCharacter* Target,const AActor* ViewerPawn,
-    FRotator Orbit,float Distance,float DeltaTime,FMCSpectatorCameraViewState& State,FMinimalViewInfo& View)
+    FRotator Orbit,float Distance,float DeltaTime,FMCSpectatorCameraViewState& State,FMinimalViewInfo& View,
+    const FVector* SubjectPosition)
 {
     if(!IsValid(Target) || !Target->GetWorld()) return;
-    const FVector Position=Target->GetActorLocation();
+    const FVector Position=SubjectPosition?*SubjectPosition:Target->GetActorLocation();
     const bool Reset=!State.bInitialized || FVector::DistSquared(Position,State.Focus)>FMath::Square(1400.f);
     const float Dt=FMath::Max(0.f,DeltaTime);
     const float Speed=FMath::Clamp(Target->FollowSpeed,1.f,20.f);
@@ -150,10 +151,23 @@ void UMCPlayerCameraComponent::GetSpectatorView(const AMCToothCharacter* Target,
         View.PostProcessBlendWeight=Camera->PostProcessBlendWeight;
         if(View.PostProcessSettings.bOverride_DepthOfFieldFocalDistance)
             View.PostProcessSettings.DepthOfFieldFocalDistance=FMath::Max(10.f,float(FVector::DotProduct(
-                Target->GetCameraFocusLocation()-View.Location,View.Rotation.Vector())));
+                (SubjectPosition?Position:Target->GetCameraFocusLocation())-View.Location,View.Rotation.Vector())));
     }
     State.bInitialized=true;
     MCPlayerCameraPrivate::PresentSpectatorWalls(Target,Dt,View.Location,Origin,State);
+}
+
+void UMCPlayerCameraComponent::ApplyDeathFilter(float Strength,FMinimalViewInfo& View)
+{
+    if(Strength<=0.f) return;
+    auto& Settings=View.PostProcessSettings;
+    Settings.bOverride_ColorSaturation=true;
+    Settings.ColorSaturation.W*=FMath::Lerp(1.f,.38f,Strength);
+    Settings.bOverride_SceneColorTint=true;
+    Settings.SceneColorTint*=FMath::Lerp(FLinearColor::White,FLinearColor(.66f,.84f,1.18f),Strength);
+    Settings.bOverride_VignetteIntensity=true;
+    Settings.VignetteIntensity=FMath::Lerp(Settings.VignetteIntensity,FMath::Max(Settings.VignetteIntensity,.53f),Strength);
+    View.PostProcessBlendWeight=FMath::Max(View.PostProcessBlendWeight,Strength);
 }
 
 void UMCPlayerCameraComponent::ClearSpectatorView(FMCSpectatorCameraViewState& State)

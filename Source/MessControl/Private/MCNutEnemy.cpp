@@ -232,7 +232,7 @@ void AMCNutEnemy::Defeat()
     RefreshPresentation(); SetLifeSpan(1.2f); ForceNetUpdate();
 }
 
-void AMCNutEnemy::MoveOnTongue(FVector Direction,float Dt)
+void AMCNutEnemy::MoveOnTongue(FVector Direction,float Dt,float SurfaceClearance)
 {
     if(!IsValid(Tongue)) return;
     const FVector Position=GetActorLocation();
@@ -244,7 +244,7 @@ void AMCNutEnemy::MoveOnTongue(FVector Direction,float Dt)
         const FVector Step=Direction.RotateAngleAxis(Angle,FVector::UpVector)*Settings.MoveSpeed*Slow*FMath::Min(Dt,.1f);
         FHitResult Floor;
         if(!Tongue->InteriorSurfacePoint(Position+Step,Settings.BodyRadius+5,Floor)) continue;
-        const FVector Goal=Floor.ImpactPoint+FVector(0,0,Settings.BodyRadius+4);
+        const FVector Goal=Floor.ImpactPoint+FVector(0,0,Settings.BodyRadius+4+SurfaceClearance);
         FHitResult Obstacle; SetActorLocation(Goal,true,&Obstacle);
         if(!Obstacle.bBlockingHit || FVector::DistSquared2D(Position,GetActorLocation())>1) break;
     }

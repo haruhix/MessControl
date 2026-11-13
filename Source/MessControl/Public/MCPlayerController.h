@@ -94,12 +94,17 @@ public:
     UFUNCTION(BlueprintCallable,Category="Hub") void RequestHubSelectDay(int32 Day);
     UFUNCTION(BlueprintCallable,Category="Hub") void RequestHubLaunch();
     UFUNCTION(BlueprintCallable,Category="Hub") void RequestHubReturn();
+    UFUNCTION(BlueprintCallable,Category="Hub|Raid") void RequestHubRaidReady(bool bReady);
+    /** Slot at the end appends a perk. NAME_None removes an occupied slot. */
+    UFUNCTION(BlueprintCallable,Category="Hub|Raid") void RequestHubRaidPerk(FName PerkID,int32 Slot,bool bPassive);
     UFUNCTION(BlueprintPure,Category="Hub") bool IsHubWorld() const;
     UFUNCTION(Server,Reliable) void ServerHubOpenSelection();
     UFUNCTION(Server,Reliable) void ServerHubSelectDay(int32 Day);
     UFUNCTION(Server,Reliable) void ServerHubLaunch();
     UFUNCTION(Server,Reliable) void ServerHubReturn();
     UFUNCTION(Server,Reliable) void ServerHubSceneLoaded(AMCHubGameState* LoadedHub,int32 Generation);
+    UFUNCTION(Server,Reliable) void ServerHubRaidReady(AMCHubGameState* Hub,int32 Revision,bool bReady);
+    UFUNCTION(Server,Reliable) void ServerHubRaidPerk(AMCHubGameState* Hub,int32 Revision,FName PerkID,int32 Slot,bool bPassive,FName ExpectedPerkID);
     UFUNCTION(Server, Reliable) void ServerSetTutorialReady(bool bReady);
     bool HasAcknowledgedGameplay() const;
     /** Server accepts only the current location's preparation receipt after possession. */

@@ -198,13 +198,17 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Expression") bool bSad=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Expression") bool bHappy=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Icon") bool bHost=false;
+    void SetReserveFractureAge(float Seconds);
 protected:
     virtual void NativePreConstruct() override;
     virtual int32 NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
         FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const override;
 private:
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> GlyphMaterial;
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> FractureGlyphMaterial;
     FSlateBrush GlyphBrush;
+    FSlateBrush FractureGlyphBrush;
+    float ReserveFractureAge=-1.f;
 };
 
 /** One arena reserve tooth; unrelated to the four live player health portraits. */

@@ -139,6 +139,21 @@ bool AMCTongue::TriggerToothpickPain(FVector Point)
     Event.RestAfter=FMath::Max(.2f,Settings.Cooldown-Event.Duration());
     return StartMotion(Event,Point,FVector::ForwardVector,1);
 }
+bool AMCTongue::TriggerRollLandingPain(FVector Point)
+{
+    FMCTongueMotionSettings Event;
+    Event.Shape=EMCTongueShape::RadialWave;
+    Event.Radius=RollLandingPainRadius;
+    Event.Width=100.f;
+    Event.Speed=720.f;
+    Event.Height=24.f;
+    Event.Anticipation=0.f;
+    Event.RestAfter=0.f;
+    Event.Redness=1.f;
+    Event.Lift=110.f;
+    Event.Push=190.f;
+    return StartMotion(Event,Point,FVector::ForwardVector,1);
+}
 void AMCTongue::ScheduleJolt() { NextJoltAt=ServerTime()+FMath::FRandRange(Settings.JoltRestMin,Settings.JoltRestMax); }
 bool AMCTongue::TriggerJolt()
 {

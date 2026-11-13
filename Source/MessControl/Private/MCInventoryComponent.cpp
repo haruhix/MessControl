@@ -8,6 +8,7 @@
 #include "MCHubBasketball.h"
 #include "MCFishingRodComponent.h"
 #include "MCMeleeCombo.h"
+#include "MCKatanaBlade.h"
 #include "MCWeaponTrailComponent.h"
 #include "MCToothMovementComponent.h"
 #include "MCToothStatusComponent.h"
@@ -178,6 +179,7 @@ void UMCInventoryComponent::ApplySelectionReceipt(const FMCToolSelectionReceipt&
 void UMCInventoryComponent::CancelPreviousSwingForSelection()
 {
     if(!Hero) return;
+    Hero->CancelKatanaAction();
     MCMeleeCombo::Reset(Hero);
     Hero->GetWorldTimerManager().ClearTimer(Hero->SwingTimer);
     Hero->SwingContactEndsAt=0;Hero->SwingStartedAt=-100;Hero->CalculusTarget=nullptr;
@@ -325,9 +327,40 @@ void UMCInventoryComponent::ReleaseMeleeKnifeAnchor()
         if(Settings && Selected==EMCToolSlot::Knife) Tool->SetRelativeTransform(Settings->KnifeTransform);
     }
 }
+bool UMCInventoryComponent::ApplyKatanaPose(const FTransform& SwordInHand)
+{
+    if(!Hero || !Hero->IsKatanaEquipped() || !Tool || !Tool->GetStaticMesh() || !ShouldPresentTool())
+        return false;
+    if(!bKatanaPoseApplied) {
+        ReleaseMeleeKnifeAnchor();
+        if(!Tool->AttachToComponent(Hero->GetMesh(),FAttachmentTransformRules::KeepRelativeTransform,
+            Hero->RigBone(TEXT("hand_r")))) return false;
+        bKatanaPoseApplied=true;
+    }
+    Tool->SetRelativeTransform(SwordInHand);
+    Tool->SetVisibility(true);
+    return true;
+}
+void UMCInventoryComponent::ReleaseKatanaPose()
+{
+    if(!bKatanaPoseApplied) return;
+    bKatanaPoseApplied=false;
+    if(Hero && Tool) {
+        Tool->SetVisibility(false);
+        Tool->AttachToComponent(Hero->BrushPivot,FAttachmentTransformRules::KeepRelativeTransform);
+    }
+}
 bool UMCInventoryComponent::MeleeTrailSpan(FVector& Base,FVector& Tip) const
 {
-    if(!Tool || !Tool->GetStaticMesh() || !ShouldPresentTool() || SelectedUpgrade()!=EMCToolUpgrade::None) return false;
+    if(!Tool || !Tool->GetStaticMesh() || !ShouldPresentTool()) return false;
+    if(Hero && Hero->IsKatanaEquipped()) {
+        if(!bKatanaPoseApplied) return false;
+        const FTransform& Pose=Tool->GetComponentTransform();
+        Base=Pose.TransformPosition(MCKatanaBlade::Edge[0]);
+        Tip=Pose.TransformPosition(MCKatanaBlade::Edge[UE_ARRAY_COUNT(MCKatanaBlade::Edge)-1]);
+        return !Base.ContainsNaN() && !Tip.ContainsNaN();
+    }
+    if(SelectedUpgrade()!=EMCToolUpgrade::None) return false;
     const FBox Bounds=Tool->GetStaticMesh()->GetBoundingBox();
     const float Y=Bounds.GetCenter().Y;
     FVector A,B;
@@ -726,12 +759,13 @@ FString UMCInventoryComponent::ToolName() const
 {
     switch(Selected) {
     case EMCToolSlot::Pickaxe:return HasUpgrade(EMCToolUpgrade::Buffer)?TEXT("ПЕРФОРАТОР"):TEXT("КИРКА");
-    case EMCToolSlot::Knife:return HasUpgrade(EMCToolUpgrade::Chainsaw)?TEXT("БЕНЗОПИЛА"):TEXT("НОЖ");
+    case EMCToolSlot::Knife:return HasUpgrade(EMCToolUpgrade::Chainsaw)?TEXT("КАТАНА"):TEXT("НОЖ");
     case EMCToolSlot::Spray:return HasUpgrade(EMCToolUpgrade::Watergun)?(bPressureMode?TEXT("ВОДЯНОЙ ПИСТОЛЕТ · ВЫСТРЕЛ"):TEXT("ВОДЯНОЙ ПИСТОЛЕТ · ЛЕЧЕНИЕ")):TEXT("СПРЕЙ");
     default:return HasUpgrade(EMCToolUpgrade::MeshaBrush)?TEXT("МЕГАЩЁТКА"):bWaterJetUnlocked?TEXT("ВОДОМЁТ"):TEXT("ЩЁТКА"); }
 }
 void UMCInventoryComponent::RefreshMesh()
 {
+    ReleaseKatanaPose();
     ReleaseMeleeKnifeAnchor();
     if(!Tool || !Detail) return;
     WorkingGripAlpha=0;
@@ -744,10 +778,11 @@ void UMCInventoryComponent::RefreshMesh()
     Tool->EmptyOverrideMaterials();Detail->EmptyOverrideMaterials();
     UStaticMesh* Mesh=nullptr; FTransform Transform=FTransform::Identity;
     if(Selected==EMCToolSlot::Pickaxe) { Mesh=Settings->PickaxeMesh.LoadSynchronous(); Transform=Settings->PickaxeTransform; }
-    if(Selected==EMCToolSlot::Knife) { Mesh=Settings->KnifeMesh.LoadSynchronous(); Transform=Settings->KnifeTransform; }
+    const bool Katana=Hero->IsKatanaEquipped();
+    if(Selected==EMCToolSlot::Knife && !Katana) { Mesh=Settings->KnifeMesh.LoadSynchronous(); Transform=Settings->KnifeTransform; }
     if(Selected==EMCToolSlot::Spray) { Mesh=Settings->SprayMesh.LoadSynchronous(); Transform=Settings->SprayTransform; }
     if(Selected==EMCToolSlot::Pickaxe && HasUpgrade(EMCToolUpgrade::Buffer)) { Mesh=Settings->BufferMesh.LoadSynchronous();Transform=Settings->BufferTransform; }
-    if(Selected==EMCToolSlot::Knife && HasUpgrade(EMCToolUpgrade::Chainsaw)) { Mesh=Settings->ChainsawMesh.LoadSynchronous();Transform=Settings->ChainsawTransform; }
+    if(Katana) Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/CharacterCurrent/Tools/SM_Katana.SM_Katana"));
     if(Selected==EMCToolSlot::Spray && HasUpgrade(EMCToolUpgrade::Watergun)) { Mesh=Settings->WatergunMesh.LoadSynchronous();Transform=Settings->WatergunTransform; }
     if(Selected==EMCToolSlot::Brush && bWaterJetUnlocked && !Mega) { Mesh=Settings->WaterJetMesh.LoadSynchronous(); Transform=Settings->WaterJetTransform; }
     bPresentedFallback=Mesh==nullptr;
@@ -755,7 +790,7 @@ void UMCInventoryComponent::RefreshMesh()
         Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Art/Meshes/Equipments/SM_Pick.SM_Pick"));
         Transform=FTransform(FRotator(0,0,90),FVector(25,0,0),FVector(.65));
     }
-    if(!Mesh && (Selected==EMCToolSlot::Knife || Selected==EMCToolSlot::Spray)) {
+    if(!Mesh && !Katana && (Selected==EMCToolSlot::Knife || Selected==EMCToolSlot::Spray)) {
         Mesh=LoadObject<UStaticMesh>(nullptr,Selected==EMCToolSlot::Knife?TEXT("/Engine/BasicShapes/Cube.Cube"):TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
         Transform=Selected==EMCToolSlot::Knife?FTransform(FRotator::ZeroRotator,FVector(32,0,0),FVector(.58,.035,.11))
             :FTransform(FRotator::ZeroRotator,FVector(15,0,12),FVector(.19,.19,.32));
@@ -765,11 +800,12 @@ void UMCInventoryComponent::RefreshMesh()
     }
     if(Selected==EMCToolSlot::Pickaxe) Transform.SetScale3D(Transform.GetScale3D()*(MeleeReach()/180.f));
     Tool->SetStaticMesh(Mesh); Tool->SetRelativeTransform(Transform);
+    if(Katana) Tool->SetVisibility(false);
     // Untextured Blender imports stay readable; artist materials always take priority.
     if(auto* Neutral=Settings->UpgradeFallbackMaterial.LoadSynchronous()) {
         for(auto* Part:{Tool.Get(),Hero->Brush.Get()}) {
             const bool Upgraded=Part==Hero->Brush?Mega:(Selected==EMCToolSlot::Pickaxe && HasUpgrade(EMCToolUpgrade::Buffer))
-                || (Selected==EMCToolSlot::Knife && HasUpgrade(EMCToolUpgrade::Chainsaw)) || (Selected==EMCToolSlot::Spray && HasUpgrade(EMCToolUpgrade::Watergun));
+                || Katana || (Selected==EMCToolSlot::Spray && HasUpgrade(EMCToolUpgrade::Watergun));
             if(Upgraded && Part->GetStaticMesh()) for(int32 I=0;I<Part->GetNumMaterials();++I)
                 if(const auto* Source=Part->GetStaticMesh()->GetMaterial(I);Source && Source->GetName()==TEXT("WorldGridMaterial")) Part->SetMaterial(I,Neutral);
         }
@@ -848,7 +884,7 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
     }
     const bool Visible=ShouldPresentTool();
     const bool Custom=Tool->GetStaticMesh()!=nullptr;
-    Tool->SetVisibility(Visible && Custom); Detail->SetVisibility(Visible && Custom && bPresentedFallback && (Selected==EMCToolSlot::Knife || Selected==EMCToolSlot::Spray));
+    Tool->SetVisibility(Visible && Custom && (!Hero->IsKatanaEquipped() || bKatanaPoseApplied)); Detail->SetVisibility(Visible && Custom && bPresentedFallback && (Selected==EMCToolSlot::Knife || Selected==EMCToolSlot::Spray));
     if(Selected!=EMCToolSlot::Brush || Custom) Hero->Brush->SetVisibility(false);
     else Hero->Brush->SetVisibility(Visible && Hero->HasBrush());
     if(Hero->RewardInteraction && (Hero->RewardInteraction->Stage==EMCRewardChestStage::Lockpicking

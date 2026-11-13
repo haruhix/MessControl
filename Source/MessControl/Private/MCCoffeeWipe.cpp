@@ -100,7 +100,7 @@ bool FMCCoffeeWipe::Stroke(TArray<uint8>& Mask,FVector2D From,FVector2D To,float
 }
 
 bool FMCCoffeeWipe::WipeOnContact(TArray<uint8>& Mask,const TArray<uint8>& Deposited,TArray<float>& Fractional,
-    TBitArray<>& Swept,FVector2D Center,float Radius,int32 Seed,bool bTile,bool& bCompleted)
+    TBitArray<>& Swept,FVector2D Center,float Radius,int32 Seed,bool bTile,bool& bCompleted,TArray<uint8>* CompletionRemainder)
 {
     bCompleted=false;
     if(Mask.Num()!=Count || Center.ContainsNaN() || !FMath::IsFinite(Radius) || Radius<=0
@@ -141,6 +141,7 @@ bool FMCCoffeeWipe::WipeOnContact(TArray<uint8>& Mask,const TArray<uint8>& Depos
     }
     bCompleted=SweptCount>UnsweptCount;
     if(bCompleted) {
+        if(CompletionRemainder) *CompletionRemainder=MoveTemp(Mask);
         Mask.Init(0,Count);
         Fractional.Reset();
     }

@@ -99,6 +99,7 @@ bool FMCBlockedRecoveryReserveSafety::RunTest(const FString&)
     F.Mode->ProcessRespawns();
     TestTrue(TEXT("The controller retains its dead body during the normal wait"),PC->GetPawn()==F.Hero);
     F.Hero->RespawnAt=-1; F.Mode->ProcessRespawns();
+    F.Step(1.4f); F.Mode->ProcessRespawns();
     auto* Replacement=Cast<AMCToothCharacter>(PC->GetPawn());
     if(!TestTrue(TEXT("Normal reserve processing replaces the trapped body"),Replacement && Replacement!=F.Hero)) return false;
     TestEqual(TEXT("Exactly one real reserve is consumed"),F.State->AvailableArenaTeeth(),Reserves-1);

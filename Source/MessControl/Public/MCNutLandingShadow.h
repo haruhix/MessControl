@@ -24,6 +24,8 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Configure(AMCTongue* OnTongue,AMCFoodActor* Food,FVector Landing,float InFlightSeconds,float InRadius,float InOpacity,
         float InDamage=18,float InPushSpeed=260,FName OriginSource=TEXT("Event.NutRain.Entry"),UMCVFXPresentationComponent* PreviewSource=nullptr);
+    void ConfigureWizardGravityLift(float LiftAndHoldSeconds);
+    void UpdateWizardGravityDropTime(float SecondsToImpact);
     UFUNCTION(BlueprintPure) bool IsWarningActive() const;
     UFUNCTION(BlueprintPure) float SecondsToImpact() const;
     UFUNCTION(BlueprintPure) float GetShadowStrength() const;
@@ -49,5 +51,6 @@ private:
     double ServerTime() const;
     float ImpactDamage=18;
     float ImpactPushSpeed=260;
+    UPROPERTY(ReplicatedUsing=RefreshShadow) float WizardGravityLiftSeconds=0.f;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> ShadowMID;
 };

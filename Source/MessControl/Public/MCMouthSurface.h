@@ -27,6 +27,9 @@ struct FMCStainCleaningPresentationState
     UPROPERTY() double CompletedAt=-100.;
     UPROPERTY() FVector_NetQuantize10 Point=FVector::ZeroVector;
     UPROPERTY() FVector_NetQuantizeNormal Normal=FVector::UpVector;
+    UPROPERTY() double SpongeDissolveAt=-100.;
+    UPROPERTY() FVector2D SpongeDissolveUV=FVector2D::ZeroVector;
+    UPROPERTY() TArray<uint8> SpongeRemainder;
 };
 
 /** A replaceable stain/ulcer on walkable mouth tissue, independent of the arena mesh. */
@@ -131,7 +134,7 @@ private:
     FGuid StainContactEpisode;
     UPROPERTY(Transient) TObjectPtr<UMCWorldPresentationComponent> StainComposer;
     FGuid StainSurfaceEpisode;
-    void UploadWipe();
+    void UploadWipe(float SpongeDissolveProgress);
     // Relocate only proven unsupported ordinary stains; never award cleanup.
     void RecoverUnsupportedFloorStain(float Dt);
     float FloorAccessElapsed=0,UnsupportedFloorSeconds=0;
@@ -167,6 +170,7 @@ private:
     FTransform PaintGeometryTransform=FTransform::Identity,PaintTongueTransform=FTransform::Identity;
     float Finish=0,TextureElapsed=0,GeometryElapsed=0,BrushClock=0;
     bool bWipeDirty=true;
+    bool bUploadedSpongeDissolve=false;
     mutable bool bRemainingLiquidDirty=true;
     mutable float CachedRemainingLiquid=0;
     bool bPaintDepositPending=false;

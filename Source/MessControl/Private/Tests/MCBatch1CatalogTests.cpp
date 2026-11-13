@@ -252,7 +252,8 @@ bool FMCBatch1PaidMigrationTest::RunTest(const FString&)
     Save.bShopStockGenerated=true;Save.ShopRotationId=FGuid::NewGuid();Save.ShopRotationSeed=19;Save.ShopStockIDs={OldCatalog};
     FText Error;
     if(!TestTrue(TEXT("Import accepts and preserves paid retired entries"),Economy->ImportSave(Save,Error))) return false;
-    TestEqual(TEXT("Import does not throw away either paid purchase"),Economy->PendingPurchases.Num(),2);
+    TestEqual(TEXT("Import retains the disabled paid receipt"),Economy->PendingPurchases.Num(),1);
+    TestEqual(TEXT("Import moves the current paid passive to raid stock"),Economy->GetRaidPerkCopies(NewPerk),1);
     TestFalse(TEXT("Retired catalog item is not purchasable"),Economy->CanPurchase(OldCatalog,Error));
     TestTrue(TEXT("Obsolete stock is repaired in the same run epoch"),Economy->EnsureShopStock(Save.ShopRotationId,Save.ShopRotationSeed));
     const auto Stock=Economy->ShopStockIDs;
@@ -267,8 +268,9 @@ bool FMCBatch1PaidMigrationTest::RunTest(const FString&)
 
     W.World->URL.AddOption(TEXT("MCHubRun=1"));
     const FGuid RunID=FGuid::NewGuid();
-    TestTrue(TEXT("Valid prepared purchases apply for the next real run"),Economy->ApplyPendingBoostersForRun(RunID,Error));
-    TestEqual(TEXT("The new paid passive becomes owned"),Player->Perks->GetStacks(NewPerk),1);
+    TestTrue(TEXT("The direct real run can process legacy purchases"),Economy->ApplyPendingBoostersForRun(RunID,Error));
+    TestEqual(TEXT("An unselected paid passive does not become a live effect"),Player->Perks->GetStacks(NewPerk),0);
+    TestEqual(TEXT("The unselected passive remains selectable"),Economy->GetRaidPerkCopies(NewPerk),1);
     TestEqual(TEXT("Only the disabled purchase remains pending"),Economy->PendingPurchases.Num(),1);
     if(Economy->PendingPurchases.Num()==1) {
         const auto& Retained=Economy->PendingPurchases[0];

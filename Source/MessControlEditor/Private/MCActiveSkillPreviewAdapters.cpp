@@ -498,7 +498,7 @@ const bool bRegistered=[]
         {{TEXT("Start"),TEXT("Бросок")},{TEXT("Loop"),TEXT("Полёт крюка")},{TEXT("Impact"),TEXT("Зацеп")},{TEXT("End"),TEXT("Возврат")}},
         TEXT("Подтянуть союзника"),TEXT("Препятствие на пути"),TEXT("Промах и возврат"));
     Register<FSpongeAdapter>(TEXT("Active_Sponge"),TEXT("Губка"),
-        {{TEXT("Start"),TEXT("Старт")},{TEXT("Loop"),TEXT("Движение")},{TEXT("End"),TEXT("Завершение")}},
+        {{TEXT("Start"),TEXT("Старт")},{TEXT("Loop"),TEXT("Движение")},{TEXT("Impact"),TEXT("Снятие грязи")},{TEXT("End"),TEXT("Завершение")}},
         TEXT("Уборка и сход"),TEXT("Отражение от стены"),TEXT("До конца поездки"));
     Register<FGrenadeAdapter>(TEXT("Consumable_Grenade"),TEXT("Граната"),
         {{TEXT("Start"),TEXT("Подготовка броска")},{TEXT("Loop"),TEXT("Фитиль и полёт")},{TEXT("Warning"),TEXT("Сигнал опасности")},{TEXT("Impact"),TEXT("Взрыв")}},

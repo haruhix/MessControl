@@ -24,6 +24,10 @@ public:
     UFUNCTION(BlueprintCallable, Category="Mess Control|Hub|Editor")
     static bool AddHubGuidancePresentation(UWidgetBlueprint* Blueprint);
 
+    /** Save the compact HUD geometry in the existing Hub Widget Blueprint, retaining its stage and graphs. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Hub|Editor")
+    static bool AuthorCompactHubPresentation(UWidgetBlueprint* Blueprint);
+
     /** Persist only the missing voice header/mute-column branches in the existing authored Scoreboard. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Hub|Editor")
     static bool AddScoreboardVoicePresentation(UWidgetBlueprint* Blueprint);

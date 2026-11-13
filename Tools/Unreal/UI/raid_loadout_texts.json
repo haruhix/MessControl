@@ -1,0 +1,19 @@
+{
+  "languages": ["RU", "EN", "DE", "FR", "ES", "PT_BR", "ZH_HANS", "ZH_HANT", "JA", "KO"],
+  "labels": {
+    "UI.Raid.Active": ["АКТИВНЫЕ", "ACTIVE PERKS", "AKTIVE PERKS", "ATOUTS ACTIFS", "VENTAJAS ACTIVAS", "VANTAGENS ATIVAS", "主动技能", "主動技能", "アクティブ", "활성 특성"],
+    "UI.Raid.Passive": ["ПАССИВНЫЕ", "PASSIVE PERKS", "PASSIVE PERKS", "ATOUTS PASSIFS", "VENTAJAS PASIVAS", "VANTAGENS PASSIVAS", "被动技能", "被動技能", "パッシブ", "지속 특성"],
+    "UI.Raid.Stock": ["ТВОЙ ЗАПАС", "YOUR STOCK", "DEIN VORRAT", "TA RÉSERVE", "TU RESERVA", "SEU ESTOQUE", "你的库存", "你的庫存", "所持品", "내 보유 목록"],
+    "UI.Raid.Team": ["КОМАНДА {Ready}/{Total}", "TEAM {Ready}/{Total}", "TEAM {Ready}/{Total}", "ÉQUIPE {Ready}/{Total}", "EQUIPO {Ready}/{Total}", "EQUIPE {Ready}/{Total}", "队伍 {Ready}/{Total}", "隊伍 {Ready}/{Total}", "チーム {Ready}/{Total}", "팀 {Ready}/{Total}"],
+    "UI.Raid.Ready": ["ГОТОВ", "READY", "BEREIT", "PRÊT", "LISTO", "PRONTO", "准备", "準備", "準備完了", "준비"],
+    "UI.Raid.Unready": ["ОТМЕНИТЬ", "UNREADY", "NICHT BEREIT", "ANNULER", "CANCELAR", "CANCELAR", "取消准备", "取消準備", "準備を解除", "준비 취소"],
+    "UI.Raid.Start": ["НАЧАТЬ", "START", "STARTEN", "LANCER", "INICIAR", "INICIAR", "开始", "開始", "開始", "시작"],
+    "UI.Raid.Add": ["ДОБАВИТЬ", "ADD", "HINZUFÜGEN", "AJOUTER", "AÑADIR", "ADICIONAR", "添加", "新增", "追加", "추가"],
+    "UI.Raid.Remove": ["СНЯТЬ", "REMOVE", "ENTFERNEN", "RETIRER", "QUITAR", "REMOVER", "移除", "移除", "外す", "해제"],
+    "UI.Raid.Choosing": ["ВЫБИРАЕТ", "CHOOSING", "WÄHLT", "CHOISIT", "ELIGIENDO", "ESCOLHENDO", "选择中", "選擇中", "選択中", "선택 중"],
+    "UI.Raid.NoStock": ["НЕТ ПЕРКОВ В ЗАПАСЕ", "NO PERKS IN STOCK", "KEINE PERKS VORRÄTIG", "AUCUN ATOUT EN RÉSERVE", "SIN VENTAJAS EN RESERVA", "SEM VANTAGENS NO ESTOQUE", "库存无技能", "庫存無技能", "所持パークなし", "보유 특성 없음"],
+    "UI.Raid.Loading": ["ЗАГРУЗКА…", "LOADING…", "LADEN…", "CHARGEMENT…", "CARGANDO…", "CARREGANDO…", "加载中…", "載入中…", "読み込み中…", "불러오는 중…"],
+    "UI.Shop.RaidStockHint": ["Активные и пассивные перки пополняют запас.", "Active and passive perks go into your stock.", "Aktive und passive Perks kommen in deinen Vorrat.", "Les atouts actifs et passifs rejoignent ta réserve.", "Las ventajas activas y pasivas se añaden a tu reserva.", "Vantagens ativas e passivas vão para o seu estoque.", "主动和被动技能会存入库存。", "主動和被動技能會存入庫存。", "アクティブとパッシブのパークは所持品に追加されます。", "활성 및 지속 특성은 보유 목록에 추가됩니다."],
+    "UI.Shop.RaidStockCount": ["В запасе: {0}", "In stock: {0}", "Im Vorrat: {0}", "En réserve : {0}", "En reserva: {0}", "Em estoque: {0}", "库存：{0}", "庫存：{0}", "所持数：{0}", "보유: {0}"]
+  }
+}

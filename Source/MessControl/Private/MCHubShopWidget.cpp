@@ -26,6 +26,16 @@
 
 #define LOCTEXT_NAMESPACE "MCHubShop"
 
+namespace
+{
+bool UsesLegacyReplacementSlot(const UMCHubEconomyComponent* Economy,const FMCHubEconomyCatalogEntry& Entry)
+{
+    if(!Economy || Entry.PerkKind!=EMCPerkKind::Consumable) return false;
+    FMCPerkDefinition RaidPerk;
+    return !Economy->GetRaidPerkDefinition(Entry.Definition.PerkID,RaidPerk);
+}
+}
+
 void UMCHubShopWidget::BuildPresentationTree()
 {
     if(!WidgetTree) return;
@@ -144,8 +154,8 @@ void UMCHubShopWidget::EnsureCatalogPresentation()
     if(auto* RowSlot=Cast<UVerticalBoxSlot>(Content->InsertChildAt(Index++,BuySize))) RowSlot->SetPadding(FMargin(0,0,0,8));
     if(auto* Footer=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("ShopFooterSpace")))) Footer->SetMinDesiredHeight(0);
     if(auto* Hint=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ShopEmptyMessage")))) {
-        Hint->SetText(LOCTEXT("NextRunHint","Бустеры — на следующий забег"));
-        TextBindings.Add(Hint->GetFName(),TEXT("UI.Shop.NextRunHint"));
+        Hint->SetText(LOCTEXT("RaidStockHint","Активные и пассивные перки пополняют запас."));
+        TextBindings.Add(Hint->GetFName(),TEXT("UI.Shop.RaidStockHint"));
         if(auto* RowSlot=Cast<UVerticalBoxSlot>(Hint->Slot)) RowSlot->SetPadding(FMargin(0,0,0,8));
     }
     ResolveControls();EnsureReplacementPresentation();
@@ -190,7 +200,7 @@ void UMCHubShopWidget::RefreshEconomy()
     if(Preview && Entries.IsEmpty()) {
         const TCHAR* Names[]={TEXT("Суперщётка"),TEXT("Запас сил"),TEXT("Быстрые ноги"),TEXT("Сильные руки")};
         for(int32 I=0;I<4;++I) {FMCHubEconomyCatalogEntry Entry;Entry.ItemID=FName(*FString::Printf(TEXT("Preview%d"),I));
-            Entry.Definition.DisplayName=FText::FromString(Names[I]);Entry.Definition.Description=LOCTEXT("PreviewCardDescription","Улучшение на следующий забег.");Entry.Definition.Price=12+I*4;
+            Entry.Definition.DisplayName=FText::FromString(Names[I]);Entry.Definition.Description=LOCTEXT("PreviewCardStockDescription","Перк для запаса.");Entry.Definition.Price=12+I*4;
             Entry.Definition.Rarity=I==0?EMCHubItemRarity::Rare:EMCHubItemRarity::Common;Entries.Add(Entry);}
     }
     bool Rebuild=CatalogCards.Num()!=Entries.Num() || !CatalogButtons.IsEmpty();
@@ -205,12 +215,16 @@ void UMCHubShopWidget::RefreshEconomy()
         const auto& Entry=Entries[I];
         auto* Card=Rebuild?CreateWidget<UMCCosmeticItemWidget>(this,CardClass):CatalogCards[I].Get();if(!Card) continue;
         Card->Theme=GetResolvedTheme();Card->SetTranslationTable(GetResolvedTranslationTable());
-        const int32 Queued=Economy?Economy->QueuedStacks(Entry.ItemID):0;
+        FMCPerkDefinition RaidPerk;
+        const bool bRaidStock=Economy && Economy->GetRaidPerkDefinition(Entry.Definition.PerkID,RaidPerk);
+        const int32 Quantity=!Economy?0:bRaidStock?Economy->GetRaidPerkCopies(Entry.Definition.PerkID):Economy->QueuedStacks(Entry.ItemID);
         const bool Affordable=Preview || (Economy && Economy->Coins>=Entry.Definition.Price);
-        FText Status=Queued>0?FText::Format(Localized(TEXT("UI.Shop.Queued"),LOCTEXT("Queued","На следующий забег: {0}")),FText::AsNumber(Queued)):
+        const FText QuantityCopy=bRaidStock?Localized(TEXT("UI.Shop.RaidStockCount"),LOCTEXT("RaidStockCount","В запасе: {0}")):
+            Localized(TEXT("UI.Shop.Queued"),LOCTEXT("Queued","На следующий забег: {0}"));
+        FText Status=Quantity>0?FText::Format(QuantityCopy,FText::AsNumber(Quantity)):
             Entry.ItemID==SelectedItemID?Localized(TEXT("UI.Product.Selected"),LOCTEXT("SelectedCard","Выбрано")):
             !Affordable?Localized(TEXT("UI.Product.Insufficient"),LOCTEXT("InsufficientCard","Мало монет")):Localized(TEXT("UI.Product.Details"),LOCTEXT("DetailsCard","Подробнее"));
-        Card->Configure(NAME_None,Entry.ItemID,Entry.ItemID,Localized(Entry.Definition.DisplayNameKey,Entry.Definition.DisplayName),Queued>0,Entry.ItemID==SelectedItemID,Entry.Definition.Price,Affordable);
+        Card->Configure(NAME_None,Entry.ItemID,Entry.ItemID,Localized(Entry.Definition.DisplayNameKey,Entry.Definition.DisplayName),Quantity>0,Entry.ItemID==SelectedItemID,Entry.Definition.Price,Affordable);
         Card->SetProductPresentation(Entry.Definition.Icon.Get(),Localized(Entry.Definition.DescriptionKey,Entry.Definition.Description),Entry.Definition.Rarity,false,Status);
         Card->OnPressed.AddUniqueDynamic(this,&ThisClass::CardSelected);
         if(Rebuild) {auto* S=ShopCatalogGrid->AddChildToUniformGrid(Card,I/2,I%2);S->SetHorizontalAlignment(HAlign_Fill);S->SetVerticalAlignment(VAlign_Fill);CatalogCards.Add(Card);}
@@ -218,7 +232,7 @@ void UMCHubShopWidget::RefreshEconomy()
     FMCHubEconomyCatalogEntry SelectedEntry;
     const FMCHubCatalogRow* Selected=Economy && Economy->FindCatalogEntry(SelectedItemID,SelectedEntry)?&SelectedEntry.Definition:nullptr;
     const auto Planned=Economy?Economy->GetPendingActiveSlots():TArray<FMCActiveSkillSlot>();
-    const bool UsesSlot=SelectedEntry.PerkKind==EMCPerkKind::Active || SelectedEntry.PerkKind==EMCPerkKind::Consumable;
+    const bool UsesSlot=UsesLegacyReplacementSlot(Economy,SelectedEntry);
     const bool Full=Planned.Num()==4 && !Planned.ContainsByPredicate([](const auto& SkillSlot){return SkillSlot.PerkID.IsNone();});
     if(!Selected || !UsesSlot || !Full) bChoosingReplacement=false;
     if(auto* Host=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("ShopCatalogHost")))) Host->SetHeightOverride(bChoosingReplacement?166.f:220.f);
@@ -232,7 +246,7 @@ void UMCHubShopWidget::RefreshEconomy()
     if(ShopTransactionMessage && ShopTransactionMessage->GetText().IsEmpty() && Economy && !Economy->MigrationNotice.IsEmpty()) SetTransactionMessage(Economy->MigrationNotice);
     if(ShopSelectedName) ShopSelectedName->SetText(Selected?Localized(Selected->DisplayNameKey,Selected->DisplayName):Preview?LOCTEXT("PreviewSelected","Суперщётка"):
         Localized(TEXT("UI.Shop.NoItems"),LOCTEXT("NoItems","Ассортимент пока недоступен")));
-    if(ShopSelectedDescription) ShopSelectedDescription->SetText(Selected?Localized(Selected->DescriptionKey,Selected->Description):Preview?LOCTEXT("PreviewDescription","Покупка действует в следующем забеге."):FText::GetEmpty());
+    if(ShopSelectedDescription) ShopSelectedDescription->SetText(Selected?Localized(Selected->DescriptionKey,Selected->Description):Preview?LOCTEXT("PreviewStockDescription","Покупка пополняет запас перков."):FText::GetEmpty());
     FText Error;const bool CanBuy=Economy && Selected && Economy->CanPurchase(SelectedItemID,Error);
     if(ShopBuy) ShopBuy->SetIsEnabled(CanBuy || Preview);
     if(auto* Label=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ShopBuyLabel"))))
@@ -251,7 +265,7 @@ void UMCHubShopWidget::BuyClicked()
     FMCHubEconomyCatalogEntry Entry;
     if(!Economy->FindCatalogEntry(SelectedItemID,Entry)) return;
     const auto Slots=Economy->GetPendingActiveSlots();
-    const bool UsesSlot=Entry.PerkKind==EMCPerkKind::Active || Entry.PerkKind==EMCPerkKind::Consumable;
+    const bool UsesSlot=UsesLegacyReplacementSlot(Economy,Entry);
     if(UsesSlot && Slots.Num()==4 && !Slots.ContainsByPredicate([](const auto& S){return S.PerkID.IsNone();})) {
         bChoosingReplacement=true;RefreshEconomy();SetTransactionMessage(Localized(TEXT("UI.Shop.ReplacePrompt"),LOCTEXT("ReplacePrompt","Выбери слот для замены.")));return;
     }
@@ -261,6 +275,8 @@ void UMCHubShopWidget::BuyClicked()
 void UMCHubShopWidget::SelectReplacementSlot(int32 SlotIndex)
 {
     auto* Economy=ObservedEconomy.Get();if(!bChoosingReplacement || !Economy) return;
+    FMCHubEconomyCatalogEntry Entry;
+    if(!Economy->FindCatalogEntry(SelectedItemID,Entry) || !UsesLegacyReplacementSlot(Economy,Entry)) return;
     const auto Slots=Economy->GetPendingActiveSlots();if(!Slots.IsValidIndex(SlotIndex)) return;
     RequestPurchase(SlotIndex,Slots[SlotIndex].PerkID,Slots[SlotIndex].InstanceID);
 }
@@ -328,7 +344,14 @@ FReply UMCHubShopWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const 
 }
 void UMCHubShopWidget::ApplyTheme()
 {
-    ResolveControls();Super::ApplyTheme();
+    ResolveControls();
+    if(WidgetTree && TextBindings.FindRef(TEXT("ShopEmptyMessage"))==TEXT("UI.Shop.NextRunHint"))
+        if(auto* Hint=WidgetTree->FindWidget<UTextBlock>(TEXT("ShopEmptyMessage")))
+        {
+            TextBindings.Add(Hint->GetFName(),TEXT("UI.Shop.RaidStockHint"));
+            Hint->SetText(LOCTEXT("RaidStockHint","Активные и пассивные перки пополняют запас."));
+        }
+    Super::ApplyTheme();
     const auto* Style=GetResolvedTheme();if(!Style || !WidgetTree) return;
     const auto& P=Style->Palette;
     MCUIVisualStyle::Panel(ShopPanel,Style,P.Backdrop.CopyWithNewOpacity(.94f));

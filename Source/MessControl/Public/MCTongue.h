@@ -41,6 +41,9 @@ public:
     UFUNCTION(CallInEditor,Category="Tongue") void RebuildSurface();
     bool TriggerPain(FVector WorldPoint);
     bool TriggerToothpickPain(FVector WorldPoint);
+    static constexpr float RollLandingPainRadius=340.f;
+    // A short radial pulse shares the tongue's single motion slot.
+    bool TriggerRollLandingPain(FVector WorldPoint);
     bool TriggerJolt();
     /** Water provokes a cosmetic tickle of the uvula, without a pain attack. */
     void ReactToWaterTickle(class AMCToothCharacter* Source,FVector Impact);

@@ -5,6 +5,7 @@
 #include "MCDayPlan.h"
 #include "Engine/NetSerialization.h"
 #include "SharedMCNetworkFrames.h"
+#include "UObject/ObjectKey.h"
 #include "MCFoodActor.generated.h"
 class UBoxComponent;
 class UStaticMeshComponent;
@@ -13,6 +14,7 @@ class UTextRenderComponent;
 class UMCWorldStatusComponent;
 class USceneComponent;
 class AMCToothCharacter;
+class AMCTongue;
 struct FMCPreparedFoodCutState;
 struct FMCFoodCutTransaction;
 DECLARE_MULTICAST_DELEGATE_OneParam(FMCFoodEntryLanding,const FHitResult&);
@@ -157,6 +159,12 @@ public:
     /** Launch a newly spawned piece through the mouth; call after FinishSpawning. */
     void BeginMouthEntry(FVector LaunchVelocity,float PushSpeed,TOptional<FVector> ExpectedLanding=TOptional<FVector>());
     bool IsMouthEntryActive() const { return bMouthEntry; }
+    /** Suspend this same whole walnut until the owning encounter releases its wave. */
+    float BeginWizardGravityLift(AMCTongue* Support,float LiftSeconds,float HoldSeconds,float RequestedHeight,bool bMoveExternally=false);
+    bool DropWizardGravityNut(FVector ExpectedLanding,float DownwardSpeed);
+    void CancelWizardGravityMotion();
+    bool IsWizardGravityLiftActive() const { return bWizardGravityLift; }
+    bool IsWizardGravityDropActive() const { return bWizardGravityDrop && bMouthEntry; }
     /** Call after ConfigureItem/FinishSpawning, before the rain launch. */
     void EnableNutKinetics();
     bool IsNutKineticsActive() const;
@@ -202,6 +210,9 @@ public:
     bool FindGripSurface(FVector From,FHitResult& Hit) const;
     // Query the visible food surface independently of its simplified physics hulls.
     bool FindToolContact(const AMCToothCharacter* Hero,float Reach,FHitResult& Hit) const;
+    /** Intersect a swept edge point with the canonical food surface. */
+    bool TraceKatanaCut(const FVector& Start,const FVector& End,FHitResult& Hit) const;
+    FObjectKey GetCutParent() const { return CutParent; }
     bool BeginCarry(AMCToothCharacter* Hero);
     void UpdateCarryPresentation(float Dt);
     FMCActorSimulationFrame GetSimulationFrame() const;
@@ -230,12 +241,14 @@ public:
     AMCToothCharacter* GetActiveContainerCarrier() const;
     /** External blast preserves source PlayerState attribution without primary-tool procs. */
     bool ReceiveActiveSkillImpact(float Damage,FVector Direction,class AMCPlayerState* SourcePS);
+    bool ReceiveActiveSkillImpact(float Damage,FVector Direction,class AMCPlayerState* SourcePS,bool bExplosive);
     FVector IntakeSweepStart() const { return PreviousPhysicsLocation; }
     bool BeginSwallow();
     void CancelSwallow();
     void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
     void ConfigureBrush();
     bool HitFood(float Damage,FVector Direction,AMCToothCharacter* Worker=nullptr, FVector CutPoint=FVector::ZeroVector, FVector CutNormal=FVector::ZeroVector);
+    bool HitFoodWithKatana(float Damage,const FVector& Direction,AMCToothCharacter* Worker,const FVector& CutPoint,const FVector& CutNormal);
     /** Accepted large cuts reserve their source until all hidden children are prepared. */
     bool IsCutTransactionPending() const {return bCutTransactionPending;}
     bool IsCutTransactionStaged() const {return bCutTransactionStaged;}
@@ -378,6 +391,12 @@ private:
     void UpdateNutFragmentThrowImpact();
     void EndManualThrowFlight();
     bool bMouthEntry=false;
+    bool bWizardGravityLift=false,bWizardGravityDrop=false,bWizardGravityLiftExternallyDriven=false;
+    double WizardGravityDisarmedUntil=0;
+    FVector WizardGravityLiftStart=FVector::ZeroVector;
+    double WizardGravityLiftStartedAt=0,WizardGravityLiftExpiresAt=0;
+    float WizardGravityLiftSeconds=0,WizardGravityLiftHeight=0;
+    void TickWizardGravityLift();
     bool bEntryImpactManaged=false;
     double EntryImpactSafeUntil=0;
     TOptional<FVector> MouthEntryLanding;
@@ -395,12 +414,13 @@ private:
     bool SpawnFragments(FVector Direction,TArray<AMCFoodActor*>* OutPieces=nullptr);
     bool SupportsPlanarCut() const;
     /** A refusal preserves the parent; callers must not fall back to legacy fragments. */
-    bool SpawnCutFragments(FVector Direction,FVector WorldPoint,FVector WorldNormal,TArray<AMCFoodActor*>* OutPieces=nullptr);
+    bool SpawnCutFragments(FVector Direction,FVector WorldPoint,FVector WorldNormal,TArray<AMCFoodActor*>* OutPieces=nullptr,
+        bool bRequireSplit=false,const AMCToothCharacter* FinishingWorker=nullptr);
     /** 0 = already connected, 1 = all independent portions staged, -1 = atomic refusal. */
     int32 SpawnDisconnectedPortions(FVector Direction,TArray<AMCFoodActor*>& OutPieces);
     bool SpawnPortionActors(const TArray<TArray<FMCFoodCutPlane>>& Histories,const TArray<double>& Weights,
         const TArray<FBox>& LocalBounds,const TArray<double>& LocalVolumes,FVector Direction,TArray<AMCFoodActor*>& OutPieces,
-        const TArray<TSharedPtr<const FMCPreparedFoodCutState>>& Prepared={});
+        const TArray<TSharedPtr<const FMCPreparedFoodCutState>>& Prepared={},const AMCToothCharacter* FinishingWorker=nullptr);
     bool BuildCutVisual();
     bool PrepareCutGeometry();
     void ApplyPreparedSourceMaterials();
@@ -409,6 +429,8 @@ private:
     bool FitsAutomaticIntakeMetrics(double LocalVolume) const;
     double AutomaticIntakeVolume() const;
     bool ResolveAutomaticCutDestination(FVector Start,FVector& OutTarget,class AMCThroat*& OutThroat) const;
+    bool CompleteAutomaticIntake(FVector Direction,bool bExplosive);
+    bool BeginSwallow(bool bExplosive);
     /** Actual selected geometry in actor-local cubic cm; negative means not measured. */
     double MeasuredPortionLocalVolume=-1;
     FVector PendingCutPoint=FVector::ZeroVector,PendingCutNormal=FVector::ZeroVector;
@@ -416,7 +438,8 @@ private:
     TSharedPtr<const FMCPreparedFoodCutState> PreparedCutState;
     /** Parent tuning/geometry was staged before FinishSpawning; BeginPlay must not overwrite it. */
     bool bStagedCutPortion=false;
-    /** Server-only receipt: accepted small geometry never needs a physical replicated actor. */
+    FObjectKey CutParent;
+    /** Server-only receipt for accepted cut geometry that is ready for crumb intake. */
     bool bCutIntakeReceipt=false;
     FBox CutIntakeReceiptBounds=FBox(ForceInit);
     bool bProcessingAutomaticCutDamage=false;
@@ -432,7 +455,8 @@ private:
     void CompleteCutPortions(const TArray<AMCFoodActor*>& Pieces,FVector Direction,AMCToothCharacter* Worker,bool bWeaponPassives,bool bPlayBreak);
     FBox CutStackLocalBounds=FBox(ForceInit);
     int32 CutAwardUnits=1;
-    bool ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,class AMCPlayerState* SourcePS,bool bWeaponPassives);
+    bool ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,class AMCPlayerState* SourcePS,
+        bool bWeaponPassives,bool bExactCut=false,bool bFinishCutPortions=false);
     FGuid ActiveContainerClaim;
     void RecoverUnreachableFood(float Dt);
     UPROPERTY() TObjectPtr<class AMCReactionVFX> SmellVFX;

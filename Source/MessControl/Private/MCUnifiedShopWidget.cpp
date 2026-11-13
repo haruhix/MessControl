@@ -109,8 +109,8 @@ void UMCUnifiedShopWidget::BuildPresentationTree()
     auto* Balance=MakeText(TEXT("ShopV2Balance"),18);
     auto* BalanceCell=Column->AddChildToVerticalBox(Balance);BalanceCell->SetHorizontalAlignment(HAlign_Right);BalanceCell->SetPadding(FMargin(0,8,0,4));
     auto* Hint=MakeText(TEXT("ShopV2Hint"),20);Hint->SetJustification(ETextJustify::Left);
-    Hint->SetText(Localized(TEXT("UI.Shop.NextRunHint"),LOCTEXT("NextRun","Бустеры — на следующий забег")));
-    TextBindings.Add(Hint->GetFName(),TEXT("UI.Shop.NextRunHint"));Column->AddChildToVerticalBox(Hint)->SetPadding(FMargin(4,4,4,18));
+    Hint->SetText(Localized(TEXT("UI.Shop.RaidStockHint"),LOCTEXT("RaidStockHint","Активные и пассивные перки пополняют запас.")));
+    TextBindings.Add(Hint->GetFName(),TEXT("UI.Shop.RaidStockHint"));Column->AddChildToVerticalBox(Hint)->SetPadding(FMargin(4,4,4,18));
     auto* Body=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("ShopV2Body"));Column->AddChildToVerticalBox(Body);
     auto* GridHeight=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("ShopV2GridBounds"));GridHeight->SetHeightOverride(620);
     auto* GridScroll=WidgetTree->ConstructWidget<UMCUIGridScrollBox>(UMCUIGridScrollBox::StaticClass(),TEXT("ShopV2CatalogScroll"));GridHeight->SetContent(GridScroll);
@@ -595,7 +595,16 @@ void UMCUnifiedShopWidget::UpdateHeaderContour()
         if(auto* Caption=TitleShape->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) {Caption->SetJustification(ETextJustify::Center);if(ShopTitleFont.HasValidFont()) Caption->SetFont(ShopTitleFont);}
     for(const auto& Card:Cards) MCUnifiedShopPrivate_StyleUnavailableCard(Card.Surface);
 }
-void UMCUnifiedShopWidget::ApplyTheme() {Super::ApplyTheme();UpdateResponsiveLayout();UpdateHeaderContour();}
+void UMCUnifiedShopWidget::ApplyTheme()
+{
+    if(WidgetTree && TextBindings.FindRef(TEXT("ShopV2Hint"))==TEXT("UI.Shop.NextRunHint"))
+        if(auto* Hint=WidgetTree->FindWidget<UTextBlock>(TEXT("ShopV2Hint")))
+        {
+            TextBindings.Add(Hint->GetFName(),TEXT("UI.Shop.RaidStockHint"));
+            Hint->SetText(LOCTEXT("RaidStockHint","Активные и пассивные перки пополняют запас."));
+        }
+    Super::ApplyTheme();UpdateResponsiveLayout();UpdateHeaderContour();
+}
 void UMCUnifiedShopWidget::ApplyEditorPreview(float Time) {BuildPresentationTree();Super::ApplyEditorPreview(Time);PresentPreview();UpdateResponsiveLayout();UpdateHeaderContour();}
 void UMCUnifiedShopWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {

@@ -116,6 +116,14 @@ bool AMCHubReadyZone::ContainsPawn(const APawn* Pawn) const
 
 void AMCHubReadyZone::BeginPlay()
 {
+    TInlineComponentArray<UMCWorldLabelPresenterComponent*> Presentations(this);
+    for (auto* Presentation : Presentations)
+    {
+        if (IsValid(Presentation) && Presentation->SourceText.Get() == Label.Get())
+        {
+            Presentation->ComponentTags.AddUnique(UMCWorldLabelPresenterComponent::FixedScreenSizeTag);
+        }
+    }
     Super::BeginPlay();
     for (UStaticMeshComponent* Edge : BorderMarkers)
         if (Edge) if (auto* Material = Edge->CreateDynamicMaterialInstance(0))

@@ -1,6 +1,7 @@
 #include "MCPlayerController.h"
 #include "MCHubGameMode.h"
 #include "MCHubGameState.h"
+#include "MCHubEconomyComponent.h"
 #include "MCHubWidget.h"
 #include "MCGameplayUIFactory.h"
 #include "MCPlayerState.h"
@@ -63,8 +64,9 @@ void AMCPlayerController::RefreshHubPresentation(float DeltaSeconds)
     }
     if(!HubWidget) return;
     HubWidget->TickPresentation(DeltaSeconds);
-    HubWidget->SetVisibility(IsWardrobeOpen() || IsHubShopOpen()
-        ? ESlateVisibility::Collapsed : ESlateVisibility::SelfHitTestInvisible);
+    const bool HideHub=bPauseMenuOpen || bConnectionMenuOpen || IsWardrobeOpen() || IsHubShopOpen();
+    const bool RestoreHubFocus=!HideHub && !HubWidget->IsVisible();
+    HubWidget->SetVisibility(HideHub?ESlateVisibility::Collapsed:ESlateVisibility::SelfHitTestInvisible);
     // Discover and tick the always-loaded stage during initial Gathering, but
     // only adopt its camera after the authoritative phase becomes Selecting.
     if(!HubSceneCamera.IsValid()) {
@@ -93,7 +95,7 @@ void AMCPlayerController::RefreshHubPresentation(float DeltaSeconds)
         bAutoManageActiveCameraTarget=false;SetViewTarget(HubSceneCamera.Get());
     }
     const bool NeedsMenu=HubWidget->RequiresMenuInput();
-    if(NeedsMenu!=bHubMenuInput) {bHubMenuInput=NeedsMenu; UpdateInputMode();}
+    if(NeedsMenu!=bHubMenuInput || (NeedsMenu && RestoreHubFocus)) {bHubMenuInput=NeedsMenu; UpdateInputMode();}
     const auto* LocalPlayerState=GetPlayerState<AMCPlayerState>();
     const bool Loaded=State->HasLoadedScene(LocalPlayerState);
     const bool HasScene=State->Phase==EMCHubPhase::Gathering
@@ -118,6 +120,24 @@ void AMCPlayerController::RequestHubOpenSelection() {if(HasLocalPresentationOwne
 void AMCPlayerController::RequestHubSelectDay(int32 Day) {if(HasLocalPresentationOwner() && IsHubWorld()) ServerHubSelectDay(Day);}
 void AMCPlayerController::RequestHubLaunch() {if(HasLocalPresentationOwner() && IsHubWorld()) ServerHubLaunch();}
 void AMCPlayerController::RequestHubReturn() {if(HasLocalPresentationOwner() && IsHubWorld()) ServerHubReturn();}
+void AMCPlayerController::RequestHubRaidReady(bool bReady)
+{
+    if (!HasLocalPresentationOwner() || !IsHubWorld()) return;
+    auto* Hub = GetWorld()->GetGameState<AMCHubGameState>();
+    if (Hub && Hub->Phase == EMCHubPhase::Selecting && Hub->HasLoadedScene(PlayerState))
+        ServerHubRaidReady(Hub, Hub->RaidSelectionRevision, bReady);
+}
+void AMCPlayerController::RequestHubRaidPerk(FName PerkID, int32 Slot, bool bPassive)
+{
+    if (!HasLocalPresentationOwner() || !IsHubWorld()) return;
+    auto* Hub = GetWorld()->GetGameState<AMCHubGameState>();
+    const auto* LocalState = GetPlayerState<AMCPlayerState>();
+    if (!Hub || Hub->Phase != EMCHubPhase::Selecting || !LocalState || !LocalState->Economy || !Hub->HasLoadedScene(LocalState)) return;
+    const TArray<FName>& Perks = bPassive ? LocalState->Economy->RaidLoadout.PassivePerks : LocalState->Economy->RaidLoadout.ActivePerks;
+    if (Slot < 0 || Slot > Perks.Num()) return;
+    const FName Expected = Perks.IsValidIndex(Slot) ? Perks[Slot] : NAME_None;
+    ServerHubRaidPerk(Hub, Hub->RaidSelectionRevision, PerkID, Slot, bPassive, Expected);
+}
 void AMCPlayerController::ServerHubOpenSelection_Implementation()
 {if(auto* Mode=GetWorld()->GetAuthGameMode<AMCHubGameMode>()) Mode->RequestOpenSelection(this);}
 void AMCPlayerController::ServerHubSelectDay_Implementation(int32 Day)
@@ -128,3 +148,13 @@ void AMCPlayerController::ServerHubReturn_Implementation()
 {if(auto* Mode=GetWorld()->GetAuthGameMode<AMCHubGameMode>()) Mode->RequestReturnToHub(this);}
 void AMCPlayerController::ServerHubSceneLoaded_Implementation(AMCHubGameState* LoadedHub,int32 Generation)
 {if(auto* Mode=GetWorld()->GetAuthGameMode<AMCHubGameMode>()) Mode->AcknowledgeSceneLoaded(this,LoadedHub,Generation);}
+void AMCPlayerController::ServerHubRaidReady_Implementation(AMCHubGameState* Hub, int32 Revision, bool bReady)
+{
+    if (auto* Mode = GetWorld()->GetAuthGameMode<AMCHubGameMode>()) Mode->RequestRaidReady(this, Hub, Revision, bReady);
+}
+void AMCPlayerController::ServerHubRaidPerk_Implementation(AMCHubGameState* Hub, int32 Revision, FName PerkID,
+    int32 Slot, bool bPassive, FName ExpectedPerkID)
+{
+    if (auto* Mode = GetWorld()->GetAuthGameMode<AMCHubGameMode>())
+        Mode->RequestRaidPerk(this, Hub, Revision, PerkID, Slot, bPassive, ExpectedPerkID);
+}

@@ -102,6 +102,8 @@ public:
     void PlayHookReaction(const FGuid& ActionId,EMCHookFaceReaction Reaction);
     void StopHookReaction(const FGuid& ActionId);
     UFUNCTION(BlueprintPure,Category="Face|Hook") float HookFaceAlpha() const;
+    void StartRebirthReaction(double ServerTime);
+    float RebirthReactionAge() const;
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Emotes") void ServerPlayEmote(FName Id);
     // Authority-owned reward feedback uses the same replicated cosmetic state.
     void PlayChestCelebration();
@@ -111,9 +113,9 @@ public:
     float BodyAlpha() const;
     void BuildBodyPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref) const;
     void BuildSocialPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref) const;
-    void BuildFacePose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt);
+    void BuildFacePose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt,float KatanaEffort=0.f);
     bool ApplyMorphBlink(float Closure);
-    float Squint() const { return EyeSquint; }
+    float Squint() const { return FMath::Max(EyeSquint,RebirthBlink); }
     float SocialEyeClosure() const { return FMath::Max3(SocialDisgust*.13f,StinkReaction*.3f,SprayReaction*.82f); }
     // Call on the avatar whose voice is being played locally. Timeout returns the mouth to rest.
     // Envelope-only VOIP can use Open; a later lip-sync provider supplies actual visemes.
@@ -125,6 +127,7 @@ public:
     static TConstArrayView<FName> MouthShapes();
 private:
     UPROPERTY() TObjectPtr<AMCToothCharacter> Tooth;
+    UPROPERTY(Replicated) double RebirthStartedAt=-1.;
     double Now() const;
     double EmoteStoppedAt() const;
     double PredictedEmoteStoppedAt=-1,PredictedEmoteStartedAt=-1;
@@ -140,10 +143,12 @@ private:
     EMCEmotion HookReactionEmotion() const;
     FGuid SuppressedHookActionId;
     double SuppressedHookStartedAt=-100;
-    float Voice=0,EyeSquint=0,Jaw=0,Smile=0,Brows=0,BrowTilt=0,Round=0,LipClosure=0;
+    float Voice=0,EyeSquint=0,Jaw=0,Smile=0,Brows=0,BrowTilt=0,Round=0,LipClosure=0,RebirthBlink=0;
+    float KatanaBrace=0.f;
     MCViseme VoiceViseme=MCViseme::Rest;
     TMap<FName,float> MouthWeights;
     TMap<FName,float> EyeWeights;
     bool UpdateEyeShapes(float Dt,float EmotionStrength,bool bPain);
-    bool UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain,bool bEyeOnly,float HookAlpha=0);
+    bool UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain,bool bEyeOnly,float HookAlpha,
+        float RebirthAlpha,float RebirthStartle,float RebirthRelief);
 };

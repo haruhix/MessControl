@@ -33,7 +33,7 @@ enum class EMCNutCombatCue : uint8
 {
     ChargeTell, JumpTell, SlamImpact, FireCast, FireImpact, NutRain, SummonTell, EntranceImpact, RollTell,
     CastCharge, CastRelease, RitualCast, ShieldHit, Transform, DeathBurst,
-    MeleeTell, MeleeSlash, TeleportTell, TeleportBurst, KnightHeadSplit
+    MeleeTell, MeleeSlash, TeleportTell, TeleportBurst, KnightHeadSplit, GravityHand, WizardSpell
 };
 
 /** One server-clock cue. Rendering peers reconstruct bounded cosmetic geometry from these values. */

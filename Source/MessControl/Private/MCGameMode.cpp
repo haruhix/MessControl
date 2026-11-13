@@ -47,6 +47,8 @@
 #include "Misc/Parse.h"
 #include "MCTaskActor.h"
 #include "MCToothCharacter.h"
+#include "MCDeathSpiritComponent.h"
+#include "MCExpressionComponent.h"
 #include "MCPlayerController.h"
 #include "MCPlaytestBotController.h"
 #include "MCPlaytestSession.h"
@@ -118,6 +120,39 @@ bool SettleFreshPlayerAboveTongue(ACharacter* Character,float Clearance=30.f)
     if(auto* ToothCharacter=Cast<AMCToothCharacter>(Character)) ToothCharacter->NotifyNetworkPositionReset();
     Character->ForceNetUpdate();
     return true;
+}
+
+bool FindRespawnExit(const AMCToothCharacter& Old,const AMCArenaTooth& Reserve,AMCTongue* Tongue,
+    const FVector& Inward,FVector& Exit)
+{
+    const auto* Capsule=Old.GetCapsuleComponent();
+    const float Radius=Capsule->GetScaledCapsuleRadius();
+    const float HalfHeight=Capsule->GetScaledCapsuleHalfHeight();
+    const FVector Extent=Reserve.Body->Bounds.BoxExtent;
+    const double Clearance=FVector::DotProduct(Inward.GetAbs(),Extent)+Radius+40.;
+    const double MouthZ=Reserve.RespawnSpiritAnchor().Z;
+    const auto Shape=FCollisionShape::MakeCapsule(Radius,HalfHeight);
+    const FCollisionQueryParams Query(SCENE_QUERY_STAT(MCRespawnExit),false,&Old);
+    const FCollisionResponseParams Response(Capsule->GetCollisionResponseToChannels());
+    const auto Fits=[&](const FVector& Position){
+        return !Old.GetWorld()->OverlapBlockingTestByChannel(Position,FQuat::Identity,Capsule->GetCollisionObjectType(),Shape,Query,Response);
+    };
+    for(int32 Attempt=0;Attempt<8;++Attempt) {
+        FVector Position=Reserve.GetActorLocation()+Inward*(Clearance+Attempt*60.);
+        if(Tongue) {
+            FHitResult Floor;
+            if(!Tongue->SurfacePoint(Position,Floor) || Floor.ImpactNormal.Z<.4f) continue;
+            const double BaseZ=Floor.ImpactPoint.Z+HalfHeight+30.;
+            Position=Floor.ImpactPoint;
+            Position.Z=FMath::Clamp(MouthZ,BaseZ,BaseZ+100.);
+            if(!Fits(Position)) Position.Z=BaseZ;
+        } else {
+            Position.Y=FMath::Sign(Position.Y)*510.;
+            Position.Z=120.;
+        }
+        if(Fits(Position)) { Exit=Position; return true; }
+    }
+    return false;
 }
 }
 
@@ -402,7 +437,7 @@ void AMCGameMode::RestartShift()
     State->bDevManualEvents=false;
     State->TeamToolUpgrades=0;
     ClearTasks();
-    Objectives.Empty(); PendingRespawns.Empty();
+    Objectives.Empty(); CancelPendingRespawns();
     FailedInitialSpawnTransforms.Reset();NextInitialSpawnRetryAt=0;
     TArray<AMCFoodActor*> OldFood;
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) OldFood.Add(*It);
@@ -617,7 +652,10 @@ void AMCGameMode::Tick(float DeltaSeconds)
             if(bTeamLoaded) BeginSingleDaySequence();
         }
     }
-    if (!State || State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost) return;
+    if (!State || State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost) {
+        CancelPendingRespawns();
+        return;
+    }
     ProcessRespawns();
     if (State->bDayOneComplete) return;
     if (HasLostAllTeeth())
@@ -646,6 +684,17 @@ void AMCGameMode::StartLobby(APlayerController* Requester)
     }
     bLobbyRequested=false;
     State->bLobbyWaiting=false;
+    if(HubBoosterRunId.IsValid())
+    {
+        // Apply the approved equipment before the first arena phase begins.
+        for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
+            if(auto* PC=It->Get();IsGameplayParticipant(PC))
+                if(auto* Player=PC->GetPlayerState<AMCPlayerState>();Player && Player->Economy)
+                {
+                    FText Error;
+                    Player->Economy->ApplyPendingBoostersForRun(HubBoosterRunId,Error);
+                }
+    }
     State->PhaseEndsAt=State->GetServerWorldTimeSeconds();
     State->ForceNetUpdate();
     UE_LOG(LogTemp,Display,TEXT("MC_LOBBY_STARTED players=%d"),GetNumPlayers());
@@ -800,7 +849,7 @@ bool AMCGameMode::HasLivingPlayers() const
 bool AMCGameMode::HasLostAllTeeth() const
 {
     const auto* State=GetGameState<AMCGameState>();
-    return State && GetGameplayParticipantCount()>0 && !HasLivingPlayers() && State->AvailableArenaTeeth()==0;
+    return State && GetGameplayParticipantCount()>0 && !HasLivingPlayers() && State->AvailableRespawnTeeth()==0;
 }
 bool AMCGameMode::IsGameplayParticipant(const AController* Controller)
 {
@@ -819,41 +868,111 @@ void AMCGameMode::PlayerDied(AMCToothCharacter* Hero)
 {
     auto* GS=GetGameState<AMCGameState>();
     if (!IsValid(Hero) || !Hero->GetController() || !GS || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost) return;
-    if (PendingRespawns.Contains(Hero)) return;
+    if (PendingRespawns.ContainsByPredicate([Hero](const FPendingRespawn& Pending){ return Pending.Hero==Hero; })) return;
     if (AMCPlaytestSession* Session=AMCPlaytestSession::Find(GetWorld())) Session->RecordDeath(Hero);
-    Hero->RespawnAt=GS->GetServerWorldTimeSeconds()+FMath::Max(.1f,RespawnDelay);
-    PendingRespawns.Add(Hero); Hero->ForceNetUpdate();
+    const double Now=GS->GetServerWorldTimeSeconds();
+    Hero->RespawnAt=Now+FMath::Max(.1f,RespawnDelay);
+    FVector Origin=Hero->GetActorLocation();
+    if(Origin.ContainsNaN()) Origin=FVector::ZeroVector;
+    // Boundary deaths may occur below the arena. Keep the waiting view above the tissue.
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {
+        FHitResult Floor;
+        if(It->SurfacePoint(Origin,Floor)) {
+            Origin.Z=FMath::Max(Origin.Z,Floor.ImpactPoint.Z+Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+            break;
+        }
+    }
+    Hero->DeathSpirit->StartSpirit(Now,Origin);
+    PendingRespawns.AddDefaulted_GetRef().Hero=Hero;
+    Hero->ForceNetUpdate();
 }
+
+void AMCGameMode::CancelPendingRespawns()
+{
+    for(const FPendingRespawn& Pending:PendingRespawns) {
+        if(auto* Reserve=Pending.Reserve.Get()) Reserve->CancelRespawn(Pending.Hero.Get());
+        if(auto* Hero=Pending.Hero.Get()) Hero->DeathSpirit->EndSpirit();
+    }
+    PendingRespawns.Reset();
+}
+
 void AMCGameMode::ProcessRespawns()
 {
-    auto* GS=GetGameState<AMCGameState>(); if (!GS) return;
+    auto* GS=GetGameState<AMCGameState>();
+    if (!GS || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost) return;
+    constexpr double PullSeconds=1.30;
+    constexpr double SpawnRetrySeconds=.25;
+    const double Now=GS->GetServerWorldTimeSeconds();
     for (int32 I=0;I<PendingRespawns.Num();)
     {
-        AMCToothCharacter* Old=PendingRespawns[I];
-        if (!IsValid(Old) || !IsValid(Old->GetController())) { PendingRespawns.RemoveAt(I); continue; }
-        if (GS->GetServerWorldTimeSeconds()<Old->RespawnAt) { ++I; continue; }
-        AMCArenaTooth* Reserve=nullptr;
-        for (AMCArenaTooth* Tooth:GS->ArenaTeeth) if (IsValid(Tooth) && Tooth->IsAvailable() && (!Reserve || Tooth->State.ToothId<Reserve->State.ToothId)) Reserve=Tooth;
-        if (!Reserve) { ++I; continue; }
-        const FMCToothStatus Inherited=Reserve->Status->State;
-        FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-        AMCTongue* Tongue=nullptr; for(TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
-        FVector Center=Tongue?Tongue->GetActorLocation():FVector::ZeroVector;
-        const FVector Inward=(Center-Reserve->GetActorLocation()).GetSafeNormal2D();
-        const FVector Extent=Reserve->Visual->Bounds.BoxExtent;
-        const float Clearance=FMath::Abs(Inward.X)*Extent.X+FMath::Abs(Inward.Y)*Extent.Y+Old->GetCapsuleComponent()->GetScaledCapsuleRadius()+40;
-        AMCToothCharacter* NewHero=nullptr;
-        for(int32 Attempt=0;Attempt<8 && !NewHero;++Attempt)
-        {
-            FVector Location=Reserve->GetActorLocation()+Inward*(Clearance+Attempt*60);
-            if(Tongue) {
-                FHitResult Floor; if(!Tongue->SurfacePoint(Location,Floor) || Floor.ImpactNormal.Z<.4f) continue;
-                Location=Floor.ImpactPoint+FVector(0,0,Old->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+30);
-            } else { Location.Y=FMath::Sign(Location.Y)*510; Location.Z=120; }
-            NewHero=GetWorld()->SpawnActor<AMCToothCharacter>(Old->GetClass(),Location,Inward.Rotation(),Params);
+        FPendingRespawn& Pending=PendingRespawns[I];
+        auto* Old=Pending.Hero.Get();
+        auto* Reserve=Pending.Reserve.Get();
+        if (!Old || !IsValid(Old->GetController()) || Old->Status->IsAlive()) {
+            if(Reserve) Reserve->CancelRespawn(Old);
+            if(Old) Old->DeathSpirit->EndSpirit();
+            PendingRespawns.RemoveAt(I);
+            continue;
         }
-        if (!NewHero) { ++I; continue; }
-        if (!Reserve->ConsumeForRespawn()) { NewHero->Destroy(); ++I; continue; }
+        if (Now<Old->RespawnAt || Now<Pending.RetryAt) { ++I; continue; }
+        if (Pending.ReleaseAt>0. && (!Reserve || Reserve->DamageStage()!=EMCArenaToothDamageStage::Intact)) {
+            if(Reserve) Reserve->CancelRespawn(Old);
+            Old->DeathSpirit->CancelPull();
+            Pending.Reserve.Reset();
+            Pending.ReleaseAt=0.;
+            Reserve=nullptr;
+        }
+
+        AMCTongue* Tongue=nullptr;
+        for(TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
+        const FVector Center=Tongue?Tongue->GetActorLocation():FVector::ZeroVector;
+        if (!Reserve) {
+            const FVector Spirit=Old->DeathSpirit->GetSpiritLocation();
+            const auto* Blocked=Pending.BlockedReserve.Get();
+            double Closest=MAX_dbl;
+            for (AMCArenaTooth* Tooth:GS->ArenaTeeth) {
+                if(!IsValid(Tooth) || Tooth->IsRespawnReserved() || Tooth->DamageStage()!=EMCArenaToothDamageStage::Intact) continue;
+                if(Reserve && Tooth==Blocked) continue;
+                const double Distance=FVector::DistSquared(Spirit,Tooth->GetActorLocation());
+                if(!Reserve || Reserve==Blocked || Distance<Closest || (Distance==Closest && Tooth->State.ToothId<Reserve->State.ToothId)) {
+                    Reserve=Tooth;
+                    Closest=Distance;
+                }
+            }
+            if(Reserve) {
+                const FVector Inward=(Center-Reserve->GetActorLocation()).GetSafeNormal2D(UE_SMALL_NUMBER,FVector::ForwardVector);
+                const double ReleaseAt=Now+PullSeconds;
+                FVector Exit;
+                if(!FindRespawnExit(*Old,*Reserve,Tongue,Inward,Exit)) {
+                    Pending.BlockedReserve=Reserve;
+                    Pending.RetryAt=Now+SpawnRetrySeconds;
+                } else if(Reserve->TryBeginRespawn(Old,Inward,ReleaseAt)) {
+                    Pending.Reserve=Reserve;
+                    Pending.ReleaseAt=ReleaseAt;
+                    Old->DeathSpirit->StartPull(Now,ReleaseAt,Reserve->RespawnMergeCenter(),Reserve,Exit);
+                }
+            }
+            ++I;
+            continue;
+        }
+        if (Now<Pending.ReleaseAt) { ++I; continue; }
+
+        const FMCToothStatus Inherited=Reserve->Status->State;
+        FActorSpawnParameters Params;
+        Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
+        const FVector Inward=(Center-Reserve->GetActorLocation()).GetSafeNormal2D(UE_SMALL_NUMBER,FVector::ForwardVector);
+        auto* NewHero=GetWorld()->SpawnActor<AMCToothCharacter>(Old->GetClass(),Old->DeathSpirit->GetPlannedExit(),Inward.Rotation(),Params);
+        if (!NewHero || !Reserve->ConsumeForRespawn(Old)) {
+            if(NewHero) NewHero->Destroy();
+            Reserve->CancelRespawn(Old);
+            Old->DeathSpirit->CancelPull();
+            Pending.Reserve.Reset();
+            Pending.BlockedReserve=Reserve;
+            Pending.ReleaseAt=0.;
+            Pending.RetryAt=Now+SpawnRetrySeconds;
+            ++I;
+            continue;
+        }
         if (Old->Status->Settings.bInheritReserveStatus) NewHero->Status->Restore(Inherited);
         NewHero->RespawnSourceId=Reserve->State.ToothId;
         NewHero->Inventory->bWaterJetUnlocked=Old->Inventory->bWaterJetUnlocked;
@@ -869,6 +988,9 @@ void AMCGameMode::ProcessRespawns()
             NewHero->Status->Heal(NewHero->Status->State.MaxHealth);
         }
         SettleFreshPlayerAboveTongue(NewHero);
+        NewHero->LaunchCharacter(Inward*230.+FVector(0,0,95.),true,true);
+        NewHero->Expression->StartRebirthReaction(Now);
+        Old->DeathSpirit->EndSpirit(TOptional<FVector>(NewHero->GetActorLocation()));
         Old->RespawnAt=0; Old->SetLifeSpan(3); NewHero->ForceNetUpdate();
         PendingRespawns.RemoveAt(I); GS->ForceNetUpdate();
     }

@@ -120,6 +120,7 @@ void AMCCataclysmJelly::ConfigureJelly(AMCTongue* OnTongue,float InMaxHealth,EMC
     RuptureRadius=FMath::Max(160.f,Defaults->RuptureRadius*Scale);
     bPendingRupture=false;
     DeathStartedAt=RupturedAt=-100.;
+    HitAt=-100.;
     HopStartedAt=ServerTime();
     ConfigureEnemy(OnTongue,NutMesh,Defaults->MeshScale*Scale,JellySettings);
     ResetWandering(HopStartedAt);
@@ -391,9 +392,8 @@ void AMCCataclysmJelly::PushRupturePlayers()
 void AMCCataclysmJelly::SpawnChildren()
 {
     auto* Event=Cast<AMCCataclysmEvent>(GetOwner());
-    if(JellySize==EMCCataclysmJellySize::Small || !IsValid(Tongue) || !Event || !Event->IsRunning()) return;
-    const EMCCataclysmJellySize ChildSize=JellySize==EMCCataclysmJellySize::Large?EMCCataclysmJellySize::Medium:EMCCataclysmJellySize::Small;
-    const float ChildRadius=72.f*(ChildSize==EMCCataclysmJellySize::Medium?.8f:.5f);
+    if(JellySize!=EMCCataclysmJellySize::Large || !IsValid(Tongue) || !Event || !Event->IsRunning()) return;
+    constexpr float ChildRadius=72.f*.5f;
     const float StartAngle=WanderRandom.FRandRange(-180.f,180.f);
     TArray<FVector,TInlineAllocator<3>> Placed;
     for(int32 Index=0;Index<3;++Index)
@@ -416,7 +416,7 @@ void AMCCataclysmJelly::SpawnChildren()
         const FTransform Pose(FRotator(0,StartAngle+Index*120.f,0),Floor.ImpactPoint+FVector::UpVector*(ChildRadius+4.f));
         auto* Child=GetWorld()->SpawnActorDeferred<AMCCataclysmJelly>(GetClass(),Pose,Event);
         if(!Child) continue;
-        Child->ConfigureJelly(Tongue,Settings.MaxHealth*.5f,ChildSize);
+        Child->ConfigureJelly(Tongue,Settings.MaxHealth*.25f,EMCCataclysmJellySize::Small);
         Child->OnDirtyPatchRequested.AddUObject(Event,&AMCCataclysmEvent::RegisterDirtyPatch);
         Child->FinishSpawning(Pose);
         Event->Jellies.Add(Child);
@@ -638,6 +638,10 @@ void AMCCataclysmJelly::Tick(float DeltaSeconds)
     }
     if(!IsValid(Tongue) || Tongue->IsActorBeingDestroyed()) { Destroy(); return; }
     if(UMCCombatPassiveSubsystem::TickBilliards(this,DeltaSeconds)) return;
+    // Both accepted hit paths update HitAt. Exclude the paused time from the next movement step.
+    const double MoveResumeAt=HitAt+HitStunSeconds;
+    if(Now<MoveResumeAt) return;
+    LastMoveAt=FMath::Max(LastMoveAt,MoveResumeAt);
     Target=nullptr;
     WanderOnTongue(Now);
     PaintTrail(Now,DeltaSeconds);

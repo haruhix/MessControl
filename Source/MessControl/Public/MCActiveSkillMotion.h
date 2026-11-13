@@ -26,6 +26,13 @@ private:
 
 namespace MCActiveSkillMotion
 {
+    struct FCleanContact
+    {
+        FVector Point=FVector::ZeroVector;
+        FVector Normal=FVector::UpVector;
+        float Radius=0.f;
+    };
+
     /** Ragdoll, traversal, carried food and existing motion leases are not implicit handoffs. */
     MESSCONTROL_API bool IsEligible(const AMCToothCharacter* Pawn,bool bRequireGround);
     MESSCONTROL_API bool CanAcquire(const AMCToothCharacter* Pawn);
@@ -45,6 +52,6 @@ namespace MCActiveSkillMotion
     MESSCONTROL_API bool ContinuousPath(FVector From,FVector To,float Seconds,float MaxSpeed);
     /** Native mask mutations/receipts only. Contact-pass is a grounded local Sponge dose, never a global clear. */
     MESSCONTROL_API bool CleanSweep(AMCToothCharacter* Worker,const AActor* Action,FVector From,
-        FVector To,float Seconds,float Radius,float Rate,float MaxSpeed,bool bContactPass=false);
+        FVector To,float Seconds,float Radius,float Rate,float MaxSpeed,bool bContactPass=false,FCleanContact* Contact=nullptr);
     MESSCONTROL_API FVector Steering(const AMCToothCharacter* Pawn,FVector Previous,float DegreesPerSecond,float Seconds);
 }

@@ -35,6 +35,13 @@ int32 AMCGameState::AvailableArenaTeeth() const
     int32 Count=0; for (const AMCArenaTooth* Tooth:ArenaTeeth) if (IsValid(Tooth) && Tooth->IsAvailable()) ++Count;
     return Count;
 }
+int32 AMCGameState::AvailableRespawnTeeth() const
+{
+    int32 Count=0;
+    for(const AMCArenaTooth* Tooth:ArenaTeeth)
+        if(IsValid(Tooth) && Tooth->DamageStage()==EMCArenaToothDamageStage::Intact) ++Count;
+    return Count;
+}
 float AMCGameState::SecondsLeft() const { return FMath::Max(0., PhaseEndsAt - GetServerWorldTimeSeconds()); }
 void AMCGameState::RecordDirectorDecision(const FString& Decision)
 {

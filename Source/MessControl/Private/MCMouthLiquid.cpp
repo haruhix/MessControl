@@ -26,6 +26,7 @@ static TAutoConsoleVariable<float> CVarMCLiquidMeshHz(TEXT("mc.LiquidMeshHz"),60
 namespace
 {
 constexpr double PaintSurfaceOffset=.6;
+constexpr float SpongeDissolveSeconds=.45f;
 struct FPaintClipVertex
 {
     FVector Point;
@@ -99,6 +100,7 @@ void AMCMouthSurface::ResetLiquid()
         if(!PaintSupportMask[I]) WipeMask[I]=0;
     WipeFractional.Reset(); SpongeSweptCells.Reset(); PreviousBrush.Reset(); BrushCenters.Reset(); Finish=0; BrushAt=-100; BrushClock=0;
     StainCleaningState.ContactAt=-100.;StainCleaningState.ContactStartedAt=-100.;
+    StainCleaningState.SpongeRemainder.Reset();
     OnRep_Wipe(); ForceNetUpdate();
 }
 void AMCMouthSurface::SetLiquidDepositMask(const TArray<uint8>& Mask)
@@ -245,6 +247,7 @@ void AMCMouthSurface::ClearLiquidForBooster()
 {
     if(!HasAuthority() || bUlcer) return;
     WipeMask.Init(0,FMCCoffeeWipe::Count);WipeFractional.Reset();SpongeSweptCells.Reset();
+    StainCleaningState.SpongeRemainder.Reset();
     Status->ClearCoffeeForBooster();
     OnRep_Wipe();ForceNetUpdate();
 }
@@ -384,7 +387,8 @@ bool AMCMouthSurface::ApplyLiquidCleaning(AMCToothCharacter* Worker,FVector2D Fr
     const auto Attempt=Results?Results->BeginCleaning(this):FMCStainCleaningAttempt();
     bool bSpongeCompleted=false;
     const bool Changed=bSpongeContact
-        ?FMCCoffeeWipe::WipeOnContact(WipeMask,LiquidDepositMask,WipeFractional,SpongeSweptCells,To,RadiusUV,LiquidSeed,bPaintTile,bSpongeCompleted)
+        ?FMCCoffeeWipe::WipeOnContact(WipeMask,LiquidDepositMask,WipeFractional,SpongeSweptCells,To,RadiusUV,LiquidSeed,
+            bPaintTile,bSpongeCompleted,&StainCleaningState.SpongeRemainder)
         :FMCCoffeeWipe::Stroke(WipeMask,From,To,RadiusUV,Seconds,&WipeFractional,Rate);
     if(Changed) OnRep_Wipe();
     const bool Removed=Changed && RemainingLiquid()<Before;
@@ -396,6 +400,10 @@ bool AMCMouthSurface::ApplyLiquidCleaning(AMCToothCharacter* Worker,FVector2D Fr
         // that accepted boundary; it never repeats the cleaning/reward decision.
         const auto* Clock=GetWorld()->GetGameState();
         const double Now=Clock?Clock->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+        if(bSpongeCompleted) {
+            StainCleaningState.SpongeDissolveAt=Now;
+            StainCleaningState.SpongeDissolveUV=To;
+        }
         if(StainCleaningState.ContactSerial==0||Now-StainCleaningState.ContactAt>.25) {
             ++StainCleaningState.ContactSerial;StainCleaningState.ContactStartedAt=Now;
         }
@@ -562,26 +570,42 @@ void AMCMouthSurface::BuildLiquid()
     BoundTongue=Tongue;
 }
 
-void AMCMouthSurface::UploadWipe()
+void AMCMouthSurface::UploadWipe(float SpongeDissolveProgress)
 {
     if (!WipeTexture || WipeMask.Num()!=FMCCoffeeWipe::Count) return;
+    const bool bDissolving=SpongeDissolveProgress<1.f;
     // Ownership of both allocations transfers to the render-thread cleanup callback.
     auto* Bytes=new uint8[FMCCoffeeWipe::Count*4];
     for (int32 I=0;I<FMCCoffeeWipe::Count;++I)
     {
-        const uint8 Value=MCPaintVisibility::UploadByte(WipeMask[I],bPaintTile);
+        uint8 Value=MCPaintVisibility::UploadByte(WipeMask[I],bPaintTile);
+        if(bDissolving && StainCleaningState.SpongeRemainder[I]>0) {
+            // Fade in a short wave away from the last contact. Apply the fade
+            // after paint's display-density correction, leaving live deposits intact.
+            const FVector2D UV((I%FMCCoffeeWipe::Size+.5)/FMCCoffeeWipe::Size,
+                (I/FMCCoffeeWipe::Size+.5)/FMCCoffeeWipe::Size);
+            const float Delay=.45f*FMath::Min(1.f,float(FVector2D::Distance(UV,StainCleaningState.SpongeDissolveUV))*1.6f);
+            const float Fade=1.f-FMath::SmoothStep(Delay,Delay+.55f,SpongeDissolveProgress);
+            const uint8 Residue=uint8(FMath::RoundToInt(MCPaintVisibility::UploadByte(StainCleaningState.SpongeRemainder[I],bPaintTile)*Fade));
+            Value=FMath::Max(Value,Residue);
+        }
         Bytes[I*4]=Bytes[I*4+1]=Bytes[I*4+2]=Value; Bytes[I*4+3]=255;
     }
     auto* Region=new FUpdateTextureRegion2D(0,0,0,0,FMCCoffeeWipe::Size,FMCCoffeeWipe::Size);
     WipeTexture->UpdateTextureRegions(0,1,Region,FMCCoffeeWipe::Size*4,4,Bytes,
         [](uint8* Data,const FUpdateTextureRegion2D* Rect){delete[] Data; delete Rect;});
-    bWipeDirty=false;
+    bWipeDirty=false;bUploadedSpongeDissolve=bDissolving;
 }
 
 void AMCMouthSurface::UpdateLiquid(float Dt)
 {
     TRACE_CPUPROFILER_EVENT_SCOPE(MCLiquidUpdate);
     if (bUlcer || !FApp::CanEverRender() || CVarMCLiquidRender.GetValueOnGameThread()==0) { Liquid->SetVisibility(false); return; }
+    const auto* GS=GetWorld()->GetGameState();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    const float SpongeDissolveProgress=StainCleaningState.SpongeRemainder.Num()==FMCCoffeeWipe::Count
+        ?FMath::Clamp(float(Now-StainCleaningState.SpongeDissolveAt)/SpongeDissolveSeconds,0.f,1.f):1.f;
+    const bool bDissolving=SpongeDissolveProgress<1.f;
     if (!LiquidMID)
     {
         auto* Base=LiquidMaterial.LoadSynchronous(); if (!Base) return;
@@ -596,10 +620,11 @@ void AMCMouthSurface::UpdateLiquid(float Dt)
         WipeTexture->SRGB=false; WipeTexture->Filter=TF_Bilinear; WipeTexture->AddressX=TA_Clamp; WipeTexture->AddressY=TA_Clamp;
         WipeTexture->NeverStream=true; WipeTexture->UpdateResource();
         LiquidMID->SetTextureParameterValue(TEXT("WipeMask"),WipeTexture);
+        bUploadedSpongeDissolve=false;
     }
     Finish=IsClean()?FMath::Min(1.f,Finish+Dt/0.45f):0;
-    Liquid->SetVisibility(Finish<1);
-    if (Finish>=1) return;
+    Liquid->SetVisibility(Finish<1 || bDissolving);
+    if (Finish>=1 && !bDissolving) return;
     const bool PaintTopologyChanged=bPaintTile && Tongue && (BoundTongueSource.Get()!=Tongue->SourceMesh.Get()
         || BoundTongueVertexCount!=Tongue->CurrentVertices().Num() || BoundTongueIndexCount!=Tongue->TriangleIndices().Num());
     if (LiquidVertices.IsEmpty() || BoundTongue.Get()!=Tongue || PaintTopologyChanged) BuildLiquid();
@@ -643,14 +668,14 @@ void AMCMouthSurface::UpdateLiquid(float Dt)
         }
     }
     TextureElapsed+=Dt;
-    if (bWipeDirty && TextureElapsed>=1.f/30) { UploadWipe(); TextureElapsed=0; }
-    const auto* GS=GetWorld()->GetGameState(); const float Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    if (bUploadedSpongeDissolve!=bDissolving || ((bWipeDirty || bDissolving) && TextureElapsed>=1.f/30))
+        { UploadWipe(SpongeDissolveProgress); TextureElapsed=0; }
     LiquidMID->SetScalarParameterValue(TEXT("Seed"),LiquidSeed);
     LiquidMID->SetScalarParameterValue(TEXT("WorldSize"),LiquidHalfSize*2);
-    LiquidMID->SetScalarParameterValue(TEXT("Finish"),Finish);
+    LiquidMID->SetScalarParameterValue(TEXT("Finish"),bDissolving?0.f:Finish);
     LiquidMID->SetScalarParameterValue(TEXT("Arrival"),LiquidBornAt<0?1.f:FMath::SmoothStep(0.f,.35f,float(Now-LiquidBornAt)));
     // The wake has decayed below visibility after three seconds. Keep the value
     // stable then, so idle puddles do not upload a new material uniform every frame.
-    LiquidMID->SetScalarParameterValue(TEXT("BrushAge"),FMath::Clamp(Now-BrushAt,0.f,3.f));
+    LiquidMID->SetScalarParameterValue(TEXT("BrushAge"),FMath::Clamp(float(Now-BrushAt),0.f,3.f));
     LiquidMID->SetVectorParameterValue(TEXT("Brush"),FLinearColor(BrushUV.X,BrushUV.Y,BrushDirection.X,BrushDirection.Y));
 }

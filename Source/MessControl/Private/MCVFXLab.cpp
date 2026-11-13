@@ -1,4 +1,5 @@
 #include "MCVFXLab.h"
+#include "MCVFXLabToolStation.h"
 #include "MCAnimationComparisonSubsystem.h"
 
 #include "MCGameState.h"
@@ -52,6 +53,7 @@ FString ReadStatus(const AActor* Actor)
 }
 bool IsStation(const AActor* Actor)
 {
+    if(const auto* Tool=Cast<AMCVFXLabToolStation>(Actor); Tool && Tool->IsRetiredCase()) return false;
     return Actor && Actor->ActorHasTag(TEXT("MCVFXLabStation"));
 }
 void SetStationRunning(AActor* Actor,const bool bEnabled)
@@ -111,8 +113,6 @@ FString StationDisplayName(const FString& Name)
         {TEXT("BufferAoE"),TEXT("Перфоратор: область поражения")},
         {TEXT("BufferWall"),TEXT("Перфоратор: упор в стену")},
         {TEXT("KnifeFood"),TEXT("Нож: еда")},
-        {TEXT("ChainsawFood"),TEXT("Бензопила: еда")},
-        {TEXT("ChainsawWall"),TEXT("Бензопила: упор в стену")},
         {TEXT("CoffeeWave"),TEXT("Волна кофе и лужи")},
         {TEXT("FreezeThawAndRescue"),TEXT("Заморозка, оттаивание и спасение")},
         {TEXT("NovaProtection"),TEXT("Ледяная нова и безопасная зона")},

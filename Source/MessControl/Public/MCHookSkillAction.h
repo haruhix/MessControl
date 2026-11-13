@@ -82,6 +82,7 @@ private:
     FVector CastLook=FVector::ForwardVector;
     FVector PreviousMovedPosition=FVector::ZeroVector;
     float PreviousPullSimulationTime=0;
+    float RopeTension=.32f;
     EMCActiveSkillEndReason ReturnReason=EMCActiveSkillEndReason::Completed;
     double EndsAt=0,LastSampleAt=0;
 };

@@ -1,5 +1,6 @@
 ﻿#include "MCFoodActor.h"
 #include "MCToothCharacter.h"
+#include "MCNutGravityTrajectory.h"
 #include "MCWorldStatusComponent.h"
 #include "MCPerkComponent.h"
 #include "MCPerkPresentationEvents.h"
@@ -38,9 +39,21 @@
 #include "Components/TextRenderComponent.h"
 #include "EngineUtils.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/World.h"
+#include "CollisionShape.h"
 #include "Net/UnrealNetwork.h"
 #include "UObject/ConstructorHelpers.h"
 #include "HAL/PlatformTime.h"
+
+namespace
+{
+void SetFoodBodyContactResponses(UPrimitiveComponent& Body,bool bOnStack,bool bWizardGravityDrop)
+{
+    const ECollisionResponse Response=bWizardGravityDrop?ECR_Ignore:bOnStack?ECR_Overlap:ECR_Block;
+    Body.SetCollisionResponseToChannel(ECC_PhysicsBody,Response);
+    Body.SetCollisionResponseToChannel(AMCFoodActor::FragmentCollisionChannel,Response);
+}
+}
 
 void FMCFoodSettings::Sanitize()
 {
@@ -177,6 +190,7 @@ void AMCFoodActor::HandleNutToothImpact(AMCArenaTooth* Tooth,FVector Impulse,con
     if(!HasAuthority() || !IsNutKineticsActive() || !IsValid(Tooth) || !Tooth->IsAvailable()
         || !Hit.bBlockingHit || !Body->IsSimulatingPhysics() || Impulse.ContainsNaN()) return;
     const double Time=GetWorld()->GetTimeSeconds();
+    if(Time<WizardGravityDisarmedUntil) return;
     if(const double* Previous=LastHit.Find(Tooth); Previous && Time-*Previous<Settings.HitCooldown) return;
     const float Mass=Body->GetMass();
     if(!FMath::IsFinite(Mass) || Mass<=0) return;
@@ -218,9 +232,113 @@ void AMCFoodActor::EndMouthEntry()
 {
     if (!bMouthEntry) return;
     if(bEntryImpactManaged) EntryImpactSafeUntil=GetWorld()->GetTimeSeconds()+.8;
-    bMouthEntry=false; MouthEntryPushSpeed=0; MouthEntryEndsAt=0;
+    const bool bWasWizardGravityDrop=bWizardGravityDrop;
+    bMouthEntry=false; bWizardGravityDrop=false; MouthEntryPushSpeed=0; MouthEntryEndsAt=0;
     MouthEntryLanding.Reset();
     Body->SetLinearDamping(bNutKineticsEnabled?Settings.NutLinearDamping:.7f);
+    if(bWasWizardGravityDrop && !bCutTransactionStaged) {
+        SetFoodBodyContactResponses(*Body,StackCarrier!=nullptr,false);
+        RefreshWalkingCollision();
+    }
+}
+
+float AMCFoodActor::BeginWizardGravityLift(AMCTongue* Support,float LiftSeconds,float HoldSeconds,float RequestedHeight,bool bMoveExternally)
+{
+    if(!HasAuthority() || !IsValid(Support) || !IsNutKineticsActive() || !Body->IsSimulatingPhysics()
+        || bWizardGravityLift || bMouthEntry || IsCutTransactionPending() || IsCutTransactionStaged()
+        || !FMath::IsFinite(LiftSeconds) || LiftSeconds<=0 || !FMath::IsFinite(HoldSeconds) || HoldSeconds<0
+        || !FMath::IsFinite(RequestedHeight) || RequestedHeight<=0) return 0;
+
+    const FVector Center=Body->Bounds.Origin;
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCWizardGravityCeiling),false,this);
+    Query.AddIgnoredActor(Support);
+    Query.bFindInitialOverlaps=false;
+    FCollisionResponseParams Response(Body->GetCollisionResponseToChannels());
+    Response.CollisionResponse.SetResponse(ECC_Pawn,ECR_Ignore);
+    Response.CollisionResponse.SetResponse(ECC_PhysicsBody,ECR_Ignore);
+    FHitResult Hit;
+    const FCollisionShape Shape=FCollisionShape::MakeBox(Body->Bounds.BoxExtent);
+    float Height=RequestedHeight;
+    if(GetWorld()->SweepSingleByChannel(Hit,Center,Center+FVector(0,0,Height),FQuat::Identity,Body->GetCollisionObjectType(),Shape,Query,Response))
+        if(Hit.ImpactNormal.Z<-.15f) Height=float(Hit.Distance)-15.f;
+    if(Height<120.f) return 0;
+
+    EndManualThrowFlight();
+    bManuallyThrown=false;
+    bWizardGravityLift=true;
+    bWizardGravityLiftExternallyDriven=bMoveExternally;
+    WizardGravityLiftStart=GetActorLocation();
+    WizardGravityLiftStartedAt=GetWorld()->GetTimeSeconds();
+    WizardGravityLiftExpiresAt=WizardGravityLiftStartedAt+LiftSeconds+HoldSeconds+1.f;
+    WizardGravityLiftSeconds=LiftSeconds;
+    WizardGravityLiftHeight=Height;
+    Phase=EMCFoodPhase::Falling;
+    bLandingPending=false;
+    PrePhysicsVelocity=FVector::ZeroVector;
+    ResetWalkingObstacle();
+    OnRep_Phase();
+    ForceNetUpdate();
+    return Height;
+}
+
+void AMCFoodActor::TickWizardGravityLift()
+{
+    if(!bWizardGravityLift) return;
+    const double Time=GetWorld()->GetTimeSeconds();
+    if(!IsNutKineticsActive() || IsCutTransactionPending() || IsCutTransactionStaged() || Time>=WizardGravityLiftExpiresAt) {
+        CancelWizardGravityMotion();
+        return;
+    }
+    if(bWizardGravityLiftExternallyDriven) return;
+    const float Alpha=FMath::SmoothStep(0.f,1.f,float((Time-WizardGravityLiftStartedAt)/WizardGravityLiftSeconds));
+    const FVector Goal=WizardGravityLiftStart+FVector(0,0,WizardGravityLiftHeight*Alpha);
+    if(Goal.Equals(GetActorLocation(),.05)) return;
+    // The ceiling sweep reserved this vertical path. Ground contacts and
+    // adjacent walnuts cannot obstruct the synchronized lift.
+    SetActorLocation(Goal,false,nullptr,ETeleportType::TeleportPhysics);
+}
+
+bool AMCFoodActor::DropWizardGravityNut(FVector ExpectedLanding,float DownwardSpeed)
+{
+    if(!HasAuthority() || !bWizardGravityLift || !IsNutKineticsActive() || IsCutTransactionPending()
+        || IsCutTransactionStaged() || ExpectedLanding.ContainsNaN() || !FMath::IsFinite(DownwardSpeed) || DownwardSpeed<=0) return false;
+    const FVector Travel=ExpectedLanding-GetActorLocation();
+    const float FlightSeconds=MCNutGravity::FlightSeconds(float(-Travel.Z),GetWorld()->GetGravityZ(),DownwardSpeed);
+    if(FlightSeconds<=0.f) return false;
+    const FVector Launch(Travel.X/FlightSeconds,Travel.Y/FlightSeconds,-DownwardSpeed);
+    bWizardGravityLift=false;
+    // Keep the warned arc through other nuts and players. Supporting floor
+    // contact still resolves the managed landing and its hero damage query.
+    bWizardGravityDrop=true;
+    WizardGravityDisarmedUntil=0;
+    OnRep_Phase();
+    Body->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
+    BeginMouthEntry(Launch,0,ExpectedLanding);
+    if(bMouthEntry) return true;
+    bWizardGravityDrop=false;
+    OnRep_Phase();
+    return false;
+}
+
+void AMCFoodActor::CancelWizardGravityMotion()
+{
+    if(!HasAuthority() || (!bWizardGravityLift && !bWizardGravityDrop)) return;
+    const bool bWasLifted=bWizardGravityLift;
+    bWizardGravityLift=false;
+    bWizardGravityLiftExternallyDriven=false;
+    if(bWizardGravityDrop) EndMouthEntry();
+    // Cancellation clears the warning. A suspended nut still returns under
+    // gravity, with a brief grace window for ordinary pawn contact.
+    WizardGravityDisarmedUntil=GetWorld()->GetTimeSeconds()+1.5;
+    EntryImpactSafeUntil=WizardGravityDisarmedUntil;
+    bEntryImpactManaged=true;
+    OnRep_Phase();
+    if(bWasLifted && IsNutKineticsActive() && Body->IsSimulatingPhysics()) {
+        Body->SetPhysicsLinearVelocity(FVector::ZeroVector);
+        Body->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
+        Body->WakeAllRigidBodies();
+    }
+    ForceNetUpdate();
 }
 void AMCFoodActor::MarkRiverSwept(float EscapeZ)
 {
@@ -284,15 +402,16 @@ void AMCFoodActor::OnRep_Phase()
     // Completed parents may remain as receipts; only live descendants retain
     // prepared ancestry. This also releases peer-local snapshots on replication.
     if(IsDisposed())PreparedCutState.Reset();
-    const bool bSimulate=!bGone && !bCutTransactionPending && HasAuthority() && !StackCarrier && (Phase==EMCFoodPhase::Falling || Phase==EMCFoodPhase::Free || Phase==EMCFoodPhase::Carried);
+    if(bWizardGravityLift && (!IsNutKineticsActive() || bCutTransactionPending)) bWizardGravityLift=false;
+    const bool bSimulate=!bGone && !bCutTransactionPending && !bWizardGravityLift && HasAuthority() && !StackCarrier && (Phase==EMCFoodPhase::Falling || Phase==EMCFoodPhase::Free || Phase==EMCFoodPhase::Carried);
     // Stop Chaos before disabling collision, including disposal while the item is still moving.
     if (!bSimulate) Body->SetSimulatePhysics(false);
-    SetActorHiddenInGame(bGone); Body->SetCollisionEnabled((bGone || Phase==EMCFoodPhase::Swallowing)?ECollisionEnabled::NoCollision:Phase==EMCFoodPhase::Absorbing?ECollisionEnabled::QueryOnly:ECollisionEnabled::QueryAndPhysics);
-    Body->SetCollisionResponseToChannel(ECC_Pawn,bFragment || Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
+    SetActorHiddenInGame(bGone); Body->SetCollisionEnabled((bGone || Phase==EMCFoodPhase::Swallowing)?ECollisionEnabled::NoCollision:
+        Phase==EMCFoodPhase::Absorbing || bWizardGravityLift?ECollisionEnabled::QueryOnly:ECollisionEnabled::QueryAndPhysics);
+    Body->SetCollisionResponseToChannel(ECC_Pawn,bWizardGravityDrop || bFragment || Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
     // A carried kinematic body must not shove neighbouring food out of a pile.
     // Server contact probes still detect real incoming bodies above the impulse threshold.
-    Body->SetCollisionResponseToChannel(ECC_PhysicsBody,StackCarrier?ECR_Overlap:ECR_Block);
-    Body->SetCollisionResponseToChannel(FragmentCollisionChannel,StackCarrier?ECR_Overlap:ECR_Block);
+    SetFoodBodyContactResponses(*Body,StackCarrier!=nullptr,bWizardGravityDrop);
     // Simulated proxies are kinematic; only the server applies springs and impact damage.
     if (bSimulate) Body->SetSimulatePhysics(true);
     RefreshWalkingCollision();
@@ -464,6 +583,7 @@ void AMCFoodActor::EndPlay(const EEndPlayReason::Type Reason)
 }
 void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit)
 {
+    if(bWizardGravityLift) return;
     // Resolve query-only enemies before a later solid contact ends this flight.
     if(HasAuthority()) UpdateNutFragmentThrowImpact();
     if(HasAuthority() && Hit.bBlockingHit) EndManualThrowFlight();
@@ -554,6 +674,7 @@ void AMCFoodActor::Tick(float Dt)
     UpdateNutFragmentThrowImpact();
     if(HasAuthority()) PreviousPhysicsLocation=GetActorLocation();
     Super::Tick(Dt);
+    if(HasAuthority()) TickWizardGravityLift();
     UpdateWalkingCollision(Dt);
     UpdateFoodPresentation(Dt);
     if(IsCutTransactionPending())return;
@@ -577,7 +698,7 @@ void AMCFoodActor::Tick(float Dt)
         }
         return;
     }
-    RecoverUnreachableFood(Dt);
+    if(!bWizardGravityLift) RecoverUnreachableFood(Dt);
     if(IsDisposed()) return;
     if(Phase==EMCFoodPhase::Absorbing) { Label->SetVisibility(false); return; }
     AMCToothCharacter* IgnoredCarrier=StackCarrier?StackCarrier.Get():Phase==EMCFoodPhase::Carried && Holders.Num()==1?Holders[0].Get():nullptr;
@@ -1016,7 +1137,7 @@ void AMCFoodActor::OnRep_Item()
     }
     else if(UStaticMesh* Mesh=Visual->GetStaticMesh()) {Visual->SetRelativeLocation(-Mesh->GetBounds().Origin*Visual->GetRelativeScale3D());MeshBody->SetCollisionMesh(Mesh,Visual->GetRelativeScale3D());}
     Body->SetCollisionObjectType(bBrushTool?ECC_GameTraceChannel1:bFragment?FragmentCollisionChannel:ECC_PhysicsBody);
-    Body->SetCollisionResponseToChannel(ECC_Pawn,bFragment || Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
+    Body->SetCollisionResponseToChannel(ECC_Pawn,bWizardGravityDrop || bFragment || Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
     Label->SetRelativeLocation(FVector(0,0,Body->GetUnscaledBoxExtent().Z+28));
     GripSurface->SetStaticMesh(Visual->GetStaticMesh());
     CanonicalModelLocal=ItemMesh?PortionSourceTransform():Visual->GetRelativeTransform();
@@ -1131,11 +1252,43 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Wor
     PendingCutPoint=PendingCutNormal=FVector::ZeroVector;
     return Result;
 }
+bool AMCFoodActor::HitFoodWithKatana(float Damage,const FVector& Direction,AMCToothCharacter* Worker,
+    const FVector& CutPoint,const FVector& CutNormal)
+{
+    if(!HasAuthority() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld() || CutPoint.ContainsNaN()
+        || CutNormal.ContainsNaN() || CutNormal.IsNearlyZero() || Direction.ContainsNaN()
+        || !FMath::IsFinite(Damage) || Damage<=0.f) return false;
+    // Hard shells still open through their authored damage/fracture path.
+    const bool bExactCut=FoodData.Kind==EMCFoodKind::Food && !IsNutEncounterFragment()
+        && (!IsHardFood() || bFragment);
+    if(bExactCut && !SupportsPlanarCut()) {
+        UMCFoodProcessingRecoverySubsystem::ReportFailure(this,EMCFoodProcessingFailure::UnsupportedGeometry);
+        return false;
+    }
+    TGuardValue<FVector> PointGuard(PendingCutPoint,bExactCut?CutPoint:FVector::ZeroVector);
+    TGuardValue<FVector> NormalGuard(PendingCutNormal,bExactCut?CutNormal:FVector::ZeroVector);
+    const bool bCharged=Worker->GetKatanaSwingVariant()==MCKatanaSwing::EVariant::Charged;
+    if(bCharged && FoodData.Kind==EMCFoodKind::Food && IsHardFood() && !bFragment)
+        Damage=FMath::Max(Damage,Health);
+    return ApplyFoodDamage(Damage,Direction,Worker,nullptr,true,bExactCut,bCharged);
+}
 bool AMCFoodActor::ReceiveActiveSkillImpact(float Damage,FVector Direction,AMCPlayerState* SourcePS)
 {
     return ApplyFoodDamage(Damage,Direction,nullptr,SourcePS,false);
 }
-bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,AMCPlayerState* SourcePS,bool bWeaponPassives)
+bool AMCFoodActor::ReceiveActiveSkillImpact(float Damage,FVector Direction,AMCPlayerState* SourcePS,bool bExplosive)
+{
+    if(!bExplosive || FoodData.Kind!=EMCFoodKind::Food) return ReceiveActiveSkillImpact(Damage,Direction,SourcePS);
+    if(!HasAuthority() || bBrushTool || bProcessingAutomaticCutDamage || !FMath::IsFinite(Damage) || Damage<=0.f) return false;
+    TGuardValue<bool> ImpactGuard(bProcessingAutomaticCutDamage,true);
+    const auto PreviousHandler=LastHandledBy;
+    if(IsValid(SourcePS) && SourcePS->GetWorld()==GetWorld()) LastHandledBy=SourcePS;
+    if(CompleteAutomaticIntake(Direction,true)) return true;
+    LastHandledBy=PreviousHandler;
+    return false;
+}
+bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,AMCPlayerState* SourcePS,
+    bool bWeaponPassives,bool bExactCut,bool bFinishCutPortions)
 {
     if(IsCutTransactionPending() || IsCutTransactionStaged())return false;
     if (!HasAuthority() || bBrushTool || IsDisposed() || IsInActiveContainer() || Phase==EMCFoodPhase::Swallowing || !FMath::IsFinite(Damage) || Damage<=0 || Direction.ContainsNaN()) return false;
@@ -1158,7 +1311,7 @@ bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharac
             return false;
         }
     }
-    if(KnifeCut && UsesAutomaticCutIntake() && SupportsPlanarCut() && (!IsHardFood() || bFragment)) {
+    if(!bExactCut && KnifeCut && UsesAutomaticCutIntake() && SupportsPlanarCut() && (!IsHardFood() || bFragment)) {
         const auto PreviousHandler=LastHandledBy;
         if(IsValid(SourcePS) && SourcePS->GetWorld()==GetWorld()) LastHandledBy=SourcePS;
         else if(Worker) LastHandledBy=Worker->GetPlayerState<AMCPlayerState>();
@@ -1204,14 +1357,14 @@ bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharac
             return false;
         }
     }
-    if(PlanarCut && (bFragment || Damage>=Health)) {
+    if(PlanarCut && (bExactCut || bFragment || Damage>=Health)) {
         // Refusing either half must not damage/dispose the parent, spill its
         // stack, advance perks or substitute unrelated preauthored fragments.
         const auto PreviousHandler=LastHandledBy;
         if(IsValid(SourcePS) && SourcePS->GetWorld()==GetWorld()) LastHandledBy=SourcePS;
         else if(Worker) LastHandledBy=Worker->GetPlayerState<AMCPlayerState>();
         TArray<AMCFoodActor*> Pieces;
-        if(!SpawnCutFragments(Direction,PendingCutPoint,PendingCutNormal,&Pieces)) {LastHandledBy=PreviousHandler;return false;}
+        if(!SpawnCutFragments(Direction,PendingCutPoint,PendingCutNormal,&Pieces,bExactCut,bFinishCutPortions?Worker:nullptr)) {LastHandledBy=PreviousHandler;return false;}
         if(IsCutTransactionPending()){SetPendingCutCompletion(Worker,bWeaponPassives,true,PreviousHandler);return true;}
         CompleteCutPortions(Pieces,Direction,Worker,bWeaponPassives,true);
         return true;
@@ -1299,11 +1452,25 @@ bool AMCFoodActor::IsHardFood() const
 }
 bool AMCFoodActor::BeginSwallow()
 {
-    if (!HasAuthority() || bBrushTool || UsesAutomaticCutIntake() || !Holders.IsEmpty() || (StackCarrier && UsesLegacyGrip()) || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling)) return false;
+    return BeginSwallow(false);
+}
+bool AMCFoodActor::BeginSwallow(bool bExplosive)
+{
+    if(!HasAuthority() || bBrushTool) return false;
+    if(bExplosive) {
+        if(FoodData.Kind!=EMCFoodKind::Food || IsCutTransactionStaged()
+            || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling && Phase!=EMCFoodPhase::Stuck && Phase!=EMCFoodPhase::Carried)) return false;
+    } else if(UsesAutomaticCutIntake() || !Holders.IsEmpty() || (StackCarrier && UsesLegacyGrip())
+        || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling)) return false;
     auto* Collection=StackCarrier?StackCarrier->FoodCollection.Get():nullptr;
-    if(Collection && !Collection->Contains(this)) return false;
+    if((bExplosive && StackCarrier && !Collection) || (Collection && !Collection->Contains(this))) return false;
     // Change phase before detaching so delivery never wakes a dense hand load.
     Phase=EMCFoodPhase::Swallowing;
+    if(bExplosive) {
+        CancelPendingCut(false);
+        StuckTooth=nullptr;
+        for(int32 Index=Holders.Num()-1;Index>=0;--Index) Release(Holders[Index]);
+    }
     if(Collection) Collection->DetachForDelivery(this);
     OnRep_Phase(); ForceNetUpdate(); return true;
 }

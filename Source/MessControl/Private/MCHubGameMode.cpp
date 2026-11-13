@@ -1,5 +1,7 @@
 #include "MCHubGameMode.h"
 #include "MCHubGameState.h"
+#include "MCHubEconomyComponent.h"
+#include "MCHubProfileSubsystem.h"
 #include "MCSteamSessionSubsystem.h"
 #include "MCHubReadyZone.h"
 #include "MCPlayerController.h"
@@ -105,6 +107,7 @@ void AMCHubGameMode::InitializeHubPlayer(APlayerController* Player, bool bPreser
 {
     if (!IsParticipant(Player)) return;
     LoadedPlayers.Remove(Player);
+    RaidReadyPlayers.Remove(Player);
     if (auto* State = Player->GetPlayerState<AMCPlayerState>())
     {
         State->bSessionHost = Player->IsLocalController() && GetNetMode() != NM_DedicatedServer;
@@ -204,6 +207,7 @@ void AMCHubGameMode::Logout(AController* Exiting)
     if (auto* Player = Cast<APlayerController>(Exiting))
     {
         LoadedPlayers.Remove(Player);
+        RaidReadyPlayers.Remove(Player);
         LastSelectionAt.Remove(Player);
         RecoveryAt.Remove(Player);
         ForcedRecovery.Remove(Player);
@@ -231,6 +235,7 @@ void AMCHubGameMode::SetHubPhase(EMCHubPhase NewPhase)
     auto* State = GetGameState<AMCHubGameState>();
     if (!HasAuthority() || !State || State->Phase == NewPhase) return;
     LoadedPlayers.Reset();
+    RaidReadyPlayers.Reset();
     State->SetPhase(NewPhase);
     if (NewPhase == EMCHubPhase::Gathering) RestoreSelectionPawnMovement();
     else if (NewPhase == EMCHubPhase::Selecting)
@@ -318,7 +323,11 @@ void AMCHubGameMode::RefreshReadiness()
         Entry.Player = Player->PlayerState;
         const int32* LoadedGeneration = LoadedPlayers.Find(Player);
         Entry.bLoaded = LoadedGeneration && *LoadedGeneration == State->SceneGeneration;
-        if (bSelectionScene || State->Phase == EMCHubPhase::Selecting) Entry.bReady = true;
+        if (State->Phase == EMCHubPhase::Selecting)
+        {
+            const int32* ReadyRevision = RaidReadyPlayers.Find(Player);
+            Entry.bReady = ReadyRevision && *ReadyRevision == State->RaidSelectionRevision;
+        }
         else if (const auto* Hero = Cast<AMCToothCharacter>(Player->GetPawn()); Hero && Hero->Status && Hero->Status->IsAlive())
         {
             for (TActorIterator<AMCHubReadyZone> Zone(GetWorld()); Zone; ++Zone)
@@ -329,6 +338,8 @@ void AMCHubGameMode::RefreshReadiness()
     // Stable UI ordering across a disconnect/reconnect; no stale overlap leases are stored.
     Snapshot.Sort([](const auto& A, const auto& B) { return A.Player->GetPlayerId() < B.Player->GetPlayerId(); });
     for (auto It = LoadedPlayers.CreateIterator(); It; ++It) if (!Connected.Contains(It.Key())) It.RemoveCurrent();
+    for (auto It = RaidReadyPlayers.CreateIterator(); It; ++It)
+        if (!Connected.Contains(It.Key()) || It.Value() != State->RaidSelectionRevision) It.RemoveCurrent();
     for (auto It = SelectionPawnMovement.CreateIterator(); It; ++It) if (!Connected.Contains(It.Key())) It.RemoveCurrent();
     State->SetReadiness(Snapshot);
 }
@@ -455,6 +466,61 @@ bool AMCHubGameMode::RequestSelectDay(APlayerController* Requester, int32 Day)
     return true;
 }
 
+bool AMCHubGameMode::IsRaidSelectionRequest(const APlayerController* Player, const AMCHubGameState* Hub, int32 Revision) const
+{
+    const auto* State = GetGameState<AMCHubGameState>();
+    return HasAuthority() && !bTravelPending && State && Hub == State && State->Phase == EMCHubPhase::Selecting
+        && Revision == State->RaidSelectionRevision && IsParticipant(Player) && State->HasLoadedScene(Player->PlayerState);
+}
+
+bool AMCHubGameMode::RequestRaidReady(AMCPlayerController* Requester, const AMCHubGameState* Hub, int32 Revision, bool bReady)
+{
+    if (!IsRaidSelectionRequest(Requester, Hub, Revision)) return false;
+    if (bReady)
+    {
+        const auto* Economy = Requester->GetPlayerState<AMCPlayerState>()->Economy.Get();
+        FText Error;
+        if (!Economy || !Economy->CanStartRaid(Error))
+        {
+            if (!Error.IsEmpty()) Requester->ClientHubTransactionFeedback(Error);
+            return false;
+        }
+        RaidReadyPlayers.Add(Requester, Revision);
+    }
+    else
+    {
+        RaidReadyPlayers.Remove(Requester);
+    }
+    RefreshReadiness();
+    return true;
+}
+
+bool AMCHubGameMode::RequestRaidPerk(AMCPlayerController* Requester, const AMCHubGameState* Hub, int32 Revision,
+    FName PerkID, int32 Slot, bool bPassive, FName ExpectedPerkID)
+{
+    if (!IsRaidSelectionRequest(Requester, Hub, Revision)) return false;
+    auto* Economy = Requester->GetPlayerState<AMCPlayerState>()->Economy.Get();
+    if (!Economy) return false;
+    FMCHubRaidLoadout Next = Economy->RaidLoadout;
+    TArray<FName>& Perks = bPassive ? Next.PassivePerks : Next.ActivePerks;
+    if (Slot < 0 || Slot > Perks.Num()) return false;
+    const FName Current = Perks.IsValidIndex(Slot) ? Perks[Slot] : NAME_None;
+    if (Current != ExpectedPerkID) return false;
+    if (Current == PerkID) return true;
+    if (PerkID.IsNone()) Perks.RemoveAt(Slot);
+    else if (Current.IsNone()) Perks.Add(PerkID);
+    else Perks[Slot] = PerkID;
+    FText Error;
+    if (!Economy->TrySetRaidLoadout(Next, Error))
+    {
+        if (!Error.IsEmpty()) Requester->ClientHubTransactionFeedback(Error);
+        return false;
+    }
+    RaidReadyPlayers.Remove(Requester);
+    RefreshReadiness();
+    return true;
+}
+
 bool AMCHubGameMode::RequestLaunch(APlayerController* Requester)
 {
     auto* State = GetGameState<AMCHubGameState>();
@@ -467,6 +533,11 @@ bool AMCHubGameMode::RequestLaunch(APlayerController* Requester)
         State->SetNotice(LOCTEXT("DestinationUnavailable", "Эта локация пока недоступна."));
         return false;
     }
+    if (!State->AreAllReady())
+    {
+        State->SetNotice(LOCTEXT("WaitForRaidReady", "Все игроки должны подтвердить готовность к рейду."));
+        return false;
+    }
     const FString Package = ExistingMapPackage(Destination->Map);
     if (Package.IsEmpty() || Package == HubMap.ToSoftObjectPath().GetLongPackageName()
         || Package == SelectionMap.ToSoftObjectPath().GetLongPackageName())
@@ -474,11 +545,47 @@ bool AMCHubGameMode::RequestLaunch(APlayerController* Requester)
         State->SetNotice(LOCTEXT("DestinationMapMissing", "Игровая локация не найдена."));
         return false;
     }
-    // The normal level owns its own ACK barrier. MCHubRun differentiates this
-    // already approved team from the older manual Start / Play lobby flow.
-    FString URL = FString::Printf(TEXT("%s?MCLobby=1?MCHubRun=1?MCHubDay=%d"), *Package, Destination->Day);
+    const FGuid Ticket = FGuid::NewGuid();
+    struct FRaidParticipant
+    {
+        APlayerController* Controller;
+        AMCPlayerState* Player;
+    };
+    TArray<FRaidParticipant, TInlineAllocator<4>> LockedPlayers;
+    auto* Profiles = GetGameInstance() ? GetGameInstance()->GetSubsystem<UMCHubProfileSubsystem>() : nullptr;
+    const auto UnlockPlayers = [&](bool bStored)
+    {
+        for (const auto& [Controller, Player] : LockedPlayers)
+        {
+            Player->Economy->UnlockRaidLoadout(Ticket);
+            if (bStored && Profiles) Profiles->Store(Player, Controller, true);
+        }
+    };
+    for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+    {
+        APlayerController* Controller = It->Get();
+        if (!IsParticipant(Controller)) continue;
+        auto* Player = Controller->GetPlayerState<AMCPlayerState>();
+        FText Error;
+        if (!Player->Economy || !Player->Economy->LockRaidLoadout(Ticket, Error))
+        {
+            UnlockPlayers(false);
+            RaidReadyPlayers.Remove(Controller);
+            RefreshReadiness();
+            State->SetNotice(Error.IsEmpty() ? LOCTEXT("RaidLoadoutUnavailable", "Не удалось подтвердить набор перков.") : Error);
+            return false;
+        }
+        LockedPlayers.Add({Controller, Player});
+    }
+    if (Profiles)
+        for (const auto& [Controller, Player] : LockedPlayers) Profiles->Store(Player, Controller, true);
+    // The arena applies this ticket after its own load barrier.
+    FString URL = FString::Printf(TEXT("%s?MCLobby=1?MCHubRun=1?MCHubDay=%d?MCRaidTicket=%s"),
+        *Package, Destination->Day, *Ticket.ToString(EGuidFormats::Digits));
     if (Package == TEXT("/Game/Maps/L_Mouth")) URL += TEXT("?game=/Game/Blueprints/BP_MouthGameMode.BP_MouthGameMode_C");
-    return TravelTo(URL, EMCHubPhase::Selecting);
+    if (TravelTo(URL, EMCHubPhase::Selecting)) return true;
+    UnlockPlayers(true);
+    return false;
 }
 
 bool AMCHubGameMode::RequestReturnToHub(APlayerController* Requester)

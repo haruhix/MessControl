@@ -549,6 +549,11 @@ void AMCHookSkillAction::UpdatePresentation()
         PropMesh->SetWorldTransform(Visual);
     }
     if(LoopComponent) {
+        // Presentation load follows the cast without changing the accepted pull.
+        const float TargetTension=CastPhase==EMCHookCastPhase::Pulling?.94f:
+            CastPhase==EMCHookCastPhase::Returning?.20f:.32f;
+        RopeTension=FMath::FInterpTo(RopeTension,TargetTension,GetWorld()->GetDeltaSeconds(),11.f);
+        LoopComponent->SetVariableFloat(TEXT("User.TetherTension"),RopeTension);
         LoopComponent->SetVariablePosition(TEXT("User.TetherStart"),Hero()?Hero()->GetPresentationFrame().FromCanonicalWorld(Start):Start);
         LoopComponent->SetVariablePosition(TEXT("User.TetherEnd"),GetTetherAttachmentLocation());
     }

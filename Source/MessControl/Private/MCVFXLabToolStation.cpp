@@ -43,6 +43,10 @@ void AMCVFXLabToolStation::BeginPlay()
 {
     Super::BeginPlay();
     SetActorTickEnabled(false);
+    if(IsRetiredCase()) {
+        Readout->SetVisibility(false);
+        return;
+    }
     if(HasAuthority()) {
         bRunning=false;
         SetStatus(TEXT("Paused; waiting for a nearby spectator"));
@@ -183,7 +187,7 @@ bool AMCVFXLabToolStation::PrepareCycle()
 {
     // Knockdown/current can leave a live physical body outside the fixture.
     // Refill with a fresh participant rather than moving only its capsule.
-    if((StationKind==EMCVFXLabToolCase::ChainsawWall || StationKind==EMCVFXLabToolCase::CoffeeWave) && Cycles>0) ClearAll();
+    if(StationKind==EMCVFXLabToolCase::CoffeeWave && Cycles>0) ClearAll();
     ClearFixtures();
     if(!IsValid(Worker) || !IsValid(Bot) || !Worker->Status->IsAlive()) {
         ClearAll(); if(!SpawnWorker()) return false;
@@ -198,7 +202,6 @@ bool AMCVFXLabToolStation::PrepareCycle()
     case EMCVFXLabToolCase::FloorMeshaBrush: case EMCVFXLabToolCase::ToothMeshaBrush: Upgrade=EMCToolUpgrade::MeshaBrush; break;
     case EMCVFXLabToolCase::BufferCalculus: case EMCVFXLabToolCase::BufferAoE: case EMCVFXLabToolCase::BufferWall: Upgrade=EMCToolUpgrade::Buffer; break;
     case EMCVFXLabToolCase::WatergunCare: case EMCVFXLabToolCase::WatergunPressure: Upgrade=EMCToolUpgrade::Watergun; break;
-    case EMCVFXLabToolCase::ChainsawFood: case EMCVFXLabToolCase::ChainsawWall: Upgrade=EMCToolUpgrade::Chainsaw; break;
     default: break;
     }
     if(Upgrade!=EMCToolUpgrade::None && !GrantUpgrade(uint8(Upgrade))) {SetStatus(TEXT("FAIL: real upgrade perk missing from DT_Perks")); return false;}
@@ -225,12 +228,9 @@ bool AMCVFXLabToolStation::PrepareCycle()
     case EMCVFXLabToolCase::BufferAoE: case EMCVFXLabToolCase::BufferWall:
         // Place after the working pose has blended in; use the same tip sphere as the server hit.
         break;
-    case EMCVFXLabToolCase::KnifeFood: case EMCVFXLabToolCase::ChainsawFood: case EMCVFXLabToolCase::WatergunPressure:
+    case EMCVFXLabToolCase::KnifeFood: case EMCVFXLabToolCase::WatergunPressure:
         Food=SpawnFood(Worker->GetActorLocation()+Worker->GetActorForwardVector()*110, false,StationKind==EMCVFXLabToolCase::WatergunPressure?12:75);
         if(!Food) return false;break;
-    case EMCVFXLabToolCase::ChainsawWall:
-        SpawnWall(GroundPoint(FVector(200,0,0))+FVector(0,0,100),FVector(20,180,100),GetActorRotation());
-        if(!Wall) return false;break;
     case EMCVFXLabToolCase::CoffeeWave:
         if(!IsValid(Floor)) {SetStatus(TEXT("FAIL: CoffeeWave requires its own static AMCTongue Floor")); return false;}
         // The ordinary profile's points are authored around the default arena.
@@ -269,8 +269,7 @@ float AMCVFXLabToolStation::Remaining() const
     case EMCVFXLabToolCase::SprayFire: return IsValid(Fire)?Fire->Heat:0;
     case EMCVFXLabToolCase::PickaxeCalculus: case EMCVFXLabToolCase::BufferCalculus: return Tooth?Tooth->Calculus->RemainingPieces():1;
     case EMCVFXLabToolCase::FrozenLegs: return Worker?Worker->IceLegHealth:1;
-    case EMCVFXLabToolCase::KnifeFood: case EMCVFXLabToolCase::ChainsawFood: case EMCVFXLabToolCase::WatergunPressure: return IsValid(Food)&&!Food->IsDisposed()?Food->Health:0;
-    case EMCVFXLabToolCase::ChainsawWall: return Worker?FMath::Max(0.f,Worker->Status->State.Health-(Worker->Status->State.MaxHealth-30)):1;
+    case EMCVFXLabToolCase::KnifeFood: case EMCVFXLabToolCase::WatergunPressure: return IsValid(Food)&&!Food->IsDisposed()?Food->Health:0;
     case EMCVFXLabToolCase::PickaxeIce: case EMCVFXLabToolCase::BufferAoE: case EMCVFXLabToolCase::BufferWall: {
         if(Ice.IsEmpty()) return 1;float Sum=0;for(const auto& Block:Ice) if(IsValid(Block)&&!Block->bBroken) Sum+=Block->Health;return Sum;
     }
@@ -378,9 +377,7 @@ void AMCVFXLabToolStation::DriveInputs(float Dt)
         }
         break;
     }
-    case EMCVFXLabToolCase::KnifeFood: case EMCVFXLabToolCase::ChainsawFood: HoldTool(uint8(EMCToolSlot::Knife));break;
-    case EMCVFXLabToolCase::ChainsawWall:
-        HoldTool(uint8(EMCToolSlot::Knife)); Worker->AddMovementInput(GetActorForwardVector());break;
+    case EMCVFXLabToolCase::KnifeFood: HoldTool(uint8(EMCToolSlot::Knife));break;
     default: break;
     }
     const float Left=Remaining(); Progress=FMath::Clamp(1-Left/InitialRemaining,0.f,1.f);
@@ -460,7 +457,7 @@ void AMCVFXLabToolStation::ClearAll()
 }
 void AMCVFXLabToolStation::SetRunning(bool bEnabled)
 {
-    if(!HasAuthority() || !HasActorBegunPlay() || !GetWorld() || !GetWorld()->IsGameWorld() || bRunning==bEnabled) return;
+    if(IsRetiredCase() || !HasAuthority() || !HasActorBegunPlay() || !GetWorld() || !GetWorld()->IsGameWorld() || bRunning==bEnabled) return;
     bRunning=bEnabled;
     SetActorTickEnabled(bRunning);
     if(!bEnabled) {
@@ -472,7 +469,7 @@ void AMCVFXLabToolStation::SetRunning(bool bEnabled)
 }
 void AMCVFXLabToolStation::Reset()
 {
-    if(!HasAuthority()) return;
+    if(IsRetiredCase() || !HasAuthority()) return;
     const bool Resume=bRunning;ClearAll();Cycles=PassedCycles=FailedCycles=0;Passed=Failed=false;Progress=0;
     NextCycleAt=GetWorld()->GetTimeSeconds();bRunning=Resume;SetActorTickEnabled(Resume);SetStatus(TEXT("Reset; fixtures will refill"));
 }

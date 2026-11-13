@@ -64,7 +64,7 @@ bool AMCRewardChest::HasStageChoiceFor(const AMCToothCharacter* Player) const
 {
     auto* State=IsValid(Player)?Player->GetPlayerState<AMCPlayerState>():nullptr;
     return HasAuthority() && bTeamStageBooster && !bReported && State
-        && (Stage==EMCRewardChestStage::Opening || Stage==EMCRewardChestStage::Open)
+        && Stage==EMCRewardChestStage::Open
         && StageRecipients.Contains(State) && !StageClaims.Contains(State)
         && CanReceiveStageChoice(Player) && Player->RewardInteraction==this;
 }
@@ -133,7 +133,6 @@ void AMCRewardChest::PollTeamBoosterApproach()
     if(AreStageChoicesResolved()) {
         ClaimedMask=7;ForceNetUpdate();FinishReward(false);return;
     }
-    if(Stage==EMCRewardChestStage::Opening) return;
     if(Stage==EMCRewardChestStage::Open) {
         for(const auto& Recipient:StageRecipients) {
             auto* State=Recipient.Get();
@@ -204,12 +203,11 @@ bool AMCRewardChest::BeginTeamBoosterChoice(AMCToothCharacter* Player)
     if(GetWorld()->LineTraceSingleByChannel(Block,Player->GetActorLocation()+FVector(0,0,35),Solid->Bounds.Origin,ECC_Visibility,Query)) return false;
     CaptureStageRecipients();
     if(!StageRecipients.Contains(PS)) return false;
-    OpeningPlayer=Player;Player->RewardInteraction=this;Player->ForceNetUpdate();
-    StageChoicePawns.Add(PS,Player);
-    SetStage(EMCRewardChestStage::Opening);
-    Player->CancelGameplayInput();
-    PC->ClientShowRewardOpening(this,StageStartedAt+FMath::Max(.1f,OpeningSeconds));
+    OpeningPlayer=Player;
+    SetStage(EMCRewardChestStage::Open);
     UE_LOG(LogTemp,Display,TEXT("MC_STAGE_REWARD_OPEN chest=%s player=%s recipients=%d"),*GetName(),*PS->GetPlayerName(),StageRecipients.Num());
+    PublishStageChoiceFor(Player);
+    PollTeamBoosterApproach();
     return true;
 }
 

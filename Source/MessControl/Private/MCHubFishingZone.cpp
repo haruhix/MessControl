@@ -48,12 +48,14 @@ void AMCHubFishingZone::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
     auto* PC=UGameplayStatics::GetPlayerController(this,0);
     const auto* Hero=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
-    const bool Show=PC && PC->IsLocalController() && Hero && ContainsPawn(Hero)
-        && !PC->IsMoveInputIgnored() && Hero->FishingRod && Hero->FishingRod->CanBeginFishing();
-    if(Show && PC->GetLocalPlayer()) {
+    const bool Show=PC && PC->GetLocalPlayer() && !PC->IsMoveInputIgnored() && !PC->IsLookInputIgnored()
+        && !PC->bShowMouseCursor && Hero && ContainsPawn(Hero) && Hero->FishingRod && Hero->FishingRod->CanBeginFishing();
+    if(Show) {
         InteractionPrompt->SetOwnerPlayer(PC->GetLocalPlayer());InteractionPrompt->InitWidget();
         if(auto* Widget=InteractionPrompt->GetUserWidgetObject()) Widget->SetOwningPlayer(PC);
     }
+    if(auto* Widget=InteractionPrompt->GetUserWidgetObject())
+        Widget->SetVisibility(Show?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     InteractionPrompt->SetVisibility(Show);InteractionPrompt->SetHiddenInGame(!Show);
     InteractionPrompt->SetComponentTickEnabled(Show);
 }

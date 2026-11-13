@@ -303,6 +303,7 @@ void AMCGrenadeSkillAction::Detonate()
     FMCActiveSkillBlastSettings Blast;
     Blast.Radius=Param(TEXT("BlastRadius"),300.f);Blast.FoodDamage=Param(TEXT("FoodDamage"),100.f);
     Blast.EnemyDamage=Param(TEXT("EnemyDamage"),60.f);Blast.PlayerDamage=Param(TEXT("PlayerDamage"),25.f);
+    Blast.bExplosive=true;
     Blast.PushSpeed=Param(TEXT("PushSpeed"),500.f); // Grenade deliberately has no arena-tooth policy.
     PlaySkillCue(TEXT("Impact"),GetActorLocation(),FVector::UpVector,Blast.Radius);
     MCActiveSkillImpact::ApplyRadial(this,SourceState(),GetActorLocation(),Blast);ForceNetUpdate();

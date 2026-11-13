@@ -16,6 +16,8 @@ class MESSCONTROL_API UMCWorldLabelPresenterComponent : public UWidgetComponent
     GENERATED_BODY()
 public:
     UMCWorldLabelPresenterComponent();
+    /** Component tag for a world-anchored label rendered at its authored screen size. */
+    static const FName FixedScreenSizeTag;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="WorldLabel") TObjectPtr<UTextRenderComponent> SourceText;
     /** Reflected readiness root; creation waits for the configured theme and role class to be resident. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="WorldLabel|Resources") TSoftObjectPtr<UMCGameplayUITheme> PresentationTheme;

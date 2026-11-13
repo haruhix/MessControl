@@ -10,6 +10,7 @@ class UMCRunRules;
 class AMCTaskActor;
 class UMCArenaToothProfile;
 class AMCToothCharacter;
+class AMCArenaTooth;
 class AMCFoodDisposal;
 class AMCDayDirector;
 class AMCTutorialDirector;
@@ -87,6 +88,15 @@ public:
     UPROPERTY() TObjectPtr<AMCTutorialDirector> TutorialDirector;
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Roguelike") TObjectPtr<class AMCRoguelikeDirector> RoguelikeDirector;
 private:
+    struct FPendingRespawn
+    {
+        TWeakObjectPtr<AMCToothCharacter> Hero;
+        TWeakObjectPtr<AMCArenaTooth> Reserve;
+        TWeakObjectPtr<AMCArenaTooth> BlockedReserve;
+        double ReleaseAt=0.;
+        double RetryAt=0.;
+    };
+    void CancelPendingRespawns();
     FGuid HubBoosterRunId;
     FGuid CompletedLoadoutRunId;
     TSet<FName> CoinRewardedObjectives;
@@ -105,7 +115,7 @@ private:
     int32 PreviousEvent = INDEX_NONE;
     UPROPERTY() TArray<TObjectPtr<AMCTaskActor>> ActiveTasks;
     UPROPERTY() TArray<FMCEventObjective> Objectives;
-    UPROPERTY() TArray<TObjectPtr<AMCToothCharacter>> PendingRespawns;
+    TArray<FPendingRespawn> PendingRespawns;
     TArray<TWeakObjectPtr<AMCToothCharacter>> PendingArenaArrivals;
     /** Failed initial spawns retry only behind the existing startup barrier. */
     double NextInitialSpawnRetryAt=0;

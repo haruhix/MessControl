@@ -99,6 +99,32 @@ struct MESSCONTROL_API FMCHubPendingPurchase
     UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Charges=INDEX_NONE;
 };
 
+/** Purchased or won copies. Each selected perk uses one copy at raid entry. */
+USTRUCT(BlueprintType)
+struct MESSCONTROL_API FMCHubRaidPerkStockEntry
+{
+    GENERATED_BODY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) FName PerkID;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Copies=0;
+    /** Old paid packs may carry a different charge count than today's authored copy. */
+    UPROPERTY() TArray<int32> LegacyChargePacks;
+};
+
+USTRUCT(BlueprintType)
+struct MESSCONTROL_API FMCHubRaidLoadout
+{
+    GENERATED_BODY()
+    static constexpr int32 SlotsPerKind=4;
+    /** Array order defines the corresponding in-raid active slot. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<FName> ActivePerks;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<FName> PassivePerks;
+
+    bool operator==(const FMCHubRaidLoadout& Other) const
+    {
+        return ActivePerks==Other.ActivePerks && PassivePerks==Other.PassivePerks;
+    }
+};
+
 /** Server-authored receipt. RollID makes repeated completion callbacks harmless. */
 USTRUCT(BlueprintType)
 struct MESSCONTROL_API FMCGrillReward
@@ -116,6 +142,8 @@ struct MESSCONTROL_API FMCGrillReward
     UPROPERTY() bool bCatalogGrant=false;
     UPROPERTY() FName GrantedCosmeticID;
     UPROPERTY() FMCHubPendingPurchase GrantedPurchase;
+    /** Exact stock grant accepted at roll start. Zero identifies older receipts. */
+    UPROPERTY() int32 GrantedRaidCopies=0;
 };
 
 USTRUCT(BlueprintType)

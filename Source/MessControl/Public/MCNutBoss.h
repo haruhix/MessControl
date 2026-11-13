@@ -55,6 +55,7 @@ public:
     FVector GetCastOrigin() const;
     /** Cosmetic focus follows the authored palms; projectile origin remains server-defined. */
     FVector GetSpellFocusOrigin() const;
+    FVector GetGravityHandOrigin(bool bRight) const;
     void BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCNutBossAnimationSnapshot& Snapshot) const;
     /** Client smoothing moves only this collision-free visual subtree. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USceneComponent> PresentationRoot;
@@ -162,7 +163,15 @@ private:
     void ResetTankPressure();
     bool TryBeginTankCounter();
     void ExecuteAttack(float Dt);
+    bool BeginGravityWaves();
+    void ExecuteGravityWaves(double Time);
+    void PresentGravityHand(int32 WaveIndex,bool bDrop);
+    bool TryAdvanceMageNutCycle(double Time);
     void ExecuteRoll(float Dt);
+    bool FindRollJumpSupport(FVector Candidate,FVector& Center,FVector& Floor) const;
+    bool TryBeginRollJump(double Time);
+    void ExecuteRollJump(double Time);
+    void FinishRollJump(bool bLanded);
     /** Solid to ordinary character movement; attack sweeps resolve player hits separately. */
     void UpdatePlayerBlocking();
     void MoveAttackBody(FVector Goal,FHitResult& Hit);
@@ -175,6 +184,9 @@ private:
     void DamageRollSegment(FVector Start,FVector End);
     void PushPlayer(AMCToothCharacter* Hero,FVector Direction,float Speed);
     bool IsMageFocused() const;
+    bool TryMageFlash(const AMCToothCharacter* Source,FVector StrikeOrigin);
+    bool BeginMageNutSphere();
+    void ExecuteMageNutSphere(double Time);
     bool FindTeleportPoint(FVector& Result);
     bool IsTeleportPointFree(FVector Point) const;
     void BeginTeleport();
@@ -202,6 +214,13 @@ private:
     FRandomStream Random;
     FVector EntranceLanding=FVector::ZeroVector;
     double NextTargetAt=0,NextRollPainAt=0;
+    double NextRollJumpAt=0;
+    double RollJumpStartedAt=0;
+    float RollJumpProgress=0;
+    FVector RollJumpStart=FVector::ZeroVector;
+    FVector RollJumpLanding=FVector::ZeroVector;
+    TWeakObjectPtr<AMCNutCombatEffect> RollJumpTell;
+    UPROPERTY(ReplicatedUsing=RefreshBossPresentation) bool bRollJumpAirborne=false;
     TWeakObjectPtr<AMCToothCharacter> ChainRetreatTarget;
     TWeakObjectPtr<AMCToothCharacter> ChainBaitTarget;
     TWeakObjectPtr<AMCToothCharacter> ChainStrikeTarget;
@@ -217,6 +236,16 @@ private:
     double LastTankPressureHitAt=-100,NextTankCounterAt=0;
     bool bTankCounterQueued=false;
     bool bMageHitQueued=false,bMageTeleportQueued=false;
+    enum class EMageNutFollowup : uint8 { None, Gravity, Sphere, Summon };
+    EMageNutFollowup MageNutFollowup=EMageNutFollowup::None;
+    bool bMageSphereNext=false;
+    bool bMageSphereAimLocked=false;
+    int32 MageSphereShotsRemaining=0;
+    double MageSphereShotAt=0;
+    UPROPERTY(Replicated) double MageFlashAt=-100;
+    int32 GravityWaveStep=0;
+    double GravityStepAt=0;
+    UPROPERTY(Replicated) double GravityRightLiftAt=0;
     bool bMeleeBetweenAbilities=true;
     bool bResolved=false;
     int32 RainDropsResolved=0;

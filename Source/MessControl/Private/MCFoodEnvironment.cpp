@@ -114,6 +114,7 @@ bool AMCFoodActor::SpawnFragments(FVector Direction,TArray<AMCFoodActor*>* OutPi
         if(!Piece) continue;
         Piece->ConfigureItem(ItemName,FoodData,Random,true);
         Piece->Batch=Batch;Piece->LastHandledBy=LastHandledBy;Piece->SetOwner(GetOwner());
+        Piece->CutParent=FObjectKey(this);
         if(FoodData.Kind==EMCFoodKind::Food && !HasFreshnessTimer()) {
             if(ActorHasTag(TEXT("MCNutRain"))) Piece->Tags.AddUnique(TEXT("MCNutRain"));
         }

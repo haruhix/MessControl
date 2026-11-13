@@ -54,8 +54,10 @@ bool UMCHubProfileSubsystem::Restore(AMCPlayerState* State,APlayerController* Co
         return true;
     }
     // Keep the original bytes before the first additive economy migration or quarantine save.
-    if(Save->Economy.Version<2 || !State->Economy->MigrationNotice.IsEmpty()) {
-        const FString Backup=Path+(Save->Economy.Version<2?TEXT(".pre-v2.bak"):TEXT(".quarantine.bak"));
+    if(Save->Economy.Version<3 || !State->Economy->MigrationNotice.IsEmpty()) {
+        const TCHAR* Suffix=Save->Economy.Version<2?TEXT(".pre-v2.bak")
+            :Save->Economy.Version<3?TEXT(".pre-v3.bak"):TEXT(".quarantine.bak");
+        const FString Backup=Path+Suffix;
         if(!IFileManager::Get().FileExists(*Backup) && !FFileHelper::SaveArrayToFile(Bytes,*Backup)) {
             ProtectedProfiles.Add(Path);
             UE_LOG(LogTemp,Warning,TEXT("Hub profile migration backup failed; the original save is protected from overwrite."));

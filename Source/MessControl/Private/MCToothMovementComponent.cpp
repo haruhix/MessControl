@@ -1012,6 +1012,8 @@ FRotator UMCToothMovementComponent::ComputeOrientToMovementRotation(const FRotat
         if(!Aim.IsNearlyZero()) return FRotator(0,Aim.Rotation().Yaw,0);
     }
     FVector BrushDirection;
+    if(Hero && Hero->WantsKatanaFacing(BrushDirection))
+        return FRotator(0,BrushDirection.Rotation().Yaw,0);
     if(Hero && ((Hero->BrushContact && Hero->BrushContact->WantsFacing(BrushDirection)) || Hero->WantsCalculusFacing(BrushDirection)))
         return FRotator(0,BrushDirection.Rotation().Yaw,0);
     if (HasHeavyGrip() && Acceleration.SizeSquared2D()>1)
