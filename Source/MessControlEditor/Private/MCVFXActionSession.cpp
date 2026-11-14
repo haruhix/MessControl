@@ -129,6 +129,13 @@ namespace MCActionSession
         for(const auto& Pair:A->EventGroups){const auto* Other=B->EventGroups.Find(Pair.Key);if(!Other || !FMCEventPresentationGroupSet::StaticStruct()->CompareScriptStruct(&Pair.Value,Other,0))return false;}
         return true;
     }
+    bool SameAudio(const UMCPerkVFXProfile* A,const UMCPerkVFXProfile* B)
+    {
+        if(!A||!B||A->SFXSlots.Num()!=B->SFXSlots.Num())return false;
+        for(const auto& Pair:A->SFXSlots){const auto* Other=B->SFXSlots.Find(Pair.Key);
+            if(!Other||!FMCEventSFXSlot::StaticStruct()->CompareScriptStruct(&Pair.Value,Other,0))return false;}
+        return true;
+    }
     FString StageMasterKey(FName Stage){return TEXT("MCActionSourceRecipe_")+Stage.ToString();}
     FString AssetStem(FName Identity)
     {
@@ -142,7 +149,7 @@ namespace MCActionSession
     }
     FMCPerkVFXSlot EffectiveOuter(const FMCPerkVFXSlot& Slot)
     {if(Slot.Mode==EMCPerkVFXSlotMode::Replace || Slot.Mode==EMCPerkVFXSlotMode::Composition)return Slot;FMCPerkVFXSlot Result;Result.Mode=Slot.Mode;return Result;}
-    template<class T> T* SaveNewCopy(const T* Source,const FString& PackagePath,FString& Error,const TMap<FName,FString>* StageMasters=nullptr)
+    template<class T> T* SaveNewCopy(const T* Source,const FString& PackagePath,FString& Error,const TMap<FName,FString>* StageMasters=nullptr,const UObject* MetadataSource=nullptr)
     {
         if(!PackagePath.StartsWith(TEXT("/Game/")) || !FPackageName::IsValidLongPackageName(PackagePath)
             || FPackageName::DoesPackageExist(PackagePath) || FindPackage(nullptr,*PackagePath))
@@ -150,6 +157,7 @@ namespace MCActionSession
         UPackage* P=CreatePackage(*PackagePath);
         auto* Saved=DuplicateObject<T>(Source,P,*FPackageName::GetLongPackageAssetName(PackagePath));
         Saved->ClearFlags(RF_Transient);Saved->SetFlags(RF_Public|RF_Standalone|RF_Transactional);
+        if(MetadataSource)FMetaData::CopyMetadata(const_cast<UObject*>(MetadataSource),Saved);
         if(StageMasters)for(const auto& Pair:*StageMasters)if(!Pair.Value.IsEmpty())P->GetMetaData().SetValue(Saved,*StageMasterKey(Pair.Key),*Pair.Value);
         FAssetRegistryModule::AssetCreated(Saved);P->MarkPackageDirty();
         if(!UEditorLoadingAndSavingUtils::SavePackages({P},true))
@@ -220,13 +228,15 @@ struct FMCVFXActionSession::FImpl
     uint64 PlaybackRevision=0,LayoutRevision=0;
     TFunction<void(int32)> SetPreviewCamera;
     bool bOwnsPlayback=false;
+    FGuid LegacyPreviewOwner=FGuid::NewGuid();
+    uint64 LegacyPreviewEpoch=0;
+    bool bLegacyAudioEnabled=false;
     bool ContextCurrent() const
     {
         if(ActionID.IsNone()||!BaseProfile.IsValid()||Stages.Num()!=StageOrder.Num())return false;
         const auto* Entry=MCPerkPreviewAdapters::Find(ActionID);
         if(!Entry||Entry->Stages!=StageOrder)return false;
-        return !bHasContextPreview || (MCPerkActionPreviewPanel::GetContextPerkID()==ActionID
-            && MCPerkActionPreviewPanel::GetActiveRunner().IsValid());
+        return true; // Document validity is independent of the currently playing window.
     }
     bool Fail(FString& Error,const FString& Message){Error=Message;Status=Message;return false;}
     bool NativeDirty()const
@@ -522,7 +532,8 @@ struct FMCVFXActionSession::FImpl
         }
         if(bApplyPreviewFilter && !ApplyPreviewSolo(Profile,Error))return Fail(Error,Error);
         if(!Profile->ValidateForEvents(CanonicalBinding.AllowedEvents,Error))return Fail(Error,Error);
-        for(const auto& Pair:Profile->SFXSlots)if(!MCEventSFX::ValidateNativePolicy(Pair.Value,false,Error))return Fail(Error,Error);
+        for(const auto& Pair:Profile->SFXSlots)
+            if(!MCEventSFX::ValidateNativePolicy(Pair.Value,MCVFXSourceContracts::CanSuppressOriginalSFX(ActionID,Pair.Key),Error))return Fail(Error,Error);
         return true;
     }
 };
@@ -531,7 +542,7 @@ FMCVFXActionSession::FMCVFXActionSession():Impl(MakeUnique<FImpl>())
 {if(GEditor)GEditor->RegisterForUndo(this);}
 FMCVFXActionSession::~FMCVFXActionSession(){Stop();if(GEditor)GEditor->UnregisterForUndo(this);}
 void FMCVFXActionSession::Clear()
-{Stop();const uint64 Next=Impl->Revision+1,Play=Impl->PlaybackRevision+1,Layout=Impl->LayoutRevision+1;Impl=MakeUnique<FImpl>();Impl->Revision=Next;Impl->PlaybackRevision=Play;Impl->LayoutRevision=Layout;}
+{StopDocumentPreview();const uint64 Next=Impl->Revision+1,Play=Impl->PlaybackRevision+1,Layout=Impl->LayoutRevision+1;Impl=MakeUnique<FImpl>();Impl->Revision=Next;Impl->PlaybackRevision=Play;Impl->LayoutRevision=Layout;}
 
 TArray<FMCVFXActionCatalogueEntry> FMCVFXActionSession::GetCatalogue()
 {return MCVFXActionCatalog::GetCatalogue();}
@@ -554,8 +565,7 @@ bool FMCVFXActionSession::Initialize(FName ActionID,FString& Error)
     auto* T=MCActionSession::Table();const auto* Row=T&&!RowID.IsNone()?T->FindRow<FMCPerkDefinition>(RowID,TEXT("ActionHub"),false):nullptr;
     const auto* CDO=Row?MCActionSession::ActionDefaults(*Row):nullptr;
     if(!RowID.IsNone() && (!Row || !Row->bEnabled))return Impl->Fail(Error,TEXT("Игровое действие недоступно в DT_Perks."));
-    Stop();
-    if(HasPreview&&!MCPerkActionPreviewPanel::EnsureContext(ActionID,Error))return Impl->Fail(Error,Error);
+    StopDocumentPreview();
     Impl->Stages.Reset();Impl->ActionID=ActionID;Impl->CanonicalRowID=RowID;
     Impl->StageOrder=Adapter->Stages;Impl->StageLabels=Adapter->StageLabels;Impl->ActionLabel=Adapter->Label;
     Impl->bSupportsProfileOverride=Adapter->bSupportsProfileOverride;
@@ -700,6 +710,12 @@ bool FMCVFXActionSession::Initialize(FName ActionID,FString& Error)
 
 FName FMCVFXActionSession::GetActionID()const{return Impl->ActionID;}
 bool FMCVFXActionSession::IsContextCurrent()const{return Impl->ContextCurrent();}
+bool FMCVFXActionSession::ValidateSourceCurrent(FString& Error)const
+{
+    Error.Reset();
+    if(!IsContextCurrent())return Impl->Fail(Error,TEXT("Источник действия изменился; звуковой черновик не изменён."));
+    return Impl->CanonicalProfileCurrent(Error);
+}
 bool FMCVFXActionSession::CanPreview()const
 {
     const auto* A=MCPerkPreviewAdapters::Find(Impl->ActionID);
@@ -733,6 +749,27 @@ FText FMCVFXActionSession::GetEventLabel(FName Stage)const
 }
 FText FMCVFXActionSession::GetActionLabel()const{return Impl->ActionLabel;}
 FSoftObjectPath FMCVFXActionSession::GetCanonicalOwner()const{return Impl->bHasCanonicalBinding?Impl->CanonicalBinding.OwnerAsset:FSoftObjectPath();}
+bool FMCVFXActionSession::RebaseOwnerDigestAfterOwnedCommit(const FMCVFXCanonicalProfileState& ExpectedBefore)
+{
+    if(!IsInGameThread() || !Impl->bHasCanonicalBinding)return false;
+    auto& Baseline=Impl->CanonicalBinding;
+    // Never accept a changed assignment to this key, an unrelated writer, or
+    // an already-stale owner baseline as an incidental sibling update.
+    if(Baseline.SourceID!=Impl->ActionID || Baseline.OwnerAsset!=ExpectedBefore.OwnerAsset
+        || Baseline.OwnerKey==ExpectedBefore.OwnerKey || Baseline.OwnerDigest!=ExpectedBefore.OwnerDigest)
+        return false;
+    FMCVFXCanonicalProfileState Fresh;FString Error;
+    // ReadCanonical also refuses dirty owner/profile packages. Draft objects
+    // are separate transient copies and are deliberately not involved here.
+    if(!MCVFXProfileBindings::ReadCanonical(Baseline.SourceID,Fresh,Error))return false;
+    if(Fresh.SourceID!=Baseline.SourceID || Fresh.OwnerAsset!=Baseline.OwnerAsset || Fresh.OwnerKey!=Baseline.OwnerKey
+        || Fresh.CanonicalRowID!=Baseline.CanonicalRowID || Fresh.bOwnerKeyPresent!=Baseline.bOwnerKeyPresent
+        || Fresh.AllowedEvents!=Baseline.AllowedEvents || Fresh.Profile.ToSoftObjectPath()!=Baseline.Profile.ToSoftObjectPath()
+        || Fresh.ProfileDigest!=Baseline.ProfileDigest || Fresh.ProfileValueDigest!=Baseline.ProfileValueDigest)
+        return false;
+    Baseline.OwnerDigest=Fresh.OwnerDigest;
+    return true;
+}
 TArray<EMCPerkPreviewScenario> FMCVFXActionSession::GetScenarios()const
 {const auto* Adapter=MCPerkPreviewAdapters::Find(Impl->ActionID);return Adapter?Adapter->Scenarios:TArray<EMCPerkPreviewScenario>();}
 FText FMCVFXActionSession::GetScenarioLabel(EMCPerkPreviewScenario Scenario)const
@@ -747,6 +784,8 @@ uint64 FMCVFXActionSession::GetLayoutRevision()const{return Impl->LayoutRevision
 FGuid FMCVFXActionSession::GetDraftToken()const{return Impl->NativeDraftToken;}
 bool FMCVFXActionSession::IsRuntimeDirty()const
 {if(Impl->NativeDirty() || Impl->EventDraftDirty())return true;for(const auto& P:Impl->Stages)if(P.Value.IsRuntimeDirty())return true;return false;}
+bool FMCVFXActionSession::IsAudioDirty()const
+{return Impl->EventDraft.IsValid()&&Impl->BaseProfile.IsValid()&&!MCActionSession::SameAudio(Impl->EventDraft.Get(),Impl->BaseProfile.Get());}
 bool FMCVFXActionSession::IsMasterLayoutDirty()const
 {if(Impl->LayoutState.IsValid() && !MCActionSession::SameLayout(Impl->LayoutState->Layout,Impl->LayoutBaseline))return true;for(const auto& P:Impl->Stages)if(P.Value.IsLayoutDirty())return true;return false;}
 bool FMCVFXActionSession::IsDirty()const{return IsRuntimeDirty() || IsMasterLayoutDirty();}
@@ -776,7 +815,7 @@ bool FMCVFXActionSession::SetEventGroupEnabled(FGuid Token,FName Event,FGuid Gro
     const auto* Existing=GetEventGroups(Event);if(!Existing || !Existing->Find(Group))return Impl->Fail(Error,TEXT("Группа события больше не существует."));
     auto Groups=*Existing;auto* G=Groups.Groups.FindByPredicate([&](const auto& Entry){return Entry.ID==Group;});
     if(G->bEnabled==bEnabled)return true;G->bEnabled=bEnabled;
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","EnableGroup","Включить или выключить группу события"));
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","EnableGroup","Включить или выключить группу события"));
     Impl->EventDraft->Modify();Impl->EventDraft->EventGroups.Add(Event,MoveTemp(Groups));Impl->Changed(Event);return true;
 }
 bool FMCVFXActionSession::SetEventGroupAudioMuted(FGuid Token,FName Event,FGuid Group,bool bMuted,FString& Error)
@@ -785,7 +824,7 @@ bool FMCVFXActionSession::SetEventGroupAudioMuted(FGuid Token,FName Event,FGuid 
     const auto* Existing=GetEventGroups(Event);if(!Existing || !Existing->Find(Group))return Impl->Fail(Error,TEXT("Группа события больше не существует."));
     auto Groups=*Existing;auto* G=Groups.Groups.FindByPredicate([&](const auto& Entry){return Entry.ID==Group;});
     if(G->bMuteSFX==bMuted)return true;G->bMuteSFX=bMuted;
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","MuteGroup","Отключить звук группы события"));
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","MuteGroup","Отключить звук группы события"));
     Impl->EventDraft->Modify();Impl->EventDraft->EventGroups.Add(Event,MoveTemp(Groups));Impl->Changed(Event);return true;
 }
 bool FMCVFXActionSession::AssignLayerToGroup(FGuid Token,FName Event,EMCComposerLayerLane Lane,FGuid Layer,FGuid Group,FString& Error)
@@ -837,7 +876,7 @@ FGuid FMCVFXActionSession::DuplicateEventGroup(FGuid Token,FName Event,FGuid Gro
         for(const auto& Pair:AudioRemap)if(const auto* P=Layout->SFXLayerPositions.Find(Pair.Key))
             if(!MCActionSession::ValidPosition(*P+FVector2D(40,40))){Impl->Fail(Error,TEXT("Расположение звуковой копии выйдет за пределы графа."));return FGuid();}
     }
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","DuplicateGroup","Дублировать группу с VFX и SFX"));
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","DuplicateGroup","Дублировать группу с VFX и SFX"));
     Impl->EventDraft->Modify();S->Recipe->Modify();Impl->LayoutState->Modify();
     Impl->EventDraft->EventGroups.Add(Event,MoveTemp(Groups));
     if(GetSFXSlot(Event))Impl->EventDraft->SFXSlots.Add(Event,MoveTemp(Audio));
@@ -863,7 +902,7 @@ bool FMCVFXActionSession::RemoveEventGroup(FGuid Token,FName Event,FGuid Group,E
     {if(Policy==EMCComposerGroupRemoval::DeleteChildren){Layers.RemoveAt(I);Nodes.RemoveAt(I);}else Layers[I].GroupID.Invalidate();}
     for(int32 I=Audio.Layers.Num()-1;I>=0;--I)if(Audio.Layers[I].GroupID==Group)
     {if(Policy==EMCComposerGroupRemoval::DeleteChildren){RemovedAudio.Add(Audio.Layers[I].ID);Audio.Layers.RemoveAt(I);}else Audio.Layers[I].GroupID.Invalidate();}
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","RemoveGroup","Удалить общую группу события"));
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","RemoveGroup","Удалить общую группу события"));
     Impl->EventDraft->Modify();S->Recipe->Modify();Impl->LayoutState->Modify();
     if(Groups.Groups.IsEmpty() && !Impl->BaseProfile->EventGroups.Contains(Event))Impl->EventDraft->EventGroups.Remove(Event);
     else Impl->EventDraft->EventGroups.Add(Event,MoveTemp(Groups));
@@ -956,13 +995,13 @@ bool FMCVFXActionSession::SetPreviewSoloGroups(FGuid Token,FName Event,const TAr
     {if(ID.IsValid() && (!Declared || !Declared->Contains(ID)))return Impl->Fail(Error,TEXT("Соло относится к отсутствующей группе события."));Unique.AddUnique(ID);}
     const auto Current=GetPreviewSoloGroups(Event);
     if(Current.Num()==Unique.Num() && !Current.ContainsByPredicate([&](FGuid ID){return !Unique.Contains(ID);}))return true;
-    Stop();if(Unique.IsEmpty())Impl->PreviewSolo.Remove(Event);else Impl->PreviewSolo.Add(Event,MoveTemp(Unique));
+    StopDocumentPreview();if(Unique.IsEmpty())Impl->PreviewSolo.Remove(Event);else Impl->PreviewSolo.Add(Event,MoveTemp(Unique));
     ++Impl->Revision;++Impl->PlaybackRevision;Impl->Status=TEXT("Соло изменяет только предпросмотр. Сохранённые группы не изменены.");return true;
 }
 TArray<FGuid> FMCVFXActionSession::GetPreviewSoloGroups(FName Event)const
 {const auto* Groups=Impl->PreviewSolo.Find(Event);return Groups?*Groups:TArray<FGuid>();}
 void FMCVFXActionSession::ClearPreviewSolo()
-{if(Impl->PreviewSolo.IsEmpty())return;Stop();Impl->PreviewSolo.Reset();++Impl->Revision;++Impl->PlaybackRevision;}
+{if(Impl->PreviewSolo.IsEmpty())return;StopDocumentPreview();Impl->PreviewSolo.Reset();++Impl->Revision;++Impl->PlaybackRevision;}
 int32 FMCVFXActionSession::GetLayerCount(FName Stage)const{const auto* S=Impl->Stages.Find(Stage);return S && S->Recipe.IsValid()?S->Recipe->Layers.Num():0;}
 UMCVFXRecipePreset* FMCVFXActionSession::GetRecipe(FName Stage)const{const auto* S=Impl->Stages.Find(Stage);return S?S->Recipe.Get():nullptr;}
 FMCPerkVFXSlot FMCVFXActionSession::GetOriginalSlot(FName Stage)const{const auto* S=Impl->Stages.Find(Stage);return S?S->Outer:FMCPerkVFXSlot();}
@@ -997,6 +1036,16 @@ EMCPerkVFXSlotMode FMCVFXActionSession::GetPreviewSlotMode(FName Stage)const
 }
 
 const UMCVFXNativePresentationSettings* FMCVFXActionSession::GetNativeDraft()const{return Impl->NativeDraft.Get();}
+EMCPerkVFXSlotMode FMCVFXActionSession::GetReviewSlotMode(FName Stage)const
+{
+    const auto* S=Impl->Stages.Find(Stage);if(!S||!S->Recipe.IsValid()||!S->Baseline.IsValid())return GetPreviewSlotMode(Stage);
+    auto Current=S->Recipe->Layers,Base=S->Baseline->Layers;
+    for(auto& L:Current)L.bSolo=false;
+    for(auto& L:Base)L.bSolo=false;
+    const bool Changed=S->Recipe->DurationSeconds!=S->Baseline->DurationSeconds||S->Recipe->TailSeconds!=S->Baseline->TailSeconds
+        ||!MCActionSession::SameValues(Current,Base,FMCVFXCompositionLayer::StaticStruct());
+    return Changed?(!MCActionSession::HasEnabled(S->Recipe.Get())?(Impl->KeepNative(Stage)?EMCPerkVFXSlotMode::UseDefault:EMCPerkVFXSlotMode::Disabled):EMCPerkVFXSlotMode::Composition):S->Outer.Mode;
+}
 FGuid FMCVFXActionSession::GetNativeDraftToken()const{return Impl->NativeDraftToken;}
 bool FMCVFXActionSession::HasNativeOverride()const{return Impl->NativeOverride();}
 bool FMCVFXActionSession::SetNativePart(FGuid Token,bool bPersistent,FName Event,FName PartID,const FMCVFXNativePartSettings& Part,FString& Error)
@@ -1016,7 +1065,7 @@ bool FMCVFXActionSession::SetNativePart(FGuid Token,bool bPersistent,FName Event
     auto* Target=Parts.FindByPredicate([&](const auto& P){return P.PartID==PartID;});
     *Target=Part;
     if(!Candidate->ValidateForSource(Impl->ActionID,Impl->StageOrder,Error))return Impl->Fail(Error,Error);
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","NativePart","Изменить родную часть эффекта"));
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","NativePart","Изменить родную часть эффекта"));
     Impl->NativeDraft->Modify();
     auto& Actual=bPersistent?Impl->NativeDraft->PersistentParts:Impl->NativeDraft->Events.FindChecked(Event).Parts;
     *Actual.FindByPredicate([&](const auto& P){return P.PartID==PartID;})=Part;
@@ -1037,7 +1086,7 @@ bool FMCVFXActionSession::SetNativeKeepWithComposition(FGuid Token,FName Event,b
         return Impl->Fail(Error,TEXT("Событие относится к прежнему черновику."));
     auto* E=Impl->NativeDraft->Events.Find(Event);if(!E)return Impl->Fail(Error,TEXT("Нет родной основы этого события."));
     if(E->bKeepNativeAccentsWithComposition==bKeep)return true;
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","NativeKeep","Режим родной основы"));
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","NativeKeep","Режим родной основы"));
     Impl->NativeDraft->Modify();E->bKeepNativeAccentsWithComposition=bKeep;Impl->Changed(Event);return true;
 }
 
@@ -1049,7 +1098,7 @@ FMCComposerSFXCapabilities FMCVFXActionSession::GetSFXCapability(FName Event)con
     FMCComposerSFXCapabilities Result;
     if(!CanEditProfile() || !Impl->StageOrder.Contains(Event))
     {Result.UnavailableReason=GetEditUnavailableReason();return Result;}
-    Result.bCanAuditionInContext=IsPreviewAudioEnabled();
+    Result.bCanAuditionInContext=CanPreview(); // Output enablement belongs to each document view.
     const auto Status=MCVFXSourceContracts::GetOriginalAudioStatus(GetActionID(),Event);
     Result.OriginalAudioKnowledge=Status.Knowledge;
     Result.bOriginalAudioConfirmedSilent=Status.Knowledge==EMCVFXOriginalAudioKnowledge::ConfirmedAbsent;
@@ -1117,7 +1166,7 @@ FGuid FMCVFXActionSession::AddSFXLayer(FGuid Token,FName Event,USoundBase* Sound
     FMCEventSFXLayer Layer;Layer.Name=Sound->GetFName();Layer.Sound=Sound;Layer.GroupID=GroupID;
     Slot.Layers.Add(Layer);if(Slot.Mode==EMCEventSFXMode::UseDefault)Slot.Mode=EMCEventSFXMode::Add;
     if(!Slot.Validate(Error))return FGuid();
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","AddSound","Добавить звуковой слой события"));
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","AddSound","Добавить звуковой слой события"));
     Impl->EventDraft->Modify();Impl->EventDraft->SFXSlots.Add(Event,MoveTemp(Slot));Impl->Changed(Event);return Layer.ID;
 }
 bool FMCVFXActionSession::SetSFXLayer(FGuid Token,FName Event,FGuid LayerID,const FMCEventSFXLayer& Layer,FString& Error)
@@ -1132,7 +1181,7 @@ bool FMCVFXActionSession::SetSFXLayer(FGuid Token,FName Event,FGuid LayerID,cons
     if(Layer.GroupID.IsValid() && (!Groups || !Groups->Contains(Layer.GroupID)))
         return Impl->Fail(Error,TEXT("Слой ссылается на неизвестную группу этого события."));
     *Target=Layer;if(!Slot.Validate(Error))return false;
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","EditSound","Изменить звуковой слой события"));
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","EditSound","Изменить звуковой слой события"));
     Impl->EventDraft->Modify();Impl->EventDraft->SFXSlots.Add(Event,MoveTemp(Slot));Impl->Changed(Event);return true;
 }
 bool FMCVFXActionSession::RemoveSFXLayer(FGuid Token,FName Event,FGuid LayerID,FString& Error)
@@ -1141,7 +1190,7 @@ bool FMCVFXActionSession::RemoveSFXLayer(FGuid Token,FName Event,FGuid LayerID,F
     const auto* Existing=GetSFXSlot(Event);if(!Existing)return Impl->Fail(Error,TEXT("Событие не содержит звуковых слоёв."));
     FMCEventSFXSlot Slot=*Existing;
     if(Slot.Layers.RemoveAll([&](const auto& L){return L.ID==LayerID;})!=1)return Impl->Fail(Error,TEXT("Звуковой слой больше не существует."));
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","RemoveSound","Удалить звуковой слой события"));
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","RemoveSound","Удалить звуковой слой события"));
     Impl->EventDraft->Modify();Impl->LayoutState->Modify();Impl->EventDraft->SFXSlots.Add(Event,MoveTemp(Slot));
     if(auto* Layout=Impl->LayoutState->Layout.Events.FindByPredicate([&](const auto& E){return E.Event==Event;}))Layout->SFXLayerPositions.Remove(LayerID);
     Impl->Changed(Event);return true;
@@ -1154,7 +1203,7 @@ FGuid FMCVFXActionSession::DuplicateSFXLayer(FGuid Token,FName Event,FGuid Layer
     const auto* Found=Existing->Layers.FindByPredicate([&](const auto& L){return L.ID==LayerID;});
     if(!Found){Impl->Fail(Error,TEXT("Звуковой слой больше не существует."));return FGuid();}
     auto Slot=*Existing;auto Layer=*Found;Layer.ID=FGuid::NewGuid();Layer.Name=FName(*(Layer.Name.ToString()+TEXT("_Copy")));Slot.Layers.Add(Layer);
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","DuplicateSound","Дублировать звуковой слой события"));
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","DuplicateSound","Дублировать звуковой слой события"));
     Impl->EventDraft->Modify();Impl->EventDraft->SFXSlots.Add(Event,MoveTemp(Slot));
     if(auto* Layout=Impl->LayoutState->Layout.Events.FindByPredicate([&](const auto& E){return E.Event==Event;}))
         if(const auto* OriginalPosition=Layout->SFXLayerPositions.Find(LayerID))
@@ -1166,7 +1215,7 @@ bool FMCVFXActionSession::SetSFXMode(FGuid Token,FName Event,EMCEventSFXMode Mod
     if(!Impl->AudioEditScope(Token,Event,Error))return false;
     auto Slot=GetSFXSlot(Event)?*GetSFXSlot(Event):FMCEventSFXSlot();Slot.Mode=Mode;
     if(!Slot.Validate(Error) || !MCEventSFX::ValidateNativePolicy(Slot,GetSFXCapability(Event).bCanReplaceNativeAudio,Error))return false;
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","SoundMode","Режим звука события"));
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","SoundMode","Режим звука события"));
     Impl->EventDraft->Modify();Impl->EventDraft->SFXSlots.Add(Event,MoveTemp(Slot));Impl->Changed(Event);return true;
 }
 bool FMCVFXActionSession::AuditionSFX(FName Event,USoundBase* Sound,FString& Error,EMCPerkPreviewScenario Scenario)
@@ -1174,21 +1223,25 @@ bool FMCVFXActionSession::AuditionSFX(FName Event,USoundBase* Sound,FString& Err
     if(!CanPreview())return Impl->Fail(Error,GetPreviewUnavailableReason());
     if(!Sound || !Impl->Stage(Event,Error))return false;
     if(!IsPreviewAudioEnabled())return Impl->Fail(Error,TEXT("Включите звук предпросмотра перед примеркой."));
-    Stop();if(!Impl->PrepareProfile(Event,nullptr,Error,Sound))return false;
-    const auto Runner=MCPerkActionPreviewPanel::GetActiveRunner();
-    if(!Runner || !Runner->StartAction(Impl->ActionID,Scenario,Impl->AuditionProfile.Get()))return Impl->Fail(Error,TEXT("Не удалось запустить звуковую примерку настоящего действия."));
+    UMCPerkVFXProfile* Profile=nullptr;if(!BuildPreviewProfile(Profile,Error,Event,Sound,nullptr,true))return false;
+    if(!MCPerkActionPreviewPanel::ClaimPreview(Impl->ActionID,Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch,Error))return false;
+    const auto Runner=MCPerkActionPreviewPanel::GetOwnedRunner(Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch);
+    if(!Runner||!Runner->SetAudioEnabled(Impl->bLegacyAudioEnabled,Error)){Stop();return false;}
+    if(!Runner->StartAction(Impl->ActionID,Scenario,Profile)){Stop();return Impl->Fail(Error,TEXT("Не удалось запустить звуковую примерку настоящего действия."));}
     Impl->bOwnsPlayback=true;Impl->Status=TEXT("Звуковая примерка в настоящем событии. Черновик и игра не изменены.");return true;
 }
 bool FMCVFXActionSession::SetPreviewAudioEnabled(bool bEnabled,FString& Error)
 {
     if(!CanPreview())return Impl->Fail(Error,GetPreviewUnavailableReason());
-    const auto Runner=MCPerkActionPreviewPanel::GetActiveRunner();if(!Runner)return Impl->Fail(Error,TEXT("Предпросмотр не открыт."));
-    Stop();return Runner->SetAudioEnabled(bEnabled,Error);
+    Error.Reset();
+    const auto Runner=MCPerkActionPreviewPanel::GetOwnedRunner(Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch);
+    if(Runner&&!Runner->SetAudioEnabled(bEnabled,Error))return false;
+    Impl->bLegacyAudioEnabled=bEnabled;return true;
 }
 bool FMCVFXActionSession::IsPreviewAudioEnabled()const
-{if(!CanPreview())return false;const auto Runner=MCPerkActionPreviewPanel::GetActiveRunner();return Runner && Runner->IsAudioEnabled();}
+{if(!CanPreview())return false;const auto Runner=MCPerkActionPreviewPanel::GetOwnedRunner(Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch);return Runner?Runner->IsAudioEnabled():Impl->bLegacyAudioEnabled;}
 FString FMCVFXActionSession::GetPreviewAudioStatus()const
-{if(!CanPreview())return GetPreviewUnavailableReason();const auto Runner=MCPerkActionPreviewPanel::GetActiveRunner();return Runner?Runner->GetAudioStatus():TEXT("Предпросмотр не открыт.");}
+{if(!CanPreview())return GetPreviewUnavailableReason();const auto Runner=MCPerkActionPreviewPanel::GetOwnedRunner(Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch);return Runner?Runner->GetAudioStatus():Impl->bLegacyAudioEnabled?TEXT("Звук включится при запуске предпросмотра."):TEXT("Звук предпросмотра выключен.");}
 
 FGuid FMCVFXActionSession::AddSystem(FName Stage,UNiagaraSystem* System,FString& Error)
 {return AddSystemToGroup(GetDraftToken(),Stage,System,FGuid(),Error);}
@@ -1199,7 +1252,7 @@ FGuid FMCVFXActionSession::AddSystemToGroup(FGuid Token,FName Stage,UNiagaraSyst
     const auto* Groups=GetEventGroups(Stage);
     if(Group.IsValid() && (!Groups || !Groups->Contains(Group))){Impl->Fail(Error,TEXT("Целевая группа этого события больше не существует."));return FGuid();}
     if(S->Recipe->Layers.Num()>=32){Impl->Fail(Error,TEXT("В событии может быть не более 32 элементов."));return FGuid();}
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","Add","Добавить VFX в событие"));S->Recipe->Modify();
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","Add","Добавить VFX в событие"));S->Recipe->Modify();
     FMCVFXCompositionLayer L;L.Name=System->GetFName();L.System=System;L.GroupID=Group;S->Recipe->Layers.Add(L);
     FMCVFXRecipeNodeLayout N;N.ID=FGuid::NewGuid();N.Position=FVector2D(S->Recipe->Nodes.Num()*270,0);S->Recipe->Nodes.Add(N);
     S->Recipe->DiscoverParameters(S->Recipe->Layers.Num()-1,Error);Impl->Changed(Stage);return N.ID;
@@ -1210,19 +1263,19 @@ bool FMCVFXActionSession::SetLayer(FName Stage,const FGuid& ID,const FMCVFXCompo
     if(I==INDEX_NONE)return Impl->Fail(Error,TEXT("Элемент больше не существует. Выберите его заново."));
     if(!Impl->ValidateLayerGroup(Stage,Layer,Error))return false;
     if(FMCVFXCompositionLayer::StaticStruct()->CompareScriptStruct(&S->Recipe->Layers[I],&Layer,0))return true;
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","Edit","Изменить VFX события"));S->Recipe->Modify();S->Recipe->Layers[I]=Layer;Impl->Changed(Stage);return true;
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","Edit","Изменить VFX события"));S->Recipe->Modify();S->Recipe->Layers[I]=Layer;Impl->Changed(Stage);return true;
 }
 bool FMCVFXActionSession::RemoveLayer(FName Stage,const FGuid& ID,FString& Error)
 {
     auto* S=Impl->Stage(Stage,Error);if(!S)return false;const int32 I=S->Recipe->FindNode(ID);
     if(I==INDEX_NONE)return Impl->Fail(Error,TEXT("Удаляемый элемент не найден."));
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","Remove","Удалить VFX события"));S->Recipe->Modify();S->Recipe->Layers.RemoveAt(I);S->Recipe->Nodes.RemoveAt(I);Impl->Changed(Stage);return true;
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","Remove","Удалить VFX события"));S->Recipe->Modify();S->Recipe->Layers.RemoveAt(I);S->Recipe->Nodes.RemoveAt(I);Impl->Changed(Stage);return true;
 }
 FGuid FMCVFXActionSession::DuplicateLayer(FName Stage,const FGuid& ID,FString& Error)
 {
     auto* S=Impl->Stage(Stage,Error);if(!S)return FGuid();const int32 I=S->Recipe->FindNode(ID);
     if(I==INDEX_NONE || S->Recipe->Layers.Num()>=32){Impl->Fail(Error,TEXT("Невозможно дублировать элемент."));return FGuid();}
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","Duplicate","Дублировать VFX события"));S->Recipe->Modify();
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","Duplicate","Дублировать VFX события"));S->Recipe->Modify();
     auto L=S->Recipe->Layers[I];auto N=S->Recipe->Nodes[I];N.ID=FGuid::NewGuid();N.Position+=FVector2D(45,45);L.Name=FName(*(L.Name.ToString()+TEXT("_Copy")));
     S->Recipe->Layers.Add(L);S->Recipe->Nodes.Add(N);Impl->Changed(Stage);return N.ID;
 }
@@ -1230,7 +1283,7 @@ bool FMCVFXActionSession::SetLayerEnabled(FName Stage,const FGuid& ID,bool bEnab
 {auto* S=Impl->Stage(Stage,Error);if(!S)return false;const int32 I=S->Recipe->FindNode(ID);if(I==INDEX_NONE)return Impl->Fail(Error,TEXT("Элемент не найден."));auto L=S->Recipe->Layers[I];L.bEnabled=bEnabled;return SetLayer(Stage,ID,L,Error);}
 bool FMCVFXActionSession::NewCompound(FName Stage,FString& Error)
 {
-    auto* S=Impl->Stage(Stage,Error);if(!S)return false;Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","NewCompound","Новая композиция события"));S->Recipe->Modify();
+    auto* S=Impl->Stage(Stage,Error);if(!S)return false;StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","NewCompound","Новая композиция события"));S->Recipe->Modify();
     S->Recipe->Layers.Reset();S->Recipe->Nodes.Reset();S->Recipe->Groups.Reset();S->Recipe->PresetName=GetEventLabel(Stage).ToString();Impl->Changed(Stage);return true;
 }
 bool FMCVFXActionSession::ImportRecipe(FName Stage,const UMCVFXRecipePreset* Source,FString& Error)
@@ -1238,35 +1291,52 @@ bool FMCVFXActionSession::ImportRecipe(FName Stage,const UMCVFXRecipePreset* Sou
     auto* S=Impl->Stage(Stage,Error);if(!S)return false;
     if(!Source || !Source->ValidateLayout(Error) || !Source->Validate(Error))return Impl->Fail(Error,Error.IsEmpty()?TEXT("Исходник композиции недоступен."):Error);
     if(!Impl->ValidateRecipeGroups(Stage,Source,Error))return false;
-    Stop();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","Import","Открыть композицию события"));S->Recipe->Modify();MCActionSession::CopyRecipeValues(Source,S->Recipe.Get());Impl->Changed(Stage);return true;
+    StopDocumentPreview();const FScopedTransaction Tx(NSLOCTEXT("MCVFXAction","Import","Открыть композицию события"));S->Recipe->Modify();MCActionSession::CopyRecipeValues(Source,S->Recipe.Get());Impl->Changed(Stage);return true;
 }
 
 bool FMCVFXActionSession::AuditionNS(FName Stage,UNiagaraSystem* System,FString& Error,EMCPerkPreviewScenario Scenario)
 {
     if(!CanPreview())return Impl->Fail(Error,GetPreviewUnavailableReason());
     if(!System)return Impl->Fail(Error,TEXT("Выберите эффект из библиотеки."));
-    if(!Impl->Stage(Stage,Error))return false;Stop();
-    if(!Impl->PrepareProfile(Stage,System,Error))return false;
-    auto R=MCPerkActionPreviewPanel::GetActiveRunner();
-    if(!R || !R->StartAction(Impl->ActionID,Scenario,Impl->AuditionProfile.Get()))return Impl->Fail(Error,TEXT("Не удалось запустить примерку настоящего действия."));
+    UMCPerkVFXProfile* Profile=nullptr;if(!BuildPreviewProfile(Profile,Error,Stage,nullptr,System,true))return false;
+    if(!MCPerkActionPreviewPanel::ClaimPreview(Impl->ActionID,Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch,Error))return false;
+    auto R=MCPerkActionPreviewPanel::GetOwnedRunner(Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch);
+    if(!R||!R->SetAudioEnabled(Impl->bLegacyAudioEnabled,Error)||!R->StartAction(Impl->ActionID,Scenario,Profile))
+    {Stop();return Impl->Fail(Error,Error.IsEmpty()?TEXT("Не удалось запустить примерку настоящего действия."):Error);}
     Impl->bOwnsPlayback=true;Impl->Status=TEXT("Временная примерка: ")+System->GetName()+TEXT(". Состав черновика и игра не изменены.");return true;
 }
 bool FMCVFXActionSession::PlayFullAction(FString& Error,EMCPerkPreviewScenario Scenario)
 {
     if(!CanPreview())return Impl->Fail(Error,GetPreviewUnavailableReason());
-    Error.Reset();Stop();if(!Impl->PrepareProfile(NAME_None,nullptr,Error))return false;
-    auto R=MCPerkActionPreviewPanel::GetActiveRunner();
-    if(!R || !R->StartAction(Impl->ActionID,Scenario,Impl->bSupportsProfileOverride?Impl->AuditionProfile.Get():nullptr))return Impl->Fail(Error,TEXT("Не удалось запустить настоящее действие."));
+    UMCPerkVFXProfile* Profile=nullptr;if(!BuildPreviewProfile(Profile,Error,NAME_None,nullptr,nullptr,true))return false;
+    if(!MCPerkActionPreviewPanel::ClaimPreview(Impl->ActionID,Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch,Error))return false;
+    auto R=MCPerkActionPreviewPanel::GetOwnedRunner(Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch);
+    if(!R||!R->SetAudioEnabled(Impl->bLegacyAudioEnabled,Error)||!R->StartAction(Impl->ActionID,Scenario,Profile))
+    {Stop();return Impl->Fail(Error,Error.IsEmpty()?TEXT("Не удалось запустить настоящее действие."):Error);}
     Impl->bOwnsPlayback=true;Impl->Status=TEXT("Настоящий сценарий действия; игра не изменена.");return true;
 }
-void FMCVFXActionSession::Pause(bool bPaused){if(Impl->bOwnsPlayback && Impl->ContextCurrent())if(auto R=MCPerkActionPreviewPanel::GetActiveRunner())R->SetPaused(bPaused);}
-void FMCVFXActionSession::Stop(){if(Impl->bOwnsPlayback && Impl->ContextCurrent())MCPerkActionPreviewPanel::ResetPreview();Impl->bOwnsPlayback=false;}
+bool FMCVFXActionSession::BuildPreviewProfile(UMCPerkVFXProfile*& Out,FString& Error,FName Event,USoundBase* Sound,UNiagaraSystem* System,bool bApplyPreviewFilter)
+{
+    Out=nullptr;Error.Reset();
+    if(!IsContextCurrent())return Impl->Fail(Error,TEXT("Документ действия недоступен; черновик не изменён."));
+    if((Sound||System)&&!Impl->Stage(Event,Error))return false;
+    if(!Impl->PrepareProfile(Event,System,Error,Sound,bApplyPreviewFilter))return false;
+    Out=Impl->AuditionProfile.Get();return true;
+}
+void FMCVFXActionSession::Pause(bool bPaused)
+{if(const auto R=MCPerkActionPreviewPanel::GetOwnedRunner(Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch))R->SetPaused(bPaused);}
+void FMCVFXActionSession::Stop()
+{MCPerkActionPreviewPanel::ReleasePreview(Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch);Impl->LegacyPreviewEpoch=0;Impl->bOwnsPlayback=false;}
+void FMCVFXActionSession::StopDocumentPreview()
+{MCPerkActionPreviewPanel::StopActionPreview(Impl->ActionID);Impl->LegacyPreviewEpoch=0;Impl->bOwnsPlayback=false;}
 TSharedRef<SWidget> FMCVFXActionSession::MakePreviewWidget()
 {
     if(!CanPreview())return SNew(STextBlock).Text(FText::FromString(GetPreviewUnavailableReason())).AutoWrapText(true);
+    if(!MCPerkActionPreviewPanel::OwnsPreview(Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch))
+        return SNew(STextBlock).Text(FText::FromString(TEXT("Запустите действие, чтобы активировать его предпросмотр."))).AutoWrapText(true);
     return MCPerkActionPreviewPanel::MakeSharedActionViewport(&Impl->SetPreviewCamera);
 }
-void FMCVFXActionSession::SetPreviewView(int32 Preset){if(Impl->SetPreviewCamera)Impl->SetPreviewCamera(Preset);}
+void FMCVFXActionSession::SetPreviewView(int32 Preset){if(MCPerkActionPreviewPanel::OwnsPreview(Impl->LegacyPreviewOwner,Impl->LegacyPreviewEpoch)&&Impl->SetPreviewCamera)Impl->SetPreviewCamera(Preset);}
 
 bool FMCVFXActionSession::ApplyAll(FString& Error,const FString& AssetRoot)
 {
@@ -1279,7 +1349,7 @@ bool FMCVFXActionSession::ApplyAll(FString& Error,const FString& AssetRoot)
     if(!Impl->PrepareProfile(NAME_None,nullptr,Error,nullptr,false))return false;
     for(const auto& P:Impl->Stages)if(P.Value.IsRuntimeDirty())for(const auto& L:P.Value.Recipe->Layers)if(L.bEnabled)
     {auto* NS=L.System.LoadSynchronous();if(!NS || NS->GetOutermost()->IsDirty())return Impl->Fail(Error,P.Key.ToString()+TEXT(": сначала сохраните исходную Niagara отдельно."));}
-    Stop();
+    StopDocumentPreview();
     const FString EffectiveRoot=Impl->CanonicalRowID.IsNone() && AssetRoot==TEXT("/Game/Gameplay/ActiveSkills/VFX/ActionCompositions")
         ?TEXT("/Game/Gameplay/VFX/ActionCompositions"):AssetRoot;
     const FString SourceStem=MCActionSession::AssetStem(Impl->ActionID);
@@ -1360,8 +1430,75 @@ bool FMCVFXActionSession::ApplyAll(FString& Error,const FString& AssetRoot)
     Impl->ReconcileObserved();++Impl->Revision;Impl->Status=Commit.Message;return true;
 }
 
+bool FMCVFXActionSession::ApplyAudio(FString& Error,const FString& AssetRoot)
+{
+    Error.Reset();
+    if(!CanEditProfile())return Impl->Fail(Error,GetEditUnavailableReason());
+    if(GEditor&&GEditor->PlayWorld)return Impl->Fail(Error,TEXT("Завершите PIE перед сохранением звука."));
+    if(GIsTransacting||(GEditor&&GEditor->IsTransactionActive()))return Impl->Fail(Error,TEXT("Завершите текущую транзакцию редактора перед сохранением звука."));
+    if(!Impl->CanonicalProfileCurrent(Error))return false;
+    if(!IsAudioDirty()){Impl->Status=TEXT("Звук не изменён. Визуальный черновик этим сохранением не применяется.");return true;}
+    if(!AssetRoot.StartsWith(TEXT("/Game/"))||!FPackageName::IsValidLongPackageName(AssetRoot))
+        return Impl->Fail(Error,TEXT("Выберите новую папку профиля внутри /Game/."));
+
+    // Start from the saved canonical visual state, never from the dirty visual draft.
+    TStrongObjectPtr<UMCPerkVFXProfile> Candidate(DuplicateObject<UMCPerkVFXProfile>(Impl->BaseProfile.Get(),GetTransientPackage()));
+    Candidate->ClearFlags(RF_Public|RF_Standalone);Candidate->SetFlags(RF_Transient);
+    Candidate->SFXSlots=Impl->EventDraft->SFXSlots;
+    for(const auto& Pair:Candidate->SFXSlots)
+    {
+        const auto* CanonicalGroups=Impl->BaseProfile->EventGroups.Find(Pair.Key);
+        for(const auto& Layer:Pair.Value.Layers)if(Layer.GroupID.IsValid()&&(!CanonicalGroups||!CanonicalGroups->Contains(Layer.GroupID)))
+            return Impl->Fail(Error,TEXT("Звуковой слой ссылается на неприменённую визуальную группу. Сначала примените группу общим Composer либо используйте существующую группу."));
+        if(!MCEventSFX::ValidateNativePolicy(Pair.Value,GetSFXCapability(Pair.Key).bCanReplaceNativeAudio,Error))return Impl->Fail(Error,Error);
+    }
+    if(!MCVFXProfileBindings::ValidateSavedProfileResources(Candidate.Get(),Impl->CanonicalBinding.AllowedEvents,Error))
+        return Impl->Fail(Error,Error);
+    const FGuid Token=Impl->NativeDraftToken;
+    const FString Stem=MCActionSession::AssetStem(Impl->ActionID);
+    const FString RunPath=AssetRoot/(Stem+TEXT("_Audio_"))+FDateTime::UtcNow().ToString(TEXT("%Y%m%d_%H%M%S"))+TEXT("_")+FGuid::NewGuid().ToString(EGuidFormats::Digits).Left(8);
+    const auto* MetadataSource=Impl->CanonicalBinding.Profile.LoadSynchronous();
+    auto* Saved=MCActionSession::SaveNewCopy(Candidate.Get(),RunPath/(TEXT("DA_")+Stem+TEXT("_AudioProfile")),Error,nullptr,MetadataSource);
+    if(!Saved)return Impl->Fail(Error,Error);
+    const auto FailSaved=[&](const FString& Why){return Impl->Fail(Error,Why+TEXT(" Новый профиль сохранён отдельно: ")+Saved->GetPathName()+TEXT(". Назначение в игре не подтверждено; черновик сохранён."));};
+    // Editor callbacks during resource preparation/saving must not retarget this commit.
+    if(Token!=Impl->NativeDraftToken||!MCActionSession::SameAudio(Impl->EventDraft.Get(),Candidate.Get())
+        ||!IsContextCurrent()||!Impl->CanonicalProfileCurrent(Error))
+        return FailSaved(Error.IsEmpty()?TEXT("Документ изменился во время сохранения звука."):Error);
+    StopDocumentPreview();
+    FMCVFXProfileCommitResult Commit;
+    if(!MCVFXProfileBindings::AssignSavedProfile(Saved,Impl->CanonicalBinding,Commit,Error)||!Commit.bSaved)
+        return FailSaved(Error.IsEmpty()?Commit.Message:Error);
+
+    Impl->TableBaseline=Saved;
+    Impl->BaseProfile.Reset(DuplicateObject<UMCPerkVFXProfile>(Saved,GetTransientPackage()));
+    Impl->BaseProfile->ClearFlags(RF_Public|RF_Standalone);Impl->BaseProfile->SetFlags(RF_Transient);
+    Impl->ProfileSourceDigest=MCActionSession::PackageDigest(Saved);
+    // EventDraft, recipes, native artwork, layout and pack baselines are deliberately retained.
+    Impl->NativeDraftToken=FGuid::NewGuid();
+    FMCVFXCanonicalProfileState Updated;
+    if(!MCVFXProfileBindings::ReadCanonical(Impl->ActionID,Updated,Error))
+    {
+        Impl->bHasCanonicalBinding=false;Impl->ReconcileObserved();++Impl->Revision;
+        Impl->Status=TEXT("Звук сохранён и назначен. Повторное чтение владельца не удалось; визуальный черновик сохранён. ")+Error;
+        Error.Reset();return true;
+    }
+    Impl->CanonicalBinding=MoveTemp(Updated);Impl->ReconcileObserved();++Impl->Revision;
+    Impl->Status=TEXT("Звук сохранён в игре. Канонические VFX и родная основа сохранены без изменений; визуальный черновик не применён.");
+    return true;
+}
+
 void FMCVFXActionSession::PostUndo(bool bSuccess)
-{if(bSuccess){if(Impl->ReconcileObserved())Stop();++Impl->Revision;Impl->Status=TEXT("Изменён черновик после Undo. Проверьте действие перед применением.");}}
+{
+    if(!bSuccess)return;
+    if(Impl->ReconcileObserved())
+    {
+        StopDocumentPreview();
+        Impl->Status=IsDirty()?TEXT("Черновик изменён после Undo/Redo. Проверьте действие перед сохранением."):
+            TEXT("Черновик восстановлен до сохранённых данных.");
+    }
+    ++Impl->Revision;
+}
 void FMCVFXActionSession::PostRedo(bool bSuccess){PostUndo(bSuccess);}
 FString FMCVFXActionSession::GetSnapshotJson()const
 {

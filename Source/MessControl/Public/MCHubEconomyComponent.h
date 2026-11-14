@@ -83,6 +83,8 @@ public:
     /** Server objective payout, usable during the arena. No client RPC or purchase-context requirement.
      * Returns the actual increase after the wallet cap; zero never creates a cosmetic reward. */
     int32 CreditObjectiveCoins(int32 Amount);
+    /** Authority-only aggregate victory bonus; still obeys the personal wallet cap. */
+    int32 CreditRunCompletionCoins(int32 Amount);
     bool TryEquipLoadout(const FMCCharacterCosmeticLoadout& Loadout, FText& Error);
     UFUNCTION(BlueprintPure, Category="Economy|Raid") bool GetRaidPerkDefinition(FName PerkID,FMCPerkDefinition& Definition) const;
     UFUNCTION(BlueprintPure, Category="Economy|Raid") int32 GetRaidPerkCopies(FName PerkID) const;

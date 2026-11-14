@@ -1969,7 +1969,16 @@ void UMCGameplayHUD::RefreshState()
     if(auto* Results=Find(TEXT("ResultsPanel")))
         Results->SetRenderTranslation(FVector2D(MCDeveloperUIEnabled(GetWorld()) && Directed && HUD::DirectorDebug.GetValueOnGameThread()>0?-186.f:0.f,0));
     Show(TEXT("ResultsPanel"),Finished); Text(TEXT("ResultTitle"),Title);
-    SetCopy(TEXT("ResultDetail"),UMCUIDataLibrary::FormatTextForCulture(Copy(TEXT("UI.HUD.RunResultDetail"),LOCTEXT("RunResultDetail","Незавершённых событий: {Failed} · R — новый забег")),FFormatNamedArguments{{TEXT("Failed"),FText::AsNumber(GS->FailedEvents)}}));
+    FText ResultDetail=UMCUIDataLibrary::FormatTextForCulture(Copy(TEXT("UI.HUD.RunResultDetail"),LOCTEXT("RunResultDetail","Незавершённых событий: {Failed} · R — новый забег")),FFormatNamedArguments{{TEXT("Failed"),FText::AsNumber(GS->FailedEvents)}});
+    if(Finished) if(const auto* RoundPlayer=GetOwningPlayer()?GetOwningPlayer()->GetPlayerState<AMCPlayerState>():nullptr) {
+        const FText Coins=UMCUIDataLibrary::FormatTextForCulture(Copy(TEXT("UI.HUD.RunCoinSummary"),
+            LOCTEXT("RunCoinSummary","Монеты за задачи: {Base} · За зубы: +{Bonus} ({Teeth} × 10%)")),
+            FFormatNamedArguments{{TEXT("Base"),UMCUIDataLibrary::NumberForCulture(RoundPlayer->RunTaskCoins)},
+                {TEXT("Bonus"),UMCUIDataLibrary::NumberForCulture(RoundPlayer->RunSavedToothBonusCoins)},
+                {TEXT("Teeth"),UMCUIDataLibrary::NumberForCulture(RoundPlayer->RunSavedTeeth)}});
+        ResultDetail=FText::Format(FText::AsCultureInvariant(TEXT("{0}\n{1}")),ResultDetail,Coins);
+    }
+    SetCopy(TEXT("ResultDetail"),ResultDetail);
     // Keep the actual equipped tools and controls during the lesson; its own
     // fairy card supplies the objective instead of the ordinary day overview.
     const bool Overview=!GS->bTutorialActive;

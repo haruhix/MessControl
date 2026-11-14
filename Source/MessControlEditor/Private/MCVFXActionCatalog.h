@@ -20,6 +20,11 @@ struct FMCVFXActionCatalogueEntry
     FText Description;
     TSoftObjectPtr<UTexture2D> Icon;
     FName Category;
+    /** Editor navigation identity, distinct from the canonical source owner/path. */
+    FName OwnerID;
+    FText OwnerLabel;
+    /** Optional short action name beneath an explicit owner node. */
+    FText ActionLabel;
     EMCVFXActionSection Section=EMCVFXActionSection::Other;
     /** Set only by an actual canonical DT row, never inferred from an ID/name. */
     TOptional<EMCPerkKind> PerkKind;

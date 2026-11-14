@@ -5,6 +5,9 @@
 #include "MCVFXComposer.h"
 #include "MCVFXRecipeComposer.h"
 #include "MCVFXActionWorkspace.h"
+#include "MCSFXComposerWorkspace.h"
+#include "MCComposerDocuments.h"
+#include "MCComposerAudioProbe.h"
 #include "MCWorldActionPreviewAdapters.h"
 #include "MCPerkActionPreviewPanel.h"
 #include "MCNiagaraInputToolset.h"
@@ -133,6 +136,7 @@ public:
         MCGameplayUIPreview::EnsureRegistered();
         MCMainMenuPreview::Register();
         MCVFXActionWorkspace::Register();
+        MCSFXComposerWorkspace::Register();
         MCWorldActionPreviewAdapters::Register();
         if(!IsRunningCommandlet()) {
             UToolsetRegistry::RegisterToolsetClass(UMCNiagaraInputToolset::StaticClass());
@@ -162,13 +166,16 @@ public:
 
     virtual void ShutdownModule() override
     {
+        MCComposerAudioProbe::Stop();
         UToolsetRegistry::UnregisterToolsetClass(UMCVFXMaterialToolset::StaticClass());
         UToolsetRegistry::UnregisterToolsetClass(UMCVFXComposerToolset::StaticClass());
         UToolsetRegistry::UnregisterToolsetClass(UMCNiagaraInputToolset::StaticClass());
         UToolMenus::UnRegisterStartupCallback(this);
         UToolMenus::UnregisterOwner(this);
         MCMainMenuPreview::Unregister();
+        MCSFXComposerWorkspace::Unregister();
         MCVFXActionWorkspace::Unregister();
+        MCComposerDocuments::Shutdown();
         MCVFXComposer::Unregister();
         MCVFXRecipeComposer::Unregister();
         MCPerkActionPreviewPanel::Unregister();
@@ -201,8 +208,12 @@ private:
             NSLOCTEXT("MCVFXComposer","ToolsEntry","VFX Composer"),
             NSLOCTEXT("MCVFXComposer","ToolsHint","Choose a gameplay action, preview its events and compose multiple effects for each event."),
             FSlateIcon(),FUIAction(FExecuteAction::CreateStatic(&MCVFXActionWorkspace::Open)));
-        // VFX Composer is the sole public authoring entry. Legacy data and
-        // diagnostic APIs remain, but old prototype tab spawners are not registered.
+        Section.AddMenuEntry(TEXT("MCSFXComposer"),
+            NSLOCTEXT("MCSFXComposer","ToolsEntry","SFX Composer"),
+            NSLOCTEXT("MCSFXComposer","ToolsHint","Edit shared event sounds, music and ambience in the dedicated audio workspace."),
+            FSlateIcon(),FUIAction(FExecuteAction::CreateStatic(&MCSFXComposerWorkspace::Open)));
+        // Both Composer views use one shared action document. Retired VFX
+        // prototype tab spawners remain unregistered.
 
     }
 

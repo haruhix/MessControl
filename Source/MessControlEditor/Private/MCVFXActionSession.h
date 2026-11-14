@@ -18,11 +18,12 @@ class USoundBase;
 class UMCVFXNativePresentationSettings;
 class UMCVFXActionPack;
 struct FMCVFXNativePartSettings;
+struct FMCVFXCanonicalProfileState;
 
 enum class EMCComposerLayerLane : uint8 { VFX, SFX };
 enum class EMCComposerGroupRemoval : uint8 { UngroupChildren, DeleteChildren };
 
-/** Per-window action draft. It never uses the free composer's global WorkingRecipe. */
+/** Shared per-action document. It never uses the free composer's global WorkingRecipe. */
 class FMCVFXActionSession final : public FEditorUndoClient
 {
 public:
@@ -32,11 +33,13 @@ public:
     static TArray<FName> GetStages();
     static FText GetStageLabel(FName Stage);
 
-    /** Owns its context directly; no other editor window has to be open. */
+    /** Initializes document data only; never switches another window's preview context. */
     bool Initialize(FName ActionID,FString& OutError);
     void Clear();
     FName GetActionID() const;
     bool IsContextCurrent() const;
+    /** Explicit edit/drop guard. May read canonical packages; never call during hover. */
+    bool ValidateSourceCurrent(FString& OutError) const;
     bool CanPreview() const;
     FString GetPreviewUnavailableReason() const;
     bool CanEditProfile() const;
@@ -45,6 +48,8 @@ public:
     FText GetEventLabel(FName Stage) const;
     FText GetActionLabel() const;
     FSoftObjectPath GetCanonicalOwner() const;
+    /** Broker-only safe rebase after a known sibling commit; never reloads or changes the draft. */
+    bool RebaseOwnerDigestAfterOwnedCommit(const FMCVFXCanonicalProfileState& ExpectedBefore);
     TArray<EMCPerkPreviewScenario> GetScenarios() const;
     FText GetScenarioLabel(EMCPerkPreviewScenario Scenario) const;
     FString GetStatus() const;
@@ -54,6 +59,7 @@ public:
     FGuid GetDraftToken() const;
     /** Runtime values and editor layout have independent baselines. */
     bool IsRuntimeDirty() const;
+    bool IsAudioDirty() const;
     bool IsMasterLayoutDirty() const;
     bool IsDirty() const;
     const FMCEventPresentationGroupSet* GetEventGroups(FName Event) const;
@@ -86,6 +92,8 @@ public:
     FMCPerkVFXSlot GetOriginalSlot(FName Stage) const;
     TArray<FMCVFXNativeSourcePart> GetNativeSources(FName Stage) const;
     EMCPerkVFXSlotMode GetPreviewSlotMode(FName Stage) const;
+    /** Effective authoring policy with legacy preview-only layer Solo excluded. */
+    EMCPerkVFXSlotMode GetReviewSlotMode(FName Stage) const;
     /** Working native artwork, never the shared saved source. Null means no renderer contract. */
     const UMCVFXNativePresentationSettings* GetNativeDraft() const;
     FGuid GetNativeDraftToken() const;
@@ -123,12 +131,17 @@ public:
     void Stop();
     TSharedRef<SWidget> MakePreviewWidget();
     void SetPreviewView(int32 Preset);
+    /** Data-only snapshot preparation. Does not claim/reset the global preview. */
+    bool BuildPreviewProfile(UMCPerkVFXProfile*& OutProfile,FString& OutError,FName TrialEvent=NAME_None,
+        USoundBase* TrialSound=nullptr,UNiagaraSystem* TrialSystem=nullptr,bool bApplyPreviewFilter=false);
 
     /** Explicit new masters -> independent runtime compositions -> new profile -> canonical owner assignment.
      * Failed preparation leaves drafts and the previously assigned game profile intact.
      * Newly created intermediate assets are retained and reported instead of deleted.
      */
     bool ApplyAll(FString& OutError,const FString& AssetRoot=TEXT("/Game/Gameplay/ActiveSkills/VFX/ActionCompositions"));
+    /** Commits only SFXSlots over the saved canonical VFX/native/groups. Visual drafts remain unapplied. */
+    bool ApplyAudio(FString& OutError,const FString& AssetRoot=TEXT("/Game/Gameplay/VFX/ActionCompositions"));
     // Portable-pack integration is owned by the same Session writer.
     UMCVFXActionPack* SavePackNew(const FText& Label,FString& OutError,const FString& AssetRoot=TEXT("/Game/Gameplay/VFX/Packs"));
     bool LoadPack(const UMCVFXActionPack* Pack,FString& OutError,bool bDiscardDraft=false);
@@ -141,6 +154,7 @@ public:
     virtual void PostRedo(bool bSuccess) override;
 
 private:
+    void StopDocumentPreview();
     struct FImpl;
     TUniquePtr<FImpl> Impl;
 };

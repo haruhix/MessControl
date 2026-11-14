@@ -4,13 +4,19 @@ DECLARE_DELEGATE_TwoParams(FSelectWorkspaceLayer,FName,FGuid);
 DECLARE_DELEGATE_OneParam(FWorkspaceGraphChanged,bool);
 DECLARE_DELEGATE_OneParam(FWorkspaceGraphError,FString);
 
-class FWorkspaceEffectDrag final : public FDecoratedDragDropOp
+class FWorkspaceEffectDrag final : public FMCComposerSourceDrag
 {
 public:
-    DRAG_DROP_OPERATOR_TYPE(FWorkspaceEffectDrag,FDecoratedDragDropOp)
+    DRAG_DROP_OPERATOR_TYPE(FWorkspaceEffectDrag,FMCComposerSourceDrag)
     FAssetData Asset;FName SourceID;FGuid Token;
     static TSharedRef<FWorkspaceEffectDrag> New(const FAssetData& Asset,FName Source,FGuid Token)
-    {auto Op=MakeShared<FWorkspaceEffectDrag>();Op->Asset=Asset;Op->SourceID=Source;Op->Token=Token;Op->SetupDefaults();Op->Construct();Op->Reject();return Op;}
+    {
+        auto Op=MakeShared<FWorkspaceEffectDrag>();Op->Asset=Asset;Op->SourceID=Source;Op->Token=Token;
+        Op->SourceDocument=MCComposerDocuments::Find(Source);Op->SourceToken=Token;
+        TArray<FAssetData> Assets;Assets.Add(Asset);
+        Op->Init(MoveTemp(Assets),TArray<FString>(),TScriptInterface<IAssetFactoryInterface>());
+        Op->SetupDefaults();Op->Construct();Op->Reject();return Op;
+    }
     void Reject(){SetToolTip(FText::FromString(Asset.AssetName.ToString()+TEXT(" · На событие или группу · Esc — отмена")),nullptr);CurrentIconColorAndOpacity=Muted;}
     void Target(const FString& Target,bool bAllowed)
     {SetToolTip(FText::FromString(Asset.AssetName.ToString()+(bAllowed?TEXT(" → Добавить в "):TEXT(" → Контекст недоступен: "))+Target),nullptr);CurrentIconColorAndOpacity=bAllowed?WorkspaceMint:Muted;}
@@ -111,6 +117,8 @@ public:
         SLATE_EVENT(FSelectWorkspaceLayer,OnSelect)SLATE_EVENT(FSelectWorkspaceLayer,OnSelectSound)SLATE_EVENT(FSelectWorkspaceLayer,OnSelectGroup)
         SLATE_EVENT(FSimpleDelegate,OnHub)SLATE_EVENT(FDropWorkspacePresentation,OnEffectDropped)SLATE_EVENT(FWorkspaceGraphChanged,OnChanged)SLATE_EVENT(FWorkspaceGraphError,OnError)SLATE_END_ARGS()
     struct FCard{FName Event;FGuid Group;FVector2D DefaultPosition,Size;bool bHub=false;};
+    void BindDocument(const TSharedPtr<FMCVFXActionSession>& Document)
+    {Session=Document;bMoving=false;Rebuild();FrameActionOverview();}
     void Construct(const FArguments& A)
     {Session=A._Session;SelectedStage=A._SelectedStage;SelectedLayer=A._SelectedLayer;SelectedGroup=A._SelectedGroup;SelectedSound=A._SelectedSound;ShowTechnicalSources=A._ShowTechnicalSources;
         OnSelect=A._OnSelect;OnSelectSound=A._OnSelectSound;OnSelectGroup=A._OnSelectGroup;OnHub=A._OnHub;OnEffectDropped=A._OnEffectDropped;OnChanged=A._OnChanged;OnError=A._OnError;Rebuild();}

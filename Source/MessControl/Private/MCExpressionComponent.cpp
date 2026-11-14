@@ -14,9 +14,11 @@
 #include "MCRowingStroke.h"
 #include "MCPlayerController.h"
 #include "MCHookSkillAction.h"
+#include "MCNutBoss.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
 #include "Engine/SkeletalMesh.h"
+#include "EngineUtils.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
@@ -418,12 +420,32 @@ void UMCExpressionComponent::BuildSocialPose(TArray<FTransform>& Pose,const FRef
     const int32 Parent=Ref.GetParentIndex(Lower);
     Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]); Pose[Hand]=Ref.GetRefBonePose()[Hand];
 }
+float UMCExpressionComponent::KnightRollFearAlpha() const
+{
+    if(!IsValid(Tooth) || !GetWorld() || !Tooth->Status || !Tooth->Status->IsAlive()
+        || Tooth->IsActorBeingDestroyed() || Tooth->SwallowedBy || Tooth->MimicCaptor) return 0.f;
+    float Fear=0.f;
+    // Observe the replicated roll on every peer, including other players'
+    // faces. A radial check includes bystanders, not only the selected target
+    // or players inside the much narrower damaging collision corridor.
+    for(TActorIterator<AMCNutBoss> It(GetWorld());It;++It) {
+        const auto* Boss=*It;
+        if(Boss->BossRole!=EMCNutBossRole::Tank || !Boss->IsEncounterAlive()
+            || Boss->State!=EMCNutBossState::Executing || Boss->Attack!=EMCNutBossAttack::Roll) continue;
+        const double Distance=FVector::Dist(Tooth->GetActorLocation(),Boss->GetActorLocation());
+        if(!FMath::IsFinite(Distance) || Distance>=650.) continue;
+        // Full Pain within 5m; a soft edge out to 6.5m avoids boundary flicker.
+        Fear=FMath::Max(Fear,1.f-FMath::SmoothStep(500.f,650.f,float(Distance)));
+        if(Fear>=1.f) break;
+    }
+    return Fear;
+}
 void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt,float KatanaEffort)
 {
     // Keep the incoming neutral pose for worldless construction/asset previews.
     if (!Tooth || !GetWorld()) return;
     const auto& S=Tooth->Status->State;
-    const float Pain=Tooth->Status->PainAlpha();
+    const float Pain=FMath::Max(Tooth->Status->PainAlpha(),KnightRollFearAlpha());
     const bool Saw=Tooth->Inventory && Tooth->Inventory->IsChainsawRunning();
     const bool Water=Tooth->Inventory && Tooth->Inventory->IsUsingWatergun();
     const bool ToolFace=Saw || Water;

@@ -69,7 +69,16 @@ and require more time inside. The fish escapes if the player fails to fill
 the progress meter within 10 seconds.
 
 A successful challenge commits the catch and starts automatic retrieval. The
-existing catch card and fish wallet update when the catch is collected. An
+server persists the fish wallet when the catch is collected. The catch card
+then flies to the Hub counter; its displayed balance changes once, at the
+token's arrival (1.62 seconds of unpaused presentation time), together with the
+counter pulse. Queued catches remain hidden until their own arrival, including
+coalesced overflow receipts. UI changes do not replay an arrived credit.
+After an accepted catch balance has been observed, grill reservations and refunds
+remain visible immediately while the catch's own increment waits for arrival.
+Temporary missing counter geometry pauses presentation; after two seconds
+without an endpoint it cancels cosmetic deferral and restores the actual wallet.
+Closing/resetting the presentation also releases all deferral. An
 escaped or abandoned bite awards nothing. An interruption can collect an
 already committed catch once. The existing Hub profile preserves the fish
 wallet (`AMCPlayerState::FishCaught`) across pawn recovery and sessions.

@@ -361,7 +361,7 @@ bool AMCGameMode::AwardObjectiveCoinsOnce(FName CompletionId)
 {
     const auto* State=GetGameState<AMCGameState>();
     if(!HasAuthority() || !GetWorld() || GetWorld()->bIsTearingDown || GetWorld()->GetAuthGameMode()!=this || CompletionId.IsNone()
-        || !State || State->Phase!=EMCShiftPhase::Working || State->bTutorialActive || State->bLobbyWaiting
+        || !State || !State->GameplayLoadId.IsValid() || State->Phase!=EMCShiftPhase::Working || State->bTutorialActive || State->bLobbyWaiting
         || State->bDevManualEvents || GetWorld()->GetGameState<AMCHubGameState>()
         || CoinRewardedObjectives.Contains(CompletionId)) return false;
     if(const auto* Session=AMCPlaytestSession::Find(GetWorld());Session && Session->IsActive()) return false;
@@ -380,6 +380,47 @@ bool AMCGameMode::AwardObjectiveCoinsOnce(FName CompletionId)
         // delayed first profile restore. Anonymous remote guests remain session-only.
         if(!Player->bHubProfileLoaded && (!Profiles || !Profiles->Restore(Player,PC))) continue;
         const int32 Credited=Player->Economy->CreditObjectiveCoins(Amount);
+        if(Credited<=0) continue;
+        if(Player->CoinRewardRunId!=State->GameplayLoadId) {
+            Player->CoinRewardRunId=State->GameplayLoadId;
+            Player->RunTaskCoins=Player->RunSavedToothBonusCoins=Player->RunSavedTeeth=0;
+        }
+        Player->RunTaskCoins=int32(FMath::Min<int64>(int64(Player->RunTaskCoins)+Credited,MAX_int32));
+        Player->ForceNetUpdate();
+        if(Profiles) Profiles->Store(Player,PC);
+        PC->ClientObjectiveCoins(Credited,Player->Economy->Coins);
+    }
+    return true;
+}
+bool AMCGameMode::AwardSavedTeethCoinsOnce()
+{
+    const auto* State=GetGameState<AMCGameState>();
+    if(!HasAuthority() || !GetWorld() || GetWorld()->bIsTearingDown || GetWorld()->GetAuthGameMode()!=this
+        || !State || !State->GameplayLoadId.IsValid() || State->Phase!=EMCShiftPhase::Won
+        || State->bTutorialActive || State->bLobbyWaiting || State->bDevManualEvents
+        || GetWorld()->GetGameState<AMCHubGameState>() || CompletedCoinBonusRunId==State->GameplayLoadId) return false;
+    if(const auto* Session=AMCPlaytestSession::Find(GetWorld());Session && Session->IsActive()) return false;
+    // Seal before economy/profile callbacks. A tick, menu exit or return to Hub
+    // can all finalize the same run, but none may multiply its reward twice.
+    CompletedCoinBonusRunId=State->GameplayLoadId;
+    const int32 SavedTeeth=State->AvailableArenaTeeth();
+    auto* Profiles=GetGameInstance()?GetGameInstance()->GetSubsystem<UMCHubProfileSubsystem>():nullptr;
+    for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It) {
+        auto* PC=Cast<AMCPlayerController>(It->Get());
+        if(!IsGameplayParticipant(PC)) continue;
+        auto* Player=PC->GetPlayerState<AMCPlayerState>();
+        if(!IsValid(Player) || Player->GetOwner()!=PC || !Player->Economy) continue;
+        if(!Player->bHubProfileLoaded && (!Profiles || !Profiles->Restore(Player,PC))) continue;
+        if(Player->CoinRewardRunId!=State->GameplayLoadId) {
+            Player->CoinRewardRunId=State->GameplayLoadId;
+            Player->RunTaskCoins=Player->RunSavedToothBonusCoins=0;
+        }
+        Player->RunSavedTeeth=SavedTeeth;
+        // Integer arithmetic: 10% per remaining tooth, rounded down once for
+        // the entire personal round receipt. Old savings are excluded.
+        const int32 Bonus=int32(FMath::Clamp<int64>(int64(Player->RunTaskCoins)*SavedTeeth/10,0,MAX_int32));
+        const int32 Credited=Player->Economy->CreditRunCompletionCoins(Bonus);
+        Player->RunSavedToothBonusCoins=Credited;Player->ForceNetUpdate();
         if(Credited<=0) continue;
         if(Profiles) Profiles->Store(Player,PC);
         PC->ClientObjectiveCoins(Credited,Player->Economy->Coins);
@@ -1000,6 +1041,7 @@ void AMCGameMode::FinalizeRunLoadout()
 {
     auto* State=GetGameState<AMCGameState>();
     if(!HasAuthority() || !State || !State->GameplayLoadId.IsValid() || CompletedLoadoutRunId==State->GameplayLoadId) return;
+    AwardSavedTeethCoinsOnce();
     CompletedLoadoutRunId=State->GameplayLoadId;State->TeamToolUpgrades=0;State->ForceNetUpdate();
     for(const auto& Player:State->PlayerArray) if(auto* PS=Cast<AMCPlayerState>(Player);PS && PS->Perks) PS->Perks->ResetPerks();
     if(GetGameInstance()) if(auto* Profiles=GetGameInstance()->GetSubsystem<UMCHubProfileSubsystem>()) Profiles->MarkShopRunCompleted(CompletedLoadoutRunId);

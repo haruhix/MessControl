@@ -6,6 +6,7 @@
 #include "MCGameplayUIFactory.h"
 #include "MCHubGameState.h"
 #include "MCHubGrillStation.h"
+#include "MCFishingRodComponent.h"
 #include "MCHubInteractionPromptWidget.h"
 #include "MCInventoryComponent.h"
 #include "MCPlayerController.h"
@@ -127,15 +128,21 @@ AMCHubBasketball* AMCHubBasketball::LocalHintBall(const AMCToothCharacter* Hero)
     const auto* Hub=Hero->GetWorld()->GetGameState<AMCHubGameState>();
     if(!PC || !PC->IsLocalController() || PC->GetPawn()!=Hero || !Hub || Hub->Phase!=EMCHubPhase::Gathering
         || Hero->GetWorld()->IsPaused() || PC->IsMoveInputIgnored() || PC->IsLookInputIgnored() || PC->bShowMouseCursor) return nullptr;
-    // RMB throws only the ball this player actually owns. Another player's ball
+    // LMB throws only the ball this player actually owns. Another player's ball
     // never supplies either hint, even if it is in pickup range.
     if(auto* Ball=HeldBy(Hero)) return Ball;
     if(Hero->IsSeatedOnRaft() || !Hero->Inventory || Hero->Inventory->IsChainsawRunning()) return nullptr;
-    // StartHandle gives these E interactions priority over basketball pickup.
-    if(const auto* Player=Cast<AMCPlayerController>(PC); Player &&
-        (Player->IsHubShopAvailable() || Player->IsWardrobeAvailable() || Player->IsHubShopOpen() || Player->IsWardrobeOpen())) return nullptr;
-    for(TActorIterator<AMCHubGrillStation> It(Hero->GetWorld());It;++It)
-        if(It->ContainsPawn(Hero)) return nullptr;
+    if(Hero->GetActiveSkillPresentation() || (Hero->FishingRod && Hero->FishingRod->IsPresented())) return nullptr;
+    if(const auto* Player=Cast<AMCPlayerController>(PC)) {
+        if(Player->IsHubShopOpen() || Player->IsWardrobeOpen()) return nullptr;
+        // X still uses StartHandle, where shop/wardrobe/grill own that key.
+        // Mouse pickup has its own LMB action and remains available nearby.
+        if(Player->IsUsingGamepad()) {
+            if(Player->IsHubShopAvailable() || Player->IsWardrobeAvailable()) return nullptr;
+            for(TActorIterator<AMCHubGrillStation> It(Hero->GetWorld());It;++It)
+                if(It->ContainsPawn(Hero)) return nullptr;
+        }
+    }
     return PickupCandidate(Hero);
 }
 
@@ -153,7 +160,7 @@ void AMCHubBasketball::UpdateInteractionPrompt()
             const auto* Player=Cast<AMCPlayerController>(PC);
             const bool Gamepad=Player && Player->IsUsingGamepad();
             const bool Russian=FInternationalization::Get().GetCurrentLanguage()->GetTwoLetterISOLanguageName()==TEXT("ru");
-            const FText Key=FText::AsCultureInvariant(Holder==Hero?(Gamepad?TEXT("Y"):(Russian?TEXT("ПКМ"):TEXT("RMB"))):(Gamepad?TEXT("X"):TEXT("E")));
+            const FText Key=FText::AsCultureInvariant(Gamepad?(Holder==Hero?TEXT("Y"):TEXT("X")):(Russian?TEXT("ЛКМ"):TEXT("LMB")));
             if(!Widget->KeyLabel.EqualTo(Key)) {Widget->KeyLabel=Key;Widget->BuildPresentationTree();}
         }
     }

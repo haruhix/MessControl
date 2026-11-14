@@ -65,7 +65,8 @@ if not lib.does_asset_exist(path):
     factory=u.DataTableFactory(); factory.set_editor_property('struct',u.load_object(None,'/Script/MessControl.MCFoodRow'))
     table=assets.create_asset('DT_BreakfastMenu','/Game/Data',u.DataTable,factory)
     rows=[]
-    for name,hp,mass,rot,extent,weight in [('Broccoli',75,12,35,(45,40,40),1),('Egg',50,5,25,(48,35,18),1),('Bacon',100,9,40,(52,26,14),1),('Carrot',75,7,45,(45,20,20),.7),('Fibre',50,6,35,(55,24,15),0)]:
+    # The current grape ingredient retains the legacy Bacon key; keep it unlisted.
+    for name,hp,mass,rot,extent,weight in [('Broccoli',75,12,35,(45,40,40),1),('Egg',50,5,25,(48,35,18),1),('Bacon',100,9,40,(52,26,14),0),('Carrot',75,7,45,(45,20,20),.7),('Fibre',50,6,35,(55,24,15),0)]:
         def paths(part): return [f'/Game/Art/Meshes/Breakfast/SM_{name}_{part}_{v}.SM_{name}_{part}_{v}' for v in 'ABC']
         rows.append(dict(Name=name,Label=name.upper(),WholeMeshes=paths('Whole'),FragmentMeshes=paths('Part'),
             Scale=dict(X=1,Y=1,Z=1),FragmentScale=dict(X=.5,Y=.5,Z=.5),AbsorbSeconds=2,SelectionWeight=weight,Health=hp,Mass=mass,SpoilSeconds=rot,Fragments=3,

@@ -1,4 +1,5 @@
 #include "MCVFXProfileBinding.h"
+#include "MCComposerDocuments.h"
 
 #include "MCPerkPreviewAdapter.h"
 #include "MCPerkTypes.h"
@@ -258,5 +259,7 @@ bool MCVFXProfileBindings::AssignSavedProfile(UMCPerkVFXProfile* Profile,const F
             TEXT("Новое назначение не сохранено. Прежнее назначение восстановлено в памяти; пакет остаётся изменённым из-за ошибки сохранения.");
         return Fail(Error,Result.Message);
     }
-    Result.bSaved=true;Result.Message=TEXT("Сохранено: ")+Expected.SourceID.ToString()+TEXT(" → ")+Profile->GetPathName();return true;
+    Result.bSaved=true;Result.Message=TEXT("Сохранено: ")+Expected.SourceID.ToString()+TEXT(" → ")+Profile->GetPathName();
+    MCComposerDocuments::NotifyOwnedCommit(Expected);
+    return true;
 }

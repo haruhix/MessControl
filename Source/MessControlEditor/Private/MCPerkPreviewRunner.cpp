@@ -9,6 +9,7 @@
 #include "MCVFXPresentationComponent.h"
 #include "MCEventSFXPlayer.h"
 #include "MCEventSFXReadiness.h"
+#include "MCSceneAudioComponent.h"
 #include "MCWorldPreloadSubsystem.h"
 #include "MCNiagaraMaterialContextComponent.h"
 #include "MCNiagaraProceduralSurfaceResources.h"
@@ -88,6 +89,11 @@ struct FMCPerkPreviewRunner::FImpl
     FAudioDeviceHandle PreviewAudioDevice;
     bool bAudioEnabled=false;
     FString AudioStatus=TEXT("Звук предпросмотра выключен.");
+    TStrongObjectPtr<UMCSoundPalette> ScenePalette;
+    FName SceneContext;
+    TWeakObjectPtr<AActor> SceneAudioOwner;
+    TWeakObjectPtr<UMCSceneAudioComponent> SceneAudio;
+    float SceneMusicGain=1.f,SceneAmbienceGain=1.f;
     TWeakObjectPtr<AMCToothCharacter> Hero;
     TWeakObjectPtr<APlayerController> Controller;
     TWeakObjectPtr<AMCPlayerState> Player;
@@ -120,6 +126,37 @@ struct FMCPerkPreviewRunner::FImpl
     FGuid MaterialContextScope=FGuid::NewGuid();
 
     UWorld* World() const {return PreviewWorld.Get();}
+
+    void StopSceneAudio()
+    {
+        if(auto* Component=SceneAudio.Get())Component->StopScene(0.f);
+        SceneAudio.Reset();
+        if(auto* Owner=SceneAudioOwner.Get())Owner->Destroy(false,false);
+        SceneAudioOwner.Reset();
+    }
+
+    bool RestoreSceneAudio(FString& Error)
+    {
+        Error.Reset();
+        // The desired palette survives fixture resets, cancellation and PIE.
+        // Never create/load voices before the runner owns its unique audio device.
+        if(!ScenePalette.IsValid() || !bAudioEnabled || !PreviewAudioDevice.IsValid()
+            || !World() || !World()->AllowAudioPlayback())return true;
+        auto* Component=SceneAudio.Get();
+        if(!Component) {
+            FActorSpawnParameters Spawn;Spawn.ObjectFlags=RF_Transient;
+            auto* Owner=World()->SpawnActor<AActor>(FVector::ZeroVector,FRotator::ZeroRotator,Spawn);
+            if(!Owner){Error=TEXT("Не удалось создать владельца фонового звука песочницы.");return false;}
+            Owner->Tags.Add(MCPerkPreview::OwnedTag);SceneAudioOwner=Owner;
+            Component=NewObject<UMCSceneAudioComponent>(Owner,NAME_None,RF_Transient);
+            Owner->AddInstanceComponent(Component);Component->RegisterComponent();SceneAudio=Component;
+        }
+        Component->SetLocalPreviewSettings(bPaused,SceneMusicGain,SceneAmbienceGain);
+        const bool bSameScene=Component->SoundPalette==ScenePalette.Get() && Component->SceneContext==SceneContext;
+        Component->SetScene(ScenePalette.Get(),SceneContext);
+        if(bSameScene)Component->RefreshScene();
+        return true;
+    }
 
     void RefreshContext()
     {
@@ -178,6 +215,7 @@ struct FMCPerkPreviewRunner::FImpl
 
     void ClearGameplay()
     {
+        StopSceneAudio();
         AMCActiveSkillAction::StopWorldAudio(World());
         bPendingCommit=false;bRunning=false;bSawCommittedAction=false;bPaused=false;Warmup=0;
         if(Adapter) {RefreshContext();Adapter->Cancel(Context);Adapter->Reset(Context);}
@@ -565,6 +603,8 @@ void FMCPerkPreviewRunner::Reset()
     }
     if(Impl->SpawnHero()) Impl->Status=TEXT("Готово: настоящий зубик, штатная анимация и физические руки");
     else if(Impl->Status.IsEmpty()) Impl->Status=TEXT("Не удалось подготовить анимацию зубика");
+    FString SceneError;
+    if(!Impl->RestoreSceneAudio(SceneError))Impl->AudioStatus=SceneError;
 }
 
 bool FMCPerkPreviewRunner::StartRocket(EMCPerkPreviewScenario Scenario,UMCPerkVFXProfile* ProfileOverride)
@@ -706,7 +746,7 @@ void FMCPerkPreviewRunner::TickStep(float Step)
 void FMCPerkPreviewRunner::Release()
 {Impl->RefreshContext();if(Impl->Adapter)Impl->Adapter->Release(Impl->Context);}
 void FMCPerkPreviewRunner::Cancel()
-{Impl->RefreshContext();if(Impl->Adapter)Impl->Adapter->Cancel(Impl->Context);Impl->bPendingCommit=false;Impl->bRunning=false;}
+{Impl->RefreshContext();if(Impl->Adapter)Impl->Adapter->Cancel(Impl->Context);Impl->bPendingCommit=false;Impl->bRunning=false;Impl->StopSceneAudio();}
 
 void FMCPerkPreviewRunner::SetPaused(bool bPaused)
 {
@@ -714,6 +754,7 @@ void FMCPerkPreviewRunner::SetPaused(bool bPaused)
     if(auto* World=GetWorld();World && IsAudioEnabled())
         for(TActorIterator<AMCEventSFXPlayer> It(World);It;++It)
             for(auto* Voice:It->GetVoiceComponents())if(Voice)Voice->SetPaused(bPaused);
+    if(auto* Scene=Impl->SceneAudio.Get())Scene->SetLocalPreviewSettings(bPaused,Impl->SceneMusicGain,Impl->SceneAmbienceGain);
 }
 bool FMCPerkPreviewRunner::IsPaused() const {return Impl->bPaused;}
 bool FMCPerkPreviewRunner::IsRunning() const {return Impl->bPendingCommit || Impl->bRunning;}
@@ -723,6 +764,7 @@ bool FMCPerkPreviewRunner::SetAudioEnabled(bool bEnabled,FString& Error)
     if(!bEnabled)
     {
         bRestoreAudioOnNextPreview=false;
+        Impl->StopSceneAudio();
         auto* W=GetWorld();
         if(W)
         {
@@ -758,11 +800,46 @@ bool FMCPerkPreviewRunner::SetAudioEnabled(bool bEnabled,FString& Error)
     }
     Impl->PreviewAudioDevice=MoveTemp(Candidate);W->SetAudioDevice(Impl->PreviewAudioDevice);W->bAllowAudioPlayback=true;
     Impl->PreviewAudioDevice->SetDeviceMuted(false);Impl->PreviewAudioDevice->SetTransientPrimaryVolume(.65f);
-    Impl->bAudioEnabled=true;Impl->AudioStatus=TEXT("Звук предпросмотра включён.");return true;
+    Impl->bAudioEnabled=true;Impl->AudioStatus=TEXT("Звук предпросмотра включён.");
+    return Impl->RestoreSceneAudio(Error);
 }
 bool FMCPerkPreviewRunner::IsAudioEnabled()const
 {return Impl->bAudioEnabled && Impl->PreviewAudioDevice.IsValid() && GetWorld() && GetWorld()->AllowAudioPlayback();}
 FString FMCPerkPreviewRunner::GetAudioStatus()const{return Impl->AudioStatus;}
+bool FMCPerkPreviewRunner::SetSceneAudio(UMCSoundPalette* Palette,FName Scene,FString& Error)
+{
+    Error.Reset();
+    if(bShuttingDown){Error=TEXT("Предпросмотр завершает работу редактора.");return false;}
+    if(!IsValid(Palette) || (!Palette->HasAnyFlags(RF_Transient) && Palette->GetOutermost()!=GetTransientPackage())) {
+        Error=TEXT("Фоновый предпросмотр принимает только временную несохранённую палитру.");return false;
+    }
+    FMCSoundScene Settings;
+    if(Scene.IsNone() || !Palette->GetScene(Scene,Settings)) {
+        Error=TEXT("В палитре нет выбранной фоновой сцены: ")+Scene.ToString();return false;
+    }
+    Impl->ScenePalette.Reset(Palette);Impl->SceneContext=Scene;
+    return Impl->RestoreSceneAudio(Error);
+}
+void FMCPerkPreviewRunner::ClearSceneAudio()
+{
+    Impl->StopSceneAudio();Impl->ScenePalette.Reset();Impl->SceneContext=NAME_None;
+}
+void FMCPerkPreviewRunner::SetSceneAudioMix(float MusicGain,float AmbienceGain)
+{
+    Impl->SceneMusicGain=FMath::IsFinite(MusicGain)?FMath::Clamp(MusicGain,0.f,2.f):0.f;
+    Impl->SceneAmbienceGain=FMath::IsFinite(AmbienceGain)?FMath::Clamp(AmbienceGain,0.f,2.f):0.f;
+    if(auto* Scene=Impl->SceneAudio.Get())Scene->SetLocalPreviewSettings(Impl->bPaused,Impl->SceneMusicGain,Impl->SceneAmbienceGain);
+}
+bool FMCPerkPreviewRunner::HasSceneAudio()const
+{return IsAudioEnabled() && Impl->SceneAudio.IsValid();}
+FString FMCPerkPreviewRunner::GetSceneAudioStatus()const
+{
+    if(!Impl->ScenePalette.IsValid())return TEXT("Фон предпросмотра не выбран.");
+    if(!IsAudioEnabled())return FString::Printf(TEXT("Фон %s выбран; звук предпросмотра выключен."),*Impl->SceneContext.ToString());
+    if(const auto* Scene=Impl->SceneAudio.Get())return FString::Printf(TEXT("Фон %s · голосов: %d%s"),
+        *Impl->SceneContext.ToString(),Scene->GetVoiceComponents().Num(),Impl->bPaused?TEXT(" · пауза"):TEXT(""));
+    return FString::Printf(TEXT("Фон %s остановлен."),*Impl->SceneContext.ToString());
+}
 void FMCPerkPreviewRunner::SetAudioListenerTransform(const FTransform& Transform,float DeltaSeconds)
 {
     if(IsAudioEnabled() && !Transform.ContainsNaN() && FMath::IsFinite(DeltaSeconds))

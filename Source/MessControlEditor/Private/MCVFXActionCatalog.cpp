@@ -14,6 +14,49 @@ namespace
 TMap<FName,FMCVFXActionCatalogueEntry>& SourceEntries()
 {static TMap<FName,FMCVFXActionCatalogueEntry> Entries;return Entries;}
 
+void ResolveNavigation(FMCVFXActionCatalogueEntry& Entry)
+{
+    // These are declared source namespaces, not a second action inventory or
+    // an inference from a translated display name / technical SourceOwner.
+    if(Entry.OwnerID.IsNone())
+    {
+        const FString ID=Entry.ID.ToString();
+        struct FOwnerNamespace { const TCHAR* Prefix; const TCHAR* ID; const TCHAR* Label; };
+        static const FOwnerNamespace Owners[]={
+            {TEXT("Boss.NutKnight."),TEXT("Boss.NutKnight"),TEXT("Рыцарь")},
+            {TEXT("Boss.NutMage."),TEXT("Boss.NutMage"),TEXT("Маг")},
+            {TEXT("Enemy.Nut."),TEXT("Enemy.Nut"),TEXT("Обычный орех")},
+            {TEXT("Enemy.NutKamikaze."),TEXT("Enemy.NutKamikaze"),TEXT("Орех-камикадзе")},
+            {TEXT("Character."),TEXT("Character"),TEXT("Персонаж")},
+            {TEXT("Player."),TEXT("Player"),TEXT("Персонаж")},
+            {TEXT("Hub."),TEXT("Hub"),TEXT("Хаб")}
+        };
+        for(const auto& Owner:Owners)if(ID.StartsWith(Owner.Prefix))
+        {Entry.OwnerID=Owner.ID;Entry.OwnerLabel=FText::FromString(Owner.Label);break;}
+        if(Entry.OwnerID.IsNone()) {Entry.OwnerID=Entry.ID;Entry.OwnerLabel=Entry.Label;}
+    }
+    if(Entry.OwnerLabel.IsEmpty())Entry.OwnerLabel=FText::FromName(Entry.OwnerID);
+    // A source reaction with an unmapped category still belongs to its declared
+    // owner family. Keep it with that owner's actions instead of duplicating
+    // e.g. Knight under both Bosses and the fallback Other section.
+    if(Entry.Section==EMCVFXActionSection::Other)
+    {
+        if(Entry.OwnerID==TEXT("Boss.NutKnight")||Entry.OwnerID==TEXT("Boss.NutMage"))Entry.Section=EMCVFXActionSection::Bosses;
+        else if(Entry.OwnerID==TEXT("Enemy.Nut")||Entry.OwnerID==TEXT("Enemy.NutKamikaze")||Entry.OwnerID==TEXT("Character")||Entry.OwnerID==TEXT("Player"))Entry.Section=EMCVFXActionSection::General;
+        else if(Entry.OwnerID==TEXT("Hub"))Entry.Section=EMCVFXActionSection::InterfaceHub;
+    }
+    if(Entry.ActionLabel.IsEmpty())
+    {
+        FString Name=Entry.Label.ToString();
+        if(Entry.OwnerID!=Entry.ID)
+        {
+            int32 Separator=INDEX_NONE;
+            if(Name.FindChar(TEXT('·'),Separator))Name=Name.Mid(Separator+1).TrimStartAndEnd();
+        }
+        Entry.ActionLabel=FText::FromString(Name);
+    }
+}
+
 const AMCActiveSkillAction* ActionDefaults(const FMCPerkDefinition& Row)
 {
     const auto* Effect=Row.EffectClass?Cast<UMCActiveSkillPerkEffect>(Row.EffectClass->GetDefaultObject()):nullptr;
@@ -148,6 +191,7 @@ TArray<FMCVFXActionCatalogueEntry> MCVFXActionCatalog::GetCatalogue()
             ?Table->FindRow<FMCPerkDefinition>(E.ID,TEXT("VFX shared catalogue"),false):nullptr;
         ResolveProvider(E,Row,Table);
     }
+    for(auto& Entry:Result)ResolveNavigation(Entry);
     Result.Sort([](const auto& A,const auto& B){
         if(A.bSupportsPreview!=B.bSupportsPreview) return A.bSupportsPreview;
         if(A.Category!=B.Category) return A.Category.LexicalLess(B.Category);

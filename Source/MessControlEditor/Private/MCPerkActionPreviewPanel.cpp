@@ -628,6 +628,11 @@ namespace
     TSharedPtr<FMCPerkPreviewRunner> SharedRunner;
     TStrongObjectPtr<UMCPerkVFXProfile> SharedWorking;
     FName SharedPerkID;
+    FGuid SharedPreviewOwner;
+    FName SharedPreviewOwnerAction;
+    uint64 SharedPreviewEpoch=0;
+    void InvalidatePreviewLease()
+    {SharedPreviewOwner.Invalidate();SharedPreviewOwnerAction=NAME_None;++SharedPreviewEpoch;}
     FMCVFXCanonicalProfileState SharedCanonical;
     bool bHasSharedCanonical=false,bSharedWorkingModified=false;
     FTSTicker::FDelegateHandle SharedClockHandle;
@@ -638,7 +643,7 @@ namespace
         SharedClockHandle=FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([](float DeltaSeconds) {
             // No hidden idle-world simulation: close/Stop resets IsRunning.
             // Warmup is included by the native runner's IsRunning contract.
-            if(SharedRunner && SharedRunner->IsRunning() && !SharedRunner->IsPaused())SharedRunner->Tick(DeltaSeconds);
+            if(SharedRunner && (SharedRunner->IsRunning() || SharedRunner->HasSceneAudio()) && !SharedRunner->IsPaused())SharedRunner->Tick(DeltaSeconds);
             return true;
         }));
     }
@@ -682,6 +687,7 @@ void MCPerkActionPreviewPanel::Unregister()
     FTSTicker::GetCoreTicker().RemoveTicker(SharedClockHandle);SharedClockHandle.Reset();
     SharedWorking.Reset();SharedRunner.Reset();SharedPerkID=NAME_None;
     SharedCanonical=FMCVFXCanonicalProfileState();bHasSharedCanonical=false;bSharedWorkingModified=false;
+    InvalidatePreviewLease();
 }
 void MCPerkActionPreviewPanel::Open(){MCVFXActionWorkspace::Open();}
 bool MCPerkActionPreviewPanel::EnsureContext(FName PerkID,FString& OutError)
@@ -696,9 +702,9 @@ bool MCPerkActionPreviewPanel::EnsureContext(FName PerkID,FString& OutError)
     if(!SharedRunner){SharedRunner=MakeShared<FMCPerkPreviewRunner>();if(!SharedRunner->Initialize()){OutError=SharedRunner->GetStatus();SharedRunner.Reset();return false;}}
     EnsureSharedClock();
     if(SharedPerkID==PerkID && SharedWorking.IsValid()) {
-        if(!NeedsCanonical && !bHasSharedCanonical)return true;
+        if(!NeedsCanonical && !bHasSharedCanonical){InvalidatePreviewLease();return true;}
         FString StaleReason;
-        if(NeedsCanonical && bHasSharedCanonical && MCVFXProfileBindings::ValidateUnchanged(SharedCanonical,StaleReason))return true;
+        if(NeedsCanonical && bHasSharedCanonical && MCVFXProfileBindings::ValidateUnchanged(SharedCanonical,StaleReason)){InvalidatePreviewLease();return true;}
         if(bSharedWorkingModified){OutError=TEXT("Канонический профиль изменился; сохраните рабочую копию или выберите действие заново. ")+StaleReason;return false;}
     }
     SharedRunner->Reset();SharedPerkID=PerkID;
@@ -707,7 +713,33 @@ bool MCPerkActionPreviewPanel::EnsureContext(FName PerkID,FString& OutError)
     else SharedWorking.Reset(NewObject<UMCPerkVFXProfile>(GetTransientPackage(),NAME_None,RF_Transient));
     SharedWorking->ClearFlags(RF_Public|RF_Standalone);SharedWorking->SetFlags(RF_Transient|RF_Transactional);
     SharedCanonical=MoveTemp(Canonical);bHasSharedCanonical=NeedsCanonical;bSharedWorkingModified=false;
+    InvalidatePreviewLease();
     return true;
+}
+bool MCPerkActionPreviewPanel::ClaimPreview(FName ActionID,FGuid OwnerView,uint64& OutEpoch,FString& Error)
+{
+    OutEpoch=0;
+    if(!IsInGameThread() || !OwnerView.IsValid()){Error=TEXT("Предпросмотр требует действующий ID окна на потоке редактора.");return false;}
+    if(!EnsureContext(ActionID,Error))return false;
+    if(!SharedRunner){Error=TEXT("Песочница предпросмотра недоступна.");return false;}
+    SharedRunner->ClearSceneAudio();SharedRunner->Reset();
+    SharedPreviewOwner=OwnerView;SharedPreviewOwnerAction=ActionID;OutEpoch=++SharedPreviewEpoch;
+    return true;
+}
+bool MCPerkActionPreviewPanel::OwnsPreview(FGuid OwnerView,uint64 Epoch)
+{return OwnerView.IsValid()&&Epoch!=0&&SharedRunner&&SharedPreviewOwner==OwnerView
+    &&SharedPreviewEpoch==Epoch&&SharedPerkID==SharedPreviewOwnerAction;}
+TSharedPtr<FMCPerkPreviewRunner> MCPerkActionPreviewPanel::GetOwnedRunner(FGuid OwnerView,uint64 Epoch)
+{return OwnsPreview(OwnerView,Epoch)?SharedRunner:nullptr;}
+void MCPerkActionPreviewPanel::ReleasePreview(FGuid OwnerView,uint64 Epoch)
+{
+    if(!OwnsPreview(OwnerView,Epoch))return;
+    SharedRunner->ClearSceneAudio();SharedRunner->Reset();InvalidatePreviewLease();
+}
+void MCPerkActionPreviewPanel::StopActionPreview(FName ActionID)
+{
+    if(ActionID.IsNone()||SharedPerkID!=ActionID||!SharedRunner)return;
+    SharedRunner->ClearSceneAudio();SharedRunner->Reset();InvalidatePreviewLease();
 }
 FName MCPerkActionPreviewPanel::GetContextPerkID(){return SharedPerkID;}
 TSharedPtr<FMCPerkPreviewRunner> MCPerkActionPreviewPanel::GetActiveRunner(){return SharedRunner;}
@@ -739,6 +771,7 @@ bool MCPerkActionPreviewPanel::AuditionWorkingSlot(FName Stage,const FMCPerkVFXS
     TStrongObjectPtr<UMCPerkVFXProfile> Trial(DuplicateObject<UMCPerkVFXProfile>(SharedWorking.Get(),GetTransientPackage()));
     Trial->ClearFlags(RF_Public|RF_Standalone);Trial->SetFlags(RF_Transient);Trial->Slots.FindOrAdd(Stage)=Slot;
     if(!Trial->ValidateForEvents(SharedCanonical.AllowedEvents,OutError))return false;
+    InvalidatePreviewLease();
     if(!SharedRunner->StartAction(SharedPerkID,EMCPerkPreviewScenario::Target,Trial.Get())){OutError=SharedRunner->GetStatus();return false;}
     return true;
 }
@@ -760,8 +793,8 @@ TSharedRef<SWidget> MCPerkActionPreviewPanel::MakeSharedActionViewport(TFunction
     return Box;
 }
 bool MCPerkActionPreviewPanel::RunScenario(EMCPerkPreviewScenario Scenario)
-{return SharedRunner && SharedRunner->StartAction(SharedPerkID,Scenario,SharedWorking.Get());}
-void MCPerkActionPreviewPanel::ResetPreview(){if(auto Runner=GetActiveRunner())Runner->Reset();}
+{InvalidatePreviewLease();return SharedRunner && SharedRunner->StartAction(SharedPerkID,Scenario,SharedWorking.Get());}
+void MCPerkActionPreviewPanel::ResetPreview(){InvalidatePreviewLease();if(auto Runner=GetActiveRunner()){Runner->ClearSceneAudio();Runner->Reset();}}
 
 static FAutoConsoleCommand OpenPerkVFXPreview(TEXT("MC.PerkVFXPreview"),TEXT("Open the isolated perk action and VFX slot preview."),FConsoleCommandDelegate::CreateStatic(&MCPerkActionPreviewPanel::Open));
 

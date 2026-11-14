@@ -30,6 +30,7 @@ namespace MCFishingFeedback
     constexpr float PulseSeconds=.38f;
     constexpr float FullSeconds=1.5f;
     constexpr int32 MaximumPending=5; // Plus the current receipt: at most six.
+    constexpr float MissingCounterGraceSeconds=2.f;
     const FVector2D BadgeSize(356,124);
     const FVector2D TokenOffset(-114,0);
 
@@ -159,10 +160,12 @@ void UMCFishingRewardWidget::PresentCatch(EMCHubItemRarity Rarity,int32 FishCoin
         auto& Tail=Pending.Last();
         if(Tail.Amount>0 && FishCoins>0) {
             Tail.Amount=int32(FMath::Min<int64>(int64(Tail.Amount)+FishCoins,MAX_int32));
-            Tail.WalletAfter=WalletAfter;Tail.bMerged=true;
-        } else Tail=Receipt; // Never turn a full-wallet receipt into a credited flight.
+            Tail.WalletAfter=WalletAfter;Tail.bMerged=true;Tail.bWalletCreditObserved=false;
+        } else if(FishCoins>0 || Tail.Amount==0) Tail=Receipt;
+        // A full-wallet message cannot discard an unarrived credited receipt.
     }
     if(!bActive) StartNext();
+    OnCounterBalanceChanged.Broadcast();
 }
 
 void UMCFishingRewardWidget::StartNext()
@@ -170,11 +173,35 @@ void UMCFishingRewardWidget::StartNext()
     RestoreCounterScale();
     if(Pending.IsEmpty()) {bActive=false;return;}
     Active=Pending[0];Pending.RemoveAt(0,EAllowShrinking::No);
-    AnimationAge=0;bActive=true;bSuppressed=true;bFlightStarted=false;bHasCounterEndpoint=false;
+    AnimationAge=0;MissingCounterSeconds=0;bActive=true;bSuppressed=true;bFlightStarted=false;bHasCounterEndpoint=false;bCounterArrived=false;
     RefreshCopy();
 }
 
 bool UMCFishingRewardWidget::IsAnimating() const {return bActive || !Pending.IsEmpty();}
+
+int32 UMCFishingRewardWidget::GetDisplayedWallet(int32 AuthoritativeWallet) const
+{
+    int64 Deferred=0;
+    auto Unarrived=[&](const FCatchReceipt& Receipt) {
+        // A reliable catch receipt can precede property replication. Hide only
+        // its already replicated interval until that credit has been observed.
+        // Then retain the full deferral across debits/refunds at the grill.
+        if(AuthoritativeWallet>=Receipt.WalletAfter) Receipt.bWalletCreditObserved=true;
+        Deferred+=Receipt.bWalletCreditObserved?Receipt.Amount
+            :FMath::Clamp<int64>(int64(AuthoritativeWallet)-(int64(Receipt.WalletAfter)-Receipt.Amount),0,Receipt.Amount);
+    };
+    if(bActive && !bCounterArrived) Unarrived(Active);
+    for(const auto& Receipt:Pending) Unarrived(Receipt);
+    return int32(FMath::Max<int64>(0,int64(AuthoritativeWallet)-Deferred));
+}
+
+void UMCFishingRewardWidget::UpdateCounterArrival()
+{
+    if(!bActive || bCounterArrived || Active.Amount<=0 || !bHasCounterEndpoint
+        || AnimationAge<MCFishingFeedback::ArrivalAt) return;
+    bCounterArrived=true;
+    OnCounterBalanceChanged.Broadcast();
+}
 
 void UMCFishingRewardWidget::RefreshCopy()
 {
@@ -212,9 +239,11 @@ void UMCFishingRewardWidget::RestoreCounterScale()
 
 void UMCFishingRewardWidget::ClearPresentation()
 {
-    RestoreCounterScale();Pending.Reset();bActive=false;bSuppressed=true;bFlightStarted=false;bHasCounterEndpoint=false;
-    AnimationAge=0;CounterIcon.Reset();CounterCard.Reset();PresentationWorld.Reset();
+    const bool HadReceipts=IsAnimating();
+    RestoreCounterScale();Pending.Reset();bActive=false;bSuppressed=true;bFlightStarted=false;bHasCounterEndpoint=false;bCounterArrived=false;
+    AnimationAge=0;MissingCounterSeconds=0;CounterIcon.Reset();CounterCard.Reset();PresentationWorld.Reset();
     Invalidate(EInvalidateWidgetReason::Paint);
+    if(HadReceipts) OnCounterBalanceChanged.Broadcast();
 }
 
 void UMCFishingRewardWidget::NativeDestruct() {UnifiedView.Reset();bUnifiedViewPrepared=false;bHasPresentationGeometry=false;ClearPresentation();Super::NativeDestruct();}
@@ -289,6 +318,15 @@ void UMCFishingRewardWidget::NativeTick(const FGeometry& Geometry,float DeltaSec
     if(PresentationWorld.Get()!=GetWorld()) {ClearPresentation();return;}
     bSuppressed=ShouldSuppress() || Geometry.GetLocalSize().X<1 || Geometry.GetLocalSize().Y<1;
     if(bSuppressed) {RestoreCounterScale();return;}
+    bHasCounterEndpoint=CounterAnchor(Geometry,FlightEnd);
+    if(Active.Amount>0 && !bCounterArrived && !bHasCounterEndpoint) {
+        MissingCounterSeconds+=FMath::Max(0.f,DeltaSeconds);
+        // Wait for a transient layout/view handoff, then cancel cosmetic
+        // deferral if the counter disappeared. Never strand a hidden balance.
+        if(MissingCounterSeconds>=MCFishingFeedback::MissingCounterGraceSeconds) ClearPresentation();
+        return;
+    }
+    MissingCounterSeconds=0;
     if(!bFlightStarted) BadgeCenter=HeroAnchor(Geometry);
     const float NextAge=AnimationAge+FMath::Max(0.f,DeltaSeconds);
     if(Active.Amount>0 && !bFlightStarted && NextAge>=MCFishingFeedback::FlightAt) {
@@ -300,7 +338,7 @@ void UMCFishingRewardWidget::NativeTick(const FGeometry& Geometry,float DeltaSec
         FlightStartNormalized=FVector2D(Start.X/Size.X,Start.Y/Size.Y);bFlightStarted=true;
     }
     AnimationAge=NextAge;
-    bHasCounterEndpoint=CounterAnchor(Geometry,FlightEnd);
+    UpdateCounterArrival();
     if(Active.Amount>0 && AnimationAge>=MCFishingFeedback::ArrivalAt && bHasCounterEndpoint) {
         if(!bCounterPulsing) if(auto* Card=CounterCard.Get()) {
             PulsedCard=Card;OriginalCounterScale=Card->GetRenderTransform().Scale;

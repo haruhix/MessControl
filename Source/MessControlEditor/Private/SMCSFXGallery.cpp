@@ -1,5 +1,6 @@
 ﻿#include "SMCSFXGallery.h"
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "MCComposerStyle.h"
 #include "HAL/CriticalSection.h"
 #include "Misc/ScopeLock.h"
 #include "Templates/Atomic.h"
@@ -12,6 +13,8 @@
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SSearchBox.h"
 #include "Widgets/Layout/SBorder.h"
+#include "Widgets/Layout/SBox.h"
+#include "Widgets/Layout/SScrollBox.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Text/STextBlock.h"
 #include "Widgets/Views/STableRow.h"
@@ -107,34 +110,79 @@ void SMCSFXGallery::Construct(const FArguments& Args)
     FilesLoaded=Registry.OnFilesLoaded().AddLambda([State]{State->bPending.Store(true);});
     // Subscribe before the initial snapshot so background registry changes cannot be missed.
     RefreshAssets();
-    ChildSlot[SNew(SVerticalBox)
-        +SVerticalBox::Slot().AutoHeight().Padding(5)[SNew(STextBlock).Text_Lambda([this]{return FText::Format(LOCTEXT("ForEvent","Звуки для события: {0}"),Context.EventLabel);}).AutoWrapText(true)]
-        +SVerticalBox::Slot().AutoHeight().Padding(4)[SNew(SSearchBox).HintText(LOCTEXT("Search","Найти звук по имени, типу или пути…"))
-            .OnTextChanged_Lambda([this](const FText& T){Query=T.ToString();Filter();})]
-        +SVerticalBox::Slot().AutoHeight().Padding(5)[SNew(STextBlock)
-            .Text(LOCTEXT("SoundTypes","Sound Wave (WAV), Sound Cue, MetaSound Source")).AutoWrapText(true)]
-        +SVerticalBox::Slot().AutoHeight().Padding(5)[SNew(STextBlock).Text_Lambda([this]{return FText::Format(LOCTEXT("Count","Найдено {0} из {1}"),FText::AsNumber(Filtered.Num()),FText::AsNumber(All.Num()));})]
-        +SVerticalBox::Slot().FillHeight(1)[SAssignNew(List,SListView<FItem>).ListItemsSource(&Filtered).SelectionMode(ESelectionMode::Single)
-            .OnGenerateRow(this,&SMCSFXGallery::Row)
-            .OnMouseButtonDoubleClick_Lambda([this](FItem Item){if(Item&&Context.OpenSource)Context.OpenSource(*Item);})
-            .OnSelectionChanged_Lambda([this](FItem Item,ESelectInfo::Type Origin){if(Item&&Origin!=ESelectInfo::Direct){Selected=*Item;SelectedAssetPath=Selected.GetSoftObjectPath();RegistryRefreshState->Select(SelectedAssetPath);SelectedAssetUnavailableReason=GetAssetUnavailableReason(Selected);if(Context.Select)Context.Select(Selected);}})]
-        +SVerticalBox::Slot().AutoHeight().Padding(5)[SNew(STextBlock).Visibility_Lambda([this]{return Filtered.IsEmpty()?EVisibility::Visible:EVisibility::Collapsed;})
-            .Text(LOCTEXT("Empty","Нет подходящих звуков. Очистите строку поиска; выбранный звук сохранён.")).AutoWrapText(true)]
-        +SVerticalBox::Slot().AutoHeight().Padding(5)[SNew(STextBlock).Text_Lambda([this]{return Selected.IsValid()?FText::FromName(Selected.AssetName):!SelectedAssetPath.IsNull()?LOCTEXT("SelectedUnavailable","Выбранный звук недоступен"):LOCTEXT("SelectHint","Клик — выбрать звук. Примерка и добавление выполняются отдельно.");}).AutoWrapText(true)]
-        +SVerticalBox::Slot().AutoHeight().Padding(5)[SNew(STextBlock)
-            .Visibility_Lambda([this]{return SelectedAssetUnavailableReason.IsEmpty()?EVisibility::Collapsed:EVisibility::Visible;})
-            .Text_Lambda([this]{return SelectedAssetUnavailableReason;}).AutoWrapText(true).ColorAndOpacity(FLinearColor(1.f,.67f,.3f))]
-        +SVerticalBox::Slot().AutoHeight().Padding(4)[SNew(SHorizontalBox)
-            +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,4,0)[SNew(SButton).Text(LOCTEXT("Audition","Примерить в действии"))
-                .IsEnabled_Lambda([this]{return Context.bCanAudition&&Selected.IsValid()&&SelectedAssetUnavailableReason.IsEmpty();})
-                .ToolTipText_Lambda([this]{return SelectedAssetUnavailableReason.IsEmpty()?Context.AuditionReason:SelectedAssetUnavailableReason;})
-                .OnClicked_Lambda([this]{if(SelectedAssetUnavailableReason.IsEmpty()&&Context.AuditionInAction)Context.AuditionInAction(Selected);return FReply::Handled();})]
-            +SHorizontalBox::Slot().FillWidth(1)[SNew(SButton).Text(LOCTEXT("Add","Добавить звук"))
-                .IsEnabled_Lambda([this]{return Context.bCanAdd&&Selected.IsValid()&&SelectedAssetUnavailableReason.IsEmpty();})
-                .ToolTipText_Lambda([this]{return SelectedAssetUnavailableReason;})
-                .OnClicked_Lambda([this]{if(SelectedAssetUnavailableReason.IsEmpty()&&Context.Add)Context.Add(Selected);return FReply::Handled();})]]
-        +SVerticalBox::Slot().AutoHeight().Padding(5)[SNew(STextBlock).Visibility_Lambda([this]{return Context.bCanAudition?EVisibility::Collapsed:EVisibility::Visible;})
-            .Text_Lambda([this]{return Context.AuditionReason;}).AutoWrapText(true)]];
+    using namespace MCComposerStyle;
+    ChildSlot[SNew(SBorder).BorderImage(&PanelBrush()).BorderBackgroundColor(AppFill).Padding(8)
+        [SNew(SVerticalBox)
+        +SVerticalBox::Slot().AutoHeight().Padding(0,0,0,6)
+        [SNew(SHorizontalBox)
+            +SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0,0,12,0)
+            [SNew(SBox).WidthOverride(220)
+                [SNew(SVerticalBox)
+                    +SVerticalBox::Slot().AutoHeight()[SNew(STextBlock).Text(LOCTEXT("LibraryTitle","Библиотека звуков")).ColorAndOpacity(WorkspaceMint)]
+                    +SVerticalBox::Slot().AutoHeight()[SNew(STextBlock)
+                        .Text_Lambda([this]{return FText::Format(LOCTEXT("ForEvent","Событие: {0}"),Context.EventLabel);})
+                        .ToolTipText_Lambda([this]{return Context.EventLabel;}).OverflowPolicy(ETextOverflowPolicy::Ellipsis)
+                        .Font(FAppStyle::GetFontStyle(TEXT("SmallFont"))).ColorAndOpacity(Muted)]]]
+            +SHorizontalBox::Slot().FillWidth(1).VAlign(VAlign_Center)
+            [SNew(SSearchBox).HintText(LOCTEXT("Search","Найти звук по имени, типу или пути…"))
+                .OnTextChanged_Lambda([this](const FText& T){Query=T.ToString();Filter();})]
+            +SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(12,0,0,0)
+            [SNew(STextBlock).Text_Lambda([this]{return FText::Format(LOCTEXT("Count","{0} из {1}"),FText::AsNumber(Filtered.Num()),FText::AsNumber(All.Num()));})
+                .ToolTipText(LOCTEXT("CountHint","Количество звуков, соответствующих поиску, и общее количество источников."))
+                .ColorAndOpacity(Muted)]]
+        +SVerticalBox::Slot().FillHeight(1)
+        [SNew(SHorizontalBox)
+            +SHorizontalBox::Slot().FillWidth(1)
+            [SNew(SVerticalBox)
+                +SVerticalBox::Slot().FillHeight(1)
+                [SNew(SBorder).BorderImage(&PanelBrush()).BorderBackgroundColor(GraphFill).Padding(2)
+                    [SAssignNew(List,SListView<FItem>).ListItemsSource(&Filtered).SelectionMode(ESelectionMode::Single)
+                        .OnGenerateRow(this,&SMCSFXGallery::Row)
+                        .OnMouseButtonDoubleClick_Lambda([this](FItem Item){if(Item&&Context.OpenSource)Context.OpenSource(*Item);})
+                        .OnSelectionChanged_Lambda([this](FItem Item,ESelectInfo::Type Origin){if(Item&&Origin!=ESelectInfo::Direct){Selected=*Item;SelectedAssetPath=Selected.GetSoftObjectPath();RegistryRefreshState->Select(SelectedAssetPath);SelectedAssetUnavailableReason=GetAssetUnavailableReason(Selected);if(Context.Select)Context.Select(Selected);}})]]
+                +SVerticalBox::Slot().AutoHeight().Padding(4,3,4,0)
+                [SNew(STextBlock).Visibility_Lambda([this]{return Filtered.IsEmpty()?EVisibility::Visible:EVisibility::Collapsed;})
+                    .Text(LOCTEXT("Empty","Нет подходящих звуков. Очистите поиск; выбранный источник сохранён."))
+                    .AutoWrapText(true).ColorAndOpacity(Muted)]]
+            +SHorizontalBox::Slot().AutoWidth().Padding(8,0,0,0)
+            [SNew(SBox).WidthOverride(280)
+                [SNew(SBorder).BorderImage(&SelectedPanelBrush()).BorderBackgroundColor(PanelFill).Padding(8)
+                    [SNew(SVerticalBox)
+                        +SVerticalBox::Slot().FillHeight(1)
+                        [SNew(SScrollBox)
+                            +SScrollBox::Slot()
+                            [SNew(SVerticalBox)
+                                +SVerticalBox::Slot().AutoHeight()[SNew(STextBlock).Text(LOCTEXT("SelectedTitle","ВЫБРАННЫЙ ИСТОЧНИК"))
+                                    .Font(FAppStyle::GetFontStyle(TEXT("SmallFont"))).ColorAndOpacity(Muted)]
+                                +SVerticalBox::Slot().AutoHeight().Padding(0,4,0,0)
+                                [SNew(STextBlock).Text_Lambda([this]{return Selected.IsValid()?FText::FromName(Selected.AssetName):!SelectedAssetPath.IsNull()?LOCTEXT("SelectedUnavailable","Выбранный звук недоступен"):LOCTEXT("SelectHint","Выберите звук в списке.");})
+                                    .AutoWrapText(true).ColorAndOpacity(TextColor)]
+                                +SVerticalBox::Slot().AutoHeight().Padding(0,3,0,0)
+                                [SNew(STextBlock).Text_Lambda([this]{return Selected.IsValid()?FText::FromName(Selected.AssetClassPath.GetAssetName()):FText::GetEmpty();})
+                                    .Font(FAppStyle::GetFontStyle(TEXT("SmallFont"))).ColorAndOpacity(Muted)]
+                                +SVerticalBox::Slot().AutoHeight().Padding(0,3,0,0)
+                                [SNew(STextBlock).Text_Lambda([this]{return FText::FromString(SelectedAssetPath.ToString());})
+                                    .AutoWrapText(true).Font(FAppStyle::GetFontStyle(TEXT("SmallFont"))).ColorAndOpacity(Muted)]
+                                +SVerticalBox::Slot().AutoHeight().Padding(0,5,0,0)
+                                [SNew(STextBlock).Visibility_Lambda([this]{return SelectedAssetUnavailableReason.IsEmpty()?EVisibility::Collapsed:EVisibility::Visible;})
+                                    .Text_Lambda([this]{return SelectedAssetUnavailableReason;}).AutoWrapText(true).ColorAndOpacity(TextColor)]
+                                +SVerticalBox::Slot().AutoHeight().Padding(0,5,0,0)
+                                [SNew(STextBlock).Visibility_Lambda([this]{return Context.bCanAudition?EVisibility::Collapsed:EVisibility::Visible;})
+                                    .Text_Lambda([this]{return Context.AuditionReason;}).AutoWrapText(true).ColorAndOpacity(Muted)]]]
+                        +SVerticalBox::Slot().AutoHeight().Padding(0,6,0,0)
+                        [SNew(SHorizontalBox)
+                            +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,5,0)
+                            [SNew(SButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(6,5)).ForegroundColor(TextColor)
+                                .Text(LOCTEXT("Audition","Примерить в действии"))
+                                .IsEnabled_Lambda([this]{return Context.bCanAudition&&Selected.IsValid()&&SelectedAssetUnavailableReason.IsEmpty();})
+                                .ToolTipText_Lambda([this]{return SelectedAssetUnavailableReason.IsEmpty()?Context.AuditionReason:SelectedAssetUnavailableReason;})
+                                .OnClicked_Lambda([this]{if(SelectedAssetUnavailableReason.IsEmpty()&&Context.AuditionInAction)Context.AuditionInAction(Selected);return FReply::Handled();})]
+                            +SHorizontalBox::Slot().AutoWidth()
+                            [SNew(SButton).ButtonStyle(&SolidStyle()).ContentPadding(FMargin(8,5)).ButtonColorAndOpacity(WorkspaceMint).ForegroundColor(Ink)
+                                .Text(LOCTEXT("Add","+ Слой"))
+                                .IsEnabled_Lambda([this]{return Context.bCanAdd&&Selected.IsValid()&&SelectedAssetUnavailableReason.IsEmpty();})
+                                .ToolTipText_Lambda([this]{return SelectedAssetUnavailableReason;})
+                                .OnClicked_Lambda([this]{if(SelectedAssetUnavailableReason.IsEmpty()&&Context.Add)Context.Add(Selected);return FReply::Handled();})]]]]]]]];
 }
 void SMCSFXGallery::Filter()
 {
@@ -148,20 +196,24 @@ TSharedRef<ITableRow> SMCSFXGallery::Row(FItem Item,const TSharedRef<STableViewB
 {
     const FText UnavailableReason=GetAssetUnavailableReason(*Item);
     const FString Hint=UnavailableReason.IsEmpty()?TEXT("Перетащите звук на событие или группу."):UnavailableReason.ToString();
-    return SNew(STableRow<FItem>,Owner).Padding(6)
+    using namespace MCComposerStyle;
+    return SNew(STableRow<FItem>,Owner).Padding(FMargin(6,3))
         .ToolTipText(FText::FromString(Hint+TEXT("\nДвойной клик — открыть источник.\n")+Item->GetSoftObjectPath().ToString()))
         .OnDragDetected_Lambda([this,Item,UnavailableReason](const FGeometry&,const FPointerEvent&){Selected=*Item;SelectedAssetPath=Selected.GetSoftObjectPath();RegistryRefreshState->Select(SelectedAssetPath);SelectedAssetUnavailableReason=UnavailableReason;
             if(!Context.bCanAdd||!UnavailableReason.IsEmpty())return FReply::Handled();
             return Context.BeginDrag?Context.BeginDrag(*Item):FReply::Unhandled();})
         [SNew(SHorizontalBox)
-        +SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0,0,7,0)[SNew(STextBlock).Text(FText::FromString(TEXT("♪")))]
-        +SHorizontalBox::Slot().FillWidth(1)[SNew(SVerticalBox)
-            +SVerticalBox::Slot().AutoHeight()[SNew(STextBlock).Text(FText::FromName(Item->AssetName)).AutoWrapText(true)]
-            +SVerticalBox::Slot().AutoHeight()[SNew(STextBlock).Text(FText::FromName(Item->AssetClassPath.GetAssetName())).AutoWrapText(true)]
-            +SVerticalBox::Slot().AutoHeight().Padding(0,3,0,0)[SNew(STextBlock).Text(LOCTEXT("UnavailableBadge","Пока не поддерживается"))
+        +SHorizontalBox::Slot().FillWidth(1).VAlign(VAlign_Center).Padding(0,0,8,0)
+            [SNew(STextBlock).Text(FText::FromName(Item->AssetName)).OverflowPolicy(ETextOverflowPolicy::Ellipsis).ColorAndOpacity(TextColor)]
+        +SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0,0,8,0)
+            [SNew(STextBlock).Text(FText::FromName(Item->AssetClassPath.GetAssetName()))
+                .Font(FAppStyle::GetFontStyle(TEXT("SmallFont"))).ColorAndOpacity(Muted)]
+        +SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0,0,8,0)
+            [SNew(STextBlock).Text(LOCTEXT("UnavailableBadge","Недоступен"))
                 .Visibility(UnavailableReason.IsEmpty()?EVisibility::Collapsed:EVisibility::Visible)
-                .ToolTipText(UnavailableReason).Font(FAppStyle::GetFontStyle(TEXT("SmallFont"))).ColorAndOpacity(FLinearColor(1.f,.67f,.3f))]]
-        +SHorizontalBox::Slot().AutoWidth()[SNew(SButton).Text(LOCTEXT("Open","Открыть"))
+                .ToolTipText(UnavailableReason).Font(FAppStyle::GetFontStyle(TEXT("SmallFont"))).ColorAndOpacity(Muted)]
+        +SHorizontalBox::Slot().AutoWidth()[SNew(SButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(7,3)).ForegroundColor(TextColor)
+            .Text(LOCTEXT("Open","Открыть"))
             .OnClicked_Lambda([Open=Context.OpenSource,Item]{if(Open)Open(*Item);return FReply::Handled();})]];
 }
 #undef LOCTEXT_NAMESPACE

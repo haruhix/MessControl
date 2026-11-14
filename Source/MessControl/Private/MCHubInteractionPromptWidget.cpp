@@ -92,9 +92,10 @@ void UMCHubInteractionPromptWidget::ApplyTheme()
     BindStyle(TEXT("HubInteractionPromptKey"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,MCHubPromptKeycap::FontSizeFor(KeyLabel),true);
     Super::ApplyTheme();
     MCWorldUIShapes::TextStyle(NewPromptKey,GetNewWorldPresentationTheme(),MCHubPromptKeycap::FontSizeFor(KeyLabel),EMCUIColorToken::Marine);
-    // Both mouse labels are known before pickup. Prepare their smaller glyphs
+    // Mouse labels are known before pickup. Prepare their smaller glyphs
     // with the ordinary prompt, behind the location's existing UI readiness.
-    const TArray<FText> MouseKeys={FText::AsCultureInvariant(TEXT("RMB")),FText::AsCultureInvariant(TEXT("ПКМ"))};
+    const TArray<FText> MouseKeys={FText::AsCultureInvariant(TEXT("LMB")),FText::AsCultureInvariant(TEXT("ЛКМ")),
+        FText::AsCultureInvariant(TEXT("RMB")),FText::AsCultureInvariant(TEXT("ПКМ"))};
     const float Scale=FMath::Max(.001f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
     if(const auto* Current=GetResolvedTheme()) MCWorldUIShapes::PrimeText(Current->MakeGameplayFont(16,true),MouseKeys,Scale);
     if(const auto* New=GetNewWorldPresentationTheme()) MCWorldUIShapes::PrimeText(New->MakeFont(16),MouseKeys,Scale);

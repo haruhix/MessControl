@@ -70,6 +70,9 @@ public:
     void PresentCatch(EMCHubItemRarity Rarity,int32 FishCoins,int32 WalletAfter);
     UFUNCTION(BlueprintCallable,Category="Hub|Fishing") void ClearPresentation();
     UFUNCTION(BlueprintPure,Category="Hub|Fishing") bool IsAnimating() const;
+    /** Only HUD copy is deferred; the server-owned, persisted wallet stays authoritative. */
+    int32 GetDisplayedWallet(int32 AuthoritativeWallet) const;
+    FSimpleMulticastDelegate OnCounterBalanceChanged;
     UFUNCTION(BlueprintPure,Category="Hub|Fishing") UWidget* GetCounterIconTarget() const {return CounterIcon.Get();}
     UFUNCTION(BlueprintPure,Category="Hub|Fishing") UWidget* GetCounterCardTarget() const {return CounterCard.Get();}
     bool HasPreparedPresentation() const {return bViewportFontsPrepared && WidgetTree && GetRootWidget();}
@@ -94,17 +97,20 @@ protected:
         FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const override;
 
 private:
+    friend struct FMCFishingCounterTestAccess;
     struct FCatchReceipt
     {
         EMCHubItemRarity Rarity=EMCHubItemRarity::Common;
         int32 Amount=0;
         int32 WalletAfter=0;
         bool bMerged=false;
+        mutable bool bWalletCreditObserved=false;
     };
     void StartNext();
     void RefreshCopy();
     void PrimeTextMetrics(float FontScale=1.f);
     void RestoreCounterScale();
+    void UpdateCounterArrival();
     bool ShouldSuppress() const;
     FVector2D HeroAnchor(const FGeometry& Geometry) const;
     bool CounterAnchor(const FGeometry& Geometry,FVector2D& Out) const;
@@ -131,6 +137,7 @@ private:
     FVector2D FlightStartNormalized=FVector2D::ZeroVector;
     FVector2D FlightEnd=FVector2D::ZeroVector;
     float AnimationAge=0;
+    float MissingCounterSeconds=0;
     float AmountTextScale=1;
     float DetailTextScale=1;
     float PrimedFontScale=0;
@@ -139,6 +146,7 @@ private:
     bool bFlightStarted=false;
     bool bHasCounterEndpoint=false;
     bool bCounterPulsing=false;
+    bool bCounterArrived=false;
     bool bViewportFontsPrepared=false;
     FText AmountText;
     FText RarityText;

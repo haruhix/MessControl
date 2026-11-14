@@ -602,9 +602,8 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
         if(auto* PC=Cast<AMCPlayerController>(GetController())) {
             // Latch the physical source for Completed/Canceled, when the key is already up.
             if(bPressed) bPrimaryMouseGesture=PC->IsInputKeyDown(EKeys::LeftMouseButton);
-            if(auto* Ball=AMCHubBasketball::HeldBy(this)) {
-                if(bPrimaryMouseGesture) {if(bPressed) StartPrimary();else StopPrimary();}
-                else if(bPressed) Ball->ThrowFromView();
+            if(AMCHubBasketball::HeldBy(this)) {
+                if(bPressed) StartPrimary();else StopPrimary();
                 return;
             }
             if(bPrimaryMouseGesture?PC->RouteSkillFireInput(bPressed):PC->RouteSkillAimInput(bPressed)) return;
@@ -626,8 +625,7 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
         if(auto* PC=Cast<AMCPlayerController>(GetController())) {
             if(bPressed) bBraceMouseGesture=PC->IsInputKeyDown(EKeys::RightMouseButton);
             if(auto* Ball=AMCHubBasketball::HeldBy(this)) {
-                if(bBraceMouseGesture) {if(bPressed) StartBrace();else StopBrace();}
-                else Ball->SetAimHeld(bPressed);
+                Ball->SetAimHeld(bPressed);
                 return;
             }
             if(bBraceMouseGesture?PC->RouteSkillAimInput(bPressed):PC->RouteSkillFireInput(bPressed)) return;
@@ -661,7 +659,7 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(SelfCareAction,ETriggerEvent::Started,this,&AMCToothCharacter::ToggleSelfCare);
     Input->BindActionValueLambda(ThrowAction,ETriggerEvent::Started,[this](const FInputActionValue&) {
         const auto* PC=Cast<APlayerController>(GetController());
-        // Q remains the food throw key. Basketball uses RMB; gamepad Y stays available.
+        // Q remains the food throw key. Basketball uses LMB; gamepad Y stays available.
         if(AMCHubBasketball::HeldBy(this) && PC && PC->IsInputKeyDown(EKeys::Q)) return;
         StartThrowItem();
     });
@@ -960,7 +958,9 @@ void AMCToothCharacter::StartHandle()
     if(const auto* PC=Cast<APlayerController>(Controller);PC && PC->IsMoveInputIgnored()) return;
     if(auto* PC=Cast<AMCPlayerController>(Controller);PC && (PC->TryOpenHubShop() || PC->TryOpenWardrobe())) return;
     if(auto* PC=Cast<AMCPlayerController>(Controller);PC && PC->TryInteractHubGrill()) return;
-    if(AMCHubBasketball::HeldBy(this) || AMCHubBasketball::PickupCandidate(this)) {ServerInteractBasketball();return;}
+    if(AMCHubBasketball::HeldBy(this)) {ServerInteractBasketball();return;}
+    if(const auto* PC=Cast<APlayerController>(Controller);PC && PC->IsInputKeyDown(EKeys::Gamepad_FaceButton_Left)
+        && AMCHubBasketball::PickupCandidate(this)) {ServerInteractBasketball();return;}
     if(FishingRod && FishingRod->TryInteract()) return;
     AMCRewardChest* Rescue=nullptr; double RescueDistance=TNumericLimits<double>::Max();
     for(TActorIterator<AMCRewardChest> It(GetWorld());It;++It) if(It->CanRescue(this)) {
@@ -1031,12 +1031,13 @@ void AMCToothCharacter::StartPrimary()
     if(IsMimicCaptured()) return;
     if (!Status->IsAlive()) { if (auto* PC=Cast<AMCPlayerController>(Controller)) PC->NextSpectator(); return; }
     if(IsSeatedOnRaft()) return; // WASD owns the paddle; primary use does not start a second action.
-    if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->SetAimHeld(true);return;}
+    if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->ThrowFromView();return;}
     if(FishingRod && FishingRod->IsPresented()) {
         bFishingPrimaryInputHeld=true;
         FishingRod->PrimaryPressed();
         return;
     }
+    if(AMCHubBasketball::LocalHintBall(this)) {ServerPickupBasketball();return;}
     StopRowing();
     Inventory->UpdateSprayAim(true);
     ServerSetPrimary(true);
@@ -1097,7 +1098,12 @@ void AMCToothCharacter::SetPrimaryInputHeld(bool Held)
     // A release must also clear that actual action state after leaving water.
     if (bSharedPrimaryInputHeld==Held && (Held || (!bPrimaryHeld && !bRowingInputHeld && !bRowing && !bFishingPrimaryInputHeld))) return;
     bSharedPrimaryInputHeld=Held;
-    if(Held) StartPrimary(); else ReleasePrimary();
+    if(Held) {
+        StartPrimary();
+        // Pickup cancels the old tool inputs. Keep this same held gesture
+        // latched until release so it cannot immediately become a second click.
+        if(AMCHubBasketball::HeldBy(this)) bSharedPrimaryInputHeld=true;
+    } else ReleasePrimary();
 }
 void AMCToothCharacter::SetHandleInputHeld(bool Held)
 {
@@ -1129,7 +1135,7 @@ void AMCToothCharacter::StartBrace()
     if(!Status->IsAlive()) { if(auto* PC=Cast<AMCPlayerController>(Controller)) PC->PreviousSpectator(); return; }
     if(!CanWork() || Inventory->IsChainsawRunning()) return;
     if(const auto* PC=Cast<APlayerController>(Controller); PC && PC->IsMoveInputIgnored()) return;
-    if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->ThrowFromView();return;}
+    if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->SetAimHeld(true);return;}
     if(FishingRod && FishingRod->IsPresented()) {FishingRod->ServerSetFishingPose(true);return;}
     // Carrying owns the hands. RMB must not drop the load and immediately
     // select that same food as a new brace contact; Q/E release it explicitly.
@@ -1139,6 +1145,7 @@ void AMCToothCharacter::StartBrace()
     Grip->SetBraceHeld(true);
 }
 void AMCToothCharacter::StopBrace() {
+    if(auto* Ball=AMCHubBasketball::HeldBy(this)) Ball->SetAimHeld(false);
     if(FishingRod) FishingRod->ServerSetFishingPose(false);
     Grip->SetBraceHeld(false);
 }
@@ -2795,6 +2802,12 @@ void AMCToothCharacter::ServerInteractBasketball_Implementation()
     if(!CanWork()) return;
     if(auto* Ball=AMCHubBasketball::HeldBy(this)) Ball->Release(GetVelocity()*.3f);
     else if(auto* Candidate=AMCHubBasketball::PickupCandidate(this)) Candidate->TryPickup(this);
+}
+void AMCToothCharacter::ServerPickupBasketball_Implementation()
+{
+    // A late pickup must not toggle off a ball an earlier request put in hand.
+    if(!CanWork() || AMCHubBasketball::HeldBy(this)) return;
+    if(auto* Candidate=AMCHubBasketball::PickupCandidate(this)) Candidate->TryPickup(this);
 }
 void AMCToothCharacter::ServerPaddle_Implementation(FVector2D Direction)
 {

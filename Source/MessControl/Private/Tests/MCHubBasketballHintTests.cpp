@@ -50,7 +50,7 @@ bool FMCHubBasketballHintAvailability::RunTest(const FString&)
 {
     FHubBallHintWorld T;
     if(!TestTrue(TEXT("Fixture has an actionable local Hub player"),T.Hero->CanWork() && T.Player->IsLocalController())) return false;
-    TestEqual(TEXT("A reachable free ball is the E hint target"),AMCHubBasketball::LocalHintBall(T.Hero),T.Ball);
+    TestEqual(TEXT("A reachable free ball is the LMB hint target"),AMCHubBasketball::LocalHintBall(T.Hero),T.Ball);
     TestTrue(TEXT("The ball reuses the existing screen-space prompt"),T.Ball->InteractionPrompt && T.Ball->InteractionPrompt->GetWidgetSpace()==EWidgetSpace::Screen);
     T.Ball->SetActorLocation(T.Hero->GetActorLocation()+FVector(400,0,0),false,nullptr,ETeleportType::TeleportPhysics);
     TestNull(TEXT("Walking away clears the pickup hint"),AMCHubBasketball::LocalHintBall(T.Hero));
@@ -61,7 +61,7 @@ bool FMCHubBasketballHintAvailability::RunTest(const FString&)
     TestNull(TEXT("A wall blocks the same candidate test used by pickup"),AMCHubBasketball::LocalHintBall(T.Hero));
     Wall->Destroy();
     auto* Grill=T.World->SpawnActor<AMCHubGrillStation>(T.Hero->GetActorLocation(),FRotator::ZeroRotator);
-    TestNull(TEXT("The higher-priority grill E interaction suppresses pickup guidance"),AMCHubBasketball::LocalHintBall(T.Hero));
+    TestEqual(TEXT("The separate grill E interaction does not hide mouse pickup"),AMCHubBasketball::LocalHintBall(T.Hero),T.Ball);
     Grill->Destroy();
     TestTrue(TEXT("The actual pickup succeeds"),T.Ball->TryPickup(T.Hero));
     TestEqual(TEXT("The held ball becomes the throw hint target"),AMCHubBasketball::LocalHintBall(T.Hero),T.Ball);
@@ -82,6 +82,31 @@ bool FMCHubBasketballHintAvailability::RunTest(const FString&)
     TestNull(TEXT("Another player's held ball supplies neither pickup nor throw hint"),AMCHubBasketball::LocalHintBall(T.Hero));
     T.World->SetGameState(nullptr);
     TestNull(TEXT("Arena and other non-Hub worlds never show these prompts"),AMCHubBasketball::LocalHintBall(T.Hero));
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubBasketballPrimaryToggle,
+    "MessControl.Hub.Basketball.PrimaryPicksUpThenFreshPressThrows",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCHubBasketballPrimaryToggle::RunTest(const FString&)
+{
+    FHubBallHintWorld T;
+    T.Hero->SetPrimaryInputHeld(true);
+    if(!TestEqual(TEXT("The first LMB press picks up the real reachable ball"),T.Ball->Holder.Get(),T.Hero)) return false;
+    T.Hero->SetPrimaryInputHeld(true);
+    T.Hero->ServerPickupBasketball();
+    TestEqual(TEXT("Held input and a delayed pickup request cannot release the ball"),T.Ball->Holder.Get(),T.Hero);
+    T.Hero->SetPrimaryInputHeld(false);
+    TestEqual(TEXT("Releasing the pickup click keeps the ball in hand"),T.Ball->Holder.Get(),T.Hero);
+    T.Hero->SetBraceInputHeld(true);
+    TestTrue(TEXT("RMB offers optional aim without throwing"),T.Ball->IsAiming() && T.Ball->Holder==T.Hero);
+    T.Hero->SetBraceInputHeld(false);
+    TestFalse(TEXT("Releasing RMB clears aim"),T.Ball->IsAiming());
+    T.Hero->SetPrimaryInputHeld(true);
+    TestNull(TEXT("A new LMB press throws through the real ball release path"),T.Ball->Holder.Get());
+    TestTrue(TEXT("Throw restores physics and applies launch velocity"),T.Ball->Body->IsSimulatingPhysics()
+        && T.Ball->Body->GetPhysicsLinearVelocity().Size()>100.f);
+    TestFalse(TEXT("Ball clicks do not start the ordinary tool action"),T.Hero->IsPrimaryHeld() || T.Hero->bBrushing);
+    T.Hero->SetPrimaryInputHeld(false);
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubBasketballHitRelease,

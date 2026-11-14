@@ -17,6 +17,13 @@ namespace MCPerkActionPreviewPanel
     void Open();
     /** Creates only a shared context/runner; never opens a legacy panel or tab. */
     bool EnsureContext(FName PerkID,FString& OutError);
+    /** Only explicit playback claims may replace the shared sandbox context. */
+    bool ClaimPreview(FName ActionID,FGuid OwnerView,uint64& OutEpoch,FString& OutError);
+    bool OwnsPreview(FGuid OwnerView,uint64 Epoch);
+    TSharedPtr<FMCPerkPreviewRunner> GetOwnedRunner(FGuid OwnerView,uint64 Epoch);
+    void ReleasePreview(FGuid OwnerView,uint64 Epoch);
+    /** Shared-document mutation invalidates only playback of that action. */
+    void StopActionPreview(FName ActionID);
     FName GetContextPerkID();
     TSharedPtr<FMCPerkPreviewRunner> GetActiveRunner();
     UMCPerkVFXProfile* GetWorkingProfile();

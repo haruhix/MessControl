@@ -24,6 +24,8 @@ public:
     void StopScene(float FadeOutSeconds=.75f);
     /** Current and fading voices for inspection; pending loads create no voice. */
     UFUNCTION(BlueprintPure,Category="Audio|Scenes") TArray<UAudioComponent*> GetVoiceComponents() const;
+    /** Transient sandbox controls. Opt-in only: gameplay routing and authored layers remain unchanged. */
+    void SetLocalPreviewSettings(bool bPaused,float MusicGain,float AmbienceGain);
     UPROPERTY(Transient,BlueprintReadOnly,Category="Audio|Scenes") TObjectPtr<UMCSoundPalette> SoundPalette;
     UPROPERTY(Transient,BlueprintReadOnly,Category="Audio|Scenes") FName SceneContext;
 protected:
@@ -41,6 +43,8 @@ private:
     // Current/retiring music, then current/retiring ambience. GC retains every live voice.
     UPROPERTY(Transient) TArray<TObjectPtr<UAudioComponent>> Voices;
     bool bShuttingDown=false;
+    bool bLocalPreview=false,bLocalPreviewPaused=false;
+    float LocalPreviewGains[2]={1.f,1.f};
     void ApplyScene(UMCSoundPalette* Palette,FName Scene,bool Force);
     void ApplyLayer(int32 Layer,const FMCSoundSceneLayer& Settings,bool Force);
     void StartLayer(int32 Layer,uint64 Revision);

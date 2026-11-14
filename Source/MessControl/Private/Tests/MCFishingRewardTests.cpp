@@ -1,6 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "MCFishingRodComponent.h"
+#include "MCFishingRewardWidget.h"
 #include "MCHubEconomyComponent.h"
 #include "MCHubFishingZone.h"
 #include "MCHubGameState.h"
@@ -18,6 +19,15 @@
 #include "Kismet/GameplayStatics.h"
 #include "UObject/Package.h"
 #include <limits>
+
+struct FMCFishingCounterTestAccess
+{
+    static void Advance(UMCFishingRewardWidget* Widget,float Age,bool bEndpoint)
+    {
+        Widget->AnimationAge=Age;Widget->bHasCounterEndpoint=bEndpoint;Widget->UpdateCounterArrival();
+    }
+    static void Finish(UMCFishingRewardWidget* Widget) {Widget->bActive=false;Widget->StartNext();}
+};
 
 namespace MCFishingRewardTests
 {
@@ -168,6 +178,63 @@ bool FMCFishingWalletCompatibilityTest::RunTest(const FString&)
     TestEqual(TEXT("Negative native credit requests cannot remove fish"),W.Player->AddCaughtFish(-1),0);
     TestEqual(TEXT("An unsafe single-catch amount is rejected"),W.Player->AddCaughtFish(MAX_int32),0);
     TestEqual(TEXT("Invalid requests leave an ordinary non-full wallet untouched"),W.Player->FishCaught,17);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFishingCounterArrivalTest,"MessControl.Hub.Fishing.CounterWaitsForFlightArrival",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFishingCounterArrivalTest::RunTest(const FString&)
+{
+    MCFishingRewardTests::FWorld W;
+    auto* Feedback=CreateWidget<UMCFishingRewardWidget>(W.Controller,UMCFishingRewardWidget::StaticClass());
+    if(!TestNotNull(TEXT("The existing local player owns the receipt widget"),Feedback)) return false;
+    int32 Updates=0;Feedback->OnCounterBalanceChanged.AddLambda([&Updates]() {++Updates;});
+    Feedback->PresentCatch(EMCHubItemRarity::Rare,2,25);
+    TestEqual(TEXT("Receipt before property replication cannot lower the old counter"),Feedback->GetDisplayedWallet(23),23);
+    TestEqual(TEXT("The authoritative catch remains hidden while its card appears"),Feedback->GetDisplayedWallet(25),23);
+    FMCFishingCounterTestAccess::Advance(Feedback,1.61f,true);
+    TestEqual(TEXT("A token still in flight cannot increment the counter"),Feedback->GetDisplayedWallet(25),23);
+    FMCFishingCounterTestAccess::Advance(Feedback,1.62f,false);
+    TestEqual(TEXT("Elapsed time without a real counter endpoint cannot count the fish"),Feedback->GetDisplayedWallet(25),23);
+    FMCFishingCounterTestAccess::Advance(Feedback,1.62f,true);
+    TestEqual(TEXT("The arrival edge exposes the credited fish"),Feedback->GetDisplayedWallet(25),25);
+    TestEqual(TEXT("Receipt and arrival each request exactly one counter refresh"),Updates,2);
+    FMCFishingCounterTestAccess::Advance(Feedback,1.75f,true);
+    FMCFishingCounterTestAccess::Advance(Feedback,1.8f,false);
+    TestEqual(TEXT("Repeated ticks and a lost endpoint cannot recount or hide arrived fish"),Feedback->GetDisplayedWallet(25),25);
+    TestEqual(TEXT("Repeated arrival observation does not repeat the refresh"),Updates,2);
+
+    Feedback->PresentCatch(EMCHubItemRarity::Epic,5,30);
+    TestEqual(TEXT("A queued catch is deferred independently"),Feedback->GetDisplayedWallet(30),25);
+    FMCFishingCounterTestAccess::Finish(Feedback);
+    TestEqual(TEXT("Starting the queued flight keeps its credit hidden"),Feedback->GetDisplayedWallet(30),25);
+    Feedback->ClearPresentation();
+    TestEqual(TEXT("Cancellation releases all cosmetic deferral without mutating the wallet"),Feedback->GetDisplayedWallet(30),30);
+
+    // Overflow coalesces the last positive receipt. A full-wallet message
+    // must not overwrite that credit and expose it before its flight.
+    for(int32 Index=1;Index<=8;++Index) Feedback->PresentCatch(EMCHubItemRarity::Common,1,30+Index);
+    Feedback->PresentCatch(EMCHubItemRarity::Common,0,38);
+    TestEqual(TEXT("Bounded/coalesced receipts retain every unarrived unit"),Feedback->GetDisplayedWallet(38),30);
+    Feedback->ClearPresentation();
+    TestEqual(TEXT("Clearing an overflow queue cannot strand hidden fish"),Feedback->GetDisplayedWallet(38),38);
+
+    W.Player->FishCaught=23;
+    const int32 Caught=W.Player->AddCaughtFish(2);
+    Feedback->PresentCatch(EMCHubItemRarity::Rare,Caught,W.Player->FishCaught);
+    TestEqual(TEXT("The new catch remains hidden after its actual credit is observed"),Feedback->GetDisplayedWallet(W.Player->FishCaught),23);
+    FGuid GrillReceipt;FMCGrillReward GrillPreview;FText GrillError;
+    TestTrue(TEXT("The real grill accepts a spend while a catch receipt is pending"),W.Player->Economy->BeginGrillRoll(GrillReceipt,GrillPreview,GrillError));
+    TestEqual(TEXT("The accepted grill spend immediately reduces the visible pre-arrival balance"),Feedback->GetDisplayedWallet(W.Player->FishCaught),22);
+    TestTrue(TEXT("Canceling the real grill attempt returns its reserved fish"),W.Player->Economy->CancelGrillRoll(GrillReceipt));
+    TestEqual(TEXT("The grill refund is visible while the catch stays deferred"),Feedback->GetDisplayedWallet(W.Player->FishCaught),23);
+    TestTrue(TEXT("A second real grill attempt may spend the returned fish"),W.Player->Economy->BeginGrillRoll(GrillReceipt,GrillPreview,GrillError));
+    TestEqual(TEXT("The repeated spend stays independent of pending catch credit"),Feedback->GetDisplayedWallet(W.Player->FishCaught),22);
+    FMCFishingCounterTestAccess::Advance(Feedback,1.62f,true);
+    TestEqual(TEXT("Arrival exposes the whole two-fish catch after the one-fish spend"),Feedback->GetDisplayedWallet(W.Player->FishCaught),24);
+    TestTrue(TEXT("The accepted grill reward still settles normally"),W.Player->Economy->CompleteGrillRoll(GrillReceipt));
+    Feedback->ClearPresentation();
+    Feedback->OnCounterBalanceChanged.Clear();
     return true;
 }
 #endif

@@ -7,6 +7,7 @@ class AMCActiveSkillAction;
 class AMCToothCharacter;
 class FPreviewScene;
 class UMCPerkVFXProfile;
+class UMCSoundPalette;
 class UWorld;
 
 struct FMCPerkPreviewEvent
@@ -51,6 +52,12 @@ public:
     bool SetAudioEnabled(bool bEnabled,FString& OutError);
     bool IsAudioEnabled() const;
     FString GetAudioStatus() const;
+    /** Retains an unsaved palette; playback uses only the opt-in private audio device. */
+    bool SetSceneAudio(UMCSoundPalette* TransientPalette,FName Scene,FString& OutError);
+    void ClearSceneAudio();
+    void SetSceneAudioMix(float MusicGain,float AmbienceGain);
+    bool HasSceneAudio() const;
+    FString GetSceneAudioStatus() const;
     void SetAudioListenerTransform(const FTransform& Transform,float DeltaSeconds);
 
     UWorld* GetWorld() const;

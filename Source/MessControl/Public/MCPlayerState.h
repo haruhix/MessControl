@@ -34,6 +34,11 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     virtual void CopyProperties(APlayerState* Target) override;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Score") int32 Points=0;
+    /** Personal round receipt. Existing Hub savings are never part of the tooth multiplier. */
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Economy|Run") int32 RunTaskCoins=0;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Economy|Run") int32 RunSavedToothBonusCoins=0;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Economy|Run") int32 RunSavedTeeth=0;
+    UPROPERTY(Transient) FGuid CoinRewardRunId;
     /** Existing saved fish-wallet field; kept stable for old profiles and grill receipts. */
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Fishing") int32 FishCaught=0;
     /** Authority only; returns the actual credit after the persisted wallet's safety cap. */

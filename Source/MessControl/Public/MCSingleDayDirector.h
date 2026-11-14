@@ -122,6 +122,7 @@ private:
     friend class UMCGameplayUIEditorLibrary;
 #endif
     friend class FMCStageRewardPortionGateTest;
+    friend class FMCObjectiveCoinPortionAndCoffeeTest;
     bool BeginStageReward(FName CompletionId);
     void TickStageReward();
     void TrySpawnStageReward();

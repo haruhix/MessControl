@@ -22,7 +22,7 @@ UMCVFXActionPack* FMCVFXActionSession::SavePackNew(const FText& Label,FString& E
     // This prepares/validates the real recipe without copying the preview Solo
     // mask into authored data. Build the saved profile from the unfiltered draft.
     if(!Impl->PrepareProfile(NAME_None,nullptr,Error,nullptr,false,false))return nullptr;
-    Stop();
+    StopDocumentPreview();
     const FString Stem=MCActionSession::AssetStem(Impl->ActionID);
     const FString RunPath=AssetRoot/(Stem+TEXT("_"))+FDateTime::UtcNow().ToString(TEXT("%Y%m%d_%H%M%S"))+TEXT("_")+FGuid::NewGuid().ToString(EGuidFormats::Digits).Left(8);
     TArray<FString> Created;
@@ -147,7 +147,7 @@ bool FMCVFXActionSession::LoadPack(const UMCVFXActionPack* Pack,FString& Error,b
     }
     // All saved inputs were checked before replacing any draft. Canonical state
     // and its stale-source guards stay independent of the version being viewed.
-    Stop();Impl->PreviewSolo.Reset();Impl->EventDraft=MoveTemp(Draft);Impl->NativeDraft=MoveTemp(Native);
+    StopDocumentPreview();Impl->PreviewSolo.Reset();Impl->EventDraft=MoveTemp(Draft);Impl->NativeDraft=MoveTemp(Native);
     Impl->NativeSource=Loaded.RuntimeProfile->NativePresentation;Impl->NativeSourceDigest=MCActionSession::PackageDigest(SavedNative);
     Impl->NativeSourceSettingsHash=SavedNative?SavedNative->ComputeSettingsHash():0;
     Impl->NativeBaseline.Reset(Impl->CopyNative(TEXT("PackNativeBaseline")));Impl->NativeDraftToken=FGuid::NewGuid();
@@ -181,7 +181,7 @@ bool FMCVFXActionSession::ApplySavedPack(const UMCVFXActionPack* Pack,FString& E
     if(!Pack || Pack->NativeSchemaVersion>1)return Impl->Fail(Error,TEXT("Неподдерживаемая версия пака."));
     FMCVFXActionPackLoaded Loaded;
     if(!MCVFXActionPacks::Load(Pack,Impl->ActionID,Impl->CanonicalBinding.AllowedEvents,1,Pack->NativeSchemaVersion,Loaded,Error))return Impl->Fail(Error,Error);
-    Stop();FMCVFXProfileCommitResult Commit;
+    StopDocumentPreview();FMCVFXProfileCommitResult Commit;
     if(!MCVFXProfileBindings::AssignSavedProfile(Loaded.RuntimeProfile.Get(),Impl->CanonicalBinding,Commit,Error) || !Commit.bSaved)return Impl->Fail(Error,Error.IsEmpty()?Commit.Message:Error);
     const FName Action=Impl->ActionID;
     if(!Initialize(Action,Error))return Impl->Fail(Error,TEXT("Пак назначен игре; обновление окна не удалось. Откройте действие заново. ")+Error);

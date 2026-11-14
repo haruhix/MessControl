@@ -578,7 +578,20 @@ void AMCTutorialDirector::Tick(float DeltaSeconds)
         if (BreakfastSpawned<3 && Elapsed>=double(BreakfastSpawned)*2.0/3.0)
         {
             const int32 I=BreakfastSpawned++;
-            SpawnFood(Menu[I],FVector(0,0,550),nullptr);
+            FName Choice=Menu[I];
+            if(auto* Table=Settings?Settings->Menu.LoadSynchronous():nullptr) {
+                auto IsListed=[&](FName Name) {
+                    const auto* Row=Table->FindRow<FMCFoodRow>(Name,TEXT("Tutorial breakfast listing"),false);
+                    return Row && Row->Kind==EMCFoodKind::Food && !Row->WholeMeshes.IsEmpty()
+                        && FMath::IsFinite(Row->SelectionWeight) && Row->SelectionWeight>0;
+                };
+                if(!IsListed(Choice)) {
+                    Choice=NAME_None;
+                    TArray<FName> Names=Table->GetRowNames(); Names.Sort(FNameLexicalLess());
+                    for(FName Name:Names) if(IsListed(Name)) {Choice=Name;break;}
+                }
+            }
+            if(!Choice.IsNone()) SpawnFood(Choice,FVector(0,0,550),nullptr);
         }
         // A late frame may reach the deadline before all individual entries ran.
         if(BreakfastSpawned<3) return;

@@ -43,6 +43,21 @@ TArray<UAudioComponent*> UMCSceneAudioComponent::GetVoiceComponents() const
     return Result;
 }
 
+void UMCSceneAudioComponent::SetLocalPreviewSettings(bool bPaused,float MusicGain,float AmbienceGain)
+{
+    bLocalPreview=true;bLocalPreviewPaused=bPaused;
+    const float Gains[2]={MusicGain,AmbienceGain};
+    for(int32 Layer=0;Layer<2;++Layer) {
+        LocalPreviewGains[Layer]=FMath::IsFinite(Gains[Layer])?FMath::Clamp(Gains[Layer],0.f,2.f):0.f;
+        for(int32 Slot=Layer*2;Slot<Layer*2+2;++Slot)if(auto* Voice=Voices[Slot].Get()) {
+            // Only this component's private voices bypass the Editor pause gate.
+            // Keep the authored fade level separate from the audition multiplier.
+            Voice->bIsPreviewSound=true;Voice->SetUISound(true);
+            Voice->SetVolumeMultiplier(LocalPreviewGains[Layer]);Voice->SetPaused(bPaused);
+        }
+    }
+}
+
 void UMCSceneAudioComponent::ApplyScene(UMCSoundPalette* Palette,FName Scene,bool Force)
 {
     if(bShuttingDown || !GetWorld() || GetNetMode()==NM_DedicatedServer) return;
@@ -102,10 +117,17 @@ void UMCSceneAudioComponent::StartLayer(int32 Layer,uint64 Revision)
     {
         Voices[Layer*2]=Incoming;
         State.Active=State.Desired;
-        if(auto* Preferences=UMCGameUserSettings::Get())
+        if(bLocalPreview) {
+            // Do not install the game's preference mix or change any global volume.
+            Incoming->bIsPreviewSound=true;Incoming->SetUISound(true);
+            Incoming->SetVolumeMultiplier(LocalPreviewGains[Layer]);
+        } else if(auto* Preferences=UMCGameUserSettings::Get())
             Incoming->SoundClassOverride=Preferences->GetSceneSoundClass(GetWorld(),Layer==0);
         Incoming->bStopWhenOwnerDestroyed=true;
         Incoming->OnAudioFinishedNative.AddUObject(this,&UMCSceneAudioComponent::HandleFinished);
+        // PlayInternal copies bIsPaused into the new ActiveSound. Set it before
+        // enqueueing playback so a load completing during Pause has no onset leak.
+        if(bLocalPreview)Incoming->SetPaused(bLocalPreviewPaused);
         Incoming->FadeIn(State.Active.FadeInSeconds,State.Active.Volume);
     }
     // The audio component retains its sound before releasing the streaming handle.
@@ -158,7 +180,10 @@ void UMCSceneAudioComponent::HandleFinished(UAudioComponent* Voice)
     {
         // Plain Play resets the new active sound's fade level to one.
         // Repetition must retain the volume authored for this layer in the DA.
-        if(Layers[Layer].Active.bRepeatOnFinish && !Voice->IsPlaying()) Voice->FadeIn(0.f,Layers[Layer].Active.Volume);
+        if(Layers[Layer].Active.bRepeatOnFinish && !Voice->IsPlaying()) {
+            if(bLocalPreview)Voice->SetPaused(bLocalPreviewPaused);
+            Voice->FadeIn(0.f,Layers[Layer].Active.Volume);
+        }
         else if(!Voice->IsPlaying()) ReleaseVoice(Layer*2);
         return;
     }

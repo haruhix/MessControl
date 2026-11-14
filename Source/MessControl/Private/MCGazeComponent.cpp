@@ -156,7 +156,7 @@ void UMCGazeComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
         // Automatic slipping uses the same pupil response as the menu's
         // Surprise, without starting or replacing a timed manual emote.
         if (const auto* E=Tooth->Expression.Get()) Goal=FMath::Lerp(Goal,S.PupilDanger,E->SlipperyFaceAlpha());
-        const float Pain=Tooth->Status->PainAlpha();
+        const float Pain=FMath::Max(Tooth->Status->PainAlpha(),Tooth->Expression?Tooth->Expression->KnightRollFearAlpha():0.f);
         if (Pain>.001f) Goal=FMath::Min(Goal,FMath::Lerp(S.PupilRest,S.PupilPain,Pain));
         if (Target.Interest==EMCGazeInterest::Danger || !Tooth->ToothPhysics->CanAct()
             || Tooth->GetCharacterMovement()->IsFalling()) Goal=FMath::Min(Goal,S.PupilDanger);

@@ -540,8 +540,8 @@ const bool Registered=[]
             Row.SourceOwner=TEXT("MCNutVFXCatalog / actual AMCNutBoss, AMCNutKamikaze or AMCNutLandingShadow owner");
             Row.Description=FText::FromString(TEXT("Настоящие игровые события. Контакт, хитбоксы и опасная область принадлежат механике; VFX и SFX редактируются отдельно. Миграция исходного арта проверяется отдельно от наличия привязки."));
             if(Contract.ID==KnightRoll) {
-                Row.SourceOwner=TEXT("AMCNutBoss / AMCTongue");
-                Row.Description=FText::FromString(TEXT("Перекат, предупреждение о приземлении и эффект удара. Радиус, деформация языка и толчок волны заданы игровой механикой."));
+                Row.SourceOwner=TEXT("AMCNutBoss / AMCTongue / UMCExpressionComponent");
+                Row.Description=FText::FromString(TEXT("Перекат, предупреждение о приземлении и эффект удара. Игроки рядом с катящимся шаром показывают страх через мимику Pain. Радиус, деформация языка и толчок волны заданы игровой механикой."));
             }
             if(bGravityAction) {
                 Row.SourceOwner=TEXT("AMCNutBoss / AMCNutRainEvent / AMCNutLandingShadow");

@@ -20,10 +20,9 @@ bool AMCSingleDayDirector::BeginStageReward(FName CompletionId)
         || CompletedStageRewards.Contains(CompletionId)) return false;
     if(bStageRewardPending) return StageRewardCompletionId==CompletionId;
     bStageRewardPending=true; StageRewardCompletionId=CompletionId;
-    // Meal and coffee completions use the booster flow. Existing key-event
-    // coin objectives still settle once, independently of placement retries.
-    if(IsKeyEventRewardPending())
-        if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardObjectiveCoinsOnce(CompletionId);
+    // Every completed task pays coins alongside its booster, including food
+    // portions and coffee. Placement/choice retries share the accepted ID.
+    if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardObjectiveCoinsOnce(CompletionId);
     StageRewardPlacementAttempts=0; NextStageRewardAttemptAt=0;
     Record(FString::Printf(TEXT("Этап %s завершён: каждый игрок выбирает свой бустер; следующая подача ждёт выбора"),*CompletionId.ToString()));
     Publish(TEXT("ВЫБЕРИ СВОЙ БУСТЕР"),TEXT("Откройте сундук в центре языка. Каждый игрок выбирает один бустер для себя."));

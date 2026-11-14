@@ -783,9 +783,7 @@ void UMCPerkPreviewEditorLibrary::StopVFXComposerAction(){MCVFXActionWorkspace::
 bool UMCPerkPreviewEditorLibrary::ResizeVFXComposerForReview(FVector2D Size){return MCVFXActionWorkspace::ResizeForReview(Size);}
 bool UMCPerkPreviewEditorLibrary::SetVFXComposerPreviewView(int32 Preset)
 {
-    const auto Session=MCVFXActionWorkspace::GetActiveSession();
-    if(!Session || Preset<0 || Preset>2)return false;
-    Session->SetPreviewView(Preset);return true;
+    return MCVFXActionWorkspace::SetPreviewViewForReview(Preset);
 }
 bool UMCPerkPreviewEditorLibrary::ImportActionEventRecipe(FName ActionID,FName Stage,UMCVFXComposition* Source)
 {

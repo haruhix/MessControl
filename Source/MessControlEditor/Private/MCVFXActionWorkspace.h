@@ -14,11 +14,14 @@ namespace MCVFXActionWorkspace
     void Open();
     TSharedPtr<FMCVFXActionSession> GetActiveSession();
     FString GetSnapshotJson();
-    /** Uses the public workspace and refuses to discard any unapplied draft. */
+    /** Switches this view; shared documents retain unapplied drafts. */
     bool SelectActionForReview(FName ActionID,FString& OutError);
+    /** Explicit cross-window navigation to an exact shared audio event/layer. */
+    bool SelectAudioTargetForReview(FName ActionID,FName Event,FGuid Layer,FString& OutError);
     bool PlayForReview(EMCPerkPreviewScenario Scenario,bool bLoop,FString& OutError);
     void StopForReview();
     /** Resizes only the detached Composer window, never the main Editor. */
     bool ResizeForReview(FVector2D ClientSize);
+    bool SetPreviewViewForReview(int32 Preset);
     bool ImportEventRecipe(FName ActionID,FName Stage,UMCVFXComposition* Source,FString& OutError);
 }

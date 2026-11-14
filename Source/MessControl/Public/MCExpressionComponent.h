@@ -123,6 +123,8 @@ public:
     float SpeechAmount() const { return Voice; }
     // Cosmetic weight for the same Surprise face used by the T menu, on both glide phases.
     float SlipperyFaceAlpha() const;
+    /** Cosmetic Pain face near a live rolling knight; never records damage or replaces an emote. */
+    float KnightRollFearAlpha() const;
     static FName VisemeShape(MCViseme Viseme);
     static TConstArrayView<FName> MouthShapes();
 private:

@@ -16,6 +16,9 @@ void AMCPlayerController::PrepareFishingRewardPresentation()
         FishingRewardWidget=CreateWidget<UMCFishingRewardWidget>(this,
             UMCGameplayUIFactory::ResolveClass(TEXT("FishingReward"),UMCFishingRewardWidget::StaticClass()));
         if(!FishingRewardWidget) return;
+        FishingRewardWidget->OnCounterBalanceChanged.AddWeakLambda(this,[this]() {
+            if(HubWidget) HubWidget->RefreshFromState();
+        });
         FishingRewardWidget->Theme=HubWidget?HubWidget->GetResolvedTheme():UMCGameplayUIFactory::GetMasterTheme();
         FishingRewardWidget->BuildPresentationTree();FishingRewardWidget->ApplyTheme();
         // Above the Hub footer, below party/settings modals; never consumes input.

@@ -603,7 +603,12 @@ void UMCHubEconomyComponent::AddCoinsClamped(int32 Amount)
 }
 int32 UMCHubEconomyComponent::CreditObjectiveCoins(int32 Amount)
 {
-    if(!IsAuthority() || bMutating || Amount<=0 || Amount>1000 || !LoadTables() || Coins>=GetRules().MaximumCoins) return 0;
+    if(Amount>1000) return 0;
+    return CreditRunCompletionCoins(Amount);
+}
+int32 UMCHubEconomyComponent::CreditRunCompletionCoins(int32 Amount)
+{
+    if(!IsAuthority() || bMutating || Amount<=0 || !LoadTables() || Coins>=GetRules().MaximumCoins) return 0;
     TGuardValue<bool> Guard(bMutating,true);const int32 Before=Coins;AddCoinsClamped(Amount);const int32 Credited=Coins-Before;
     if(Credited>0) NotifyChanged();return Credited;
 }

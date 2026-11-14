@@ -23,7 +23,7 @@ void AMCPlayerController::ResetTaskCoinPresentation()
 
 void AMCPlayerController::ClientObjectiveCoins_Implementation(int32 Amount,int32 WalletAfter)
 {
-    if(!HasLocalPresentationOwner() || IsHubWorld() || Amount<=0 || Amount>1000 || WalletAfter<Amount) return;
+    if(!HasLocalPresentationOwner() || IsHubWorld() || Amount<=0 || WalletAfter<Amount) return;
     // No late loading here. A dead/loading player still owns the authoritative
     // coins; missing cosmetics must never delay credit or create a pickup lock.
     if(TaskCoinPresentation && TaskCoinPresentation->HasPreparedPresentation())

@@ -48,6 +48,8 @@ public:
     /** Accept a shared completion once per run, crediting each current human participant's personal wallet.
      * Returns true when the ID is newly accepted, even if wallets are full or rewards are disabled. */
     bool AwardObjectiveCoinsOnce(FName CompletionId);
+    /** On victory, add 10% of this run's earned task coins per surviving arena tooth. */
+    bool AwardSavedTeethCoinsOnce();
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Economy",meta=(ClampMin="0",ClampMax="1000")) int32 ObjectiveCoinReward=10;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Score") FMCScoreRewards ScoreRewards;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Respawn", meta=(ClampMin="0.1")) float RespawnDelay=5.f;
@@ -99,6 +101,7 @@ private:
     void CancelPendingRespawns();
     FGuid HubBoosterRunId;
     FGuid CompletedLoadoutRunId;
+    FGuid CompletedCoinBonusRunId;
     TSet<FName> CoinRewardedObjectives;
     bool bTutorialRequested=false;
     bool bAutoStartHubRun=false;

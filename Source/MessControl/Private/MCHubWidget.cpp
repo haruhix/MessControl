@@ -15,6 +15,7 @@
 #include "MCHubBasketball.h"
 #include "MCHubFishingPresentation.h"
 #include "MCFishingRodComponent.h"
+#include "MCFishingRewardWidget.h"
 #include "MCToothCharacter.h"
 #include "MCHubTypes.h"
 #include "MCPlayerController.h"
@@ -741,7 +742,9 @@ void UMCHubWidget::RefreshBottomBar()
     if(PlayerNames) PlayerNames->SetVisibility(ESlateVisibility::Collapsed);
     const auto* Identity=GetOwningPlayer()?GetOwningPlayer()->GetPlayerState<AMCPlayerState>():nullptr;
     const int32 Coins=Preview?125:Identity && Identity->Economy?Identity->Economy->Coins:0;
-    const int32 Fish=Preview?3:Identity?Identity->FishCaught:0;
+    const auto* FishController=GetOwningPlayer<AMCPlayerController>();
+    const auto* FishFeedback=FishController?FishController->GetFishingRewardPresentation():nullptr;
+    const int32 Fish=Preview?3:Identity?(FishFeedback?FishFeedback->GetDisplayedWallet(Identity->FishCaught):Identity->FishCaught):0;
     MCHubPresentation::SetText(WalletCount,UMCUIDataLibrary::NumberForCulture(Coins,Preview?PreviewCulture:FString()));
     MCHubPresentation::SetText(BottomFishCount,UMCUIDataLibrary::NumberForCulture(Fish,Preview?PreviewCulture:FString()));
     if(WalletCount) WalletCount->SetToolTipText(Localized(TEXT("hub.bottom.coins"),LOCTEXT("BottomCoins","Монеты")));
@@ -912,7 +915,9 @@ void UMCHubWidget::RefreshFromState()
     const auto* PC=GetOwningPlayer<AMCPlayerController>();
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
     const auto* Identity=GetOwningPlayer()?GetOwningPlayer()->GetPlayerState<AMCPlayerState>():nullptr;
-    MCHubPresentation::SetText(FishingCount,Format(TEXT("hub.fishing.count"),LOCTEXT("FishingCount","Рыбные монеты: {Count}"),{{TEXT("Count"),Identity?Identity->FishCaught:0}}));
+    const auto* FishFeedback=PC?PC->GetFishingRewardPresentation():nullptr;
+    const int32 DisplayedFish=Identity?(FishFeedback?FishFeedback->GetDisplayedWallet(Identity->FishCaught):Identity->FishCaught):0;
+    MCHubPresentation::SetText(FishingCount,Format(TEXT("hub.fishing.count"),LOCTEXT("FishingCount","Рыбные монеты: {Count}"),{{TEXT("Count"),DisplayedFish}}));
     const auto* HeldBall=Hero?AMCHubBasketball::HeldBy(Hero):nullptr;
     const bool BallHeld=HeldBall!=nullptr;
     const auto* Instance=GetGameInstance();
@@ -934,9 +939,9 @@ void UMCHubWidget::RefreshFromState()
     if(BasketballHint && ShowBall) MCHubPresentation::SetText(BasketballHint,BallHeld
         ? Localized(Gamepad?TEXT("hub.basketball.controls.gamepad"):TEXT("hub.basketball.controls"),Gamepad
             ?LOCTEXT("BasketballAimThrowGamepad","LB — прицел · RT / Y — бросить · X — отпустить")
-            :LOCTEXT("BasketballAimThrow","ЛКМ — прицел · ПКМ — бросить · E — отпустить"))
+            :LOCTEXT("BasketballAimThrow","ЛКМ — бросить · ПКМ — прицел · E — отпустить"))
         : Localized(Gamepad?TEXT("hub.basketball.pickup.gamepad"):TEXT("hub.basketball.pickup"),Gamepad
-            ?LOCTEXT("BasketballPickupGamepad","X — подобрать мяч"):LOCTEXT("BasketballPickup","E — подобрать мяч")));
+            ?LOCTEXT("BasketballPickupGamepad","X — подобрать мяч"):LOCTEXT("BasketballPickup","ЛКМ — взять мяч")));
     if(BasketballHint && ShowFishing && !ShowBall)
     {
         using MCHubFishingPresentation::EHint;

@@ -39,6 +39,7 @@ void AMCPlayerState::ResetMatchScore()
 {
     if (!HasAuthority()) return;
     Points=0; SetScore(0); Alarm=EMCPlayerAlarm::None; AlarmUntil=0;
+    RunTaskCoins=RunSavedToothBonusCoins=RunSavedTeeth=0;CoinRewardRunId.Invalidate();
     if (Perks) Perks->ResetPerks();
     ConsumedRecoveryStacks.Reset();
     ResetLevelUpChoices();
@@ -62,6 +63,8 @@ void AMCPlayerState::CopyProperties(APlayerState* Target)
     if (auto* State=Cast<AMCPlayerState>(Target))
     {
         State->Points=Points; State->PlayerColor=PlayerColor; State->bSessionHost=bSessionHost;
+        State->RunTaskCoins=RunTaskCoins;State->RunSavedToothBonusCoins=RunSavedToothBonusCoins;
+        State->RunSavedTeeth=RunSavedTeeth;State->CoinRewardRunId=CoinRewardRunId;
         State->FishCaught=FishCaught;
         if(Economy) Economy->CopyTo(State->Economy);
         State->bHubProfileLoaded=bHubProfileLoaded;
@@ -84,6 +87,9 @@ void AMCPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCPlayerState,Points); DOREPLIFETIME(AMCPlayerState,bSessionHost);
     DOREPLIFETIME(AMCPlayerState,FishCaught);
+    DOREPLIFETIME_CONDITION(AMCPlayerState,RunTaskCoins,COND_OwnerOnly);
+    DOREPLIFETIME_CONDITION(AMCPlayerState,RunSavedToothBonusCoins,COND_OwnerOnly);
+    DOREPLIFETIME_CONDITION(AMCPlayerState,RunSavedTeeth,COND_OwnerOnly);
     DOREPLIFETIME(AMCPlayerState,PlayerColor); DOREPLIFETIME(AMCPlayerState,Alarm); DOREPLIFETIME(AMCPlayerState,AlarmUntil);
     DOREPLIFETIME_CONDITION(AMCPlayerState,LevelUpOffer,COND_OwnerOnly);
     DOREPLIFETIME_CONDITION(AMCPlayerState,PendingLevelChoices,COND_OwnerOnly);

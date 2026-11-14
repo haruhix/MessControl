@@ -51,6 +51,28 @@ These shared choices do not add charges or alter ordinary personal booster
 charges. The team-specific card copy explains the difference. Fury's timer starts
 at selection, including during a quiet interval; it is not deferred until combat.
 
+## Task coins and saved teeth (2026-11-14)
+
+Completed food portions and coffee cleanup now use the existing personal coin
+reward alongside their stage chest, as do key events. `ObjectiveCoinReward`
+retains its default of 10 coins per accepted completion. The existing
+`Reward.TaskCoins` Composer action and prepared coin presentation are reused.
+Completion IDs prevent chest placement/choice retries from issuing more coins.
+The same authority-owned wallet is saved and used for Hub purchases.
+
+On victory, each current human participant receives an additional
+`floor(task coins actually credited this round × surviving arena teeth / 10)`.
+This is +10% per remaining tooth; damaged surviving teeth count, lost and
+consumed teeth do not. Old Hub savings are excluded. The wallet cap still
+applies, and finalization settles the bonus once per run. Defeat, an unfinished
+run, tutorials, lobby/loading and manual/playtest previews do not grant it.
+Personal result text shows task coins, the credited tooth bonus and tooth count.
+Run receipts reset on the next round and follow PlayerState replacement.
+
+Source and saved-text checks are recorded in
+`Docs/Validation/GameplayFixes_20261114.md`. A new Editor build and solo PIE
+validation are deferred; this section does not certify runtime behavior.
+
 ## Voice
 
 `UMCVoiceChatSubsystem` uses Unreal's existing OSS Steam voice transport and

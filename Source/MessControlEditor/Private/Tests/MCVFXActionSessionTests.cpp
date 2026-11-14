@@ -39,10 +39,13 @@ bool FMCMechanicOnlySessionPlay::RunTest(const FString&)
 {
     if(!GEditor || GEditor->PlayWorld) {AddError(TEXT("Run this isolated Composer regression outside PIE."));return false;}
     FScopedReadOnlyProvider Fixture;FMCVFXActionSession Session;FString Error;
+    auto* PreviousWorking=MCPerkActionPreviewPanel::GetWorkingProfile();
     const bool bOpened=Session.Initialize(Fixture.ID,Error);
     if(!TestTrue(*FString::Printf(TEXT("Read-only native context opens: %s"),*Error),bOpened))return false;
     TestFalse(TEXT("Mechanic-only preview does not invent an editable VFX binding"),Session.CanEditProfile());
     TestTrue(TEXT("Mechanic-only provider has no invented canonical asset owner"),Session.GetCanonicalOwner().IsNull());
+    TestTrue(TEXT("Opening an authoring document preserves the existing preview context"),PreviousWorking==MCPerkActionPreviewPanel::GetWorkingProfile());
+    TestTrue(TEXT("Explicitly activate the mechanic-only compatibility context"),MCPerkActionPreviewPanel::EnsureContext(Fixture.ID,Error));
     auto* Working=MCPerkActionPreviewPanel::GetWorkingProfile();
     TestTrue(TEXT("Reusing the same mechanic-only context needs no canonical binding"),MCPerkActionPreviewPanel::EnsureContext(Fixture.ID,Error));
     TestTrue(TEXT("Read-only context reuse preserves the shared transient working object"),Working==MCPerkActionPreviewPanel::GetWorkingProfile());
